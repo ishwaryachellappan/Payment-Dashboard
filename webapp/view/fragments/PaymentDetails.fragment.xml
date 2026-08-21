@@ -1,0 +1,135 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form">
+
+<Dialog
+    id="paymentDetailsDialog"
+    title="Payment Order Details"
+    contentWidth="1200px"
+    contentHeight="700px"
+    draggable="true"
+    resizable="true"
+    verticalScrolling="true"
+    horizontalScrolling="false">
+
+
+<VBox id="_IDGenVBox26" class="sapUiMediumMargin">
+
+   <HBox id="_IDGenHeaderTitleBox"
+        justifyContent="SpaceBetween"
+        alignItems="Center"
+        class="sapUiTinyMarginBottom">
+
+        <Title id="_IDGenTitle11" text="Payment Information"/>
+
+        <Button
+            id="detailHeaderSettingsButton"
+            icon="sap-icon://action-settings"
+            type="Transparent"
+            tooltip="Select Fields"
+            press=".onOpenDetailHeaderSettings"/>
+
+    </HBox>
+
+    <layout:Grid id="_IDGenGrid"
+    defaultSpan="XL3 L3 M6 S12"
+    xmlns:layout="sap.ui.layout">
+
+    
+
+
+</layout:Grid>
+
+
+<!-- ========================================================== -->
+<!-- Payment Order Items -->
+<!-- ========================================================== -->
+
+<VBox id="_IDGenVBox106" class="sapUiMediumMarginTop">
+
+    <HBox id="_IDGenHBox81"
+        justifyContent="SpaceBetween"
+        alignItems="Center"
+        class="sapUiSmallMarginBottom">
+
+        <VBox id="_IDGenVBox107">
+
+            <Title
+                id="itemTableTitle"
+                text="Payment Order Items ({= ${itemModel>/items}.length })"
+                level="H5"/>
+
+            
+
+        </VBox>
+
+        <HBox id="_IDGenHBox82" alignItems="Center">
+
+            <SearchField
+                id="itemSearchField"
+                width="220px"
+                placeholder="Search..."
+                liveChange="onFilterItemTable"
+                class="sapUiTinyMarginEnd"/>
+
+            <Button
+                id="itemSettingsButton"
+                icon="sap-icon://action-settings"
+                type="Transparent"
+                tooltip="Table Settings"
+                press="onOpenItemTableSettings"/>
+
+            <Button
+                id="itemExportButton"
+                icon="sap-icon://excel-attachment"
+                type="Transparent"
+                tooltip="Export"
+                press="onExportItemDetails"/>
+
+        </HBox>
+
+    </HBox>
+
+    <ScrollContainer id="_IDGenScrollContainer"
+        width="100%"
+        height="320px"
+        horizontal="true"
+        vertical="true">
+
+        <Table  id="itemTable"
+            
+            width="100%"
+            mode="MultiSelect"
+            sticky="ColumnHeaders"
+            growing="true"
+            growingThreshold="20"
+            growingScrollToLoad="true"
+            fixedLayout="false"
+            autoPopinMode="false"
+            noDataText="No items found">
+
+        </Table>
+
+    </ScrollContainer>
+
+</VBox>
+
+
+
+</VBox>
+ <endButton>
+    <Button id="_IDGenButton1"
+
+        text="Close"
+
+        press=".onClosePaymentDetails"/>
+</endButton>
+
+
+
+
+
+</Dialog>
+
+</core:FragmentDefinition>

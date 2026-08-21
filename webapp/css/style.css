@@ -1,0 +1,2163 @@
+/* ========================================
+   PAYMENT DASHBOARD - FINAL CSS (ALL FIXES APPLIED)
+   ======================================== */
+
+/* ========================================
+   1. CARD & GENERAL STYLING
+   ======================================== */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.chartCard {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    /* add this line */
+}
+
+.sapMTable {
+    border-radius: 8px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.tableRecordText {
+    font-size: 0.7rem;
+    color: #6a6d70;
+}
+
+.sapMListTblHeader th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6a6d70;
+}
+
+/* ========================================
+   2. TAB STYLING
+   ======================================== */
+
+.sapMITBFilter.sapMITBSelected {
+    color: #0a6ed1 !important;
+    font-weight: bold;
+    border-bottom: 3px solid #0a6ed1;
+}
+
+.sapMITBFilterIcon {
+    display: none;
+}
+
+.sapMITBHead {
+    gap: 16px;
+}
+
+/* ========================================
+   3. KPI & NUMERIC STYLING
+   ======================================== */
+
+.sapUiLargeText {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.kpiBigText {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.kpiSubText {
+    font-size: 0.75rem;
+    color: gray;
+}
+
+.tileSubText {
+    font-size: 0.7rem;
+    color: gray;
+}
+
+/* ========================================
+   4. STATUS COLORS & ICONS
+   ======================================== */
+
+.statusDot {
+    font-size: 0.9rem;
+}
+
+.statusPosted {
+    color: #107e3e;
+}
+
+.statusProcessing {
+    color: #e9730c;
+}
+
+.statusRejected {
+    color: #bb0000;
+}
+
+.statusGreen {
+    color: #107e3e;
+    font-size: 0.65rem;
+    width: 0.65rem;
+    height: 0.65rem;
+}
+
+.statusOrange {
+    color: #e9730c;
+    font-size: 0.65rem;
+    width: 0.65rem;
+    height: 0.65rem;
+}
+
+.statusRed {
+    color: #bb0000;
+    font-size: 0.65rem;
+    width: 0.65rem;
+    height: 0.65rem;
+}
+
+.statusBlue {
+    color: #1976d2;
+    font-size: 0.65rem;
+    width: 0.65rem;
+    height: 0.65rem;
+}
+
+/* ========================================
+   5. DONUT CHART STYLING
+   ======================================== */
+
+#_IDGenVBox2 {
+    min-height: 420px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.donutStackContainer {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    height: 100%;
+}
+
+.donutWrapper {
+    position: relative;
+    width: 38%;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0px;
+    margin-right: 0px;
+    background: transparent;
+    border: none;
+}
+
+#donutChart {
+    width: 155px !important;
+    height: 155px !important;
+    min-width: 155px !important;
+    min-height: 155px !important;
+}
+
+.donutCenterText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    z-index: 10;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.donutValue {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1c1c1c;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.donutSubText {
+    font-size: 0.6rem;
+    color: #6a6d70;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ========================================
+   6. STATUS LIST STYLING
+   ======================================== */
+
+.statusListContainer {
+    width: 62%;
+    padding: 0 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 0;
+    gap: 0px;
+}
+
+.statusItemRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.62rem;
+    gap: 6px;
+}
+
+.statusItemRow:last-child {
+    border-bottom: none;
+}
+
+.statusLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    flex: 1 1 auto;
+    min-width: 130px;
+
+    white-space: nowrap;
+}
+
+.statusValue {
+    flex: 0 0 auto;
+    min-width: 80px;
+    text-align: right;
+}
+
+/* ========================================
+   7. TOP REASONS SECTION — FLAT MONOCHROME BAR
+   ======================================== */
+
+#_IDGenVBox13 {
+    margin-top: 0;
+    padding-top: 0;
+    flex-grow: 1;
+}
+
+#_IDGenTitle1 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1c1c1c;
+}
+
+.topReasonRow {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    gap: 10px;
+}
+
+.topReasonName {
+    flex: 0 0 45%;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.topBarWrap {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.topBarTrack {
+    flex: 1 1 auto;
+    height: 4px;
+    background-color: #e4e9f0;
+    border-radius: 2px;
+    overflow: visible;
+    min-width: 30px;
+    position: relative;
+}
+
+.topBarFill {
+    height: 4px;
+    background-color: #a9c6ec;
+    border-radius: 2px;
+}
+
+.topBarDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #5b8fc7;
+    transform: translateX(50%);
+    flex-shrink: 0;
+}
+
+.topReasonValue {
+    flex: 0 0 auto;
+    min-width: 32px;
+    text-align: right;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #1c1c1c;
+}
+
+/* ========================================
+   8. PROGRESS INDICATOR STYLING
+   ======================================== */
+
+.sapMPIBar {
+    background-color: #d5d5d5 !important;
+    border-radius: 3px;
+    height: 6px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.sapMPIBarPositive {
+    background-color: #0a6ed1;
+    border-radius: 3px;
+    box-shadow: none;
+}
+
+.reasonBar .sapMPIBarPositive {
+    background-color: #0a6ed1;
+    border-radius: 3px;
+    animation: growBar 0.8s ease-out;
+}
+
+@keyframes growBar {
+    from {
+        width: 0%;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+/* ========================================
+   9. SLA STYLING (MATCH REFERENCE)
+   ======================================== */
+
+#_IDGenVBox15 {
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(221, 217, 217, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#_IDGenTitle3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1c1c1c;
+}
+
+#_IDGenText29 {
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#_IDGenHBox6,
+#_IDGenHBox19,
+#_IDGenHBox16 {
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+
+
+/* Icon Box */
+.slaIconBox {
+    width: 40px;
+    height: 40px;
+    background-color: #f3f4f5;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #1c1c1c;
+    flex-shrink: 0;
+}
+
+/* SLA Title */
+.slaTitle {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1c1c1c;
+}
+
+/* SLA Subtitle */
+.slaSubText {
+    font-size: 0.65rem;
+    color: #999;
+    margin-top: 2px;
+}
+
+/* SLA Time (Right side) */
+.slaTime {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #1c1c1c;
+    text-align: right;
+    white-space: nowrap;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    /* ← REDUCED from 1.3 */
+}
+
+/* subtle hover like SAP apps */
+#_IDGenHBox6:hover,
+#_IDGenHBox19:hover,
+#_IDGenHBox16:hover {
+    background-color: #f7f9fb;
+}
+
+.slaTime.green {
+    color: #107e3e;
+}
+
+.slaTime.orange {
+    color: #e9730c;
+}
+
+.slaTime.red {
+    color: #bb0000;
+}
+
+/* ========================================
+   10. TITLE & TEXT STYLING
+   ======================================== */
+
+#_IDGenTitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.sapMText {
+    white-space: nowrap;
+}
+
+/* ========================================
+   11. UTILITY CLASSES
+   ======================================== */
+
+.sapUiNoMarginBottom {
+    margin-bottom: 0 !important;
+}
+
+.sapUiSmallMarginBottom {
+    margin-bottom: 0.5rem;
+}
+
+.sapUiNoMargin {
+    margin: 0 !important;
+}
+
+/* ========================================
+   12. LEGEND & COLOR UTILITIES
+   ======================================== */
+
+.legendDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.green {
+    background-color: #107e3e;
+}
+
+.orange {
+    background-color: #FF9800;
+}
+
+.red {
+    background-color: #E53935;
+}
+
+/* ========================================
+   13. RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 1024px) {
+    .donutWrapper {
+        height: 230px;
+    }
+
+    #donutChart {
+        width: 200px !important;
+        height: 200px !important;
+    }
+
+    .donutValue {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    #_IDGenVBox2 {
+        height: auto;
+    }
+
+    .donutWrapper {
+        height: 200px;
+        width: 100%;
+    }
+
+    #donutChart {
+        width: 175px !important;
+        height: 175px !important;
+    }
+
+    .donutValue {
+        font-size: 1.1rem;
+    }
+
+    .statusListContainer {
+        width: 100%;
+    }
+
+    .reasonName {
+        width: 50%;
+    }
+
+    .reasonBar {
+        width: 25%;
+    }
+
+    .reasonValue {
+        width: 25%;
+    }
+}
+
+.legendText {
+    font-size: 0.7rem;
+    /* ✅ smaller like reference */
+    color: #4a4a4a;
+}
+
+/* optional: tighten spacing below chart */
+#_IDGenHBox1 .sapUiTinyMarginTop {
+    margin-top: 6px !important;
+}
+
+#_IDGenVBox1 {
+    overflow: hidden;
+    /* ✅ prevents spill outside */
+}
+
+.legendColorBox {
+    width: 8px;
+    height: 8px;
+    background-color: #5b8ff9;
+    /* match chart */
+    border-radius: 2px;
+}
+
+.chartSubText {
+    font-size: 0.75rem;
+    color: #6a6d70;
+    margin-top: 2px;
+}
+
+.sapMMsgStrip {
+
+    padding: 2px 8px !important;
+    /* ✅ reduce height */
+    min-height: auto !important;
+    /* ✅ remove fixed height */
+    line-height: 1.2;
+    /* ✅ compact text */
+    border-radius: 4px;
+    /* ✅ tighter corners */
+    border: 1px solid #b3d7ff;
+    /* nice clean border */
+    background-color: #eaf4ff;
+    /* SAP style light blue */
+}
+
+.sapMMsgStripIcon {
+    font-size: 0.75rem !important;
+    /* ✅ smaller icon */
+    margin-right: 4px !important;
+    /* ✅ reduce gap */
+}
+
+.sapMMsgStripText {
+    font-size: 0.68rem;
+    white-space: normal;
+    line-height: 1.35;
+    display: -webkit-box;
+    display: box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 🚫 Remove unwanted progress/strip bar inside MessageStrip */
+.sapMMsgStrip .sapMPI {
+    display: none !important;
+}
+
+.sapMMsgStrip .sapMPIBar {
+    display: none !important;
+}
+
+.tableContainer {
+    overflow-y: auto;
+    /* ✅ vertical scroll */
+    overflow-x: auto;
+    /* ✅ horizontal scroll — needed once the user adds extra columns */
+    position: relative;
+}
+
+.tableContainer .sapMListTbl {
+    /* ✅ let the table grow to fit all selected columns instead of
+          squeezing them to fit the container — this is what makes
+          overflow-x above actually produce a scrollbar */
+    width: auto;
+    min-width: 100%;
+}
+
+.tableContainer .sapMListTblHeader,
+.tableContainer .sapMListHdr {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+    /* prevents data rows showing through when scrolled */
+    box-shadow: 0 1px 0 #e5e7eb;
+    /* subtle line to separate header from data on scroll */
+}
+
+.tableContainer .sapMListTblHeader th,
+.tableContainer .sapMListHdr .sapMListTblHeaderCell {
+    background: #fff;
+}
+
+@media (max-width: 1024px) {
+
+    #_IDGenVBox32,
+    #_IDGenVBox33 {
+        height: auto;
+    }
+}
+
+.sapMMsgStrip {
+    white-space: normal !important;
+    /* ✅ allow wrapping */
+    line-height: 1.3;
+}
+
+.customWarningStrip.sapMMsgStripWarning {
+    background-color: #fff3cd !important;
+    border: 1px solid #ffeeba !important;
+    color: #664d03 !important;
+}
+
+.customWarningStrip .sapMMsgText {
+    white-space: normal !important;
+    display: block;
+    line-height: 1.4;
+}
+
+.customWarningStrip {
+    width: 100% !important;
+}
+
+/* ✅ BLOCK */
+.railBlock {
+    padding: 6px 0;
+}
+
+/* ✅ TITLE */
+.railTitle {
+    font-weight: 600;
+}
+
+/* ✅ DIVIDER */
+.railDivider {
+    border-bottom: 1px solid #e5e5e5;
+    margin: 8px 0;
+}
+
+/* ✅ BAR CONTAINER */
+.railBar {
+    display: flex;
+    height: 8px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+/* ✅ COLORS */
+.barBlue {
+    background-color: #1976d2;
+}
+
+.barOrange {
+    background-color: #fb8c00;
+}
+
+.barRed {
+    background-color: #d32f2f;
+}
+
+.highlightTile {
+    background-color: transparent !important;
+    border: 1px solid #e0e0e0;
+}
+
+.kpiTitle {
+    font-weight: 600;
+}
+
+.statusRed {
+    color: #d32f2f;
+}
+
+.kpiBigText {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.customLinkButton {
+    color: #1976d2;
+    /* blue text */
+    font-weight: 500;
+}
+
+.maxAgeBadge {
+    background-color: #fdecea;
+    /* light red */
+    color: #d32f2f;
+    /* red text */
+    padding: 2px 6px;
+    border-radius: 10px;
+    /* pill shape */
+    font-weight: 500;
+}
+
+.maxAgeText {
+    color: #d32f2f !important;
+    /* force red */
+    font-weight: 600;
+}
+
+.maxAgeBadgeCompact {
+    background-color: #fdecea;
+    color: #d32f2f;
+    padding: 1px 6px;
+    /* ✅ smaller padding */
+    border-radius: 8px;
+    /* ✅ smaller pill */
+    font-size: 0.75rem;
+    /* ✅ compact size */
+    font-weight: 500;
+    display: inline-block;
+    width: auto !important;
+    /* ✅ prevent stretching */
+}
+
+/* ✅ BUTTON CONTAINER */
+.maxAgeButton {
+    background-color: #f29578 !important;
+    /* light orange */
+    border: 1px solid #fb8c00 !important;
+    border-radius: 10px;
+    padding: 0 6px;
+}
+
+/* ✅ TEXT INSIDE BUTTON (CRITICAL FIX) */
+.maxAgeButton .sapMBtnInner {
+    color: #d32f2f !important;
+    /* ✅ RED TEXT */
+    font-weight: 600;
+}
+
+/* ✅ ensure no default blue override */
+.maxAgeButton .sapMBtnContent {
+    color: #d32f2f !important;
+}
+
+.ageRedText {
+    color: #d32f2f !important;
+    /* force red */
+    font-weight: 600;
+}
+
+.sapMObjStatusIcon {
+    display: none;
+    /* removes icon */
+}
+
+.railBadge {
+    background-color: #fff3e0;
+    /* ✅ light orange */
+    color: #8d6e63;
+    /* ✅ dark brown text */
+    padding: 2px 8px;
+    border-radius: 12px;
+    /* ✅ pill shape */
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+
+
+.horizontalDivider {
+    height: 1px;
+    width: 100%;
+    background-color: #e0e0e0;
+}
+
+.kpiBlock {
+    margin-right: 10px;
+    /* ✅ spacing between Open & At Risk */
+    min-width: 90px;
+    /* ✅ prevents collapse */
+}
+
+.kpiGroup {
+    margin-left: auto;
+    /* ✅ pushes entire KPI block to right */
+}
+
+.kpiOpenShift {
+    margin-left: 20px;
+    /* ✅ pushes Open towards At Risk */
+}
+
+.viz-legend {
+    position: relative !important;
+    bottom: 0 !important;
+}
+
+.managerHeader {
+    color: #1976d2 !important;
+    font-weight: 600;
+    text-align: left;
+}
+
+.managerTitle {
+    color: #1976d2;
+    font-weight: 600;
+}
+
+.managerArrow {
+    color: #1976d2;
+}
+
+.sapMPI {
+    height: 6px;
+}
+
+.sapMPIBarPositive {
+    background: #107e3e;
+}
+
+.sapMPIBarCritical {
+    background: #f59e0b;
+}
+
+.sapMPIBarNegative {
+    background: #d32f2f;
+}
+
+
+/* ========================================
+   8. PROGRESS INDICATOR STYLING (FLAT LINE)
+   ======================================== */
+
+/* ========================================
+   EXCEPTION REASONS — FLAT BAR (fixed-length track)
+   ======================================== */
+
+.excReasonRow {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    gap: 10px;
+}
+
+.excReasonName {
+    flex: 0 0 40%;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.excBarWrap {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.excBarTrack {
+    flex: 1 1 auto;
+    height: 4px;
+    background-color: #e8e8e8;
+    border-radius: 2px;
+    overflow: hidden;
+    min-width: 30px;
+}
+
+.excBarFill {
+    height: 4px;
+    border-radius: 2px;
+}
+
+.excBarFillGreen {
+    background-color: #107e3e;
+}
+
+.excBarFillBlue {
+    background-color: #0a6ed1;
+}
+
+.excBarFillOrange {
+    background-color: #e9730c;
+}
+
+.excBarFillRed {
+    background-color: #bb0000;
+}
+
+.excBarIcon {
+    flex-shrink: 0;
+}
+
+/* ✅ sap.m.ProgressIndicator replaces the old custom track/fill divs —
+   the "class + embedded {binding}" trick on those divs wasn't resolving
+   (XMLView doesn't support mixed literal+binding text in a `class`
+   attribute), so the fill silently stayed transparent/full-width instead
+   of showing a proportional, coloured bar. ProgressIndicator's own
+   percentValue/state properties are real bindable properties, so this
+   just works — this rule only handles the row's spacing/sizing. */
+.excProgressBar {
+    flex: 1 1 auto;
+    margin: 0 8px;
+    min-width: 30px;
+}
+
+.excIconGreen {
+    color: #107e3e;
+}
+
+.excIconBlue {
+    color: #0a6ed1;
+}
+
+.excIconOrange {
+    color: #e9730c;
+}
+
+.excIconRed {
+    color: #bb0000;
+}
+
+.excReasonValue {
+    flex: 0 0 auto;
+    min-width: 32px;
+    text-align: right;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #1c1c1c;
+}
+
+
+.breadcrumbBar {
+    padding: 10px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+}
+
+.breadcrumbIcon {
+    color: #6a6d70;
+}
+
+.breadcrumbLink {
+    font-size: 0.8rem;
+    color: #6a6d70;
+    font-weight: 500;
+}
+
+.breadcrumbChevron {
+    color: #a0a4a8;
+}
+
+.breadcrumbCurrent {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #0a6ed1;
+}
+
+.railBadgeHeader {
+    background-color: #eef2ff;
+    color: #3538cd;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+}
+
+.headerSubText {
+    font-size: 0.75rem;
+    color: #6a6d70;
+}
+
+.railSwift {
+    background: #FFF3E0;
+    color: #E67E22;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.railSarie {
+    background: #E8F1FF;
+    color: #2563EB;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.railWps {
+    background: #E8F8EA;
+    color: #22A447;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.kpiTile.sapMGT {
+    flex: 1 1 170px;
+    min-width: 170px;
+    min-height: 130px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.kpiTile.sapMGT .sapMGTContent {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.kpiTile.sapMGT .sapMTileCnt,
+.kpiTile.sapMGT .sapMTileCntContent {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* ✅ "Value at Risk" tile has no press handler / drilldown, but GenericTile
+   shows a pointer cursor and hover affordance by default regardless of
+   whether press is wired up. Strip that so it doesn't look clickable. */
+.kpiTileNoClick.sapMGT {
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Chart Type Button */
+.chartTypeButton {
+    width: 2.4rem;
+    height: 2.4rem;
+    min-width: 2.4rem;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+}
+
+.chartTypeButton:hover {
+    background: #f5f7fa;
+    border-color: #0a6ed1;
+}
+
+.chartTypeButton .sapMBtnInner {
+    border: none !important;
+    background: transparent !important;
+    border-radius: 8px;
+    height: 100%;
+}
+
+.chartTypeButton .sapUiIcon {
+    font-size: 1rem;
+    color: #0a6ed1;
+}
+
+.chartToolbarButton {
+    width: 2.35rem;
+    min-width: 2.35rem;
+    height: 2.35rem;
+}
+
+.chartToolbarButton .sapMBtnInner {
+    border: 1px solid #d0d7e2 !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+    transition: all .2s;
+}
+
+.chartToolbarButton .sapMBtnInner:hover {
+    border-color: #0a6ed1 !important;
+    background: #f5f8ff !important;
+}
+
+.chartToolbarButton .sapUiIcon {
+    color: #0a6ed1;
+}
+
+
+
+.chartMode .sapFDynamicPageTitle {
+    display: none !important;
+}
+
+.chartMode .sapFDynamicPageHeader {
+    display: none !important;
+}
+
+.kpiGroupCard {
+    flex: 0 0 auto;
+    /* don't grow to fill the row */
+    width: fit-content;
+    /* shrink-wrap to the tiles inside */
+}
+
+.kpiSummaryRow {
+    align-items: flex-start;
+    /* stops vertical stretching too, if that's happening */
+}
+
+.kpiSummaryRow .chartCard .kpiSummaryTile {
+    flex: 1 1 0;
+    min-width: 0;
+    /* let flexbox actually shrink/grow instead of using intrinsic width */
+}
+
+.kpiSummaryRow .chartCard HBox {
+    display: flex;
+    width: 100%;
+}
+
+/* ✅ Vertical divider separating Total Processed from the rest of the KPI tiles */
+.kpiDivider {
+    width: 1px;
+    align-self: stretch;
+    background-color: #e0e0e0;
+    margin: 4px 14px;
+    flex: 0 0 auto;
+}
+
+/* ✅ Total Processed value in blue (NumericContent has no native "blue" valueColor) */
+.kpiValueBlue .sapMNCValueScr,
+.kpiValueBlue .sapMNCValue,
+.kpiValueBlue.sapMNC .sapMNCValueScr {
+    color: #0057D9 !important;
+}
+
+/* ========================================
+   14. PAYMENT FLOW TILE (Incoming / Outgoing combined KPI)
+   ======================================== */
+.kpiRow {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    width: 100%;
+
+}
+
+.kpiSummaryTile{
+    flex:1;
+    min-width:220px;
+    max-width:none;
+
+    height:170px;
+
+    border-radius:14px;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+    transition:.2s;
+}
+
+.paymentFlowTileContainer {
+
+    flex: 1.4 1 240px;
+
+    min-width: 220px;
+
+}
+
+.kpiFlowTile {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    min-width: 190px;
+    padding: 0.75rem 1rem !important;
+}
+
+.kpiFlowTileTitle {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #6a6d70;
+}
+
+.kpiFlowTileBody {
+    width: 100%;
+}
+
+.kpiFlowCol {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.kpiFlowLabelRow {
+    gap: 4px;
+}
+
+.kpiFlowLabel {
+    font-size: 0.62rem;
+    font-weight: 500;
+    color: #6a6d70;
+}
+
+.kpiFlowValue {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.kpiFlowValueIn {
+    color: #107e3e;
+}
+
+.kpiFlowValueOut {
+    color: #e9730c;
+}
+
+.kpiFlowIconIn {
+    color: #107e3e;
+}
+
+.kpiFlowIconOut {
+    color: #e9730c;
+}
+
+.kpiFlowDivider {
+    width: 1px;
+    align-self: stretch;
+    background-color: #e5e5e5;
+    margin: 0 12px;
+}
+
+.kpiFlowTile {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 6px 0;
+}
+
+.kpiFlowHeader {
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-top: 2px;
+    margin-bottom: 12px;
+}
+
+.kpiFlowBody {
+    flex: 1;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-top: 0;
+}
+
+.kpiFlowDivider {
+    width: 1px;
+    height: 52px;
+    background: #d9d9d9;
+}
+
+.kpiFlowLabel {
+    font-size: 0.68rem;
+    color: #6a6d70;
+    margin-top: 2px;
+}
+
+.kpiFlowValueIn,
+.kpiFlowValueOut {
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-top: 2px;
+}
+
+.kpiFlowIconIn {
+    color: #107e3e;
+}
+
+.kpiFlowIconOut {
+    color: #e9730c;
+}
+
+
+
+/* Every tile grows equally */
+/*======================================================
+ KPI TILE
+======================================================*/
+
+
+/* Center the content */
+.kpiSummaryTile .sapMGTContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+/* Header */
+.kpiSummaryTile .sapMGTHdrTxt {
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Number */
+.kpiSummaryTile .sapMNC {
+    justify-content: center;
+}
+
+
+
+
+@media (max-width:1600px) {
+
+    .kpiSummaryTile {
+        flex: 1 1 170px;
+    }
+
+}
+
+@media (max-width:1400px) {
+
+    .kpiSummaryTile {
+        flex: 1 1 160px;
+    }
+
+}
+
+@media (max-width:1200px) {
+
+    .kpiSummaryTile {
+        flex: 1 1 230px;
+    }
+
+}
+
+@media (max-width:900px) {
+
+    .kpiSummaryTile {
+        flex: 1 1 100%;
+    }
+
+}
+
+@media (min-width:1400px) {
+
+    .kpiSummaryTile.sapMGT {
+        flex: 1 1 calc((100% - 80px)/6);
+    }
+
+}
+
+
+.paymentFlowTile {
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+.paymentFlowContainer {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+.flowMiniCard {
+
+    width: 70px;
+
+    height: 90px;
+
+    border-radius: 10px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+.flowMiniCard:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .12);
+
+}
+
+.flowIncomingCard {
+
+    background: #F5FFF7;
+
+    border: 1px solid #CFEFD8;
+
+}
+
+.flowOutgoingCard {
+
+    background: #FFF8F2;
+
+    border: 1px solid #FFD7B8;
+
+}
+
+.flowIncomingIcon {
+
+    color: #107E3E;
+
+    font-size: 1.2rem;
+
+    margin-bottom: 6px;
+
+}
+
+.flowOutgoingIcon {
+
+    color: #E9730C;
+
+    font-size: 1.2rem;
+
+    margin-bottom: 6px;
+
+}
+
+.flowLabel {
+
+    font-size: .72rem;
+
+    color: #666;
+
+}
+
+.flowIncomingValue,
+.flowOutgoingValue {
+
+    font-size: 1.3rem;
+
+    font-weight: bold;
+
+    margin-top: 4px;
+
+}
+
+.flowLink {
+
+    margin-top: 6px;
+
+    font-size: .68rem;
+
+}
+
+/*==============================================================*/
+/* Rail Health KPI Cards                                        */
+/*==============================================================*/
+
+.railCard {
+    flex: 1 1 220px;
+    /* grow + shrink, 220px is just the starting point */
+    min-height: 110px;
+    height: auto;
+    margin: 6px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    transition: .2s;
+}
+
+.railCard:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 14px rgba(0, 0, 0, .12);
+
+}
+
+.railCardTitle {
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #5f6368;
+
+}
+
+.railValue {
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+    color: #1b1f23;
+
+}
+
+/*========================================================*/
+/* Dashboard Cards */
+/*========================================================*/
+
+.railSection {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 0.75rem;
+    height: 360px;
+    /* Same height for all three */
+    overflow: hidden;
+}
+
+.sectionHeader {
+
+    padding-bottom: 8px;
+
+    margin-bottom: 8px;
+
+    border-bottom: 1px solid #e5e7eb;
+
+}
+
+.sectionHeader .sapMTitle {
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+}
+
+
+/*==============================================================*/
+/* Rail Health Table */
+/*==============================================================*/
+
+.sapMListTbl {
+
+    border-radius: 10px;
+
+}
+
+.sapMListTblHeaderCell {
+
+    font-weight: bold;
+
+}
+
+.reconciliationTile {
+
+    flex: 1 1 220px !important;
+    min-height: 145px;
+    height: auto;
+
+    border-radius: 16px;
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+
+    margin-right: 12px;
+
+    margin-bottom: 12px;
+
+}
+
+.reconciliationTile:hover {
+
+    transform: translateY(-2px);
+
+    transition: .2s;
+
+}
+
+.reconKpiCard {
+
+    flex: 1 1 240px;
+    min-height: 130px;
+    height: auto;
+
+    border-radius: 16px;
+
+    background: white;
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+
+    border-top: 4px solid #5aa9ff;
+
+}
+
+.reconChartsRow {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.reconChartCard {
+
+    min-height: 360px;
+
+    border-radius: 18px;
+
+    background: #ffffff;
+
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .08);
+
+    padding: 8px;
+
+}
+
+
+.auditTile {
+    flex: 1 1 210px;
+    min-width: 210px;
+    min-height: 140px;
+    height: auto;
+
+    border-radius: 10px;
+    background: #ffffff;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+
+    border-top: 5px solid #d9d9d9;
+
+    transition: .2s;
+}
+
+.auditTile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, .15);
+}
+
+.auditBlue {
+    border-top-color: #0A6ED1;
+}
+
+.auditRed {
+    border-top-color: #BB0000;
+}
+
+.auditOrange {
+    border-top-color: #E9730C;
+}
+
+.auditGreen {
+    border-top-color: #107E3E;
+}
+
+.auditDarkRed {
+    border-top-color: #8B0000;
+
+}
+
+/* ========================================================= */
+/* Large Monitor KPI Layout */
+/* ========================================================= */
+
+
+@media (min-width:2200px) {
+
+    .kpiSummaryTile {
+
+        width: 300px;
+
+        min-width: 300px;
+
+        max-width: 300px;
+
+    }
+
+}
+
+@media (min-width:2200px) {
+
+    .kpiSummaryTile {
+
+        height: 170px;
+
+    }
+
+}
+
+@media (min-width:2200px){
+
+    .kpiSummaryTile .sapMNCValue{
+
+        font-size:3.4rem;
+
+        line-height:1;
+
+    }
+
+}
+
+
+
+@media (min-width:1600px){
+
+    .kpiSectionContainer{
+
+        padding:34px 42px;
+
+    }
+
+    .kpiSummaryRow{
+
+        gap:34px;
+
+         flex-wrap:nowrap;
+
+    }
+
+    .kpiSummaryTile.sapMGT{
+
+        height:210px;
+
+    }
+
+    .kpiSummaryTile .sapMNCValue{
+
+        font-size:3.2rem;
+
+    }
+
+}
+
+.kpiSummaryTile:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 10px 22px rgba(0,0,0,.10);
+}
+
+@media (min-width:2200px){
+
+    .kpiSummaryTile .sapMGTHdrTxt{
+
+        font-size:1.15rem;
+
+        font-weight:600;
+
+    }
+
+}
+
+
+
+
+@media (min-width:2200px){
+
+    .kpiSummaryTile.sapMGT{
+
+        height:210px;
+
+    }
+
+}
+
+/* ===================================================== */
+/* KPI Summary Container */
+/* ===================================================== */
+
+/*======================================================
+ KPI SECTION CONTAINER
+======================================================*/
+
+
+
+.kpiSectionHeader {
+
+    margin-bottom: 22px;
+
+}
+
+
+
+
+.kpiSummaryTile{
+
+    transition:.25s;
+
+}
+
+
+
+
+
+
+
+/*======================================================
+ KPI ROW
+======================================================*/
+
+
+
+
+/*=============================
+ KPI OUTER CONTAINER
+=============================*/
+
+
+/*======================================================
+ KPI SECTION
+======================================================*/
+
+.kpiSectionContainer{
+    width:100%;
+    margin:0;
+    padding:24px 28px;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+    box-sizing:border-box;
+}
+
+
+/*======================================================
+ KPI ROW
+======================================================*/
+
+.kpiSummaryRow{
+    display:flex;
+    align-items:stretch;
+    justify-content:space-between;
+    gap:24px;
+    width:100%;
+    flex-wrap:wrap;
+}
+
+/*======================================================
+ KPI TILE
+======================================================*/
+
+.kpiSummaryTile.sapMGT{
+
+    flex:1 1 240px;
+
+    min-width:220px;
+
+    max-width:none;
+
+    width:auto;
+
+    height:170px;
+
+    transition:.25s;
+}
+
+
+
+
+
+/*======================================================
+ TILE CONTENT
+======================================================*/
+
+.kpiSummaryTile .sapMTileCnt{
+
+    width:100%;
+
+    height:100%;
+
+}
+
+
+.kpiSummaryTile .sapMGTContent{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    height:100%;
+
+}
+
+
+.kpiSummaryTile .sapMGTHdrTxt{
+
+    text-align:center;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    margin-top:8px;
+}
+
+
+.kpiSummaryTile .sapMNC{
+
+    justify-content:center;
+
+}
+
+
+.kpiSummaryTile .sapMNCValue{
+
+    font-size:44px;
+
+    font-weight:700;
+
+    line-height:1;
+}
+
+/* ===========================
+   Ultra Wide Monitor
+=========================== */
+@media (min-width:1900px){
+
+    .kpiSummaryRow{
+        flex-wrap:nowrap;
+        gap:34px;
+    }
+
+    .kpiSummaryTile.sapMGT{
+
+        flex:1 1 0;
+
+        min-width:0;
+
+        height:210px;
+    }
+
+    .kpiSummaryTile .sapMNCValue{
+        font-size:3.2rem;
+    }
+
+    .kpiSummaryTile .sapMGTHdrTxt{
+        font-size:1rem;
+    }
+
+}
+
+
+/* ===========================
+   Desktop
+=========================== */
+@media (min-width:1400px) and (max-width:1899px){
+
+    .kpiSummaryRow{
+        flex-wrap:nowrap;
+    }
+
+    .kpiSummaryTile.sapMGT{
+
+        flex:1 1 0;
+
+        min-width:0;
+
+        height:185px;
+    }
+
+}
+
+
+/* ===========================
+   Laptop
+=========================== */
+@media (max-width:1399px){
+
+    .kpiSummaryRow{
+        flex-wrap:wrap;
+    }
+
+    .kpiSummaryTile.sapMGT{
+
+        flex:1 1 calc(33.33% - 24px);
+
+        min-width:220px;
+    }
+
+}
+
+
+/* ===========================
+   Tablet
+=========================== */
+@media (max-width:1024px){
+
+    .kpiSummaryTile.sapMGT{
+
+        flex:1 1 calc(50% - 20px);
+
+        min-width:220px;
+    }
+
+}
+
+
+/* ===========================
+   Mobile
+=========================== */
+@media (max-width:600px){
+
+    .kpiSummaryTile.sapMGT{
+
+        flex:1 1 100%;
+
+        min-width:100%;
+    }
+
+}
+
+@media (max-width: 600px) {
+    .sapFDynamicPageTitleMainContent {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .globalFilterBar {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        margin-top: 8px;
+    }
+
+    #_IDGenTitle10 {
+        white-space: normal;
+        font-size: 1.05rem;
+    }
+
+    #clearingAreaSelect,
+    #kpiDatePicker {
+        width: 45% !important;
+    }
+
+    #_IDGenBreadcrumbRow {
+        flex-wrap: wrap;
+    }
+}
+
+.excNoDataWrap {
+    height: 220px;
+    width: 100%;
+}
+
+.excNoDataText {
+    color: #666;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.excProgressBarConstant {
+    flex: 1 1 auto;
+}
+
+.excReasonRow {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;   /* was 10px 0 — frees up ~40px total across 5 rows */
+    gap: 10px;
+}
+
+/* Safety net: if content ever runs long (wrapped reason names, 6th
+   reason added later, etc.) it scrolls inside the card instead of
+   being clipped by .chartCard's overflow:hidden */
+#_IDGenVBox79 {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.exceptionDetailTable {
+    height: 520px;
+    overflow-y: auto;
+}

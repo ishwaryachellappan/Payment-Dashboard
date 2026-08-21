@@ -1,0 +1,527 @@
+<mvc:View
+    controllerName="payment.dashboard.controller.Audit"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:viz="sap.viz.ui5.controls"
+    xmlns:viz.data="sap.viz.ui5.data"
+    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+>
+    <HBox
+        id="_IDGenHBox119"
+        justifyContent="SpaceBetween"
+        wrap="Wrap"
+        class="sapUiMediumMargin"
+    >
+        <GenericTile
+            id="_IDGenGenericTile11"
+            header="Total Audit Events"
+            class="auditTile auditBlue"
+        >
+            <TileContent id="_IDGenTileContent2">
+                <NumericContent
+                    id="_IDGenNumericContent9"
+                    value="1245"
+                    scale=""
+                    valueColor="Good"
+                    width="100%"
+                />
+            </TileContent>
+        </GenericTile>
+
+        <GenericTile
+            id="_IDGenGenericTile12"
+            header="Critical Events"
+            class="auditTile auditRed"
+        >
+            <TileContent id="_IDGenTileContent11">
+                <NumericContent
+                    id="_IDGenNumericContent10"
+                    value="23"
+                    valueColor="Error"
+                />
+            </TileContent>
+        </GenericTile>
+
+        <GenericTile
+            id="_IDGenGenericTile13"
+            header="Warning Events"
+            class="auditTile auditOrange"
+        >
+            <TileContent id="_IDGenTileContent12">
+                <NumericContent
+                    id="_IDGenNumericContent12"
+                    value="58"
+                    valueColor="Critical"
+                />
+            </TileContent>
+        </GenericTile>
+
+        <GenericTile
+            id="_IDGenGenericTile14"
+            header="Resolved Events"
+            class="auditTile auditGreen"
+        >
+            <TileContent id="_IDGenTileContent13">
+                <NumericContent
+                    id="_IDGenNumericContent13"
+                    value="1160"
+                    valueColor="Good"
+                />
+            </TileContent>
+        </GenericTile>
+
+        <GenericTile
+            id="_IDGenGenericTile15"
+            header="Failed Events"
+            class="auditTile auditDarkRed"
+        >
+            <TileContent id="_IDGenTileContent14">
+                <NumericContent
+                    id="_IDGenNumericContent14"
+                    value="4"
+                    valueColor="Error"
+                />
+            </TileContent>
+        </GenericTile>
+    </HBox>
+
+    <HBox
+        id="_IDGenHBox125"
+        justifyContent="SpaceBetween"
+        class="sapUiMediumMarginTop"
+    >
+        <!-- Audit Trend -->
+        <VBox
+            id="_IDGenVBox7"
+            width="60%"
+            class="chartCard sapUiSmallPadding"
+        >
+            <HBox
+                id="_IDGenAuditTrendHeaderRow"
+                justifyContent="SpaceBetween"
+                alignItems="Center"
+                width="100%"
+            >
+                <VBox id="_IDGenAuditTrendTitleBox">
+                    <Title
+                        id="_IDGenTitle8"
+                        text="Audit Trend"
+                    />
+
+                    <Text
+                        id="_IDGenText225"
+                        text="Audit Events - Last 7 Days"
+                        class="sapUiSmallMarginBottom"
+                    />
+                </VBox>
+
+                <HBox
+                    id="_IDGenAuditTrendControlsGroup"
+                    alignItems="Center"
+                >
+                    <!-- Maximize / Restore -->
+                    <Button
+                        id="auditTrendExpandButton"
+                        icon="sap-icon://full-screen"
+                        type="Default"
+                        tooltip="Maximize"
+                        press="onToggleAuditTrendSize"
+                        class="chartToolbarButton sapUiTinyMarginBegin"
+                    />
+
+                    <Select
+                        id="auditGranularitySelect"
+                        selectedKey="Day"
+                        change="onAuditGranularityChange"
+                        width="110px"
+                        class="sapUiTinyMarginBegin"
+                    >
+                        <core:Item
+                            id="_IDGenAuditGranDay"
+                            key="Day"
+                            text="Daily"
+                        />
+                        <core:Item
+                            id="_IDGenAuditGranHour"
+                            key="Hour"
+                            text="Hourly"
+                        />
+                    </Select>
+                </HBox>
+            </HBox>
+
+            <viz:VizFrame
+                id="auditTrendChart"
+                vizType="line"
+                width="100%"
+                height="320px"
+                vizProperties='{
+                "title": { "visible": false },
+                "legend": {
+                    "visible": true,
+                    "position": "top",
+                    "alignment": "center"
+                },
+                "plotArea": {
+                    "colorPalette": ["#0A6ED1", "#E9730C"]
+                }
+            }'
+                xmlns:viz="sap.viz.ui5.controls"
+                xmlns:viz.data="sap.viz.ui5.data"
+                xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+            >
+                <viz:dataset>
+                    <viz.data:FlattenedDataset
+                        id="_IDGenFlattenedDataset7"
+                        data="{auditTrend>/data}"
+                    >
+                        <viz.data:dimensions>
+                            <viz.data:DimensionDefinition
+                                id="_IDGenDimensionDefinition8"
+                                name="Day"
+                                value="{auditTrend>day}"
+                            />
+                        </viz.data:dimensions>
+
+                        <viz.data:measures>
+                            <viz.data:MeasureDefinition
+                                id="_IDGenMeasureDefinition7"
+                                name="Success"
+                                value="{auditTrend>success}"
+                            />
+
+                            <viz.data:MeasureDefinition
+                                id="_IDGenMeasureDefinition9"
+                                name="Failed"
+                                value="{auditTrend>failed}"
+                            />
+                        </viz.data:measures>
+                    </viz.data:FlattenedDataset>
+                </viz:dataset>
+
+                <viz:feeds>
+                    <viz.feeds:FeedItem
+                        id="_IDGenFeedItem17"
+                        uid="valueAxis"
+                        type="Measure"
+                        values="Success,Failed"
+                    />
+
+                    <viz.feeds:FeedItem
+                        id="_IDGenFeedItem18"
+                        uid="categoryAxis"
+                        type="Dimension"
+                        values="Day"
+                    />
+                </viz:feeds>
+            </viz:VizFrame>
+        </VBox>
+
+        <!-- Donut -->
+
+        <VBox
+            id="_IDGenVBox141"
+            width="38%"
+            class="chartCard sapUiSmallPadding"
+        >
+            <Title
+                id="_IDGenTitle41"
+                text="Severity Distribution"
+            />
+
+            <Text
+                id="_IDGenText230"
+                text="Today's Audit Events"
+                class="sapUiSmallMarginBottom"
+            />
+
+            <viz:VizFrame
+                id="auditDonut"
+                vizType="donut"
+                width="100%"
+                height="280px"
+                vizProperties='{
+                "title": { "visible": false },
+                "legend": {
+                    "visible": true,
+                    "position": "right",
+                    "alignment": "center"
+                }
+            }'
+                xmlns:viz="sap.viz.ui5.controls"
+                xmlns:viz.data="sap.viz.ui5.data"
+                xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+            >
+                <viz:dataset>
+                    <viz.data:FlattenedDataset
+                        id="_IDGenFlattenedDataset8"
+                        data="{auditSeverity>/data}"
+                    >
+                        <viz.data:dimensions>
+                            <viz.data:DimensionDefinition
+                                id="_IDGenDimensionDefinition9"
+                                name="Severity"
+                                value="{auditSeverity>severity}"
+                            />
+                        </viz.data:dimensions>
+
+                        <viz.data:measures>
+                            <viz.data:MeasureDefinition
+                                id="_IDGenMeasureDefinition10"
+                                name="Count"
+                                value="{auditSeverity>count}"
+                            />
+                        </viz.data:measures>
+                    </viz.data:FlattenedDataset>
+                </viz:dataset>
+
+                <viz:feeds>
+                    <viz.feeds:FeedItem
+                        id="_IDGenFeedItem19"
+                        uid="size"
+                        type="Measure"
+                        values="Count"
+                    />
+
+                    <viz.feeds:FeedItem
+                        id="_IDGenFeedItem20"
+                        uid="color"
+                        type="Dimension"
+                        values="Severity"
+                    />
+                </viz:feeds>
+            </viz:VizFrame>
+        </VBox>
+    </HBox>
+
+    <!-- Last row: Recent Audit Events (60%) + Top Event Types bar chart (40%) -->
+    <HBox
+        id="_IDGenHBox128"
+        justifyContent="SpaceBetween"
+        class="sapUiMediumMarginTop"
+    >
+        <!-- Recent Audit Events -->
+        <VBox
+            id="_IDGenVBox144"
+            width="60%"
+            class="chartCard sapUiSmallPadding"
+        >
+            <!-- Header -->
+            <HBox
+                id="_IDGenHBox126"
+                justifyContent="SpaceBetween"
+                alignItems="Center"
+            >
+                <Title
+                    id="_IDGenTitle42"
+                    text="Recent Audit Events"
+                    level="H5"
+                />
+
+                <HBox id="_IDGenHBox127">
+                    <SearchField
+                        id="_IDGenSearchField"
+                        width="220px"
+                        placeholder="Search Audit Events..."
+                        liveChange="onAuditSearch"
+                        class="sapUiTinyMarginEnd"
+                    />
+
+                    <Button
+                        id="_IDGenButton20"
+                        icon="sap-icon://action-settings"
+                        type="Transparent"
+                        tooltip="Settings"
+                        press="onAuditTableSettings"
+                    />
+
+                    <Button
+                        id="_IDGenButton21"
+                        icon="sap-icon://excel-attachment"
+                        type="Transparent"
+                        tooltip="Export"
+                        press="onExportAuditEvents"
+                    />
+
+                    <Button
+                        id="auditTableExpandButton"
+                        icon="sap-icon://full-screen"
+                        type="Transparent"
+                        tooltip="Maximize"
+                        press="onToggleAuditTableSize"
+                    />
+                </HBox>
+            </HBox>
+
+            <Table
+                id="auditTable"
+                items="{auditTable>/data}"
+            >
+                <columns>
+                    <Column id="_IDGenColumn5">
+                        <Text
+                            id="_IDGenText231"
+                            text="Time"
+                        />
+                    </Column>
+
+                    <Column id="_IDGenColumn6">
+                        <Text
+                            id="_IDGenText232"
+                            text="User"
+                        />
+                    </Column>
+
+                    <Column id="_IDGenColumn7">
+                        <Text
+                            id="_IDGenText233"
+                            text="Action"
+                        />
+                    </Column>
+
+                    <Column id="_IDGenColumn8">
+                        <Text
+                            id="_IDGenText234"
+                            text="Object"
+                        />
+                    </Column>
+
+                    <Column id="_IDGenColumn9">
+                        <Text
+                            id="_IDGenText235"
+                            text="Severity"
+                        />
+                    </Column>
+
+                    <Column id="_IDGenColumn10">
+                        <Text
+                            id="_IDGenText236"
+                            text="Status"
+                        />
+                    </Column>
+                </columns>
+
+                <items>
+                    <ColumnListItem
+                        id="_IDGenColumnListItem2"
+                        type="Navigation"
+                    >
+                        <cells>
+                            <Text
+                                id="_IDGenText237"
+                                text="{auditTable>time}"
+                            />
+
+                            <Text
+                                id="_IDGenText238"
+                                text="{auditTable>user}"
+                            />
+
+                            <Text
+                                id="_IDGenText239"
+                                text="{auditTable>action}"
+                            />
+
+                            <Text
+                                id="_IDGenText240"
+                                text="{auditTable>object}"
+                            />
+
+                            <ObjectStatus
+                                id="_IDGenObjectStatus25"
+                                text="{auditTable>severity}"
+                                state="{auditTable>state}"
+                            />
+
+                            <ObjectStatus
+                                id="_IDGenObjectStatus26"
+                                text="{auditTable>status}"
+                                state="Success"
+                            />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+
+            <Link
+                id="_IDGenLinkAuditViewAll"
+                text="View all"
+                press="onViewAllAuditEvents"
+                class="sapUiTinyMarginTop"
+            />
+        </VBox>
+
+        <!-- Top Event Types (bar chart) -->
+        <VBox
+            id="_IDGenVBoxTopEventTypes"
+            width="38%"
+            class="chartCard sapUiSmallPadding"
+        >
+            <Title
+                id="_IDGenTitleTopEventTypes"
+                text="Top Event Types"
+                level="H5"
+            />
+
+            <!-- Plain VBox with a bound template (same pattern as the working
+             Exceptions-tab "Top Reasons" list) instead of a List/CustomListItem —
+             List rows add their own left padding/selection gutter, which is why
+             the bars were not all starting at the same x-position before. -->
+            <VBox
+                id="topEventTypesList"
+                items="{auditEventTypes>/data}"
+                class="sapUiTinyMarginTop"
+            >
+                <HBox
+                    id="_IDGenHBoxTopEventTypeRow"
+                    alignItems="Center"
+                    class="topReasonRow"
+                >
+                    <Text
+                        id="_IDGenTextTopEventTypeName"
+                        text="{auditEventTypes>type}"
+                        class="topReasonName"
+                    />
+
+                    <HBox
+                        id="_IDGenHBoxTopEventTypeBarWrap"
+                        alignItems="Center"
+                        class="topBarWrap"
+                    >
+                        <VBox
+                            id="_IDGenVBoxTopEventTypeBarTrack"
+                            class="topBarTrack"
+                        >
+                            <HBox
+                                id="_IDGenHBoxTopEventTypeBarFill"
+                                width="{auditEventTypes>percent}%"
+                                alignItems="Center"
+                                justifyContent="End"
+                                class="topBarFill"
+                            >
+                                <VBox
+                                    id="_IDGenVBoxTopEventTypeBarDot"
+                                    class="topBarDot"
+                                />
+                            </HBox>
+                        </VBox>
+                    </HBox>
+
+                    <Text
+                        id="_IDGenTextTopEventTypeValue"
+                        text="{auditEventTypes>count} ({auditEventTypes>percent}%)"
+                        class="topReasonValue"
+                    />
+                </HBox>
+            </VBox>
+
+            <Link
+                id="_IDGenLinkTopEventTypesViewAll"
+                text="View all"
+                press="onViewAllEventTypes"
+                class="sapUiTinyMarginTop"
+            />
+        </VBox>
+    </HBox>
+</mvc:View>
