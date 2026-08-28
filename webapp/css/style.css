@@ -2922,3 +2922,151 @@ body {
     font-size: 12px;
     color: #64748b;
 }
+
+/* ========================================================= */
+/* RECONCILIATION HEADER                                     */
+/* ========================================================= */
+
+.reconciliationHeaderSection {
+    width: 100%;
+    padding: 0;
+}
+
+
+/* ========================================================= */
+/* RECONCILIATION FILTER CARD                                */
+/* ========================================================= */
+
+.reconciliationFilterCard {
+    width: 100%;
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid #d9d9d9;
+    border-radius: 10px;
+
+    padding: 16px 20px 18px 20px;
+
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+
+/* ========================================================= */
+/* FILTER HEADER                                              */
+/* ========================================================= */
+
+.reconciliationFilterHeader {
+    margin-bottom: 14px;
+}
+
+
+.reconciliationFilterHeader .sapMTitle {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1d2d3e;
+}
+
+
+.reconciliationFilterDescription {
+    margin-top: 2px;
+
+    font-size: 0.75rem;
+    color: #6a6d70;
+}
+
+
+/* ========================================================= */
+/* FILTER ROW                                                 */
+/* ========================================================= */
+
+.reconciliationFilterBar {
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+
+    align-items: flex-end;
+    justify-content: flex-start;
+
+    gap: 12px;
+}
+
+
+/* ========================================================= */
+/* FILTER ITEMS                                               */
+/* ========================================================= */
+
+.reconciliationFilterItem {
+    width: 200px;
+    min-width: 180px;
+}
+
+
+.reconciliationFilterItem .sapMLabel {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 0.75rem;
+    font-weight: 600;
+
+    color: #32363a;
+}
+
+
+/* ========================================================= */
+/* SELECT                                                     */
+/* ========================================================= */
+
+.reconciliationFilterItem .sapMSlt {
+    width: 100%;
+}
+
+
+/* ========================================================= */
+/* RESET                                                       */
+/* ========================================================= */
+
+.reconciliationFilterReset {
+    margin-left: 4px;
+    margin-bottom: 0;
+}
+
+
+/* ========================================================= */
+/* RESPONSIVE                                                  */
+/* ========================================================= */
+
+@media (max-width: 700px) {
+
+    .reconciliationFilterCard {
+        padding: 14px;
+    }
+
+    .reconciliationFilterBar {
+        flex-wrap: wrap;
+    }
+
+    .reconciliationFilterItem {
+        width: 100% !important;
+        min-width: 100%;
+    }
+
+    .reconciliationFilterReset {
+        margin-left: 0;
+    }
+
+}
+
+/* ========================================================= */
+/* KPI SECTION                                                */
+/* ========================================================= */
+
+.kpiSectionContainer {
+    width: 100%;
+    margin-top: 0;
+}
+
+

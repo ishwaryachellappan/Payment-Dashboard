@@ -3,7 +3,6 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
     "sap/ui/export/Spreadsheet",
-    "sap/ui/export/library",
     "sap/viz/ui5/data/FlattenedDataset",
     "sap/viz/ui5/data/DimensionDefinition",
     "sap/viz/ui5/data/MeasureDefinition",
@@ -13,7 +12,6 @@ sap.ui.define([
     JSONModel,
     MessageToast,
     Spreadsheet,
-    library,
     FlattenedDataset,
     DimensionDefinition,
     MeasureDefinition,
@@ -22,37 +20,26 @@ sap.ui.define([
 
     "use strict";
 
-    var EdmType = library.EdmType;
-
     return Controller.extend(
         "payment.dashboard.controller.Reconciliation",
         {
 
             // ============================================================
-            // INIT
+            // INITIALIZATION
             // ============================================================
 
             onInit: function () {
 
-                /*
-                 * KEEP YOUR EXISTING aGroups ARRAY HERE.
-                 *
-                 * Your existing groups are:
-                 *
-                 * G001 - 02.03.2026 - Credit
-                 * G002 - 02.03.2026 - Debit
-                 * G003 - 07.04.2026 - Credit
-                 * G004 - 07.04.2026 - Debit
-                 *
-                 * Do not change that data.
-                 */
+                // --------------------------------------------------------
+                // RECONCILIATION GROUP DATA
+                // --------------------------------------------------------
 
                 var aGroups = [
+
                     // ====================================================
-                    // PASTE YOUR EXISTING aGroups DATA HERE
+                    // G001 - CREDIT
                     // ====================================================
 
-                    // G001
                     {
                         groupId: "G001",
                         date: "02.03.2026",
@@ -64,6 +51,7 @@ sap.ui.define([
                         expanded: true,
 
                         details: [
+
                             {
                                 AccountManagement: "SAP_DM",
                                 SystemId: "IFS 500",
@@ -74,6 +62,7 @@ sap.ui.define([
                                 ReconciliationObjects: 2,
                                 ReconciliationAmount: 90.00
                             },
+
                             {
                                 AccountManagement: "SAP_DM",
                                 SystemId: "IFS 500",
@@ -84,6 +73,7 @@ sap.ui.define([
                                 ReconciliationObjects: 1,
                                 ReconciliationAmount: 48.00
                             },
+
                             {
                                 AccountManagement: "SAP_DM",
                                 SystemId: "IFS 500",
@@ -94,11 +84,13 @@ sap.ui.define([
                                 ReconciliationObjects: 1,
                                 ReconciliationAmount: 48.00
                             }
+
                         ]
                     },
 
+
                     // ====================================================
-                    // G002
+                    // G002 - DEBIT
                     // ====================================================
 
                     {
@@ -112,6 +104,7 @@ sap.ui.define([
                         expanded: false,
 
                         details: [
+
                             {
                                 AccountManagement: "SAP_DM",
                                 SystemId: "IFS 500",
@@ -122,6 +115,7 @@ sap.ui.define([
                                 ReconciliationObjects: 1,
                                 ReconciliationAmount: 1000.00
                             },
+
                             {
                                 AccountManagement: "SAP_DM",
                                 SystemId: "IFS 500",
@@ -132,11 +126,13 @@ sap.ui.define([
                                 ReconciliationObjects: 1,
                                 ReconciliationAmount: 1000.00
                             }
+
                         ]
                     },
 
+
                     // ====================================================
-                    // G003
+                    // G003 - CREDIT
                     // ====================================================
 
                     {
@@ -150,6 +146,7 @@ sap.ui.define([
                         expanded: false,
 
                         details: [
+
                             {
                                 AccountManagement: "SAP_DM",
                                 SystemId: "IFS 500",
@@ -160,6 +157,7 @@ sap.ui.define([
                                 ReconciliationObjects: 1,
                                 ReconciliationAmount: 48.00
                             },
+
                             {
                                 AccountManagement: "SAP_DM",
                                 SystemId: "IFS 500",
@@ -170,11 +168,13 @@ sap.ui.define([
                                 ReconciliationObjects: 1,
                                 ReconciliationAmount: 48.00
                             }
+
                         ]
                     },
 
+
                     // ====================================================
-                    // G004
+                    // G004 - DEBIT
                     // ====================================================
 
                     {
@@ -188,6 +188,7 @@ sap.ui.define([
                         expanded: false,
 
                         details: [
+
                             {
                                 AccountManagement: "SAP_DM",
                                 SystemId: "IFS 500",
@@ -198,6 +199,7 @@ sap.ui.define([
                                 ReconciliationObjects: 1,
                                 ReconciliationAmount: 48.00
                             },
+
                             {
                                 AccountManagement: "SAP_DM",
                                 SystemId: "IFS 500",
@@ -208,10 +210,12 @@ sap.ui.define([
                                 ReconciliationObjects: 1,
                                 ReconciliationAmount: 48.00
                             }
+
                         ]
                     }
 
                 ];
+
 
                 // ========================================================
                 // MODEL DATA
@@ -219,51 +223,68 @@ sap.ui.define([
 
                 var oData = {
 
+                    // ----------------------------------------------------
+                    // KPI VALUES
+                    // ----------------------------------------------------
+
                     kpi: {
+
                         totalAmount: "30997.02",
+
                         totalObjects: "145",
+
                         debitTotal: "13405.01",
+
                         creditTotal: "17592.01"
+
                     },
 
-                    /*
-                     * THIS IS THE DATA FOR THE RECONCILIATION GRAPH.
-                     *
-                     * These are the three bars that should appear:
-                     *
-                     * PC received          10,000
-                     * DM posted              9,800
-                     * Reconciliation gap       200
-                     */
+
+                    // ----------------------------------------------------
+                    // RECONCILIATION CHART
+                    // ----------------------------------------------------
 
                     chartData: [
+
                         {
                             Category: "PC received",
                             Amount: 10000
                         },
+
                         {
                             Category: "DM posted",
                             Amount: 9800
                         },
+
                         {
                             Category: "Reconciliation gap",
                             Amount: 200
                         }
+
                     ],
 
-                    /*
-                     * Filter values
-                     */
 
-                    filter: {
-                        clearingArea: "DEBNKC",
-                        systemId: "",
-                        dateFrom: "",
-                        dateTo: ""
+                    // ----------------------------------------------------
+                    // SYSTEM FILTERS
+                    // ----------------------------------------------------
+
+                    filters: {
+
+                        system1: "",
+
+                        system2: ""
+
                     },
 
+
+                    // ----------------------------------------------------
+                    // RECONCILIATION DETAILS
+                    // ----------------------------------------------------
+
                     groups: aGroups
+
                 };
+
 
                 // ========================================================
                 // CREATE MODEL
@@ -278,27 +299,6 @@ sap.ui.define([
                     "reconciliation"
                 );
 
-                console.log(
-                    "===================================="
-                );
-
-                console.log(
-                    "RECONCILIATION MODEL CREATED"
-                );
-
-                console.log(
-                    "Chart Data:",
-                    oModel.getProperty("/chartData")
-                );
-
-                console.log(
-                    "Groups:",
-                    oModel.getProperty("/groups")
-                );
-
-                console.log(
-                    "===================================="
-                );
 
                 // ========================================================
                 // CREATE CHART AFTER VIEW RENDERING
@@ -313,6 +313,8 @@ sap.ui.define([
 
                                 this._createBarChart();
 
+                                this._updateSystem2Availability();
+
                             }.bind(this),
                             300
                         );
@@ -325,10 +327,10 @@ sap.ui.define([
 
 
             // ============================================================
-            // SEARCH / FILTER
+            // SYSTEM 1 CHANGE
             // ============================================================
 
-            onSearch: function () {
+            onSystem1Change: function (oEvent) {
 
                 var oModel =
                     this.getView().getModel(
@@ -339,38 +341,385 @@ sap.ui.define([
                     return;
                 }
 
-                var sClearingArea =
+
+                var sSystem1 =
+                    oEvent
+                        .getSource()
+                        .getSelectedKey();
+
+
+                var sSystem2 =
                     oModel.getProperty(
-                        "/filter/clearingArea"
+                        "/filters/system2"
                     );
 
-                var sSystemId =
-                    oModel.getProperty(
-                        "/filter/systemId"
+
+                // --------------------------------------------------------
+                // PREVENT SAME SYSTEM
+                // --------------------------------------------------------
+
+                if (
+                    sSystem1 &&
+                    sSystem1 === sSystem2
+                ) {
+
+                    MessageToast.show(
+                        "System 1 and System 2 cannot be the same."
                     );
 
-                var sDateFrom =
-                    oModel.getProperty(
-                        "/filter/dateFrom"
+                    oEvent
+                        .getSource()
+                        .setSelectedKey("");
+
+                    oModel.setProperty(
+                        "/filters/system1",
+                        ""
                     );
 
-                var sDateTo =
-                    oModel.getProperty(
-                        "/filter/dateTo"
-                    );
+                    this._updateSystem2Availability();
 
-                console.log(
-                    "Reconciliation filters:",
-                    {
-                        clearingArea: sClearingArea,
-                        systemId: sSystemId,
-                        dateFrom: sDateFrom,
-                        dateTo: sDateTo
-                    }
+                    return;
+                }
+
+
+                // --------------------------------------------------------
+                // SAVE SELECTION
+                // --------------------------------------------------------
+
+                oModel.setProperty(
+                    "/filters/system1",
+                    sSystem1
                 );
 
+
+                // --------------------------------------------------------
+                // UPDATE SYSTEM 2
+                // --------------------------------------------------------
+
+                this._updateSystem2Availability();
+
+
+                // --------------------------------------------------------
+                // APPLY FILTER
+                // --------------------------------------------------------
+
+                this._applySystemFilters();
+
+            },
+
+
+            // ============================================================
+            // SYSTEM 2 CHANGE
+            // ============================================================
+
+            onSystem2Change: function (oEvent) {
+
+                var oModel =
+                    this.getView().getModel(
+                        "reconciliation"
+                    );
+
+                if (!oModel) {
+                    return;
+                }
+
+
+                var sSystem2 =
+                    oEvent
+                        .getSource()
+                        .getSelectedKey();
+
+
+                var sSystem1 =
+                    oModel.getProperty(
+                        "/filters/system1"
+                    );
+
+
+                // --------------------------------------------------------
+                // PREVENT SAME SYSTEM
+                // --------------------------------------------------------
+
+                if (
+                    sSystem2 &&
+                    sSystem2 === sSystem1
+                ) {
+
+                    MessageToast.show(
+                        "System 1 and System 2 cannot be the same."
+                    );
+
+                    oEvent
+                        .getSource()
+                        .setSelectedKey("");
+
+                    oModel.setProperty(
+                        "/filters/system2",
+                        ""
+                    );
+
+                    return;
+                }
+
+
+                // --------------------------------------------------------
+                // SAVE SELECTION
+                // --------------------------------------------------------
+
+                oModel.setProperty(
+                    "/filters/system2",
+                    sSystem2
+                );
+
+
+                // --------------------------------------------------------
+                // APPLY FILTER
+                // --------------------------------------------------------
+
+                this._applySystemFilters();
+
+            },
+
+
+            // ============================================================
+            // UPDATE SYSTEM 2 AVAILABILITY
+            // ============================================================
+
+            _updateSystem2Availability: function () {
+
+                var oSystem1 =
+                    this.byId(
+                        "system1Select"
+                    );
+
+                var oSystem2 =
+                    this.byId(
+                        "system2Select"
+                    );
+
+                var oDMItem =
+                    this.byId(
+                        "system2DMItem"
+                    );
+
+
+                if (
+                    !oSystem1 ||
+                    !oSystem2 ||
+                    !oDMItem
+                ) {
+                    return;
+                }
+
+
+                var sSystem1 =
+                    oSystem1.getSelectedKey();
+
+
+                // --------------------------------------------------------
+                // SYSTEM 1 = DM
+                // SYSTEM 2 = DM NOT ALLOWED
+                // --------------------------------------------------------
+
+                if (sSystem1 === "DM") {
+
+                    oDMItem.setEnabled(false);
+
+                    oSystem2.setSelectedKey("");
+
+
+                    var oModel =
+                        this.getView().getModel(
+                            "reconciliation"
+                        );
+
+                    if (oModel) {
+
+                        oModel.setProperty(
+                            "/filters/system2",
+                            ""
+                        );
+
+                    }
+
+                }
+
+                // --------------------------------------------------------
+                // SYSTEM 1 = PC
+                // SYSTEM 2 = DM ALLOWED
+                // --------------------------------------------------------
+
+                else {
+
+                    oDMItem.setEnabled(true);
+
+                }
+
+            },
+
+
+            // ============================================================
+            // APPLY SYSTEM FILTERS
+            // ============================================================
+
+            _applySystemFilters: function () {
+
+                var oModel =
+                    this.getView().getModel(
+                        "reconciliation"
+                    );
+
+                if (!oModel) {
+                    return;
+                }
+
+
+                var sSystem1 =
+                    oModel.getProperty(
+                        "/filters/system1"
+                    );
+
+
+                var sSystem2 =
+                    oModel.getProperty(
+                        "/filters/system2"
+                    );
+
+
+                console.log(
+                    "Reconciliation System 1:",
+                    sSystem1
+                );
+
+                console.log(
+                    "Reconciliation System 2:",
+                    sSystem2
+                );
+
+
+                // --------------------------------------------------------
+                // NO FILTER
+                // --------------------------------------------------------
+
+                if (
+                    !sSystem1 &&
+                    !sSystem2
+                ) {
+
+                    console.log(
+                        "No reconciliation system filter selected."
+                    );
+
+                    return;
+                }
+
+
+                // --------------------------------------------------------
+                // PC -> DM
+                // --------------------------------------------------------
+
+                if (
+                    sSystem1 === "PC" &&
+                    sSystem2 === "DM"
+                ) {
+
+                    console.log(
+                        "Valid reconciliation flow: PC → DM"
+                    );
+
+                    return;
+                }
+
+
+                // --------------------------------------------------------
+                // SYSTEM 1 ONLY
+                // --------------------------------------------------------
+
+                if (
+                    sSystem1 &&
+                    !sSystem2
+                ) {
+
+                    console.log(
+                        "System 1 selected:",
+                        sSystem1
+                    );
+
+                    return;
+                }
+
+            },
+
+
+            // ============================================================
+            // RESET FILTERS
+            // ============================================================
+
+            onResetSystemFilters: function () {
+
+                var oModel =
+                    this.getView().getModel(
+                        "reconciliation"
+                    );
+
+                if (!oModel) {
+                    return;
+                }
+
+
+                // --------------------------------------------------------
+                // RESET MODEL
+                // --------------------------------------------------------
+
+                oModel.setProperty(
+                    "/filters/system1",
+                    ""
+                );
+
+                oModel.setProperty(
+                    "/filters/system2",
+                    ""
+                );
+
+
+                // --------------------------------------------------------
+                // RESET CONTROLS
+                // --------------------------------------------------------
+
+                var oSystem1 =
+                    this.byId(
+                        "system1Select"
+                    );
+
+                var oSystem2 =
+                    this.byId(
+                        "system2Select"
+                    );
+
+
+                if (oSystem1) {
+
+                    oSystem1.setSelectedKey("");
+
+                }
+
+
+                if (oSystem2) {
+
+                    oSystem2.setSelectedKey("");
+
+                }
+
+
+                // --------------------------------------------------------
+                // ENABLE SYSTEM 2 DM AGAIN
+                // --------------------------------------------------------
+
+                this._updateSystem2Availability();
+
+
                 MessageToast.show(
-                    "Reconciliation data refreshed"
+                    "Reconciliation filters reset"
                 );
 
             },
@@ -389,17 +738,21 @@ sap.ui.define([
                             "reconciliation"
                         );
 
+
                 if (!oContext) {
                     return;
                 }
 
+
                 var sPath =
                     oContext.getPath();
+
 
                 var bExpanded =
                     oContext.getProperty(
                         "expanded"
                     );
+
 
                 oContext
                     .getModel()
@@ -412,104 +765,72 @@ sap.ui.define([
 
 
             // ============================================================
-            // BAR CHART
+            // CREATE BAR CHART
             // ============================================================
 
             _createBarChart: function () {
-
-                console.log(
-                    "===================================="
-                );
-
-                console.log(
-                    "CREATE RECONCILIATION BAR CHART"
-                );
-
-                console.log(
-                    "===================================="
-                );
-
-                // ========================================================
-                // GET VIZFRAME
-                // ========================================================
 
                 var oChart =
                     this.byId(
                         "reconciliationBarVizFrame"
                     );
 
+
                 if (!oChart) {
 
                     console.error(
-                        "❌ reconciliationBarVizFrame NOT FOUND"
+                        "Reconciliation chart not found."
                     );
 
                     return;
+
                 }
 
-                console.log(
-                    "✅ VizFrame found:",
-                    oChart.getId()
-                );
-
-
-                // ========================================================
-                // GET MODEL
-                // ========================================================
 
                 var oModel =
                     this.getView().getModel(
                         "reconciliation"
                     );
 
+
                 if (!oModel) {
 
                     console.error(
-                        "❌ reconciliation model NOT FOUND"
+                        "Reconciliation model not found."
                     );
 
                     return;
+
                 }
 
-
-                // ========================================================
-                // GET CHART DATA
-                // ========================================================
 
                 var aChartData =
                     oModel.getProperty(
                         "/chartData"
                     );
 
-                console.log(
-                    "BAR CHART DATA:",
-                    JSON.stringify(
-                        aChartData
-                    )
-                );
-
 
                 if (
-                    !Array.isArray(
-                        aChartData
-                    ) ||
+                    !Array.isArray(aChartData) ||
                     aChartData.length === 0
                 ) {
 
                     console.error(
-                        "❌ BAR CHART DATA EMPTY"
+                        "Reconciliation chart data is empty."
                     );
 
                     return;
+
                 }
 
 
-                // ========================================================
-                // CLEAN OLD DATASET
-                // ========================================================
+                // --------------------------------------------------------
+                // REMOVE EXISTING DATASET
+                // --------------------------------------------------------
 
                 var oOldDataset =
                     oChart.getDataset();
+
 
                 if (oOldDataset) {
 
@@ -520,16 +841,16 @@ sap.ui.define([
                 }
 
 
-                // ========================================================
-                // CLEAN OLD FEEDS
-                // ========================================================
+                // --------------------------------------------------------
+                // REMOVE EXISTING FEEDS
+                // --------------------------------------------------------
 
                 oChart.removeAllFeeds();
 
 
-                // ========================================================
+                // --------------------------------------------------------
                 // DATASET
-                // ========================================================
+                // --------------------------------------------------------
 
                 var oDataset =
                     new FlattenedDataset({
@@ -565,37 +886,27 @@ sap.ui.define([
                     });
 
 
-                console.log(
-                    "✅ Dataset created"
-                );
-
-
-                // ========================================================
-                // SET MODEL
-                // ========================================================
+                // --------------------------------------------------------
+                // MODEL
+                // --------------------------------------------------------
 
                 oChart.setModel(
                     oModel
                 );
 
 
-                // ========================================================
-                // SET DATASET
-                // ========================================================
+                // --------------------------------------------------------
+                // DATASET
+                // --------------------------------------------------------
 
                 oChart.setDataset(
                     oDataset
                 );
 
 
-                console.log(
-                    "✅ Dataset attached"
-                );
-
-
-                // ========================================================
-                // CATEGORY AXIS
-                // ========================================================
+                // --------------------------------------------------------
+                // CATEGORY FEED
+                // --------------------------------------------------------
 
                 var oCategoryFeed =
                     new FeedItem({
@@ -616,9 +927,9 @@ sap.ui.define([
                 );
 
 
-                // ========================================================
-                // VALUE AXIS
-                // ========================================================
+                // --------------------------------------------------------
+                // VALUE FEED
+                // --------------------------------------------------------
 
                 var oValueFeed =
                     new FeedItem({
@@ -639,23 +950,18 @@ sap.ui.define([
                 );
 
 
-                console.log(
-                    "✅ Feeds attached"
-                );
-
-
-                // ========================================================
+                // --------------------------------------------------------
                 // CHART TYPE
-                // ========================================================
+                // --------------------------------------------------------
 
                 oChart.setVizType(
                     "column"
                 );
 
 
-                // ========================================================
+                // --------------------------------------------------------
                 // SIZE
-                // ========================================================
+                // --------------------------------------------------------
 
                 oChart.setWidth(
                     "100%"
@@ -666,9 +972,9 @@ sap.ui.define([
                 );
 
 
-                // ========================================================
-                // VIZ PROPERTIES
-                // ========================================================
+                // --------------------------------------------------------
+                // CHART PROPERTIES
+                // --------------------------------------------------------
 
                 oChart.setVizProperties({
 
@@ -688,14 +994,9 @@ sap.ui.define([
 
                             showTotal: false,
 
-                            formatString: "#,##0"
+                            formatString: "#,##0.00"
 
                         },
-
-                        /*
-                         * Gives the columns rounded corners
-                         * where supported by the VizFrame renderer.
-                         */
 
                         drawingEffect: "glossy"
 
@@ -754,14 +1055,15 @@ sap.ui.define([
                 });
 
 
-                // ========================================================
-                // SELECTION
-                // ========================================================
+                // --------------------------------------------------------
+                // CHART SELECTION
+                // --------------------------------------------------------
 
                 oChart.detachSelectData(
                     this.onReconciliationChartSelect,
                     this
                 );
+
 
                 oChart.attachSelectData(
                     this.onReconciliationChartSelect,
@@ -769,9 +1071,9 @@ sap.ui.define([
                 );
 
 
-                // ========================================================
-                // FORCE RENDER
-                // ========================================================
+                // --------------------------------------------------------
+                // RENDER
+                // --------------------------------------------------------
 
                 oChart.invalidate();
 
@@ -779,15 +1081,7 @@ sap.ui.define([
 
 
                 console.log(
-                    "===================================="
-                );
-
-                console.log(
-                    "✅ BAR CHART RENDERED"
-                );
-
-                console.log(
-                    "===================================="
+                    "Reconciliation bar chart rendered."
                 );
 
             },
@@ -797,53 +1091,25 @@ sap.ui.define([
             // CHART SELECTION
             // ============================================================
 
-            onReconciliationChartSelect:
-                function (oEvent) {
+            onReconciliationChartSelect: function (oEvent) {
 
-                    var aData =
-                        oEvent.getParameter(
-                            "data"
-                        );
-
-                    if (
-                        !aData ||
-                        !aData.length
-                    ) {
-                        return;
-                    }
-
-                    console.log(
-                        "Selected reconciliation metric:",
-                        aData[0].data
+                var aData =
+                    oEvent.getParameter(
+                        "data"
                     );
 
-                },
 
-
-            // ============================================================
-            // DETAIL PRESS
-            // ============================================================
-
-            onDetailPress: function (oEvent) {
-
-                var oContext =
-                    oEvent
-                        .getSource()
-                        .getBindingContext(
-                            "reconciliation"
-                        );
-
-                if (!oContext) {
+                if (
+                    !aData ||
+                    !aData.length
+                ) {
                     return;
                 }
 
-                console.log(
-                    "Reconciliation detail:",
-                    oContext.getObject()
-                );
 
-                MessageToast.show(
-                    "Reconciliation detail selected"
+                console.log(
+                    "Selected reconciliation metric:",
+                    aData[0].data
                 );
 
             },
@@ -860,83 +1126,107 @@ sap.ui.define([
                         "reconciliation"
                     );
 
+
                 if (!oModel) {
+
+                    MessageToast.show(
+                        "Reconciliation data is not available."
+                    );
+
                     return;
+
                 }
+
 
                 var aGroups =
                     oModel.getProperty(
                         "/groups"
                     ) || [];
 
+
                 var aRows = [];
+
+
+                // --------------------------------------------------------
+                // FLATTEN GROUP DETAILS
+                // --------------------------------------------------------
 
                 aGroups.forEach(
                     function (oGroup) {
 
                         if (
-                            oGroup.details &&
-                            oGroup.details.length
+                            !oGroup.details ||
+                            !oGroup.details.length
                         ) {
-
-                            oGroup.details.forEach(
-                                function (oDetail) {
-
-                                    aRows.push({
-
-                                        Date:
-                                            oGroup.date,
-
-                                        Currency:
-                                            oGroup.currency,
-
-                                        Direction:
-                                            oGroup.direction,
-
-                                        AccountManagement:
-                                            oDetail.AccountManagement,
-
-                                        SystemId:
-                                            oDetail.SystemId,
-
-                                        ApplicationId:
-                                            oDetail.ApplicationId,
-
-                                        AddId:
-                                            oDetail.AddId,
-
-                                        ReconciliationGroupKey:
-                                            oDetail.ReconciliationGroupKey,
-
-                                        PaymentItemCategory:
-                                            oDetail.PaymentItemCategory,
-
-                                        ReconciliationObjects:
-                                            oDetail.ReconciliationObjects,
-
-                                        ReconciliationAmount:
-                                            oDetail.ReconciliationAmount
-
-                                    });
-
-                                }
-                            );
-
+                            return;
                         }
+
+
+                        oGroup.details.forEach(
+                            function (oDetail) {
+
+                                aRows.push({
+
+                                    Date:
+                                        oGroup.date,
+
+                                    Currency:
+                                        oGroup.currency,
+
+                                    Direction:
+                                        oGroup.direction,
+
+                                    AccountManagement:
+                                        oDetail.AccountManagement,
+
+                                    SystemId:
+                                        oDetail.SystemId,
+
+                                    ApplicationId:
+                                        oDetail.ApplicationId,
+
+                                    AddId:
+                                        oDetail.AddId,
+
+                                    ReconciliationGroupKey:
+                                        oDetail.ReconciliationGroupKey,
+
+                                    PaymentItemCategory:
+                                        oDetail.PaymentItemCategory,
+
+                                    ReconciliationObjects:
+                                        oDetail.ReconciliationObjects,
+
+                                    ReconciliationAmount:
+                                        oDetail.ReconciliationAmount
+
+                                });
+
+                            }
+                        );
 
                     }
                 );
 
 
+                // --------------------------------------------------------
+                // NO DATA
+                // --------------------------------------------------------
+
                 if (!aRows.length) {
 
                     MessageToast.show(
-                        "No reconciliation data to export"
+                        "No reconciliation data to export."
                     );
 
                     return;
+
                 }
 
+
+                // --------------------------------------------------------
+                // EXCEL COLUMNS
+                // --------------------------------------------------------
 
                 var aColumns = [
 
@@ -998,6 +1288,10 @@ sap.ui.define([
                 ];
 
 
+                // --------------------------------------------------------
+                // EXCEL SETTINGS
+                // --------------------------------------------------------
+
                 var oSettings = {
 
                     workbook: {
@@ -1013,6 +1307,10 @@ sap.ui.define([
 
                 };
 
+
+                // --------------------------------------------------------
+                // CREATE EXCEL
+                // --------------------------------------------------------
 
                 var oSpreadsheet =
                     new Spreadsheet(
