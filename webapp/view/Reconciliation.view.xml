@@ -15,9 +15,9 @@
         <!-- ===================================================== -->
 
         <VBox
-             id="reconciliationHeaderSection"
-              width="100%"
-             class="reconciliationHeaderSection">
+            id="reconciliationHeaderSection"
+            width="100%"
+            class="reconciliationHeaderSection">
 
             <Title
                 id="reconciliationPageTitle"
@@ -29,139 +29,137 @@
                 text="Evaluation of outgoing items sent to AM System"
                 class="reconSubtitle"/>
 
-        
-
-<!-- ========================================================= -->
-<!-- RECONCILIATION SYSTEM FILTERS                            -->
-<!-- ========================================================= -->
-
-<VBox
-    id="reconciliationFilterCard"
-    width="100%"
-    class="reconciliationFilterCard">
-
-    <HBox
-        id="reconciliationFilterHeader"
-        width="100%"
-        alignItems="Center"
-        class="reconciliationFilterHeader">
-
-        <VBox
-            id="reconciliationFilterTitleBox">
-
-            <Title
-                id="reconciliationFilterTitle"
-                text="Reconciliation Systems"
-                level="H5"/>
-
-            <Text
-                id="reconciliationFilterDescription"
-                text="Select the source and target system for reconciliation"
-                class="reconciliationFilterDescription"/>
-
         </VBox>
 
-    </HBox>
-
-
-    <HBox
-        id="reconciliationSystemFilterBar"
-        width="100%"
-        justifyContent="Start"
-        alignItems="End"
-        class="reconciliationFilterBar">
-
-
-        <!-- SYSTEM 1 -->
-
-        <VBox
-            id="system1FilterContainer"
-            width="200px"
-            class="reconciliationFilterItem">
-
-            <Label
-                id="system1Label"
-                text="System 1"
-                labelFor="system1Select"/>
-
-            <Select
-                id="system1Select"
-                width="100%"
-                selectedKey="{reconciliation>/filters/system1}"
-                change=".onSystem1Change">
-
-                <core:Item
-                    id="system1EmptyItem"
-                    key=""
-                    text="Select System 1"/>
-
-                <core:Item
-                    id="system1PCItem"
-                    key="PC"
-                    text="PC"/>
-
-                <core:Item
-                    id="system1DMItem"
-                    key="DM"
-                    text="DM"/>
-
-            </Select>
-
-        </VBox>
-
-
-        <!-- SYSTEM 2 -->
-
-        <VBox
-            id="system2FilterContainer"
-            width="200px"
-            class="reconciliationFilterItem">
-
-            <Label
-                id="system2Label"
-                text="System 2"
-                labelFor="system2Select"/>
-
-            <Select
-                id="system2Select"
-                width="100%"
-                selectedKey="{reconciliation>/filters/system2}"
-                change=".onSystem2Change">
-
-                <core:Item
-                    id="system2EmptyItem"
-                    key=""
-                    text="Select System 2"/>
-
-                <core:Item
-                    id="system2DMItem"
-                    key="DM"
-                    text="DM"/>
-
-            </Select>
-
-        </VBox>
-
-
-        <!-- RESET -->
-
-        <Button
-            id="reconciliationFilterResetButton"
-            text="Reset"
-            icon="sap-icon://reset"
-            type="Transparent"
-            press=".onResetSystemFilters"
-            class="reconciliationFilterReset"/>
-
-    </HBox>
-
-</VBox>
-
-</VBox>
-       
 
         <!-- ===================================================== -->
-        <!-- RECONCILIATION BAR CHART                              -->
+        <!-- SYSTEM FILTERS                                        -->
+        <!-- ===================================================== -->
+
+        <VBox
+            id="reconciliationFilterCard"
+            width="100%"
+            class="reconciliationFilterCard">
+
+            <HBox
+                id="reconciliationFilterHeader"
+                width="100%"
+                alignItems="Center"
+                class="reconciliationFilterHeader">
+
+                <VBox
+                    id="reconciliationFilterTitleBox">
+
+                    <Title
+                        id="reconciliationFilterTitle"
+                        text="Reconciliation Systems"
+                        level="H5"/>
+
+                    <Text
+                        id="reconciliationFilterDescription"
+                        text="Select the source and target system for reconciliation"
+                        class="reconciliationFilterDescription"/>
+
+                </VBox>
+
+            </HBox>
+
+
+            <HBox
+                id="reconciliationSystemFilterBar"
+                width="100%"
+                justifyContent="Start"
+                alignItems="End"
+                class="reconciliationFilterBar">
+
+                <!-- SYSTEM 1 -->
+
+                <VBox
+                    id="system1FilterContainer"
+                    width="200px"
+                    class="reconciliationFilterItem">
+
+                    <Label
+                        id="system1Label"
+                        text="System 1"
+                        labelFor="system1Select"/>
+
+                    <Select
+                        id="system1Select"
+                        width="100%"
+                        selectedKey="{reconciliation>/filters/system1}"
+                        change=".onSystem1Change">
+
+                        <core:Item
+                            id="system1EmptyItem"
+                            key=""
+                            text="Select System 1"/>
+
+                        <core:Item
+                            id="system1PCItem"
+                            key="PC"
+                            text="PC"/>
+
+                        <core:Item
+                            id="system1DMItem"
+                            key="DM"
+                            text="DM"/>
+
+                    </Select>
+
+                </VBox>
+
+
+                <!-- SYSTEM 2 -->
+
+                <VBox
+                    id="system2FilterContainer"
+                    width="200px"
+                    class="reconciliationFilterItem">
+
+                    <Label
+                        id="system2Label"
+                        text="System 2"
+                        labelFor="system2Select"/>
+
+                    <Select
+                        id="system2Select"
+                        width="100%"
+                        selectedKey="{reconciliation>/filters/system2}"
+                        change=".onSystem2Change">
+
+                        <core:Item
+                            id="system2EmptyItem"
+                            key=""
+                            text="Select System 2"/>
+
+                        <core:Item
+                            id="system2DMItem"
+                            key="DM"
+                            text="DM"/>
+
+                    </Select>
+
+                </VBox>
+
+
+                <!-- RESET -->
+
+                <Button
+                    id="reconciliationFilterResetButton"
+                    text="Reset"
+                    icon="sap-icon://reset"
+                    type="Default"
+                    press=".onResetSystemFilters"
+                    class="reconciliationFilterReset"/>
+
+            </HBox>
+
+        </VBox>
+
+
+        <!-- ===================================================== -->
+        <!-- RECONCILIATION CHART                                  -->
         <!-- ===================================================== -->
 
         <Panel
@@ -183,7 +181,16 @@
                     <ToolbarSpacer
                         id="reconciliationChartToolbarSpacer"/>
 
-                   
+
+                    <!-- CHART TYPE BUTTON -->
+
+                    <Button
+                        id="reconChartTypeButton"
+                        icon="sap-icon://bar-chart"
+                        type="Default"
+                        tooltip="Change chart type"
+                        press=".onReconChartTypeMenuPress"
+                        class="chartToolbarButton"/>
 
                 </OverflowToolbar>
 
@@ -217,277 +224,276 @@
         <!-- RECONCILIATION DETAILS                                -->
         <!-- ===================================================== -->
 
-      <Panel
-    id="reconciliationDetailsPanel"
-    width="100%"
-    class="reconTableCard"
-    backgroundDesign="Transparent">
-
-    <headerToolbar>
-
-        <OverflowToolbar
-            id="reconciliationDetailsToolbar">
-
-            <Title
-                id="reconciliationDetailsTitle"
-                text="Reconciliation Details"
-                level="H4"/>
-
-            <ToolbarSpacer
-                id="reconciliationDetailsSpacer"/>
-
-            <Button
-                id="btnExportReconciliation"
-                text="Export to Excel"
-                icon="sap-icon://excel-attachment"
-                type="Transparent"
-                press=".onExportExcel"/>
-
-        </OverflowToolbar>
-
-    </headerToolbar>
-
-
-    <content>
-
-        <!-- SCROLLABLE RECONCILIATION AREA -->
-        <ScrollContainer
-            id="reconciliationDetailsScroll"
+        <Panel
+            id="reconciliationDetailsPanel"
             width="100%"
-            height="500px"
-            vertical="true"
-            horizontal="false">
+            class="reconTableCard"
+            backgroundDesign="Transparent">
 
-            <List
-                id="reconciliationGroupList"
-                width="100%"
-                items="{
-                    path: 'reconciliation>/groups',
-                    templateShareable: false
-                }"
-                showSeparators="None"
-                class="reconGroupList">
+            <headerToolbar>
 
-                <CustomListItem
-                    id="reconciliationGroupItem">
+                <OverflowToolbar
+                    id="reconciliationDetailsToolbar">
 
-                    <VBox
-                        id="reconciliationGroupContainer"
+                    <Title
+                        id="reconciliationDetailsTitle"
+                        text="Reconciliation Details"
+                        level="H4"/>
+
+                    <ToolbarSpacer
+                        id="reconciliationDetailsSpacer"/>
+
+                    <Button
+                        id="btnExportReconciliation"
+                        text="Export to Excel"
+                        icon="sap-icon://excel-attachment"
+                        type="Transparent"
+                        press=".onExportExcel"/>
+
+                </OverflowToolbar>
+
+            </headerToolbar>
+
+
+            <content>
+
+                <ScrollContainer
+                    id="reconciliationDetailsScroll"
+                    width="100%"
+                    height="500px"
+                    vertical="true"
+                    horizontal="false">
+
+                    <List
+                        id="reconciliationGroupList"
                         width="100%"
-                        class="reconGroupContainer">
+                        items="{
+                            path: 'reconciliation>/groups',
+                            templateShareable: false
+                        }"
+                        showSeparators="None"
+                        class="reconGroupList">
 
-                        <!-- GROUP HEADER -->
-
-                        <HBox
-                            id="reconciliationGroupHeader"
-                            width="100%"
-                            alignItems="Center"
-                            class="reconGroupHeader">
-
-                            <Button
-                                id="reconciliationExpandButton"
-                                icon="{= ${reconciliation>expanded} ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
-                                type="Transparent"
-                                press=".onToggleGroup"
-                                class="reconExpandButton"/>
+                        <CustomListItem
+                            id="reconciliationGroupItem">
 
                             <VBox
-                                id="reconciliationGroupTitleBox"
-                                class="reconGroupTitleBox">
+                                id="reconciliationGroupContainer"
+                                width="100%"
+                                class="reconGroupContainer">
 
-                                <Title
-                                    id="reconciliationGroupTitle"
-                                    text="{= ${reconciliation>date} + ' · ' + ${reconciliation>currency} + ' · ' + ${reconciliation>direction} }"
-                                    level="H5"/>
+                                <!-- GROUP HEADER -->
 
-                                <Text
-                                    id="reconciliationGroupSubtext"
-                                    text="Reconciliation Group"
-                                    class="reconGroupSubtext"/>
+                                <HBox
+                                    id="reconciliationGroupHeader"
+                                    width="100%"
+                                    alignItems="Center"
+                                    class="reconGroupHeader">
+
+                                    <Button
+                                        id="reconciliationExpandButton"
+                                        icon="{= ${reconciliation>expanded} ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                        type="Transparent"
+                                        press=".onToggleGroup"
+                                        class="reconExpandButton"/>
+
+                                    <VBox
+                                        id="reconciliationGroupTitleBox"
+                                        class="reconGroupTitleBox">
+
+                                        <Title
+                                            id="reconciliationGroupTitle"
+                                            text="{= ${reconciliation>date} + ' · ' + ${reconciliation>currency} + ' · ' + ${reconciliation>direction} }"
+                                            level="H5"/>
+
+                                        <Text
+                                            id="reconciliationGroupSubtext"
+                                            text="Reconciliation Group"
+                                            class="reconGroupSubtext"/>
+
+                                    </VBox>
+
+                                    <ToolbarSpacer
+                                        id="reconciliationGroupSpacer"/>
+
+                                    <ObjectStatus
+                                        id="reconciliationDirectionStatus"
+                                        text="{reconciliation>direction}"
+                                        state="{reconciliation>directionState}"
+                                        class="reconDirectionStatus"/>
+
+                                    <VBox
+                                        id="reconciliationSubtotal"
+                                        alignItems="End"
+                                        class="reconSubtotal">
+
+                                        <Text
+                                            id="reconciliationSubtotalCount"
+                                            text="{= ${reconciliation>count} + ' objects' }"
+                                            class="reconSubtotalCount"/>
+
+                                        <ObjectNumber
+                                            id="reconciliationSubtotalNumber"
+                                            number="{reconciliation>amount}"
+                                            unit="{reconciliation>currency}"
+                                            emphasized="true"/>
+
+                                    </VBox>
+
+                                </HBox>
+
+
+                                <!-- DETAIL TABLE -->
+
+                                <Table
+                                    id="reconciliationDetailTable"
+                                    width="100%"
+                                    inset="false"
+                                    visible="{reconciliation>expanded}"
+                                    items="{
+                                        path: 'reconciliation>details',
+                                        templateShareable: false
+                                    }"
+                                    class="reconDetailTable">
+
+                                    <columns>
+
+                                        <Column
+                                            id="colAccountManagement">
+
+                                            <Text
+                                                id="txtAccountManagement"
+                                                text="Acct Mgmt"/>
+
+                                        </Column>
+
+                                        <Column
+                                            id="colSystemId">
+
+                                            <Text
+                                                id="txtSystemId"
+                                                text="System ID"/>
+
+                                        </Column>
+
+                                        <Column
+                                            id="colApplicationId">
+
+                                            <Text
+                                                id="txtApplicationId"
+                                                text="Appl. ID"/>
+
+                                        </Column>
+
+                                        <Column
+                                            id="colAddId">
+
+                                            <Text
+                                                id="txtAddId"
+                                                text="Add. ID"/>
+
+                                        </Column>
+
+                                        <Column
+                                            id="colReconGroupKey">
+
+                                            <Text
+                                                id="txtReconGroupKey"
+                                                text="Reconc. Grp Key"/>
+
+                                        </Column>
+
+                                        <Column
+                                            id="colPaymentItemCategory">
+
+                                            <Text
+                                                id="txtPaymentItemCategory"
+                                                text="Payment Item Category"/>
+
+                                        </Column>
+
+                                        <Column
+                                            id="colReconObjects"
+                                            hAlign="End">
+
+                                            <Text
+                                                id="txtReconObjects"
+                                                text="No. of Rcn Obj."/>
+
+                                        </Column>
+
+                                        <Column
+                                            id="colReconAmount"
+                                            hAlign="End">
+
+                                            <Text
+                                                id="txtReconAmount"
+                                                text="Recon. Amount"/>
+
+                                        </Column>
+
+                                    </columns>
+
+
+                                    <items>
+
+                                        <ColumnListItem
+                                            id="reconciliationDetailRow">
+
+                                            <cells>
+
+                                                <Text
+                                                    id="cellAccountManagement"
+                                                    text="{reconciliation>AccountManagement}"/>
+
+                                                <Text
+                                                    id="cellSystemId"
+                                                    text="{reconciliation>SystemId}"/>
+
+                                                <Text
+                                                    id="cellApplicationId"
+                                                    text="{reconciliation>ApplicationId}"/>
+
+                                                <Text
+                                                    id="cellAddId"
+                                                    text="{reconciliation>AddId}"/>
+
+                                                <Text
+                                                    id="cellReconGroupKey"
+                                                    text="{reconciliation>ReconciliationGroupKey}"/>
+
+                                                <Text
+                                                    id="cellPaymentItemCategory"
+                                                    text="{reconciliation>PaymentItemCategory}"/>
+
+                                                <ObjectNumber
+                                                    id="cellReconObjects"
+                                                    number="{reconciliation>ReconciliationObjects}"/>
+
+                                                <ObjectNumber
+                                                    id="cellReconAmount"
+                                                    number="{reconciliation>ReconciliationAmount}"
+                                                    unit="EUR"/>
+
+                                            </cells>
+
+                                        </ColumnListItem>
+
+                                    </items>
+
+                                </Table>
 
                             </VBox>
 
-                            <ToolbarSpacer
-                                id="reconciliationGroupSpacer"/>
+                        </CustomListItem>
 
-                            <ObjectStatus
-                                id="reconciliationDirectionStatus"
-                                text="{reconciliation>direction}"
-                                state="{reconciliation>directionState}"
-                                class="reconDirectionStatus"/>
+                    </List>
 
-                            <VBox
-                                id="reconciliationSubtotal"
-                                alignItems="End"
-                                class="reconSubtotal">
+                </ScrollContainer>
 
-                                <Text
-                                    id="reconciliationSubtotalCount"
-                                    text="{= ${reconciliation>count} + ' objects' }"
-                                    class="reconSubtotalCount"/>
+            </content>
 
-                                <ObjectNumber
-                                    id="reconciliationSubtotalNumber"
-                                    number="{reconciliation>amount}"
-                                    unit="{reconciliation>currency}"
-                                    emphasized="true"/>
-
-                            </VBox>
-
-                        </HBox>
-
-
-                        <!-- DETAIL TABLE -->
-
-                        <Table
-                            id="reconciliationDetailTable"
-                            width="100%"
-                            inset="false"
-                            visible="{reconciliation>expanded}"
-                            items="{
-                                path: 'reconciliation>details',
-                                templateShareable: false
-                            }"
-                            class="reconDetailTable">
-
-                            <columns>
-
-                                <Column
-                                    id="colAccountManagement">
-
-                                    <Text
-                                        id="txtAccountManagement"
-                                        text="Acct Mgmt"/>
-
-                                </Column>
-
-                                <Column
-                                    id="colSystemId">
-
-                                    <Text
-                                        id="txtSystemId"
-                                        text="System ID"/>
-
-                                </Column>
-
-                                <Column
-                                    id="colApplicationId">
-
-                                    <Text
-                                        id="txtApplicationId"
-                                        text="Appl. ID"/>
-
-                                </Column>
-
-                                <Column
-                                    id="colAddId">
-
-                                    <Text
-                                        id="txtAddId"
-                                        text="Add. ID"/>
-
-                                </Column>
-
-                                <Column
-                                    id="colReconGroupKey">
-
-                                    <Text
-                                        id="txtReconGroupKey"
-                                        text="Reconc. Grp Key"/>
-
-                                </Column>
-
-                                <Column
-                                    id="colPaymentItemCategory">
-
-                                    <Text
-                                        id="txtPaymentItemCategory"
-                                        text="Payment Item Category"/>
-
-                                </Column>
-
-                                <Column
-                                    id="colReconObjects"
-                                    hAlign="End">
-
-                                    <Text
-                                        id="txtReconObjects"
-                                        text="No. of Rcn Obj."/>
-
-                                </Column>
-
-                                <Column
-                                    id="colReconAmount"
-                                    hAlign="End">
-
-                                    <Text
-                                        id="txtReconAmount"
-                                        text="Recon. Amount"/>
-
-                                </Column>
-
-                            </columns>
-
-
-                            <items>
-
-                                <ColumnListItem
-                                    id="reconciliationDetailRow">
-
-                                    <cells>
-
-                                        <Text
-                                            id="cellAccountManagement"
-                                            text="{reconciliation>AccountManagement}"/>
-
-                                        <Text
-                                            id="cellSystemId"
-                                            text="{reconciliation>SystemId}"/>
-
-                                        <Text
-                                            id="cellApplicationId"
-                                            text="{reconciliation>ApplicationId}"/>
-
-                                        <Text
-                                            id="cellAddId"
-                                            text="{reconciliation>AddId}"/>
-
-                                        <Text
-                                            id="cellReconGroupKey"
-                                            text="{reconciliation>ReconciliationGroupKey}"/>
-
-                                        <Text
-                                            id="cellPaymentItemCategory"
-                                            text="{reconciliation>PaymentItemCategory}"/>
-
-                                        <ObjectNumber
-                                            id="cellReconObjects"
-                                            number="{reconciliation>ReconciliationObjects}"/>
-
-                                        <ObjectNumber
-                                            id="cellReconAmount"
-                                            number="{reconciliation>ReconciliationAmount}"
-                                            unit="EUR"/>
-
-                                    </cells>
-
-                                </ColumnListItem>
-
-                            </items>
-
-                        </Table>
-
-                    </VBox>
-
-                </CustomListItem>
-
-            </List>
-
-        </ScrollContainer>
-
-    </content>
-
-</Panel>
+        </Panel>
 
     </VBox>
 

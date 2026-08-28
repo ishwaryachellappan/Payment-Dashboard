@@ -2,6 +2,8 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
+    "sap/m/Menu",
+    "sap/m/MenuItem",
     "sap/ui/export/Spreadsheet",
     "sap/viz/ui5/data/FlattenedDataset",
     "sap/viz/ui5/data/DimensionDefinition",
@@ -11,6 +13,8 @@ sap.ui.define([
     Controller,
     JSONModel,
     MessageToast,
+    Menu,
+    MenuItem,
     Spreadsheet,
     FlattenedDataset,
     DimensionDefinition,
@@ -20,25 +24,87 @@ sap.ui.define([
 
     "use strict";
 
+
+    /* ============================================================
+       CHART CONFIGURATION
+       ============================================================ */
+
+    var RECON_CHART_TYPE_CONFIG = {
+
+        bar: {
+            vizType: "bar",
+            label: "Bar Chart",
+            icon: "sap-icon://horizontal-bar-chart-2"
+        },
+
+        column: {
+            vizType: "column",
+            label: "Column Chart",
+            icon: "sap-icon://vertical-bar-chart"
+        },
+
+        line: {
+            vizType: "line",
+            label: "Line Chart",
+            icon: "sap-icon://line-chart"
+        },
+
+        pie: {
+            vizType: "pie",
+            label: "Pie Chart",
+            icon: "sap-icon://pie-chart"
+        },
+
+        donut: {
+            vizType: "donut",
+            label: "Donut Chart",
+            icon: "sap-icon://donut-chart"
+        },
+
+        heatmap: {
+            vizType: "heatmap",
+            label: "Heat Map",
+            icon: "sap-icon://heatmap-chart"
+        },
+
+        stacked_bar: {
+            vizType: "stacked_bar",
+            label: "Stacked Bar Chart",
+            icon: "sap-icon://horizontal-bar-chart"
+        },
+
+        stacked_column: {
+            vizType: "stacked_column",
+            label: "Stacked Column Chart",
+            icon: "sap-icon://vertical-bar-chart-2"
+        },
+
+        "100_stacked_bar": {
+            vizType: "100_stacked_bar",
+            label: "100% Stacked Bar Chart",
+            icon: "sap-icon://full-stacked-chart"
+        },
+
+        "100_stacked_column": {
+            vizType: "100_stacked_column",
+            label: "100% Stacked Column Chart",
+            icon: "sap-icon://full-stacked-column-chart"
+        }
+
+    };
+
+
     return Controller.extend(
         "payment.dashboard.controller.Reconciliation",
         {
 
-            // ============================================================
-            // INITIALIZATION
-            // ============================================================
+            /* ========================================================
+               INIT
+               ======================================================== */
 
             onInit: function () {
 
-                // --------------------------------------------------------
-                // RECONCILIATION GROUP DATA
-                // --------------------------------------------------------
-
                 var aGroups = [
-
-                    // ====================================================
-                    // G001 - CREDIT
-                    // ====================================================
 
                     {
                         groupId: "G001",
@@ -89,10 +155,6 @@ sap.ui.define([
                     },
 
 
-                    // ====================================================
-                    // G002 - DEBIT
-                    // ====================================================
-
                     {
                         groupId: "G002",
                         date: "02.03.2026",
@@ -131,10 +193,6 @@ sap.ui.define([
                     },
 
 
-                    // ====================================================
-                    // G003 - CREDIT
-                    // ====================================================
-
                     {
                         groupId: "G003",
                         date: "07.04.2026",
@@ -172,10 +230,6 @@ sap.ui.define([
                         ]
                     },
 
-
-                    // ====================================================
-                    // G004 - DEBIT
-                    // ====================================================
 
                     {
                         groupId: "G004",
@@ -217,15 +271,11 @@ sap.ui.define([
                 ];
 
 
-                // ========================================================
-                // MODEL DATA
-                // ========================================================
+                /* ========================================================
+                   MODEL DATA
+                   ======================================================== */
 
                 var oData = {
-
-                    // ----------------------------------------------------
-                    // KPI VALUES
-                    // ----------------------------------------------------
 
                     kpi: {
 
@@ -240,9 +290,11 @@ sap.ui.define([
                     },
 
 
-                    // ----------------------------------------------------
-                    // RECONCILIATION CHART
-                    // ----------------------------------------------------
+                    /*
+                     * THIS IS THE RECONCILIATION CHART DATA.
+                     *
+                     * DO NOT CHANGE Category TO Direction.
+                     */
 
                     chartData: [
 
@@ -264,10 +316,6 @@ sap.ui.define([
                     ],
 
 
-                    // ----------------------------------------------------
-                    // SYSTEM FILTERS
-                    // ----------------------------------------------------
-
                     filters: {
 
                         system1: "",
@@ -277,20 +325,17 @@ sap.ui.define([
                     },
 
 
-                    // ----------------------------------------------------
-                    // RECONCILIATION DETAILS
-                    // ----------------------------------------------------
-
                     groups: aGroups
 
                 };
 
 
-                // ========================================================
-                // CREATE MODEL
-                // ========================================================
+                /* ========================================================
+                   CREATE MODEL
+                   ======================================================== */
 
-                var oModel = new JSONModel(oData);
+                var oModel =
+                    new JSONModel(oData);
 
                 oModel.setSizeLimit(1000);
 
@@ -300,23 +345,34 @@ sap.ui.define([
                 );
 
 
-                // ========================================================
-                // CREATE CHART AFTER VIEW RENDERING
-                // ========================================================
+                /* ========================================================
+                   DEFAULT CHART TYPE
+                   ======================================================== */
+
+                this._sActiveReconChartType =
+                    "column";
+
+
+                /* ========================================================
+                   CREATE CHART AFTER RENDERING
+                   ======================================================== */
 
                 this.getView().addEventDelegate({
 
                     onAfterRendering: function () {
 
                         setTimeout(
+
                             function () {
 
-                                this._createBarChart();
+                                this._createReconChart();
 
                                 this._updateSystem2Availability();
 
                             }.bind(this),
+
                             300
+
                         );
 
                     }.bind(this)
@@ -326,9 +382,9 @@ sap.ui.define([
             },
 
 
-            // ============================================================
-            // SYSTEM 1 CHANGE
-            // ============================================================
+            /* ============================================================
+               SYSTEM 1 CHANGE
+               ============================================================ */
 
             onSystem1Change: function (oEvent) {
 
@@ -354,10 +410,6 @@ sap.ui.define([
                     );
 
 
-                // --------------------------------------------------------
-                // PREVENT SAME SYSTEM
-                // --------------------------------------------------------
-
                 if (
                     sSystem1 &&
                     sSystem1 === sSystem2
@@ -371,20 +423,19 @@ sap.ui.define([
                         .getSource()
                         .setSelectedKey("");
 
+
                     oModel.setProperty(
                         "/filters/system1",
                         ""
                     );
 
+
                     this._updateSystem2Availability();
 
                     return;
+
                 }
 
-
-                // --------------------------------------------------------
-                // SAVE SELECTION
-                // --------------------------------------------------------
 
                 oModel.setProperty(
                     "/filters/system1",
@@ -392,25 +443,16 @@ sap.ui.define([
                 );
 
 
-                // --------------------------------------------------------
-                // UPDATE SYSTEM 2
-                // --------------------------------------------------------
-
                 this._updateSystem2Availability();
-
-
-                // --------------------------------------------------------
-                // APPLY FILTER
-                // --------------------------------------------------------
 
                 this._applySystemFilters();
 
             },
 
 
-            // ============================================================
-            // SYSTEM 2 CHANGE
-            // ============================================================
+            /* ============================================================
+               SYSTEM 2 CHANGE
+               ============================================================ */
 
             onSystem2Change: function (oEvent) {
 
@@ -436,10 +478,6 @@ sap.ui.define([
                     );
 
 
-                // --------------------------------------------------------
-                // PREVENT SAME SYSTEM
-                // --------------------------------------------------------
-
                 if (
                     sSystem2 &&
                     sSystem2 === sSystem1
@@ -453,18 +491,16 @@ sap.ui.define([
                         .getSource()
                         .setSelectedKey("");
 
+
                     oModel.setProperty(
                         "/filters/system2",
                         ""
                     );
 
                     return;
+
                 }
 
-
-                // --------------------------------------------------------
-                // SAVE SELECTION
-                // --------------------------------------------------------
 
                 oModel.setProperty(
                     "/filters/system2",
@@ -472,18 +508,14 @@ sap.ui.define([
                 );
 
 
-                // --------------------------------------------------------
-                // APPLY FILTER
-                // --------------------------------------------------------
-
                 this._applySystemFilters();
 
             },
 
 
-            // ============================================================
-            // UPDATE SYSTEM 2 AVAILABILITY
-            // ============================================================
+            /* ============================================================
+               ENABLE / DISABLE SYSTEM 2
+               ============================================================ */
 
             _updateSystem2Availability: function () {
 
@@ -516,11 +548,6 @@ sap.ui.define([
                     oSystem1.getSelectedKey();
 
 
-                // --------------------------------------------------------
-                // SYSTEM 1 = DM
-                // SYSTEM 2 = DM NOT ALLOWED
-                // --------------------------------------------------------
-
                 if (sSystem1 === "DM") {
 
                     oDMItem.setEnabled(false);
@@ -533,6 +560,7 @@ sap.ui.define([
                             "reconciliation"
                         );
 
+
                     if (oModel) {
 
                         oModel.setProperty(
@@ -542,14 +570,7 @@ sap.ui.define([
 
                     }
 
-                }
-
-                // --------------------------------------------------------
-                // SYSTEM 1 = PC
-                // SYSTEM 2 = DM ALLOWED
-                // --------------------------------------------------------
-
-                else {
+                } else {
 
                     oDMItem.setEnabled(true);
 
@@ -558,9 +579,9 @@ sap.ui.define([
             },
 
 
-            // ============================================================
-            // APPLY SYSTEM FILTERS
-            // ============================================================
+            /* ============================================================
+               APPLY FILTER
+               ============================================================ */
 
             _applySystemFilters: function () {
 
@@ -579,7 +600,6 @@ sap.ui.define([
                         "/filters/system1"
                     );
 
-
                 var sSystem2 =
                     oModel.getProperty(
                         "/filters/system2"
@@ -597,27 +617,6 @@ sap.ui.define([
                 );
 
 
-                // --------------------------------------------------------
-                // NO FILTER
-                // --------------------------------------------------------
-
-                if (
-                    !sSystem1 &&
-                    !sSystem2
-                ) {
-
-                    console.log(
-                        "No reconciliation system filter selected."
-                    );
-
-                    return;
-                }
-
-
-                // --------------------------------------------------------
-                // PC -> DM
-                // --------------------------------------------------------
-
                 if (
                     sSystem1 === "PC" &&
                     sSystem2 === "DM"
@@ -627,33 +626,14 @@ sap.ui.define([
                         "Valid reconciliation flow: PC → DM"
                     );
 
-                    return;
-                }
-
-
-                // --------------------------------------------------------
-                // SYSTEM 1 ONLY
-                // --------------------------------------------------------
-
-                if (
-                    sSystem1 &&
-                    !sSystem2
-                ) {
-
-                    console.log(
-                        "System 1 selected:",
-                        sSystem1
-                    );
-
-                    return;
                 }
 
             },
 
 
-            // ============================================================
-            // RESET FILTERS
-            // ============================================================
+            /* ============================================================
+               RESET
+               ============================================================ */
 
             onResetSystemFilters: function () {
 
@@ -667,10 +647,6 @@ sap.ui.define([
                 }
 
 
-                // --------------------------------------------------------
-                // RESET MODEL
-                // --------------------------------------------------------
-
                 oModel.setProperty(
                     "/filters/system1",
                     ""
@@ -681,10 +657,6 @@ sap.ui.define([
                     ""
                 );
 
-
-                // --------------------------------------------------------
-                // RESET CONTROLS
-                // --------------------------------------------------------
 
                 var oSystem1 =
                     this.byId(
@@ -698,22 +670,13 @@ sap.ui.define([
 
 
                 if (oSystem1) {
-
                     oSystem1.setSelectedKey("");
-
                 }
-
 
                 if (oSystem2) {
-
                     oSystem2.setSelectedKey("");
-
                 }
 
-
-                // --------------------------------------------------------
-                // ENABLE SYSTEM 2 DM AGAIN
-                // --------------------------------------------------------
 
                 this._updateSystem2Availability();
 
@@ -725,9 +688,9 @@ sap.ui.define([
             },
 
 
-            // ============================================================
-            // GROUP EXPANSION
-            // ============================================================
+            /* ============================================================
+               GROUP EXPANSION
+               ============================================================ */
 
             onToggleGroup: function (oEvent) {
 
@@ -744,10 +707,6 @@ sap.ui.define([
                 }
 
 
-                var sPath =
-                    oContext.getPath();
-
-
                 var bExpanded =
                     oContext.getProperty(
                         "expanded"
@@ -757,18 +716,19 @@ sap.ui.define([
                 oContext
                     .getModel()
                     .setProperty(
-                        sPath + "/expanded",
+                        oContext.getPath() +
+                        "/expanded",
                         !bExpanded
                     );
 
             },
 
 
-            // ============================================================
-            // CREATE BAR CHART
-            // ============================================================
+            /* ============================================================
+               CREATE RECONCILIATION CHART
+               ============================================================ */
 
-            _createBarChart: function () {
+            _createReconChart: function () {
 
                 var oChart =
                     this.byId(
@@ -779,7 +739,7 @@ sap.ui.define([
                 if (!oChart) {
 
                     console.error(
-                        "Reconciliation chart not found."
+                        "Reconciliation VizFrame not found."
                     );
 
                     return;
@@ -794,13 +754,7 @@ sap.ui.define([
 
 
                 if (!oModel) {
-
-                    console.error(
-                        "Reconciliation model not found."
-                    );
-
                     return;
-
                 }
 
 
@@ -810,9 +764,15 @@ sap.ui.define([
                     );
 
 
+                console.log(
+                    "RECONCILIATION CHART DATA:",
+                    aChartData
+                );
+
+
                 if (
                     !Array.isArray(aChartData) ||
-                    aChartData.length === 0
+                    !aChartData.length
                 ) {
 
                     console.error(
@@ -824,9 +784,9 @@ sap.ui.define([
                 }
 
 
-                // --------------------------------------------------------
-                // REMOVE EXISTING DATASET
-                // --------------------------------------------------------
+                /* ====================================================
+                   REMOVE OLD DATASET
+                   ==================================================== */
 
                 var oOldDataset =
                     oChart.getDataset();
@@ -841,16 +801,20 @@ sap.ui.define([
                 }
 
 
-                // --------------------------------------------------------
-                // REMOVE EXISTING FEEDS
-                // --------------------------------------------------------
+                /* ====================================================
+                   REMOVE OLD FEEDS
+                   ==================================================== */
 
                 oChart.removeAllFeeds();
 
 
-                // --------------------------------------------------------
-                // DATASET
-                // --------------------------------------------------------
+                /* ====================================================
+                   DATASET
+
+                   IMPORTANT:
+                   Category -> Category
+                   Amount   -> Amount
+                   ==================================================== */
 
                 var oDataset =
                     new FlattenedDataset({
@@ -858,6 +822,7 @@ sap.ui.define([
                         data: {
                             path: "/chartData"
                         },
+
 
                         dimensions: [
 
@@ -870,6 +835,7 @@ sap.ui.define([
                             })
 
                         ],
+
 
                         measures: [
 
@@ -886,29 +852,282 @@ sap.ui.define([
                     });
 
 
-                // --------------------------------------------------------
-                // MODEL
-                // --------------------------------------------------------
-
                 oChart.setModel(
                     oModel
                 );
 
-
-                // --------------------------------------------------------
-                // DATASET
-                // --------------------------------------------------------
 
                 oChart.setDataset(
                     oDataset
                 );
 
 
-                // --------------------------------------------------------
-                // CATEGORY FEED
-                // --------------------------------------------------------
+                /* ====================================================
+                   DEFAULT CHART
+                   ==================================================== */
 
-                var oCategoryFeed =
+                oChart.setVizType(
+                    "column"
+                );
+
+
+                this._configureReconChart(
+                    "column"
+                );
+
+
+                console.log(
+                    "Reconciliation chart created successfully."
+                );
+
+            },
+
+
+            /* ============================================================
+               CHART TYPE MENU
+               ============================================================ */
+
+            onReconChartTypeMenuPress: function (oEvent) {
+
+                var oButton =
+                    oEvent.getSource();
+
+
+                if (!this._oReconChartTypeMenu) {
+
+                    var aItems =
+                        Object.keys(
+                            RECON_CHART_TYPE_CONFIG
+                        ).map(
+
+                            function (sKey) {
+
+                                var oConfig =
+                                    RECON_CHART_TYPE_CONFIG[
+                                        sKey
+                                    ];
+
+
+                                var oItem =
+                                    new MenuItem({
+
+                                        text:
+                                            oConfig.label,
+
+                                        icon:
+                                            oConfig.icon
+
+                                    });
+
+
+                                oItem.data(
+                                    "configKey",
+                                    sKey
+                                );
+
+
+                                return oItem;
+
+                            }.bind(this)
+
+                        );
+
+
+                    this._oReconChartTypeMenu =
+                        new Menu({
+
+                            items: aItems,
+
+                            itemSelected:
+                                this
+                                    .onReconChartTypeSelected
+                                    .bind(this)
+
+                        });
+
+
+                    this.getView().addDependent(
+                        this._oReconChartTypeMenu
+                    );
+
+                }
+
+
+                this._oReconChartTypeMenu.openBy(
+                    oButton
+                );
+
+            },
+
+
+            /* ============================================================
+               CHART TYPE SELECTED
+               ============================================================ */
+
+            onReconChartTypeSelected: function (oEvent) {
+
+                var oItem =
+                    oEvent.getParameter(
+                        "item"
+                    );
+
+
+                if (!oItem) {
+                    return;
+                }
+
+
+                var sChartType =
+                    oItem.data(
+                        "configKey"
+                    );
+
+
+                if (!sChartType) {
+                    return;
+                }
+
+
+                this._applyReconChartType(
+                    sChartType
+                );
+
+            },
+
+
+            /* ============================================================
+               APPLY CHART TYPE
+               ============================================================ */
+
+            _applyReconChartType: function (sChartType) {
+
+                var oChart =
+                    this.byId(
+                        "reconciliationBarVizFrame"
+                    );
+
+
+                if (!oChart) {
+                    return;
+                }
+
+
+                var oConfig =
+                    RECON_CHART_TYPE_CONFIG[
+                        sChartType
+                    ];
+
+
+                if (!oConfig) {
+                    return;
+                }
+
+
+                this._sActiveReconChartType =
+                    sChartType;
+
+
+                var oButton =
+                    this.byId(
+                        "reconChartTypeButton"
+                    );
+
+
+                if (oButton) {
+
+                    oButton.setIcon(
+                        oConfig.icon
+                    );
+
+                    oButton.setTooltip(
+                        oConfig.label
+                    );
+
+                }
+
+
+                oChart.setVizType(
+                    oConfig.vizType
+                );
+
+
+                this._configureReconChart(
+                    sChartType
+                );
+
+            },
+
+
+            /* ============================================================
+               CONFIGURE CHART
+               ============================================================ */
+
+            _configureReconChart: function (sChartType) {
+
+                switch (sChartType) {
+
+                    case "pie":
+
+                        this._configureReconPieChart();
+
+                        break;
+
+
+                    case "donut":
+
+                        this._configureReconDonutChart();
+
+                        break;
+
+
+                    case "heatmap":
+
+                        this._configureReconHeatmapChart();
+
+                        break;
+
+
+                    default:
+
+                        this._configureReconAxisChart();
+
+                        break;
+
+                }
+
+            },
+
+
+            /* ============================================================
+               BAR / COLUMN / LINE / STACKED
+               ============================================================ */
+
+            _configureReconAxisChart: function () {
+
+                var oChart =
+                    this.byId(
+                        "reconciliationBarVizFrame"
+                    );
+
+
+                if (!oChart) {
+                    return;
+                }
+
+
+                oChart.removeAllFeeds();
+
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * Use Category here.
+                 *
+                 * NOT Direction.
+                 */
+
+                oChart.addFeed(
+
                     new FeedItem({
 
                         uid: "categoryAxis",
@@ -919,19 +1138,13 @@ sap.ui.define([
                             "Category"
                         ]
 
-                    });
+                    })
 
-
-                oChart.addFeed(
-                    oCategoryFeed
                 );
 
 
-                // --------------------------------------------------------
-                // VALUE FEED
-                // --------------------------------------------------------
+                oChart.addFeed(
 
-                var oValueFeed =
                     new FeedItem({
 
                         uid: "valueAxis",
@@ -942,39 +1155,10 @@ sap.ui.define([
                             "Amount"
                         ]
 
-                    });
+                    })
 
-
-                oChart.addFeed(
-                    oValueFeed
                 );
 
-
-                // --------------------------------------------------------
-                // CHART TYPE
-                // --------------------------------------------------------
-
-                oChart.setVizType(
-                    "column"
-                );
-
-
-                // --------------------------------------------------------
-                // SIZE
-                // --------------------------------------------------------
-
-                oChart.setWidth(
-                    "100%"
-                );
-
-                oChart.setHeight(
-                    "400px"
-                );
-
-
-                // --------------------------------------------------------
-                // CHART PROPERTIES
-                // --------------------------------------------------------
 
                 oChart.setVizProperties({
 
@@ -982,9 +1166,11 @@ sap.ui.define([
                         visible: false
                     },
 
+
                     legend: {
                         visible: false
                     },
+
 
                     plotArea: {
 
@@ -992,39 +1178,16 @@ sap.ui.define([
 
                             visible: true,
 
-                            showTotal: false,
-
-                            formatString: "#,##0.00"
+                            formatString:
+                                "#,##0.00"
 
                         },
 
-                        drawingEffect: "glossy"
+                        drawingEffect:
+                            "glossy"
 
                     },
 
-                    valueAxis: {
-
-                        title: {
-
-                            visible: true,
-
-                            text: "Amount (EUR)"
-
-                        },
-
-                        label: {
-
-                            formatString: "#,##0"
-
-                        },
-
-                        scale: {
-
-                            fixedRange: false
-
-                        }
-
-                    },
 
                     categoryAxis: {
 
@@ -1042,11 +1205,21 @@ sap.ui.define([
 
                     },
 
-                    interaction: {
 
-                        selectability: {
+                    valueAxis: {
 
-                            mode: "single"
+                        title: {
+
+                            visible: true,
+
+                            text: "Amount (EUR)"
+
+                        },
+
+                        label: {
+
+                            formatString:
+                                "#,##0"
 
                         }
 
@@ -1055,41 +1228,274 @@ sap.ui.define([
                 });
 
 
-                // --------------------------------------------------------
-                // CHART SELECTION
-                // --------------------------------------------------------
+                oChart.invalidate();
 
-                oChart.detachSelectData(
-                    this.onReconciliationChartSelect,
-                    this
+                oChart.rerender();
+
+            },
+
+
+            /* ============================================================
+               PIE
+               ============================================================ */
+
+            _configureReconPieChart: function () {
+
+                var oChart =
+                    this.byId(
+                        "reconciliationBarVizFrame"
+                    );
+
+
+                if (!oChart) {
+                    return;
+                }
+
+
+                oChart.removeAllFeeds();
+
+
+                oChart.addFeed(
+
+                    new FeedItem({
+
+                        uid: "color",
+
+                        type: "Dimension",
+
+                        values: [
+                            "Category"
+                        ]
+
+                    })
+
                 );
 
 
-                oChart.attachSelectData(
-                    this.onReconciliationChartSelect,
-                    this
+                oChart.addFeed(
+
+                    new FeedItem({
+
+                        uid: "size",
+
+                        type: "Measure",
+
+                        values: [
+                            "Amount"
+                        ]
+
+                    })
+
                 );
 
 
-                // --------------------------------------------------------
-                // RENDER
-                // --------------------------------------------------------
+                oChart.setVizProperties({
+
+                    title: {
+                        visible: false
+                    },
+
+
+                    legend: {
+
+                        visible: true,
+
+                        position: "right"
+
+                    },
+
+
+                    plotArea: {
+
+                        dataLabel: {
+
+                            visible: true,
+
+                            formatString:
+                                "#,##0.00"
+
+                        }
+
+                    }
+
+                });
+
 
                 oChart.invalidate();
 
                 oChart.rerender();
 
+            },
 
-                console.log(
-                    "Reconciliation bar chart rendered."
+
+            /* ============================================================
+               DONUT
+               ============================================================ */
+
+            _configureReconDonutChart: function () {
+
+                var oChart =
+                    this.byId(
+                        "reconciliationBarVizFrame"
+                    );
+
+
+                if (!oChart) {
+                    return;
+                }
+
+
+                oChart.removeAllFeeds();
+
+
+                oChart.addFeed(
+
+                    new FeedItem({
+
+                        uid: "color",
+
+                        type: "Dimension",
+
+                        values: [
+                            "Category"
+                        ]
+
+                    })
+
                 );
+
+
+                oChart.addFeed(
+
+                    new FeedItem({
+
+                        uid: "size",
+
+                        type: "Measure",
+
+                        values: [
+                            "Amount"
+                        ]
+
+                    })
+
+                );
+
+
+                oChart.setVizProperties({
+
+                    title: {
+                        visible: false
+                    },
+
+
+                    legend: {
+
+                        visible: true,
+
+                        position: "right"
+
+                    },
+
+
+                    plotArea: {
+
+                        dataLabel: {
+
+                            visible: true
+
+                        }
+
+                    }
+
+                });
+
+
+                oChart.invalidate();
+
+                oChart.rerender();
 
             },
 
 
-            // ============================================================
-            // CHART SELECTION
-            // ============================================================
+            /* ============================================================
+               HEATMAP
+               ============================================================ */
+
+            _configureReconHeatmapChart: function () {
+
+                var oChart =
+                    this.byId(
+                        "reconciliationBarVizFrame"
+                    );
+
+
+                if (!oChart) {
+                    return;
+                }
+
+
+                oChart.removeAllFeeds();
+
+
+                oChart.addFeed(
+
+                    new FeedItem({
+
+                        uid: "categoryAxis",
+
+                        type: "Dimension",
+
+                        values: [
+                            "Category"
+                        ]
+
+                    })
+
+                );
+
+
+                oChart.addFeed(
+
+                    new FeedItem({
+
+                        uid: "color",
+
+                        type: "Measure",
+
+                        values: [
+                            "Amount"
+                        ]
+
+                    })
+
+                );
+
+
+                oChart.setVizProperties({
+
+                    title: {
+                        visible: false
+                    },
+
+
+                    legend: {
+                        visible: true
+                    }
+
+                });
+
+
+                oChart.invalidate();
+
+                oChart.rerender();
+
+            },
+
+
+            /* ============================================================
+               CHART SELECTION
+               ============================================================ */
 
             onReconciliationChartSelect: function (oEvent) {
 
@@ -1108,16 +1514,16 @@ sap.ui.define([
 
 
                 console.log(
-                    "Selected reconciliation metric:",
+                    "Selected reconciliation data:",
                     aData[0].data
                 );
 
             },
 
 
-            // ============================================================
-            // EXPORT TO EXCEL
-            // ============================================================
+            /* ============================================================
+               EXPORT EXCEL
+               ============================================================ */
 
             onExportExcel: function () {
 
@@ -1147,11 +1553,8 @@ sap.ui.define([
                 var aRows = [];
 
 
-                // --------------------------------------------------------
-                // FLATTEN GROUP DETAILS
-                // --------------------------------------------------------
-
                 aGroups.forEach(
+
                     function (oGroup) {
 
                         if (
@@ -1163,6 +1566,7 @@ sap.ui.define([
 
 
                         oGroup.details.forEach(
+
                             function (oDetail) {
 
                                 aRows.push({
@@ -1203,15 +1607,13 @@ sap.ui.define([
                                 });
 
                             }
+
                         );
 
                     }
+
                 );
 
-
-                // --------------------------------------------------------
-                // NO DATA
-                // --------------------------------------------------------
 
                 if (!aRows.length) {
 
@@ -1223,10 +1625,6 @@ sap.ui.define([
 
                 }
 
-
-                // --------------------------------------------------------
-                // EXCEL COLUMNS
-                // --------------------------------------------------------
 
                 var aColumns = [
 
@@ -1288,29 +1686,23 @@ sap.ui.define([
                 ];
 
 
-                // --------------------------------------------------------
-                // EXCEL SETTINGS
-                // --------------------------------------------------------
-
                 var oSettings = {
 
                     workbook: {
 
-                        columns: aColumns
+                        columns:
+                            aColumns
 
                     },
 
-                    dataSource: aRows,
+                    dataSource:
+                        aRows,
 
                     fileName:
                         "Reconciliation_Details.xlsx"
 
                 };
 
-
-                // --------------------------------------------------------
-                // CREATE EXCEL
-                // --------------------------------------------------------
 
                 var oSpreadsheet =
                     new Spreadsheet(
@@ -1321,16 +1713,19 @@ sap.ui.define([
                 oSpreadsheet
                     .build()
                     .finally(
+
                         function () {
 
                             oSpreadsheet.destroy();
 
                         }
+
                     );
 
             }
 
         }
+
     );
 
 });
