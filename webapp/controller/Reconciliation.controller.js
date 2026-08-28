@@ -3,540 +3,1036 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
     "sap/ui/export/Spreadsheet",
-    "sap/ui/export/library"
-], function (Controller, JSONModel, MessageToast, Spreadsheet, library) {
+    "sap/ui/export/library",
+    "sap/viz/ui5/data/FlattenedDataset",
+    "sap/viz/ui5/data/DimensionDefinition",
+    "sap/viz/ui5/data/MeasureDefinition",
+    "sap/viz/ui5/controls/common/feeds/FeedItem"
+], function (
+    Controller,
+    JSONModel,
+    MessageToast,
+    Spreadsheet,
+    library,
+    FlattenedDataset,
+    DimensionDefinition,
+    MeasureDefinition,
+    FeedItem
+) {
+
     "use strict";
 
-    return Controller.extend("payment.dashboard.controller.Reconciliation", {
+    var EdmType = library.EdmType;
 
-        onInit: function () {
+    return Controller.extend(
+        "payment.dashboard.controller.Reconciliation",
+        {
 
-            var oModel = new JSONModel({
+            // ============================================================
+            // INIT
+            // ============================================================
 
-                filter: {
+            onInit: function () {
 
-                    reconDate: "",
-                    clearingArea: "DEBNKC",
-                    reconciliationType: "ALL",
-                    status: "ALL",
-                    companyCode: ""
+                /*
+                 * KEEP YOUR EXISTING aGroups ARRAY HERE.
+                 *
+                 * Your existing groups are:
+                 *
+                 * G001 - 02.03.2026 - Credit
+                 * G002 - 02.03.2026 - Debit
+                 * G003 - 07.04.2026 - Credit
+                 * G004 - 07.04.2026 - Debit
+                 *
+                 * Do not change that data.
+                 */
 
-                },
+                var aGroups = [
+                    // ====================================================
+                    // PASTE YOUR EXISTING aGroups DATA HERE
+                    // ====================================================
 
-                statusData: [
-
+                    // G001
                     {
-                        Status: "Matched",
-                        Count: 176
+                        groupId: "G001",
+                        date: "02.03.2026",
+                        currency: "EUR",
+                        direction: "Credit",
+                        directionState: "Success",
+                        count: 22,
+                        amount: 3680.01,
+                        expanded: true,
+
+                        details: [
+                            {
+                                AccountManagement: "SAP_DM",
+                                SystemId: "IFS 500",
+                                ApplicationId: "0030",
+                                AddId: "142746",
+                                ReconciliationGroupKey: "BAS",
+                                PaymentItemCategory: "03",
+                                ReconciliationObjects: 2,
+                                ReconciliationAmount: 90.00
+                            },
+                            {
+                                AccountManagement: "SAP_DM",
+                                SystemId: "IFS 500",
+                                ApplicationId: "0030",
+                                AddId: "142776",
+                                ReconciliationGroupKey: "BAS",
+                                PaymentItemCategory: "03",
+                                ReconciliationObjects: 1,
+                                ReconciliationAmount: 48.00
+                            },
+                            {
+                                AccountManagement: "SAP_DM",
+                                SystemId: "IFS 500",
+                                ApplicationId: "0030",
+                                AddId: "167038",
+                                ReconciliationGroupKey: "BAS",
+                                PaymentItemCategory: "03",
+                                ReconciliationObjects: 1,
+                                ReconciliationAmount: 48.00
+                            }
+                        ]
                     },
+
+                    // ====================================================
+                    // G002
+                    // ====================================================
+
                     {
-                        Status: "Partially Matched",
-                        Count: 42
+                        groupId: "G002",
+                        date: "02.03.2026",
+                        currency: "EUR",
+                        direction: "Debit",
+                        directionState: "Error",
+                        count: 13,
+                        amount: 3785.01,
+                        expanded: false,
+
+                        details: [
+                            {
+                                AccountManagement: "SAP_DM",
+                                SystemId: "IFS 500",
+                                ApplicationId: "PAYEN",
+                                AddId: "142608",
+                                ReconciliationGroupKey: "BAS",
+                                PaymentItemCategory: "01",
+                                ReconciliationObjects: 1,
+                                ReconciliationAmount: 1000.00
+                            },
+                            {
+                                AccountManagement: "SAP_DM",
+                                SystemId: "IFS 500",
+                                ApplicationId: "PAYEN",
+                                AddId: "142612",
+                                ReconciliationGroupKey: "BAS",
+                                PaymentItemCategory: "01",
+                                ReconciliationObjects: 1,
+                                ReconciliationAmount: 1000.00
+                            }
+                        ]
                     },
+
+                    // ====================================================
+                    // G003
+                    // ====================================================
+
                     {
-                        Status: "Unmatched",
-                        Count: 24
+                        groupId: "G003",
+                        date: "07.04.2026",
+                        currency: "EUR",
+                        direction: "Credit",
+                        directionState: "Success",
+                        count: 42,
+                        amount: 2016.00,
+                        expanded: false,
+
+                        details: [
+                            {
+                                AccountManagement: "SAP_DM",
+                                SystemId: "IFS 500",
+                                ApplicationId: "0030",
+                                AddId: "262905",
+                                ReconciliationGroupKey: "BAS",
+                                PaymentItemCategory: "03",
+                                ReconciliationObjects: 1,
+                                ReconciliationAmount: 48.00
+                            },
+                            {
+                                AccountManagement: "SAP_DM",
+                                SystemId: "IFS 500",
+                                ApplicationId: "0030",
+                                AddId: "262918",
+                                ReconciliationGroupKey: "BAS",
+                                PaymentItemCategory: "03",
+                                ReconciliationObjects: 1,
+                                ReconciliationAmount: 48.00
+                            }
+                        ]
                     },
+
+                    // ====================================================
+                    // G004
+                    // ====================================================
+
                     {
-                        Status: "Open Items",
-                        Count: 6
+                        groupId: "G004",
+                        date: "07.04.2026",
+                        currency: "EUR",
+                        direction: "Debit",
+                        directionState: "Error",
+                        count: 19,
+                        amount: 912.00,
+                        expanded: false,
+
+                        details: [
+                            {
+                                AccountManagement: "SAP_DM",
+                                SystemId: "IFS 500",
+                                ApplicationId: "0030",
+                                AddId: "262905",
+                                ReconciliationGroupKey: "BAS",
+                                PaymentItemCategory: "01",
+                                ReconciliationObjects: 1,
+                                ReconciliationAmount: 48.00
+                            },
+                            {
+                                AccountManagement: "SAP_DM",
+                                SystemId: "IFS 500",
+                                ApplicationId: "0030",
+                                AddId: "262918",
+                                ReconciliationGroupKey: "BAS",
+                                PaymentItemCategory: "03",
+                                ReconciliationObjects: 1,
+                                ReconciliationAmount: 48.00
+                            }
+                        ]
                     }
 
-                ],
+                ];
 
-                trendData: [
+                // ========================================================
+                // MODEL DATA
+                // ========================================================
 
-                    { Date: "Jun 01", Status: "Matched", Count: 40 },
-                    { Date: "Jun 01", Status: "Partially Matched", Count: 25 },
-                    { Date: "Jun 01", Status: "Unmatched", Count: 10 },
+                var oData = {
 
-                    { Date: "Jun 02", Status: "Matched", Count: 36 },
-                    { Date: "Jun 02", Status: "Partially Matched", Count: 20 },
-                    { Date: "Jun 02", Status: "Unmatched", Count: 8 },
-
-                    { Date: "Jun 03", Status: "Matched", Count: 50 },
-                    { Date: "Jun 03", Status: "Partially Matched", Count: 30 },
-                    { Date: "Jun 03", Status: "Unmatched", Count: 15 },
-
-                    { Date: "Jun 04", Status: "Matched", Count: 52 },
-                    { Date: "Jun 04", Status: "Partially Matched", Count: 28 },
-                    { Date: "Jun 04", Status: "Unmatched", Count: 14 },
-
-                    { Date: "Jun 05", Status: "Matched", Count: 60 },
-                    { Date: "Jun 05", Status: "Partially Matched", Count: 35 },
-                    { Date: "Jun 05", Status: "Unmatched", Count: 18 }
-
-                ],
-                reasonData: [
-
-                    {
-                        Reason: "Amount Difference",
-                        Count: 12
+                    kpi: {
+                        totalAmount: "30997.02",
+                        totalObjects: "145",
+                        debitTotal: "13405.01",
+                        creditTotal: "17592.01"
                     },
 
-                    {
-                        Reason: "Missing Bank Reference",
-                        Count: 7
-                    },
+                    /*
+                     * THIS IS THE DATA FOR THE RECONCILIATION GRAPH.
+                     *
+                     * These are the three bars that should appear:
+                     *
+                     * PC received          10,000
+                     * DM posted              9,800
+                     * Reconciliation gap       200
+                     */
 
-                    {
-                        Reason: "Date Difference",
-                        Count: 3
-                    },
-
-                    {
-                        Reason: "Duplicate Entries",
-                        Count: 2
-                    },
-
-                    {
-                        Reason: "Others",
-                        Count: 0
-                    }
-
-                ]
-
-            });
-
-            this.getView().setModel(oModel, "reconciliation");
-
-            var aRecon = [
-
-                {
-                    ReconId: "REC-2026-000248",
-                    Date: "Jun 17, 2026",
-                    Type: "Statement Reconciliation",
-                    Country: "Germany",
-                    Status: "Matched",
-                    State: "Success",
-                    MatchedAmount: "1,250,000.00",
-                    UnmatchedAmount: "0.00",
-                    OpenItems: 0
-                },
-
-                {
-                    ReconId: "REC-2026-000247",
-                    Date: "Jun 17, 2026",
-                    Type: "Payment Reconciliation",
-                    Country: "Germany",
-                    Status: "Partially Matched",
-                    State: "Warning",
-                    MatchedAmount: "850,000.00",
-                    UnmatchedAmount: "45,000.00",
-                    OpenItems: 2
-                },
-
-                {
-                    ReconId: "REC-2026-000246",
-                    Date: "Jun 16, 2026",
-                    Type: "Statement Reconciliation",
-                    Country: "Germany",
-                    Status: "Unmatched",
-                    State: "Error",
-                    MatchedAmount: "0.00",
-                    UnmatchedAmount: "120,000.00",
-                    OpenItems: 3
-                },
-
-                {
-                    ReconId: "REC-2026-000245",
-                    Date: "Jun 16, 2026",
-                    Type: "Payment Reconciliation",
-                    Country: "France",
-                    Status: "Matched",
-                    State: "Success",
-                    MatchedAmount: "650,000.00",
-                    UnmatchedAmount: "0.00",
-                    OpenItems: 0
-                },
-
-                {
-                    ReconId: "REC-2026-000244",
-                    Date: "Jun 15, 2026",
-                    Type: "Statement Reconciliation",
-                    Country: "Netherlands",
-                    Status: "Partially Matched",
-                    State: "Warning",
-                    MatchedAmount: "420,000.00",
-                    UnmatchedAmount: "18,500.00",
-                    OpenItems: 1
-                },
-
-                {
-                    ReconId: "REC-2026-000244",
-                    Date: "Jun 15, 2026",
-                    Type: "Statement Reconciliation",
-                    Country: "Netherlands",
-                    Status: "Partially Matched",
-                    State: "Warning",
-                    MatchedAmount: "420,000.00",
-                    UnmatchedAmount: "18,500.00",
-                    OpenItems: 1
-                },
-
-                // Add remaining records...
-            ];
-
-            oModel.setProperty("/reconciliationList", aRecon);
-
-            oModel.setProperty("/currentPage", 1);
-            oModel.setProperty("/totalPages", 1);
-
-            oModel.setProperty("/canPrevious", false);
-            oModel.setProperty("/canNext", false);
-
-            this._pageSize = 5;
-            this._currentPage = 1;
-
-            this._updatePagination();
-
-
-            var oReasonChart = this.byId("idReasonChart");
-
-            if (oReasonChart) {
-
-                oReasonChart.setVizProperties({
-
-                    title: {
-                        visible: false
-                    },
-
-                    legend: {
-                        visible: false
-                    },
-
-                    plotArea: {
-
-                        colorPalette: [
-                            "#FF4D4F"
-                        ],
-
-                        dataLabel: {
-                            visible: true
+                    chartData: [
+                        {
+                            Category: "PC received",
+                            Amount: 10000
+                        },
+                        {
+                            Category: "DM posted",
+                            Amount: 9800
+                        },
+                        {
+                            Category: "Reconciliation gap",
+                            Amount: 200
                         }
-
-                    },
-
-                    valueAxis: {
-
-                        title: {
-                            visible: false
-                        }
-
-                    },
-
-                    categoryAxis: {
-
-                        title: {
-                            visible: false
-                        }
-
-                    }
-
-                });
-
-            }
-
-            var oTrendChart = this.byId("idReconTrendChart");
-
-            if (oTrendChart) {
-
-                oTrendChart.setVizProperties({
-
-                    title: {
-                        visible: false
-                    },
-
-                    legend: {
-                        visible: true
-                    },
-
-                    plotArea: {
-
-                        colorPalette: [
-                            "#34C759",
-                            "#FFB020",
-                            "#FF4D4F"
-                        ],
-
-                        dataLabel: {
-                            visible: false
-                        }
-
-                    },
-
-                    valueAxis: {
-                        title: {
-                            visible: false
-                        }
-                    },
-
-                    categoryAxis: {
-                        title: {
-                            visible: false
-                        }
-                    }
-
-                });
-
-            }
-
-        },
-
-
-
-        onAfterRendering: function () {
-
-            var oChart = this.byId("idReconDonutChart");
-
-            if (!oChart) {
-                return;
-            }
-
-            oChart.setVizProperties({
-
-                title: {
-                    visible: false
-                },
-
-                legend: {
-                    visible: false
-                },
-
-                plotArea: {
-
-                    colorPalette: [
-
-                        "#34C759",
-                        "#FFB020",
-                        "#FF4D4F",
-                        "#8E5AD7"
-
                     ],
 
-                    dataLabel: {
-                        visible: true,
-                        type: "percentage"
+                    /*
+                     * Filter values
+                     */
+
+                    filter: {
+                        clearingArea: "DEBNKC",
+                        systemId: "",
+                        dateFrom: "",
+                        dateTo: ""
+                    },
+
+                    groups: aGroups
+                };
+
+                // ========================================================
+                // CREATE MODEL
+                // ========================================================
+
+                var oModel = new JSONModel(oData);
+
+                oModel.setSizeLimit(1000);
+
+                this.getView().setModel(
+                    oModel,
+                    "reconciliation"
+                );
+
+                console.log(
+                    "===================================="
+                );
+
+                console.log(
+                    "RECONCILIATION MODEL CREATED"
+                );
+
+                console.log(
+                    "Chart Data:",
+                    oModel.getProperty("/chartData")
+                );
+
+                console.log(
+                    "Groups:",
+                    oModel.getProperty("/groups")
+                );
+
+                console.log(
+                    "===================================="
+                );
+
+                // ========================================================
+                // CREATE CHART AFTER VIEW RENDERING
+                // ========================================================
+
+                this.getView().addEventDelegate({
+
+                    onAfterRendering: function () {
+
+                        setTimeout(
+                            function () {
+
+                                this._createBarChart();
+
+                            }.bind(this),
+                            300
+                        );
+
+                    }.bind(this)
+
+                });
+
+            },
+
+
+            // ============================================================
+            // SEARCH / FILTER
+            // ============================================================
+
+            onSearch: function () {
+
+                var oModel =
+                    this.getView().getModel(
+                        "reconciliation"
+                    );
+
+                if (!oModel) {
+                    return;
+                }
+
+                var sClearingArea =
+                    oModel.getProperty(
+                        "/filter/clearingArea"
+                    );
+
+                var sSystemId =
+                    oModel.getProperty(
+                        "/filter/systemId"
+                    );
+
+                var sDateFrom =
+                    oModel.getProperty(
+                        "/filter/dateFrom"
+                    );
+
+                var sDateTo =
+                    oModel.getProperty(
+                        "/filter/dateTo"
+                    );
+
+                console.log(
+                    "Reconciliation filters:",
+                    {
+                        clearingArea: sClearingArea,
+                        systemId: sSystemId,
+                        dateFrom: sDateFrom,
+                        dateTo: sDateTo
                     }
+                );
+
+                MessageToast.show(
+                    "Reconciliation data refreshed"
+                );
+
+            },
+
+
+            // ============================================================
+            // GROUP EXPANSION
+            // ============================================================
+
+            onToggleGroup: function (oEvent) {
+
+                var oContext =
+                    oEvent
+                        .getSource()
+                        .getBindingContext(
+                            "reconciliation"
+                        );
+
+                if (!oContext) {
+                    return;
+                }
+
+                var sPath =
+                    oContext.getPath();
+
+                var bExpanded =
+                    oContext.getProperty(
+                        "expanded"
+                    );
+
+                oContext
+                    .getModel()
+                    .setProperty(
+                        sPath + "/expanded",
+                        !bExpanded
+                    );
+
+            },
+
+
+            // ============================================================
+            // BAR CHART
+            // ============================================================
+
+            _createBarChart: function () {
+
+                console.log(
+                    "===================================="
+                );
+
+                console.log(
+                    "CREATE RECONCILIATION BAR CHART"
+                );
+
+                console.log(
+                    "===================================="
+                );
+
+                // ========================================================
+                // GET VIZFRAME
+                // ========================================================
+
+                var oChart =
+                    this.byId(
+                        "reconciliationBarVizFrame"
+                    );
+
+                if (!oChart) {
+
+                    console.error(
+                        "❌ reconciliationBarVizFrame NOT FOUND"
+                    );
+
+                    return;
+                }
+
+                console.log(
+                    "✅ VizFrame found:",
+                    oChart.getId()
+                );
+
+
+                // ========================================================
+                // GET MODEL
+                // ========================================================
+
+                var oModel =
+                    this.getView().getModel(
+                        "reconciliation"
+                    );
+
+                if (!oModel) {
+
+                    console.error(
+                        "❌ reconciliation model NOT FOUND"
+                    );
+
+                    return;
+                }
+
+
+                // ========================================================
+                // GET CHART DATA
+                // ========================================================
+
+                var aChartData =
+                    oModel.getProperty(
+                        "/chartData"
+                    );
+
+                console.log(
+                    "BAR CHART DATA:",
+                    JSON.stringify(
+                        aChartData
+                    )
+                );
+
+
+                if (
+                    !Array.isArray(
+                        aChartData
+                    ) ||
+                    aChartData.length === 0
+                ) {
+
+                    console.error(
+                        "❌ BAR CHART DATA EMPTY"
+                    );
+
+                    return;
+                }
+
+
+                // ========================================================
+                // CLEAN OLD DATASET
+                // ========================================================
+
+                var oOldDataset =
+                    oChart.getDataset();
+
+                if (oOldDataset) {
+
+                    oChart.setDataset(null);
+
+                    oOldDataset.destroy();
 
                 }
 
-            });
 
-        },
+                // ========================================================
+                // CLEAN OLD FEEDS
+                // ========================================================
 
+                oChart.removeAllFeeds();
 
 
-        onSearch: function () {
+                // ========================================================
+                // DATASET
+                // ========================================================
 
+                var oDataset =
+                    new FlattenedDataset({
 
+                        data: {
+                            path: "/chartData"
+                        },
 
-        },
+                        dimensions: [
 
-        onReconDonutSelect: function (oEvent) {
+                            new DimensionDefinition({
 
-            var aData = oEvent.getParameter("data");
+                                name: "Category",
 
-            if (!aData || !aData.length) {
-                return;
-            }
+                                value: "{Category}"
 
-            var oObject = aData[0].data;
+                            })
 
-            console.log("Selected:", oObject);
+                        ],
 
+                        measures: [
 
+                            new MeasureDefinition({
 
-        },
-        onReconDonutExpand: function () {
+                                name: "Amount",
 
-            this.openReconChart(
-                "Reconciliation Status Breakdown",
-                "donut",
-                this.byId("idReconDonutChart").getDataset(),
-                this.byId("idReconDonutChart").getFeeds(),
-                this.byId("idReconDonutChart").getVizProperties()
-            );
+                                value: "{Amount}"
 
-        },
+                            })
 
-        onReconTrendExpand: function () {
+                        ]
 
-            this.openReconChart(
-                "Reconciliation Trend",
-                "line",
-                this.byId("idReconTrendChart").getDataset(),
-                this.byId("idReconTrendChart").getFeeds(),
-                this.byId("idReconTrendChart").getVizProperties()
-            );
+                    });
 
-        },
 
-        onReasonChartExpand: function () {
-
-            this.openReconChart(
-                "Top 5 Reasons for Unmatched Items",
-                "bar",
-                this.byId("idReasonChart").getDataset(),
-                this.byId("idReasonChart").getFeeds(),
-                this.byId("idReasonChart").getVizProperties()
-            );
-
-        },
-
-        onCloseReconDialog: function () {
-
-            this.byId("reconChartDialog").close();
-
-        },
-
-        openReconChart: function (sTitle, sVizType, oDataset, aFeeds, oVizProps) {
-
-            var oDialog = this.byId("reconChartDialog");
-            var oChart = this.byId("idReconExpandedChart");
-
-            oDialog.setTitle(sTitle);
-
-            oChart.setVizType(sVizType);
-            oChart.setDataset(oDataset);
-
-            oChart.removeAllFeeds();
-
-            aFeeds.forEach(function (oFeed) {
-                oChart.addFeed(oFeed);
-            });
-
-            oChart.setVizProperties(oVizProps);
-
-            oDialog.open();
-        },
-
-        _updatePagination: function () {
-
-            var oModel = this.getView().getModel("reconciliation");
-
-            var aData = oModel.getProperty("/reconciliationList");
-
-            var iTotalPages = Math.max(
-                1,
-                Math.ceil(aData.length / this._pageSize)
-            );
-
-            var iStart = (this._currentPage - 1) * this._pageSize;
-
-            var iEnd = iStart + this._pageSize;
-
-            oModel.setProperty("/pagedData", aData.slice(iStart, iEnd));
-
-            oModel.setProperty("/currentPage", this._currentPage);
-
-            oModel.setProperty("/totalPages", iTotalPages);
-
-            oModel.setProperty("/canPrevious", this._currentPage > 1);
-
-            oModel.setProperty("/canNext", this._currentPage < iTotalPages);
-
-        },
-
-        onNextPage: function () {
-
-            var oModel = this.getView().getModel("reconciliation");
-
-            var total = Math.ceil(
-                oModel.getProperty("/reconciliationList").length /
-                this._pageSize
-            );
-
-            if (this._currentPage < total) {
-
-                this._currentPage++;
-
-                this._updatePagination();
-
-            }
-
-        },
-
-        onPreviousPage: function () {
-
-            if (this._currentPage > 1) {
-
-                this._currentPage--;
-
-                this._updatePagination();
-
-            }
-
-        },
-
-        onReconSearch: function (oEvent) {
-
-            var sValue = oEvent.getParameter("newValue").toLowerCase();
-
-            var oModel = this.getView().getModel("reconciliation");
-
-            var aAll = oModel.getProperty("/reconciliationList");
-
-            var aFiltered = aAll.filter(function (oItem) {
-
-                return (
-                    oItem.ReconId.toLowerCase().includes(sValue) ||
-                    oItem.Country.toLowerCase().includes(sValue) ||
-                    oItem.Type.toLowerCase().includes(sValue)
+                console.log(
+                    "✅ Dataset created"
                 );
 
-            });
 
-            oModel.setProperty("/pagedData", aFiltered.slice(0, 5));
+                // ========================================================
+                // SET MODEL
+                // ========================================================
 
-            this._currentPage = 1;
+                oChart.setModel(
+                    oModel
+                );
 
-            oModel.setProperty("/totalPages",
-                Math.ceil(aFiltered.length / 5));
 
-        },
+                // ========================================================
+                // SET DATASET
+                // ========================================================
 
-        onExportExcel: function () {
+                oChart.setDataset(
+                    oDataset
+                );
 
-            var Spreadsheet = sap.ui.require("sap/ui/export/Spreadsheet");
 
-            var oModel = this.getView().getModel("reconciliation");
+                console.log(
+                    "✅ Dataset attached"
+                );
 
-            var oSheet = new Spreadsheet({
 
-                workbook: {
+                // ========================================================
+                // CATEGORY AXIS
+                // ========================================================
 
-                    columns: [
+                var oCategoryFeed =
+                    new FeedItem({
 
-                        { label: "Recon ID", property: "ReconId" },
-                        { label: "Date", property: "Date" },
-                        { label: "Type", property: "Type" },
-                        { label: "Country", property: "Country" },
-                        { label: "Status", property: "Status" },
-                        { label: "Matched", property: "MatchedAmount" },
-                        { label: "Unmatched", property: "UnmatchedAmount" },
-                        { label: "Open Items", property: "OpenItems" }
+                        uid: "categoryAxis",
 
-                    ]
+                        type: "Dimension",
+
+                        values: [
+                            "Category"
+                        ]
+
+                    });
+
+
+                oChart.addFeed(
+                    oCategoryFeed
+                );
+
+
+                // ========================================================
+                // VALUE AXIS
+                // ========================================================
+
+                var oValueFeed =
+                    new FeedItem({
+
+                        uid: "valueAxis",
+
+                        type: "Measure",
+
+                        values: [
+                            "Amount"
+                        ]
+
+                    });
+
+
+                oChart.addFeed(
+                    oValueFeed
+                );
+
+
+                console.log(
+                    "✅ Feeds attached"
+                );
+
+
+                // ========================================================
+                // CHART TYPE
+                // ========================================================
+
+                oChart.setVizType(
+                    "column"
+                );
+
+
+                // ========================================================
+                // SIZE
+                // ========================================================
+
+                oChart.setWidth(
+                    "100%"
+                );
+
+                oChart.setHeight(
+                    "400px"
+                );
+
+
+                // ========================================================
+                // VIZ PROPERTIES
+                // ========================================================
+
+                oChart.setVizProperties({
+
+                    title: {
+                        visible: false
+                    },
+
+                    legend: {
+                        visible: false
+                    },
+
+                    plotArea: {
+
+                        dataLabel: {
+
+                            visible: true,
+
+                            showTotal: false,
+
+                            formatString: "#,##0"
+
+                        },
+
+                        /*
+                         * Gives the columns rounded corners
+                         * where supported by the VizFrame renderer.
+                         */
+
+                        drawingEffect: "glossy"
+
+                    },
+
+                    valueAxis: {
+
+                        title: {
+
+                            visible: true,
+
+                            text: "Amount (EUR)"
+
+                        },
+
+                        label: {
+
+                            formatString: "#,##0"
+
+                        },
+
+                        scale: {
+
+                            fixedRange: false
+
+                        }
+
+                    },
+
+                    categoryAxis: {
+
+                        title: {
+
+                            visible: false
+
+                        },
+
+                        label: {
+
+                            visible: true
+
+                        }
+
+                    },
+
+                    interaction: {
+
+                        selectability: {
+
+                            mode: "single"
+
+                        }
+
+                    }
+
+                });
+
+
+                // ========================================================
+                // SELECTION
+                // ========================================================
+
+                oChart.detachSelectData(
+                    this.onReconciliationChartSelect,
+                    this
+                );
+
+                oChart.attachSelectData(
+                    this.onReconciliationChartSelect,
+                    this
+                );
+
+
+                // ========================================================
+                // FORCE RENDER
+                // ========================================================
+
+                oChart.invalidate();
+
+                oChart.rerender();
+
+
+                console.log(
+                    "===================================="
+                );
+
+                console.log(
+                    "✅ BAR CHART RENDERED"
+                );
+
+                console.log(
+                    "===================================="
+                );
+
+            },
+
+
+            // ============================================================
+            // CHART SELECTION
+            // ============================================================
+
+            onReconciliationChartSelect:
+                function (oEvent) {
+
+                    var aData =
+                        oEvent.getParameter(
+                            "data"
+                        );
+
+                    if (
+                        !aData ||
+                        !aData.length
+                    ) {
+                        return;
+                    }
+
+                    console.log(
+                        "Selected reconciliation metric:",
+                        aData[0].data
+                    );
 
                 },
 
-                dataSource: oModel.getProperty("/reconciliationList"),
 
-                fileName: "Reconciliation_List.xlsx"
+            // ============================================================
+            // DETAIL PRESS
+            // ============================================================
 
-            });
+            onDetailPress: function (oEvent) {
 
-            oSheet.build();
+                var oContext =
+                    oEvent
+                        .getSource()
+                        .getBindingContext(
+                            "reconciliation"
+                        );
 
-        },
+                if (!oContext) {
+                    return;
+                }
 
-        onOpenSettings: function () {
+                console.log(
+                    "Reconciliation detail:",
+                    oContext.getObject()
+                );
 
-            sap.m.MessageToast.show("Open Table Personalization");
+                MessageToast.show(
+                    "Reconciliation detail selected"
+                );
 
-        },
+            },
 
-    });
+
+            // ============================================================
+            // EXPORT TO EXCEL
+            // ============================================================
+
+            onExportExcel: function () {
+
+                var oModel =
+                    this.getView().getModel(
+                        "reconciliation"
+                    );
+
+                if (!oModel) {
+                    return;
+                }
+
+                var aGroups =
+                    oModel.getProperty(
+                        "/groups"
+                    ) || [];
+
+                var aRows = [];
+
+                aGroups.forEach(
+                    function (oGroup) {
+
+                        if (
+                            oGroup.details &&
+                            oGroup.details.length
+                        ) {
+
+                            oGroup.details.forEach(
+                                function (oDetail) {
+
+                                    aRows.push({
+
+                                        Date:
+                                            oGroup.date,
+
+                                        Currency:
+                                            oGroup.currency,
+
+                                        Direction:
+                                            oGroup.direction,
+
+                                        AccountManagement:
+                                            oDetail.AccountManagement,
+
+                                        SystemId:
+                                            oDetail.SystemId,
+
+                                        ApplicationId:
+                                            oDetail.ApplicationId,
+
+                                        AddId:
+                                            oDetail.AddId,
+
+                                        ReconciliationGroupKey:
+                                            oDetail.ReconciliationGroupKey,
+
+                                        PaymentItemCategory:
+                                            oDetail.PaymentItemCategory,
+
+                                        ReconciliationObjects:
+                                            oDetail.ReconciliationObjects,
+
+                                        ReconciliationAmount:
+                                            oDetail.ReconciliationAmount
+
+                                    });
+
+                                }
+                            );
+
+                        }
+
+                    }
+                );
+
+
+                if (!aRows.length) {
+
+                    MessageToast.show(
+                        "No reconciliation data to export"
+                    );
+
+                    return;
+                }
+
+
+                var aColumns = [
+
+                    {
+                        label: "Date",
+                        property: "Date"
+                    },
+
+                    {
+                        label: "Currency",
+                        property: "Currency"
+                    },
+
+                    {
+                        label: "Direction",
+                        property: "Direction"
+                    },
+
+                    {
+                        label: "Acct Mgmt",
+                        property: "AccountManagement"
+                    },
+
+                    {
+                        label: "System ID",
+                        property: "SystemId"
+                    },
+
+                    {
+                        label: "Appl. ID",
+                        property: "ApplicationId"
+                    },
+
+                    {
+                        label: "Add. ID",
+                        property: "AddId"
+                    },
+
+                    {
+                        label: "Reconc. Grp Key",
+                        property: "ReconciliationGroupKey"
+                    },
+
+                    {
+                        label: "Payment Item Category",
+                        property: "PaymentItemCategory"
+                    },
+
+                    {
+                        label: "No. of Rcn Obj.",
+                        property: "ReconciliationObjects"
+                    },
+
+                    {
+                        label: "Recon. Amount",
+                        property: "ReconciliationAmount"
+                    }
+
+                ];
+
+
+                var oSettings = {
+
+                    workbook: {
+
+                        columns: aColumns
+
+                    },
+
+                    dataSource: aRows,
+
+                    fileName:
+                        "Reconciliation_Details.xlsx"
+
+                };
+
+
+                var oSpreadsheet =
+                    new Spreadsheet(
+                        oSettings
+                    );
+
+
+                oSpreadsheet
+                    .build()
+                    .finally(
+                        function () {
+
+                            oSpreadsheet.destroy();
+
+                        }
+                    );
+
+            }
+
+        }
+    );
 
 });

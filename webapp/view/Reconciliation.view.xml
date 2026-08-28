@@ -2,1069 +2,481 @@
     controllerName="payment.dashboard.controller.Reconciliation"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:l="sap.ui.layout"
     xmlns:core="sap.ui.core"
-    xmlns:viz="sap.viz.ui5.controls"
-    xmlns:viz.data="sap.viz.ui5.data"
-    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
->
-    <VBox
-        id="reconciliationVBox"
-        class="sapUiMediumMargin"
-    >
-        <HBox
-            id="_IDGenHBox111"
-            justifyContent="SpaceBetween"
-            alignItems="End"
-            class="sapUiMediumMarginBottom"
-            wrap="Wrap"
-        >
-            <HBox
-                id="_IDGenHBox112"
-                alignItems="Center"
-            >
-                <!-- Reconciliation Date -->
-                <VBox
-                    id="_IDGenVBox6"
-                    class="sapUiTinyMarginEnd"
-                >
-                    <Label
-                        id="_IDGenLabel18"
-                        text="Reconciliation Date"
-                    />
-
-                    <DatePicker
-                        id="dpReconDate"
-                        width="12rem"
-                        value="{reconciliation>/filter/reconDate}"
-                    />
-                </VBox>
-
-                <!-- Clearing Area -->
-                <VBox
-                    id="_IDGenVBox120"
-                    class="sapUiTinyMarginEnd"
-                >
-                    <Label
-                        id="_IDGenLabel19"
-                        text="Clearing Area"
-                    />
-
-                    <Select
-                        id="selReconClearingArea"
-                        width="12rem"
-                        selectedKey="{reconciliation>/filter/clearingArea}"
-                    >
-                        <core:Item
-                            id="_IDGenItem24"
-                            key="DEBNKC"
-                            text="DEBNKC"
-                        />
-                        <core:Item
-                            id="_IDGenItem25"
-                            key="USBNKC"
-                            text="USBNKC"
-                        />
-                        <core:Item
-                            id="_IDGenItem26"
-                            key="GBBNKC"
-                            text="GBBNKC"
-                        />
-                    </Select>
-                </VBox>
-
-                <!-- Reconciliation Type -->
-                <VBox
-                    id="_IDGenVBox121"
-                    class="sapUiTinyMarginEnd"
-                >
-                    <Label
-                        id="_IDGenLabel20"
-                        text="Reconciliation Type"
-                    />
-
-                    <Select
-                        id="selReconType"
-                        width="12rem"
-                        selectedKey="{reconciliation>/filter/reconciliationType}"
-                    >
-                        <core:Item
-                            id="_IDGenItem27"
-                            key="ALL"
-                            text="All"
-                        />
-                        <core:Item
-                            id="_IDGenItem28"
-                            key="BANK"
-                            text="Bank Statement"
-                        />
-                        <core:Item
-                            id="_IDGenItem29"
-                            key="PAYMENT"
-                            text="Payment"
-                        />
-                    </Select>
-                </VBox>
-
-                <!-- Status -->
-                <VBox
-                    id="_IDGenVBox122"
-                    class="sapUiTinyMarginEnd"
-                >
-                    <Label
-                        id="_IDGenLabel21"
-                        text="Status"
-                    />
-
-                    <Select
-                        id="selReconStatus"
-                        width="12rem"
-                        selectedKey="{reconciliation>/filter/status}"
-                    >
-                        <core:Item
-                            id="_IDGenItem30"
-                            key="ALL"
-                            text="All"
-                        />
-                        <core:Item
-                            id="_IDGenItem31"
-                            key="MATCHED"
-                            text="Matched"
-                        />
-                        <core:Item
-                            id="_IDGenItem32"
-                            key="PARTIAL"
-                            text="Partially Matched"
-                        />
-                        <core:Item
-                            id="_IDGenItem33"
-                            key="UNMATCHED"
-                            text="Unmatched"
-                        />
-                        <core:Item
-                            id="_IDGenItem34"
-                            key="OPEN"
-                            text="Open Items"
-                        />
-                    </Select>
-                </VBox>
-
-                <!-- Company Code -->
-                <VBox id="_IDGenVBox123">
-                    <Label
-                        id="_IDGenLabel22"
-                        text="Company Code"
-                    />
-
-                    <Input
-                        id="inpCompanyCode"
-                        width="12rem"
-                        value="{reconciliation>/filter/companyCode}"
-                        placeholder="Company Code"
-                    />
-                </VBox>
-            </HBox>
-
-            <!-- Go Button -->
-            <Button
-                id="btnReconGo"
-                text="Go"
-                type="Emphasized"
-                press=".onSearch"
-            />
-        </HBox>
-
-        <HBox
-            id="_IDGenHBox113"
-            justifyContent="SpaceBetween"
-            wrap="Wrap"
-            class="sapUiSmallMarginBottom"
-        >
-            <!-- Total -->
-            <Panel
-                id="_IDGenPanel8"
-                class="reconKpiCard"
-                backgroundDesign="Transparent"
-            >
-                <VBox
-                    id="_IDGenVBox136"
-                    class="sapUiSmallMargin"
-                >
-                    <!-- Heading -->
-                    <Title
-                        id="_IDGenTitle7"
-                        text="Total Reconciliations"
-                        level="H5"
-                    />
-
-                    <!-- Icon + Values -->
-                    <HBox
-                        id="_IDGenHBox114"
-                        class="sapUiSmallMarginTop"
-                        alignItems="Center"
-                    >
-                        <Avatar
-                            id="_IDGenAvatar"
-                            displayShape="Circle"
-                            displaySize="L"
-                            backgroundColor="Accent6"
-                            src="sap-icon://document-text"
-                        />
-
-                        <VBox
-                            id="_IDGenVBox137"
-                            class="sapUiSmallMarginBegin"
-                        >
-                            <Title
-                                id="_IDGenTitle33"
-                                text="248"
-                                level="H1"
-                            />
-
-                            <Text
-                                id="_IDGenText82"
-                                text="All Reconcilations"
-                            />
-                        </VBox>
-                    </HBox>
-                </VBox>
-            </Panel>
-
-            <!-- Matched -->
-
-            <Panel
-                id="_IDGenPanel9"
-                class="reconKpiCard"
-                backgroundDesign="Transparent"
-            >
-                <VBox
-                    id="_IDGenVBox125"
-                    class="sapUiSmallMargin"
-                >
-                    <!-- Heading -->
-                    <Title
-                        id="_IDGenTitle29"
-                        text="Matched"
-                        level="H5"
-                    />
-
-                    <!-- Icon + Values -->
-                    <HBox
-                        id="_IDGenHBox115"
-                        class="sapUiSmallMarginTop"
-                        alignItems="Center"
-                    >
-                        <Avatar
-                            id="_IDGenAvatar1"
-                            displayShape="Circle"
-                            displaySize="L"
-                            backgroundColor="Accent1"
-                            src="sap-icon://decline"
-                        />
-
-                        <VBox
-                            id="_IDGenVBox138"
-                            class="sapUiSmallMarginBegin"
-                        >
-                            <Title
-                                id="_IDGenTitle34"
-                                text="6"
-                                level="H1"
-                            />
-
-                            <Text
-                                id="_IDGenText83"
-                                text="2.4%"
-                            />
-                        </VBox>
-                    </HBox>
-                </VBox>
-            </Panel>
-
-            <!-- Partial -->
-
-            <Panel
-                id="_IDGenPanel11"
-                class="reconKpiCard"
-                backgroundDesign="Transparent"
-            >
-                <VBox
-                    id="_IDGenVBox124"
-                    class="sapUiSmallMargin"
-                >
-                    <!-- Heading -->
-                    <Title
-                        id="_IDGenTitle30"
-                        text="Partially Matched"
-                        level="H5"
-                    />
-
-                    <!-- Icon + Values -->
-                    <HBox
-                        id="_IDGenHBox116"
-                        class="sapUiSmallMarginTop"
-                        alignItems="Center"
-                    >
-                        <Avatar
-                            id="_IDGenAvatar2"
-                            displayShape="Circle"
-                            displaySize="L"
-                            backgroundColor="Accent4"
-                            src="sap-icon://document"
-                        />
-
-                        <VBox
-                            id="_IDGenVBox133"
-                            class="sapUiSmallMarginBegin"
-                        >
-                            <Title
-                                id="_IDGenTitle31"
-                                text="42"
-                                level="H1"
-                            />
-
-                            <Text
-                                id="_IDGenText103"
-                                text="16.9%"
-                            />
-                        </VBox>
-                    </HBox>
-                </VBox>
-            </Panel>
-
-            <!-- Unmatched -->
-
-            <Panel
-                id="_IDGenPanel12"
-                class="reconKpiCard"
-                backgroundDesign="Transparent"
-            >
-                <VBox
-                    id="_IDGenVBox134"
-                    class="sapUiSmallMargin"
-                >
-                    <!-- Heading -->
-                    <Title
-                        id="_IDGenTitle32"
-                        text="Unmatched"
-                        level="H5"
-                    />
-
-                    <!-- Icon + Values -->
-                    <HBox
-                        id="_IDGenHBox117"
-                        class="sapUiSmallMarginTop"
-                        alignItems="Center"
-                    >
-                        <Avatar
-                            id="_IDGenAvatar3"
-                            displayShape="Circle"
-                            displaySize="L"
-                            backgroundColor="Accent8"
-                            src="sap-icon://accept"
-                        />
-
-                        <VBox
-                            id="_IDGenVBox135"
-                            class="sapUiSmallMarginBegin"
-                        >
-                            <Title
-                                id="_IDGenTitle35"
-                                text="24"
-                                level="H1"
-                            />
-
-                            <Text
-                                id="_IDGenText223"
-                                text="9.7%"
-                            />
-                        </VBox>
-                    </HBox>
-                </VBox>
-            </Panel>
-
-            <!-- Open -->
-
-            <Panel
-                id="_IDGenPanel13"
-                class="reconKpiCard"
-                backgroundDesign="Transparent"
-            >
-                <VBox
-                    id="_IDGenVBox139"
-                    class="sapUiSmallMargin"
-                >
-                    <!-- Heading -->
-                    <Title
-                        id="_IDGenTitle36"
-                        text="Open Items"
-                        level="H5"
-                    />
-
-                    <!-- Icon + Values -->
-                    <HBox
-                        id="_IDGenHBox118"
-                        class="sapUiSmallMarginTop"
-                        alignItems="Center"
-                    >
-                        <Avatar
-                            id="_IDGenAvatar4"
-                            displayShape="Circle"
-                            displaySize="L"
-                            backgroundColor="Accent8"
-                            src="sap-icon://accept"
-                        />
-
-                        <VBox
-                            id="_IDGenVBox140"
-                            class="sapUiSmallMarginBegin"
-                        >
-                            <Title
-                                id="_IDGenTitle37"
-                                text="6"
-                                level="H1"
-                            />
-
-                            <Text
-                                id="_IDGenText224"
-                                text="2.4%"
-                            />
-                        </VBox>
-                    </HBox>
-                </VBox>
-            </Panel>
-        </HBox>
-
-        <layout:CSSGrid
-            id="_IDGenCSSGrid1"
-            xmlns:layout="sap.ui.layout.cssgrid"
-            gridTemplateColumns="repeat(3,1fr)"
-            gridGap="1rem"
-        >
-            <Panel
-                id="pnlStatusBreakdown"
-                class="reconChartCard"
-            >
-                <headerToolbar>
-                    <OverflowToolbar id="_IDGenOverflowToolbar">
-                        <Title
-                            id="_IDGenTitle38"
-                            text="Reconciliation Status Breakdown"
-                            level="H5"
-                        />
-
-                        <ToolbarSpacer id="_IDGenToolbarSpacer" />
-
-                        <Button
-                            id="_IDGenButton15"
-                            icon="sap-icon://full-screen"
-                            type="Transparent"
-                            tooltip="Maximize"
-                            press=".onReconDonutExpand"
-                        />
-                    </OverflowToolbar>
-                </headerToolbar>
-
-                <content>
-                    <HBox
-                        id="_IDGenHBox120"
-                        width="100%"
-                        height="280px"
-                        justifyContent="SpaceBetween"
-                        alignItems="Center"
-                    >
-                        <!-- Donut Area -->
-
-                        <VBox
-                            id="reconDonutCard"
-                            width="55%"
-                            justifyContent="Center"
-                            alignItems="Center"
-                        >
-                            <!-- Donut Chart comes here -->
-
-                            <viz:VizFrame
-                                id="idReconDonutChart"
-                                width="220px"
-                                height="220px"
-                                vizType="donut"
-                                selectData=".onReconDonutSelect"
-                            >
-                                <viz:dataset>
-                                    <viz.data:FlattenedDataset
-                                        id="_IDGenFlattenedDataset4"
-                                        data="{reconciliation>/statusData}"
-                                    >
-                                        <viz.data:dimensions>
-                                            <viz.data:DimensionDefinition
-                                                id="_IDGenDimensionDefinition2"
-                                                name="Status"
-                                                value="{Status}"
-                                            />
-                                        </viz.data:dimensions>
-
-                                        <viz.data:measures>
-                                            <viz.data:MeasureDefinition
-                                                id="_IDGenMeasureDefinition2"
-                                                name="Count"
-                                                value="{Count}"
-                                            />
-                                        </viz.data:measures>
-                                    </viz.data:FlattenedDataset>
-                                </viz:dataset>
-
-                                <viz:feeds>
-                                    <viz.feeds:FeedItem
-                                        id="_IDGenFeedItem4"
-                                        uid="color"
-                                        type="Dimension"
-                                        values="Status"
-                                    />
-
-                                    <viz.feeds:FeedItem
-                                        id="_IDGenFeedItem5"
-                                        uid="size"
-                                        type="Measure"
-                                        values="Count"
-                                    />
-                                </viz:feeds>
-                            </viz:VizFrame>
-                        </VBox>
-
-                        <!-- Legend -->
-
-                        <VBox
-                            id="_IDGenVBox142"
-                            width="45%"
-                            justifyContent="Center"
-                        >
-                            <HBox
-                                id="_IDGenHBox121"
-                                justifyContent="SpaceBetween"
-                                class="sapUiTinyMarginBottom"
-                            >
-                                <ObjectStatus
-                                    id="_IDGenObjectStatus2"
-                                    text="Matched"
-                                    state="Success"
-                                />
-
-                                <Text
-                                    id="_IDGenText226"
-                                    text="176 (71.0%)"
-                                />
-                            </HBox>
-
-                            <HBox
-                                id="_IDGenHBox122"
-                                justifyContent="SpaceBetween"
-                                class="sapUiTinyMarginBottom"
-                            >
-                                <ObjectStatus
-                                    id="_IDGenObjectStatus22"
-                                    text="Partially Matched"
-                                    state="Warning"
-                                />
-
-                                <Text
-                                    id="_IDGenText227"
-                                    text="42 (16.9%)"
-                                />
-                            </HBox>
-
-                            <HBox
-                                id="_IDGenHBox123"
-                                justifyContent="SpaceBetween"
-                                class="sapUiTinyMarginBottom"
-                            >
-                                <ObjectStatus
-                                    id="_IDGenObjectStatus23"
-                                    text="Unmatched"
-                                    state="Error"
-                                />
-
-                                <Text
-                                    id="_IDGenText228"
-                                    text="24 (9.7%)"
-                                />
-                            </HBox>
-
-                            <HBox
-                                id="_IDGenHBox124"
-                                justifyContent="SpaceBetween"
-                            >
-                                <ObjectStatus
-                                    id="_IDGenObjectStatus24"
-                                    text="Open Items"
-                                />
-
-                                <Text
-                                    id="_IDGenText229"
-                                    text="6 (2.4%)"
-                                />
-                            </HBox>
-                        </VBox>
-                    </HBox>
-                </content>
-            </Panel>
-
-            <Panel
-                id="_IDGenPanel10"
-                class="reconChartCard"
-            >
-                <headerToolbar>
-                    <OverflowToolbar id="_IDGenOverflowToolbar1">
-                        <Title
-                            id="_IDGenTitle39"
-                            text="Reconciliation Trend (Daily)"
-                            level="H5"
-                        />
-
-                        <ToolbarSpacer id="_IDGenToolbarSpacer2" />
-
-                        <Button
-                            id="_IDGenButton17"
-                            icon="sap-icon://full-screen"
-                            type="Transparent"
-                            press=".onReconTrendExpand"
-                        />
-                    </OverflowToolbar>
-                </headerToolbar>
-
-                <content>
-                    <viz:VizFrame
-                        id="idReconTrendChart"
-                        vizType="line"
-                        width="100%"
-                        height="320px"
-                    >
-                        <viz:dataset>
-                            <viz.data:FlattenedDataset
-                                id="_IDGenFlattenedDataset5"
-                                data="{reconciliation>/trendData}"
-                            >
-                                <viz.data:dimensions>
-                                    <viz.data:DimensionDefinition
-                                        id="_IDGenDimensionDefinition5"
-                                        name="Date"
-                                        value="{Date}"
-                                    />
-
-                                    <viz.data:DimensionDefinition
-                                        id="_IDGenDimensionDefinition6"
-                                        name="Status"
-                                        value="{Status}"
-                                    />
-                                </viz.data:dimensions>
-
-                                <viz.data:measures>
-                                    <viz.data:MeasureDefinition
-                                        id="_IDGenMeasureDefinition6"
-                                        name="Count"
-                                        value="{Count}"
-                                    />
-                                </viz.data:measures>
-                            </viz.data:FlattenedDataset>
-                        </viz:dataset>
-
-                        <viz:feeds>
-                            <viz.feeds:FeedItem
-                                id="_IDGenFeedItem12"
-                                uid="valueAxis"
-                                type="Measure"
-                                values="Count"
-                            />
-
-                            <viz.feeds:FeedItem
-                                id="_IDGenFeedItem13"
-                                uid="categoryAxis"
-                                type="Dimension"
-                                values="Date"
-                            />
-
-                            <viz.feeds:FeedItem
-                                id="_IDGenFeedItem14"
-                                uid="color"
-                                type="Dimension"
-                                values="Status"
-                            />
-                        </viz:feeds>
-                    </viz:VizFrame>
-                </content>
-            </Panel>
-
-            <Panel
-                id="_IDGenPanel14"
-                class="reconChartCard"
-            >
-                <headerToolbar>
-                    <OverflowToolbar id="_IDGenOverflowToolbar2">
-                        <Title
-                            id="_IDGenTitle40"
-                            text="Top 5 Reasons for Unmatched Items"
-                            level="H5"
-                        />
-
-                        <ToolbarSpacer id="_IDGenToolbarSpacer1" />
-
-                        <Button
-                            id="_IDGenButton19"
-                            icon="sap-icon://full-screen"
-                            type="Transparent"
-                            press=".onReasonChartExpand"
-                        />
-                    </OverflowToolbar>
-                </headerToolbar>
-
-                <content>
-                    <viz:VizFrame
-                        id="idReasonChart"
-                        vizType="bar"
-                        width="100%"
-                        height="320px"
-                    >
-                        <viz:dataset>
-                            <viz.data:FlattenedDataset
-                                id="_IDGenFlattenedDataset6"
-                                data="{reconciliation>/reasonData}"
-                            >
-                                <viz.data:dimensions>
-                                    <viz.data:DimensionDefinition
-                                        id="_IDGenDimensionDefinition7"
-                                        name="Reason"
-                                        value="{Reason}"
-                                    />
-                                </viz.data:dimensions>
-
-                                <viz.data:measures>
-                                    <viz.data:MeasureDefinition
-                                        id="_IDGenMeasureDefinition8"
-                                        name="Count"
-                                        value="{Count}"
-                                    />
-                                </viz.data:measures>
-                            </viz.data:FlattenedDataset>
-                        </viz:dataset>
-
-                        <viz:feeds>
-                            <viz.feeds:FeedItem
-                                id="_IDGenFeedItem11"
-                                uid="valueAxis"
-                                type="Measure"
-                                values="Count"
-                            />
-
-                            <viz.feeds:FeedItem
-                                id="_IDGenFeedItem15"
-                                uid="categoryAxis"
-                                type="Dimension"
-                                values="Reason"
-                            />
-                        </viz:feeds>
-                    </viz:VizFrame>
-                </content>
-            </Panel>
-        </layout:CSSGrid>
-    </VBox>
-    <Dialog
-        id="reconChartDialog"
-        title="Chart"
-        contentWidth="950px"
-        contentHeight="650px"
-        draggable="true"
-        resizable="true"
-    >
-        <content>
-            <VBox
-                id="_IDGenVBox143"
-                width="100%"
-                class="sapUiMediumMargin"
-            >
-                <viz:VizFrame
-                    id="idReconExpandedChart"
-                    width="100%"
-                    height="500px"
-                >
-                    <viz:dataset>
-                        <viz.data:FlattenedDataset
-                            id="_IDGenFlattenedDataset1"
-                            data="{reconciliation>/statusData}"
-                        >
-                            <viz.data:dimensions>
-                                <viz.data:DimensionDefinition
-                                    id="_IDGenDimensionDefinition4"
-                                    name="Status"
-                                    value="{Status}"
-                                />
-                            </viz.data:dimensions>
-
-                            <viz.data:measures>
-                                <viz.data:MeasureDefinition
-                                    id="_IDGenMeasureDefinition5"
-                                    name="Count"
-                                    value="{Count}"
-                                />
-                            </viz.data:measures>
-                        </viz.data:FlattenedDataset>
-                    </viz:dataset>
-
-                    <viz:feeds>
-                        <viz.feeds:FeedItem
-                            id="_IDGenFeedItem6"
-                            uid="color"
-                            type="Dimension"
-                            values="Status"
-                        />
-
-                        <viz.feeds:FeedItem
-                            id="_IDGenFeedItem10"
-                            uid="size"
-                            type="Measure"
-                            values="Count"
-                        />
-                    </viz:feeds>
-                </viz:VizFrame>
-            </VBox>
-        </content>
-
-        <endButton>
-            <Button
-                id="_IDGenButton18"
-                text="Close"
-                press=".onCloseReconDialog"
-            />
-        </endButton>
-    </Dialog>
-
-    <!-- ================================================= -->
-    <!-- Reconciliation List -->
-    <!-- ================================================= -->
+    xmlns:viz="sap.viz.ui5.controls">
 
     <VBox
-        id="_IDGenVBox146"
+        id="reconciliationPage"
         width="100%"
-        class="sapUiSmallMarginTop"
-    >
+        class="reconciliationPage">
+
+        <!-- ===================================================== -->
+        <!-- PAGE HEADER                                           -->
+        <!-- ===================================================== -->
+
         <VBox
-            id="_IDGenVBox145"
-            class="sapUiMediumMarginTop reconTableCard"
-        >
-            <!-- Header -->
-            <Toolbar id="_IDGenToolbar">
-                <Title
-                    id="_IDGenTitle43"
-                    text="Reconciliation List ({= ${reconciliation>/reconciliationList}.length })"
-                    level="H4"
-                />
+            id="reconciliationPageHeader"
+            class="reconPageHeader">
 
-                <ToolbarSpacer id="_IDGenToolbarSpacer3" />
-
-                <!-- Search -->
-
-                <SearchField
-                    id="_IDGenSearchField2"
-                    width="18rem"
-                    placeholder="Search"
-                    liveChange=".onReconSearch"
-                />
-
-                <!-- Filter -->
-
-                <Button
-                    id="_IDGenButton22"
-                    icon="sap-icon://filter"
-                    tooltip="Filter"
-                    press=".onFilter"
-                />
-
-                <!-- Settings -->
-
-                <Button
-                    id="_IDGenButton23"
-                    icon="sap-icon://action-settings"
-                    tooltip="Settings"
-                    press=".onOpenSettings"
-                />
-
-                <!-- Export -->
-
-                <Button
-                    id="_IDGenButton24"
-                    icon="sap-icon://excel-attachment"
-                    tooltip="Export"
-                    press=".onExportExcel"
-                />
-            </Toolbar>
-
-            <Table
-                id="idReconTable"
-                mode="None"
-                inset="false"
-                sticky="ColumnHeaders"
-                items="{reconciliation>/pagedData}"
-                width="100%"
-            >
-                <columns>
-                    <Column id="_IDGenColumn11">
-                        <Text
-                            id="_IDGenText241"
-                            text="Reconciliation ID"
-                        />
-                    </Column>
-
-                    <Column id="_IDGenColumn12">
-                        <Text
-                            id="_IDGenText242"
-                            text="Reconciliation Date"
-                        />
-                    </Column>
-
-                    <Column id="_IDGenColumn13">
-                        <Text
-                            id="_IDGenText243"
-                            text="Type"
-                        />
-                    </Column>
-
-                    <Column id="_IDGenColumn14">
-                        <Text
-                            id="_IDGenText244"
-                            text="Bank Country"
-                        />
-                    </Column>
-
-                    <Column id="_IDGenColumn15">
-                        <Text
-                            id="_IDGenText245"
-                            text="Status"
-                        />
-                    </Column>
-
-                    <Column
-                        id="_IDGenColumn34"
-                        hAlign="End"
-                    >
-                        <Text
-                            id="_IDGenText246"
-                            text="Matched Amount"
-                        />
-                    </Column>
-
-                    <Column
-                        id="_IDGenColumn64"
-                        hAlign="End"
-                    >
-                        <Text
-                            id="_IDGenText247"
-                            text="Unmatched Amount"
-                        />
-                    </Column>
-
-                    <Column
-                        id="_IDGenColumn65"
-                        hAlign="Center"
-                    >
-                        <Text
-                            id="_IDGenText248"
-                            text="Open Items"
-                        />
-                    </Column>
-
-                    <Column
-                        id="_IDGenColumn66"
-                        hAlign="Center"
-                    >
-                        <Text
-                            id="_IDGenText249"
-                            text="Actions"
-                        />
-                    </Column>
-                </columns>
-
-                <items>
-                    <ColumnListItem id="_IDGenColumnListItem1">
-                        <cells>
-                            <Link
-                                id="_IDGenLink6"
-                                text="{reconciliation>ReconId}"
-                            />
-
-                            <Text
-                                id="_IDGenText250"
-                                text="{reconciliation>Date}"
-                            />
-
-                            <Text
-                                id="_IDGenText251"
-                                text="{reconciliation>Type}"
-                            />
-
-                            <Text
-                                id="_IDGenText252"
-                                text="{reconciliation>Country}"
-                            />
-
-                            <ObjectStatus
-                                id="_IDGenObjectStatus27"
-                                text="{reconciliation>Status}"
-                                state="{reconciliation>State}"
-                            />
-
-                            <ObjectNumber
-                                id="_IDGenObjectNumber"
-                                number="{reconciliation>MatchedAmount}"
-                                unit="EUR"
-                            />
-
-                            <ObjectNumber
-                                id="_IDGenObjectNumber8"
-                                number="{reconciliation>UnmatchedAmount}"
-                                unit="EUR"
-                            />
-
-                            <Text
-                                id="_IDGenText253"
-                                text="{reconciliation>OpenItems}"
-                            />
-
-                            <Button
-                                id="_IDGenButton25"
-                                icon="sap-icon://show"
-                                type="Transparent"
-                                press=".onViewRecon"
-                            />
-                        </cells>
-                    </ColumnListItem>
-                </items>
-            </Table>
-        </VBox>
-
-        <!-- Pagination -->
-
-        <HBox
-            id="_IDGenHBox130"
-            justifyContent="Center"
-            class="sapUiSmallMarginTop"
-        >
-            <Button
-                id="_IDGenButton26"
-                icon="sap-icon://navigation-left-arrow"
-                enabled="{reconciliation>/canPrevious}"
-                press=".onPreviousPage"
-            />
+            <Title
+                id="reconciliationPageTitle"
+                text="Reconciliation"
+                level="H2"/>
 
             <Text
-                id="_IDGenText254"
-                text="{= ${reconciliation>/currentPage} + ' / ' + ${reconciliation>/totalPages} }"
-                class="sapUiSmallMarginBegin sapUiSmallMarginEnd"
-            />
+                id="reconciliationPageSubtitle"
+                text="Evaluation of outgoing items sent to AM System"
+                class="reconSubtitle"/>
 
-            <Button
-                id="_IDGenButton27"
-                icon="sap-icon://navigation-right-arrow"
-                enabled="{reconciliation>/canNext}"
-                press=".onNextPage"
-            />
-        </HBox>
+        </VBox>
+
+
+        <!-- ===================================================== -->
+        <!-- KPI SECTION                                           -->
+        <!-- ===================================================== -->
+
+        <VBox
+            id="reconciliationKpiSection"
+            width="100%"
+            class="kpiSectionContainer">
+
+            <FlexBox
+                id="reconciliationKpiRow"
+                width="100%"
+                wrap="NoWrap"
+                fitContainer="true"
+                renderType="Bare"
+                justifyContent="SpaceBetween"
+                alignItems="Stretch"
+                class="kpiSummaryRow">
+
+                <!-- TOTAL RECON AMOUNT -->
+
+                <GenericTile
+                    id="tileTotalReconAmount"
+                    header="Total Recon Amount"
+                    class="kpiTile kpiTileNoClick">
+
+                    <TileContent
+                        id="reconTileContent1">
+
+                        <NumericContent
+                            id="reconNumericTotalAmount"
+                            value="{reconciliation>/kpi/totalAmount}"
+                            scale="EUR"
+                            valueColor="Neutral"
+                            truncateValueTo="12"
+                            withMargin="false"/>
+
+                    </TileContent>
+
+                </GenericTile>
+
+
+                <!-- TOTAL OBJECTS -->
+
+                <GenericTile
+                    id="tileTotalReconObjects"
+                    header="Total Reconciliation Objects"
+                    class="kpiTile kpiTileNoClick">
+
+                    <TileContent
+                        id="reconTileContent2">
+
+                        <NumericContent
+                            id="reconNumericTotalObjects"
+                            value="{reconciliation>/kpi/totalObjects}"
+                            valueColor="Neutral"
+                            truncateValueTo="12"
+                            withMargin="false"/>
+
+                    </TileContent>
+
+                </GenericTile>
+
+
+                <!-- DEBIT -->
+
+                <GenericTile
+                    id="tileDebitTotal"
+                    header="Debit Total"
+                    class="kpiTile kpiTileNoClick">
+
+                    <TileContent
+                        id="reconTileContent3">
+
+                        <NumericContent
+                            id="reconNumericDebit"
+                            value="{reconciliation>/kpi/debitTotal}"
+                            scale="EUR"
+                            valueColor="Error"
+                            truncateValueTo="12"
+                            withMargin="false"/>
+
+                    </TileContent>
+
+                </GenericTile>
+
+
+                <!-- CREDIT -->
+
+                <GenericTile
+                    id="tileCreditTotal"
+                    header="Credit Total"
+                    class="kpiTile kpiTileNoClick">
+
+                    <TileContent
+                        id="reconTileContent4">
+
+                        <NumericContent
+                            id="reconNumericCredit"
+                            value="{reconciliation>/kpi/creditTotal}"
+                            scale="EUR"
+                            valueColor="Good"
+                            truncateValueTo="12"
+                            withMargin="false"/>
+
+                    </TileContent>
+
+                </GenericTile>
+
+            </FlexBox>
+
+        </VBox>
+
+
+        <!-- ===================================================== -->
+        <!-- RECONCILIATION BAR CHART                              -->
+        <!-- ===================================================== -->
+
+        <Panel
+            id="reconciliationChartPanel"
+            width="100%"
+            class="reconChartCard"
+            backgroundDesign="Transparent">
+
+            <headerToolbar>
+
+                <OverflowToolbar
+                    id="reconciliationChartToolbar">
+
+                    <Title
+                        id="reconciliationChartTitle"
+                        text="Reconciliation"
+                        level="H5"/>
+
+                    <ToolbarSpacer
+                        id="reconciliationChartToolbarSpacer"/>
+
+                    <Text
+                        id="reconciliationChartTotal"
+                        text="{= 'Total Recon Amount: EUR ' + ${reconciliation>/kpi/totalAmount} }"
+                        class="reconChartHeaderTotal"/>
+
+                </OverflowToolbar>
+
+            </headerToolbar>
+
+
+            <content>
+
+                <VBox
+                    id="reconciliationChartContainer"
+                    width="100%"
+                    height="430px"
+                    class="reconciliationChartContainer">
+
+                    <viz:VizFrame
+                        id="reconciliationBarVizFrame"
+                        vizType="column"
+                        width="100%"
+                        height="400px"
+                        uiConfig="{applicationSet:'fiori'}"
+                        selectData=".onReconciliationChartSelect"/>
+
+                </VBox>
+
+            </content>
+
+        </Panel>
+
+
+        <!-- ===================================================== -->
+        <!-- RECONCILIATION DETAILS                                -->
+        <!-- ===================================================== -->
+
+        <Panel
+            id="reconciliationDetailsPanel"
+            width="100%"
+            class="reconTableCard"
+            backgroundDesign="Transparent">
+
+            <headerToolbar>
+
+                <OverflowToolbar
+                    id="reconciliationDetailsToolbar">
+
+                    <Title
+                        id="reconciliationDetailsTitle"
+                        text="Reconciliation Details"
+                        level="H4"/>
+
+                    <ToolbarSpacer
+                        id="reconciliationDetailsSpacer"/>
+
+                    <Button
+                        id="btnExportReconciliation"
+                        text="Export to Excel"
+                        icon="sap-icon://excel-attachment"
+                        type="Transparent"
+                        press=".onExportExcel"/>
+
+                </OverflowToolbar>
+
+            </headerToolbar>
+
+
+            <content>
+
+                <List
+                    id="reconciliationGroupList"
+                    items="{
+                        path: 'reconciliation>/groups',
+                        templateShareable: false
+                    }"
+                    showSeparators="None"
+                    class="reconGroupList">
+
+                    <CustomListItem
+                        id="reconciliationGroupItem">
+
+                        <VBox
+                            id="reconciliationGroupContainer"
+                            width="100%"
+                            class="reconGroupContainer">
+
+                            <!-- GROUP HEADER -->
+
+                            <HBox
+                                id="reconciliationGroupHeader"
+                                width="100%"
+                                alignItems="Center"
+                                class="reconGroupHeader">
+
+                                <Button
+                                    id="reconciliationExpandButton"
+                                    icon="{= ${reconciliation>expanded} ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                    type="Transparent"
+                                    press=".onToggleGroup"
+                                    class="reconExpandButton"/>
+
+
+                                <VBox
+                                    id="reconciliationGroupTitleBox"
+                                    class="reconGroupTitleBox">
+
+                                    <Title
+                                        id="reconciliationGroupTitle"
+                                        text="{= ${reconciliation>date} + ' · ' + ${reconciliation>currency} + ' · ' + ${reconciliation>direction} }"
+                                        level="H5"/>
+
+                                    <Text
+                                        id="reconciliationGroupSubtext"
+                                        text="Reconciliation Group"
+                                        class="reconGroupSubtext"/>
+
+                                </VBox>
+
+
+                                <ToolbarSpacer
+                                    id="reconciliationGroupSpacer"/>
+
+
+                                <ObjectStatus
+                                    id="reconciliationDirectionStatus"
+                                    text="{reconciliation>direction}"
+                                    state="{reconciliation>directionState}"
+                                    class="reconDirectionStatus"/>
+
+
+                                <VBox
+                                    id="reconciliationSubtotal"
+                                    alignItems="End"
+                                    class="reconSubtotal">
+
+                                    <Text
+                                        id="reconciliationSubtotalCount"
+                                        text="{= ${reconciliation>count} + ' objects' }"
+                                        class="reconSubtotalCount"/>
+
+                                    <ObjectNumber
+                                        id="reconciliationSubtotalNumber"
+                                        number="{reconciliation>amount}"
+                                        unit="{reconciliation>currency}"
+                                        emphasized="true"/>
+
+                                </VBox>
+
+                            </HBox>
+
+
+                            <!-- DETAIL TABLE -->
+
+                            <Table
+                                id="reconciliationDetailTable"
+                                width="100%"
+                                inset="false"
+                                visible="{reconciliation>expanded}"
+                                items="{
+                                    path: 'reconciliation>details',
+                                    templateShareable: false
+                                }"
+                                class="reconDetailTable">
+
+                                <columns>
+
+                                    <Column
+                                        id="colAccountManagement">
+
+                                        <Text
+                                            id="txtAccountManagement"
+                                            text="Acct Mgmt"/>
+
+                                    </Column>
+
+
+                                    <Column
+                                        id="colSystemId">
+
+                                        <Text
+                                            id="txtSystemId"
+                                            text="System ID"/>
+
+                                    </Column>
+
+
+                                    <Column
+                                        id="colApplicationId">
+
+                                        <Text
+                                            id="txtApplicationId"
+                                            text="Appl. ID"/>
+
+                                    </Column>
+
+
+                                    <Column
+                                        id="colAddId">
+
+                                        <Text
+                                            id="txtAddId"
+                                            text="Add. ID"/>
+
+                                    </Column>
+
+
+                                    <Column
+                                        id="colReconGroupKey">
+
+                                        <Text
+                                            id="txtReconGroupKey"
+                                            text="Reconc. Grp Key"/>
+
+                                    </Column>
+
+
+                                    <Column
+                                        id="colPaymentItemCategory">
+
+                                        <Text
+                                            id="txtPaymentItemCategory"
+                                            text="Payment Item Category"/>
+
+                                    </Column>
+
+
+                                    <Column
+                                        id="colReconObjects"
+                                        hAlign="End">
+
+                                        <Text
+                                            id="txtReconObjects"
+                                            text="No. of Rcn Obj."/>
+
+                                    </Column>
+
+
+                                    <Column
+                                        id="colReconAmount"
+                                        hAlign="End">
+
+                                        <Text
+                                            id="txtReconAmount"
+                                            text="Recon. Amount"/>
+
+                                    </Column>
+
+                                </columns>
+
+
+                                <items>
+
+                                    <ColumnListItem
+                                        id="reconciliationDetailRow">
+
+                                        <cells>
+
+                                            <Text
+                                                id="cellAccountManagement"
+                                                text="{reconciliation>AccountManagement}"/>
+
+                                            <Text
+                                                id="cellSystemId"
+                                                text="{reconciliation>SystemId}"/>
+
+                                            <Text
+                                                id="cellApplicationId"
+                                                text="{reconciliation>ApplicationId}"/>
+
+                                            <Text
+                                                id="cellAddId"
+                                                text="{reconciliation>AddId}"/>
+
+                                            <Text
+                                                id="cellReconGroupKey"
+                                                text="{reconciliation>ReconciliationGroupKey}"/>
+
+                                            <Text
+                                                id="cellPaymentItemCategory"
+                                                text="{reconciliation>PaymentItemCategory}"/>
+
+                                            <ObjectNumber
+                                                id="cellReconObjects"
+                                                number="{reconciliation>ReconciliationObjects}"/>
+
+                                            <ObjectNumber
+                                                id="cellReconAmount"
+                                                number="{reconciliation>ReconciliationAmount}"
+                                                unit="EUR"/>
+
+                                        </cells>
+
+                                    </ColumnListItem>
+
+                                </items>
+
+                            </Table>
+
+                        </VBox>
+
+                    </CustomListItem>
+
+                </List>
+
+            </content>
+
+        </Panel>
+
     </VBox>
+
 </mvc:View>

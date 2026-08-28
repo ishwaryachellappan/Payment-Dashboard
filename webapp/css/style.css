@@ -2161,3 +2161,764 @@ body {
     height: 520px;
     overflow-y: auto;
 }
+
+
+/* ============================================================
+   RECONCILIATION PAGE
+   ============================================================ */
+
+.reconPageHeader {
+    margin-bottom: 1rem;
+}
+
+.reconSubtitle {
+    color: #6a6d70;
+    margin-top: 0.25rem;
+}
+
+
+
+
+/* ============================================================
+   KPI TILES
+   ============================================================ */
+
+/* ============================================================
+   RECONCILIATION KPI TILES
+   Same responsive behaviour as Exceptions page
+   ============================================================ */
+
+
+
+
+/* Keep the tile content inside its calculated width */
+.reconGenericTile.sapMGT .sapMGTHdrContent {
+    padding-bottom: 0;
+    min-width: 0;
+}
+
+
+.reconGenericTile.sapMGT .sapMGTContent {
+    padding-top: 0.25rem;
+    min-width: 0;
+}
+
+
+/* Numeric value must be allowed to shrink */
+.reconGenericTile.sapMGT .sapMNc {
+    min-width: 0;
+    max-width: 100%;
+}
+
+
+/* Prevent long KPI labels from making one tile wider */
+.reconGenericTile.sapMGT .sapMGTHdrTxt {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1000px) {
+
+    .reconKpiRow {
+        gap: 0.75rem;
+    }
+
+    .reconGenericTile.sapMGT {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .reconKpiRow {
+        gap: 0.5rem;
+    }
+
+    .reconGenericTile.sapMGT {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+    }
+
+    .reconGenericTile.sapMGT .sapMGTHeaderText {
+        font-size: 0.7rem;
+    }
+}
+
+.reconGenericTile .sapMGTHdrContent {
+    padding-bottom: 0;
+}
+
+.reconGenericTile .sapMGTContent {
+    padding-top: 0.25rem;
+}
+
+
+/* ============================================================
+   CHART
+   ============================================================ */
+
+.reconChartCard {
+    background: #ffffff !important;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+}
+
+.reconChartCard .sapMPanelContent {
+    padding: 0.5rem 1rem 1rem 1rem;
+}
+
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+
+.reconTableCard {
+    background: #ffffff !important;
+    border-radius: 12px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.reconTableSubtitle {
+    font-size: 0.75rem;
+    color: #6a6d70;
+}
+
+.reconGroupList {
+    background: transparent !important;
+}
+
+.reconGroupContainer {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7e9;
+}
+
+.reconGroupHeader {
+    min-height: 4.2rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background: #fffef0;
+    border-bottom: 1px solid #e6e1a8;
+}
+
+.reconGroupHeader:hover {
+    background: #fffbd6;
+}
+
+.reconExpandButton {
+    min-width: 2rem;
+}
+
+.reconGroupTitleBox {
+    margin-left: 0.25rem;
+}
+
+.reconGroupSubtext {
+    font-size: 0.72rem;
+    color: #6a6d70;
+    margin-top: 0.15rem;
+}
+
+.reconDirectionStatus {
+    margin-right: 2rem;
+}
+
+.reconSubtotal {
+    min-width: 9rem;
+}
+
+.reconSubtotalCount {
+    font-size: 0.75rem;
+    color: #6a6d70;
+    margin-bottom: 0.15rem;
+}
+
+
+/* ============================================================
+   DETAIL TABLE
+   ============================================================ */
+
+.reconDetailTable {
+    background: #ffffff;
+}
+
+.reconDetailTable .sapMListTblHeaderCell {
+    background: #f5f7f8;
+    border-bottom: 1px solid #d9dfe3;
+}
+
+.reconDetailTable .sapMListTblCell {
+    border-bottom: 1px solid #edf0f2;
+}
+
+.reconDetailTable .sapMListTblRow:hover {
+    background: #f7f9fa;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1000px) {
+
+    .reconGenericTile {
+        min-width: 45%;
+    }
+
+    .reconDirectionStatus {
+        margin-right: 1rem;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .reconGenericTile {
+        min-width: 100%;
+    }
+
+    .reconFilterField {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .reconGoButton {
+        margin-top: 0.5rem;
+    }
+
+    .reconGroupHeader {
+        align-items: flex-start;
+    }
+
+}
+
+.reconChartCard {
+    width: 100%;
+    background: #ffffff !important;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+}
+
+.reconChartCard .sapMPanelContent {
+    padding: 0.25rem 1rem 0.75rem 1rem;
+}
+
+.reconChartCard .sapVizFrame {
+    width: 100% !important;
+}
+.reconTableToolbar {
+    min-height: 3.5rem !important;
+    height: 3.5rem !important;
+    padding: 0 1rem !important;
+}
+.reconTableCard .sapMPanelContent {
+    padding: 0 !important;
+}
+.reconGroupHeader {
+    min-height: 4.4rem;
+    padding: 0.55rem 1rem;
+    background: #fffef0;
+    border-bottom: 1px solid #e6e1a8;
+}
+
+.reconGroupTitleBox {
+    min-width: 300px;
+}
+
+.reconDirectionStatus {
+    margin-right: 2.5rem;
+}
+
+.reconSubtotal {
+    min-width: 130px;
+    padding-right: 0.5rem;
+}
+
+/* =========================================================
+   DEBIT VS CREDIT BAR CHART
+   ========================================================= */
+
+.reconChartCard {
+    margin-top: 16px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.reconChartCard .sapMPanelContent {
+    padding: 24px 28px 26px 28px;
+}
+
+
+/* ---------------------------------------------------------
+   HEADER
+   --------------------------------------------------------- */
+
+.reconChartTotal {
+    font-size: 13px;
+    color: #64748b;
+}
+
+
+/* ---------------------------------------------------------
+   LEGEND
+   --------------------------------------------------------- */
+
+.reconChartLegend {
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.reconLegendItem {
+    gap: 6px;
+}
+
+.reconLegendCreditIcon {
+    color: #30914c;
+    font-size: 9px;
+}
+
+.reconLegendDebitIcon {
+    color: #d92d20;
+    font-size: 9px;
+}
+
+.reconLegendText {
+    font-size: 12px;
+    color: #475569;
+}
+
+
+/* ---------------------------------------------------------
+   BAR ROW
+   --------------------------------------------------------- */
+
+.reconBarRow {
+    margin-bottom: 26px;
+}
+
+.reconBarLabel {
+    min-width: 90px;
+}
+
+.reconBarDirection {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.reconBarPercent {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-right: 18px;
+}
+
+.reconBarAmount {
+    min-width: 125px;
+    text-align: right;
+}
+
+
+/* ---------------------------------------------------------
+   PROGRESS BAR
+   --------------------------------------------------------- */
+
+
+
+/* ---------------------------------------------------------
+   SUMMARY
+   --------------------------------------------------------- */
+
+.reconChartSummary {
+    margin-top: 18px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.reconSummaryBox {
+    min-width: 180px;
+    padding: 12px 16px;
+}
+
+.reconSummaryLabel {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+/* =========================================================
+   DEBIT VS CREDIT - FIORI BAR CHART
+   ========================================================= */
+
+.reconChartCard {
+    margin-top: 16px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+.reconChartCard .sapMPanelContent {
+    padding: 24px 28px 22px 28px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.reconChartHeaderTotal {
+    font-size: 13px;
+    color: #64748b;
+}
+
+
+/* =========================================================
+   CHART CONTAINER
+   ========================================================= */
+
+.reconBarChart {
+    width: 100%;
+}
+
+
+/* =========================================================
+   COMPARISON ROW
+   ========================================================= */
+
+.reconComparisonRow {
+    width: 100%;
+    margin-bottom: 28px;
+}
+
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+.reconChartLabelBox {
+    min-width: 100px;
+}
+
+.reconChartLabel {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.reconCreditDot {
+    font-size: 9px;
+    color: #30914c;
+    margin-right: 8px;
+}
+
+.reconDebitDot {
+    font-size: 9px;
+    color: #d92d20;
+    margin-right: 8px;
+}
+
+
+/* =========================================================
+   NUMBERS
+   ========================================================= */
+
+.reconChartPercentage {
+    font-size: 13px;
+    color: #64748b;
+    margin-right: 18px;
+}
+
+.reconCreditAmount {
+    min-width: 120px;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 600;
+    color: #30914c;
+}
+
+.reconDebitAmount {
+    min-width: 120px;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 600;
+    color: #d92d20;
+}
+
+
+/* =========================================================
+   BAR TRACK
+   ========================================================= */
+
+.reconBarTrack {
+    margin-top: 10px;
+    background: #eef1f4;
+    border-radius: 13px;
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   CREDIT BAR
+   ========================================================= */
+
+.reconCreditBar {
+    background: #30914c;
+    border-radius: 13px;
+    transition: width 0.4s ease;
+}
+
+
+/* =========================================================
+   DEBIT BAR
+   ========================================================= */
+
+.reconDebitBar {
+    background: #d92d20;
+    border-radius: 13px;
+    transition: width 0.4s ease;
+}
+
+
+/* =========================================================
+   SCALE
+   ========================================================= */
+
+.reconChartScale {
+    padding: 0 2px;
+    margin-top: -14px;
+    margin-bottom: 24px;
+}
+
+.reconChartScale .sapMText {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+
+/* =========================================================
+   SUMMARY
+   ========================================================= */
+
+.reconChartSummary {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 18px;
+}
+
+.reconSummaryItem {
+    flex: 1;
+    padding: 0 18px;
+}
+
+.reconSummaryItem:first-child {
+    padding-left: 0;
+}
+
+.reconSummaryLabel {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 3px;
+}
+
+.reconSummaryDivider {
+    width: 1px;
+    height: 42px;
+    background: #e5e7eb;
+}
+
+/* =========================================================
+   BAR / PIE TOGGLE
+   ========================================================= */
+
+.reconChartToggle {
+    margin-right: 14px;
+}
+
+
+/* =========================================================
+   PIE CONTAINER
+   ========================================================= */
+
+.reconPieChartContainer {
+    padding: 10px 20px 20px 20px;
+}
+
+
+/* =========================================================
+   PIE VIZFRAME
+   ========================================================= */
+
+.reconPieVizFrame {
+    width: 100%;
+    min-height: 300px;
+}
+
+.reconPieChartContainer {
+    width: 100%;
+    height: 330px;
+    min-height: 330px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+}
+
+.reconPieVizFrame {
+    width: 100% !important;
+    height: 300px !important;
+    min-height: 300px;
+}
+
+/* =========================================================
+   PIE CHART
+   ========================================================= */
+
+.reconPieChartContainer {
+    width: 100%;
+    height: 330px;
+    min-height: 330px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+
+.reconPieHtml {
+    width: 100%;
+    height: 100%;
+}
+
+
+/* =========================================================
+   PIE WRAPPER
+   ========================================================= */
+
+.reconPieWrapper {
+    width: 100%;
+    height: 300px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 70px;
+}
+
+
+/* =========================================================
+   SVG
+   ========================================================= */
+
+.reconPieVisual {
+    width: 340px;
+    height: 300px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.reconPieSvg {
+    width: 340px;
+    height: 300px;
+    overflow: visible;
+}
+
+
+/* =========================================================
+   CENTER
+   ========================================================= */
+
+.reconPieCenterLabel {
+    font-size: 13px;
+    fill: #64748b;
+}
+
+
+.reconPieCenterValue {
+    font-size: 15px;
+    font-weight: 700;
+    fill: #1f2937;
+}
+
+
+/* =========================================================
+   LEGEND
+   ========================================================= */
+
+.reconPieLegend {
+    min-width: 220px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 26px;
+}
+
+
+.reconPieLegendItem {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+}
+
+
+.reconPieLegendDot {
+    width: 12px;
+    height: 12px;
+
+    min-width: 12px;
+
+    margin-top: 5px;
+
+    border-radius: 50%;
+}
+
+
+.reconPieCreditDot {
+    background: #30914c;
+}
+
+
+.reconPieDebitDot {
+    background: #d92d20;
+}
+
+
+.reconPieLegendTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+
+.reconPieLegendAmount {
+    margin-top: 3px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #334155;
+}
+
+
+.reconPieLegendPercent {
+    margin-top: 3px;
+
+    font-size: 12px;
+    color: #64748b;
+}
