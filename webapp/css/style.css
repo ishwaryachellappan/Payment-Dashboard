@@ -3070,3 +3070,153 @@ body {
 }
 
 
+
+/* ============================================================
+   RECONCILIATION DETAILS - BLUE GROUP ROW
+   Matches the blue reconciliation chart
+   ============================================================ */
+
+.reconGroupRow {
+    background: linear-gradient(
+        90deg,
+        #eef6ff 0%,
+        #e7f2ff 55%,
+        #dcecff 100%
+    ) !important;
+
+    border-bottom: 1px solid #c4daf0 !important;
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   GROUP HEADER
+   ============================================================ */
+
+.reconGroupRow .reconGroupHeader {
+    min-height: 72px;
+    padding: 10px 14px;
+
+    background: transparent !important;
+}
+
+
+/* ============================================================
+   GROUP TITLE
+   ============================================================ */
+
+.reconGroupRow .reconGroupTitle {
+    color: #172b4d !important;
+    font-weight: 700 !important;
+}
+
+
+/* Subtitle */
+.reconGroupRow .reconGroupSubtext {
+    color: #64748b !important;
+    font-size: 0.75rem;
+}
+
+
+/* ============================================================
+   EXPAND BUTTON
+   ============================================================ */
+
+.reconGroupRow .reconExpandButton {
+    color: #0070f2 !important;
+}
+
+.reconGroupRow .reconExpandButton:hover {
+    background-color: #d9ebff !important;
+}
+
+
+/* ============================================================
+   OBJECT COUNT
+   ============================================================ */
+
+.reconGroupRow .reconSubtotalCount {
+    color: #64748b !important;
+    font-size: 0.75rem;
+}
+
+
+/* ============================================================
+   AMOUNT
+   ============================================================ */
+
+.reconGroupRow .reconSubtotalNumber {
+    color: #172b4d !important;
+    font-weight: 700 !important;
+}
+
+
+/* ============================================================
+   CREDIT
+   ============================================================ */
+
+.reconGroupRow .sapMObjStatusSuccess,
+.reconGroupRow .creditText {
+    color: #18864b !important;
+}
+
+
+/* ============================================================
+   DEBIT
+   ============================================================ */
+
+.reconGroupRow .sapMObjStatusError,
+.reconGroupRow .debitText {
+    color: #d91c1c !important;
+}
+
+
+/* ============================================================
+   HOVER
+   ============================================================ */
+
+.reconGroupRow:hover {
+    background: linear-gradient(
+        90deg,
+        #e4f1ff 0%,
+        #dcecff 55%,
+        #d3e7fb 100%
+    ) !important;
+}
+
+
+/* ============================================================
+   DETAIL TABLE MUST STAY WHITE
+   ============================================================ */
+
+.reconGroupRow .reconDetailTable {
+    background: #ffffff !important;
+}
+
+.reconGroupRow .reconDetailTable .sapMListTblRow {
+    background: #ffffff !important;
+}
+
+
+/* Detail table cells */
+.reconGroupRow .reconDetailTable .sapMListTblCell {
+    background: #ffffff !important;
+}
+
+
+/* ============================================================
+   TABLE HEADER
+   ============================================================ */
+
+.reconGroupRow .reconDetailTable .sapMListTblHeaderCell {
+    background: #f1f5f9 !important;
+}
+
+
+/* ============================================================
+   DETAIL ROW HOVER
+   ============================================================ */
+
+.reconGroupRow .reconDetailTable .sapMListTblRow:hover {
+    background: #f5f9ff !important;
+}

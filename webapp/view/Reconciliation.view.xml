@@ -181,9 +181,6 @@
                     <ToolbarSpacer
                         id="reconciliationChartToolbarSpacer"/>
 
-
-                    <!-- CHART TYPE BUTTON -->
-
                     <Button
                         id="reconChartTypeButton"
                         icon="sap-icon://bar-chart"
@@ -257,6 +254,8 @@
 
             <content>
 
+                <!-- Scrollable details area -->
+
                 <ScrollContainer
                     id="reconciliationDetailsScroll"
                     width="100%"
@@ -275,12 +274,17 @@
                         class="reconGroupList">
 
                         <CustomListItem
-                            id="reconciliationGroupItem">
+                            id="reconciliationGroupItem"
+                            type="Inactive">
+
+                            <!-- ================================================= -->
+                            <!-- BLUE RECONCILIATION GROUP                        -->
+                            <!-- ================================================= -->
 
                             <VBox
                                 id="reconciliationGroupContainer"
                                 width="100%"
-                                class="reconGroupContainer">
+                                class="reconGroupContainer reconGroupRow">
 
                                 <!-- GROUP HEADER -->
 
@@ -297,6 +301,7 @@
                                         press=".onToggleGroup"
                                         class="reconExpandButton"/>
 
+
                                     <VBox
                                         id="reconciliationGroupTitleBox"
                                         class="reconGroupTitleBox">
@@ -304,7 +309,8 @@
                                         <Title
                                             id="reconciliationGroupTitle"
                                             text="{= ${reconciliation>date} + ' · ' + ${reconciliation>currency} + ' · ' + ${reconciliation>direction} }"
-                                            level="H5"/>
+                                            level="H5"
+                                            class="reconGroupTitle"/>
 
                                         <Text
                                             id="reconciliationGroupSubtext"
@@ -313,14 +319,17 @@
 
                                     </VBox>
 
+
                                     <ToolbarSpacer
                                         id="reconciliationGroupSpacer"/>
+
 
                                     <ObjectStatus
                                         id="reconciliationDirectionStatus"
                                         text="{reconciliation>direction}"
                                         state="{reconciliation>directionState}"
                                         class="reconDirectionStatus"/>
+
 
                                     <VBox
                                         id="reconciliationSubtotal"
@@ -336,14 +345,18 @@
                                             id="reconciliationSubtotalNumber"
                                             number="{reconciliation>amount}"
                                             unit="{reconciliation>currency}"
-                                            emphasized="true"/>
+                                            emphasized="true"
+                                            class="reconSubtotalNumber"/>
 
                                     </VBox>
 
                                 </HBox>
 
 
-                                <!-- DETAIL TABLE -->
+                                <!-- ================================================= -->
+                                <!-- DETAIL TABLE                                    -->
+                                <!-- IMPORTANT: detail rows remain WHITE            -->
+                                <!-- ================================================= -->
 
                                 <Table
                                     id="reconciliationDetailTable"
@@ -367,6 +380,7 @@
 
                                         </Column>
 
+
                                         <Column
                                             id="colSystemId">
 
@@ -375,6 +389,7 @@
                                                 text="System ID"/>
 
                                         </Column>
+
 
                                         <Column
                                             id="colApplicationId">
@@ -385,6 +400,7 @@
 
                                         </Column>
 
+
                                         <Column
                                             id="colAddId">
 
@@ -393,6 +409,7 @@
                                                 text="Add. ID"/>
 
                                         </Column>
+
 
                                         <Column
                                             id="colReconGroupKey">
@@ -403,6 +420,7 @@
 
                                         </Column>
 
+
                                         <Column
                                             id="colPaymentItemCategory">
 
@@ -411,6 +429,7 @@
                                                 text="Payment Item Category"/>
 
                                         </Column>
+
 
                                         <Column
                                             id="colReconObjects"
@@ -421,6 +440,7 @@
                                                 text="No. of Rcn Obj."/>
 
                                         </Column>
+
 
                                         <Column
                                             id="colReconAmount"
