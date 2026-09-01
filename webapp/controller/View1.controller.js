@@ -291,6 +291,9 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this._refreshExceptionKpis();
 
             this._rebuildPaymentTable();
+
+
+            this._refreshReconciliation();
         },
 
         // ‚úÖ Looks up a field's catalog entry (label / type) by its technical key.
@@ -925,6 +928,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this._loadKpiSummary();
             this._loadFlowChart();
             this._refreshExceptionKpis();
+            this._refreshReconciliation();
 
             this.getView().getModel("donutViewModel").setProperty("/selectedStatus", "");
             this.getView().getModel("donutItemsModel").setProperty("/items", []);
@@ -1402,26 +1406,50 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
         // changes here on the Overview tab's header.
         _refreshExceptionKpis: function () {
 
-    var oExceptionView = this.byId("ExceptionsView");
+            var oExceptionView = this.byId("ExceptionsView");
 
-    if (oExceptionView) {
+            if (oExceptionView) {
 
-        var oController = oExceptionView.getController();
+                var oController = oExceptionView.getController();
 
-        if (oController) {
+                if (oController) {
 
-            oController.loadExceptionKpis();
+                    oController.loadExceptionKpis();
 
-            oController.loadExceptionReasons();
+                    oController.loadExceptionReasons();
 
-            // IMPORTANT: refresh Exception Trend as well
-            oController.loadExceptionTrend();
+                    // IMPORTANT: refresh Exception Trend as well
+                    oController.loadExceptionTrend();
 
-            // Refresh "By Rail" pie chart (RailKpi entity set)
-            oController.loadRailKpi();
-        }
-    }
-},
+                    // Refresh "By Rail" pie chart (RailKpi entity set)
+                    oController.loadRailKpi();
+                }
+            }
+        },
+
+        // ✅ Same pattern as _refreshExceptionKpis — the Reconciliation tab
+        // (view/Reconciliation.view.xml) is a separate nested XMLView with its
+        // own controller and its own "reconciliation" JSONModel, so it doesn't
+        // get updated automatically when Clearing Area / Date change here on
+        // the Overview tab's header. This reaches into it and reruns its own
+        // OData read whenever the shared filter changes.
+        _refreshReconciliation: function () {
+
+            var oReconciliationView = this.byId("ReconciliationView");
+
+            if (oReconciliationView) {
+
+                var oController = oReconciliationView.getController();
+
+                if (oController) {
+
+                    oController.loadReconciliationData();
+
+                }
+
+            }
+
+        },
 
         _loadKpiSummary: function () {
 
@@ -1503,6 +1531,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this.getView().getModel("filterModel").setProperty("/kpiDate", sNewDate);
             this._loadKpiSummary();
             this._refreshExceptionKpis();
+            this._refreshReconciliation();
             this._loadFlowChart();
             this._oOriginalChartParent = null;
             this._iOriginalChartIndex = 0;
@@ -3018,7 +3047,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this._loadKpiSummary();
             this._loadFlowChart();
             this._refreshExceptionKpis();
-
+            this._refreshReconciliation();
             console.log("Loaded Variant", oVariant);
         },
 
