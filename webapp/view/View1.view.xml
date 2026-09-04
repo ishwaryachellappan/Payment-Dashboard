@@ -1375,6 +1375,18 @@
                         />
                     </IconTabFilter>
 
+                    <!-- ✅ TAB 3 -->
+                    <IconTabFilter
+                        id="_IDGenIconTabFilter3"
+                        text="Reconcillations"
+                    >
+                        <mvc:XMLView
+                            id="ReconciliationView"
+                            viewName="payment.dashboard.view.Reconciliation"
+                        />
+                    </IconTabFilter>
+
+                   <!-- ✅ TAB 4 -->
                     <IconTabFilter
                         id="railHealthTab"
                         text="Rail Health"
@@ -1385,16 +1397,7 @@
                         />
                     </IconTabFilter>
 
-                    <!-- ✅ TAB 4 -->
-                    <IconTabFilter
-                        id="_IDGenIconTabFilter3"
-                        text="Reconcillations"
-                    >
-                        <mvc:XMLView
-                            id="ReconciliationView"
-                            viewName="payment.dashboard.view.Reconciliation"
-                        />
-                    </IconTabFilter>
+                    
 
                     <!-- ✅ TAB 5 -->
                     <IconTabFilter

@@ -34,10 +34,6 @@ sap.ui.define([
     var oDisplayDateFormat = DateFormat.getDateInstance({ pattern: "dd.MM.yyyy" });
 
 
-    /* ============================================================
-       CHART CONFIGURATION (restored from the original controller)
-       ============================================================ */
-
     var RECON_CHART_TYPE_CONFIG = {
 
         bar: { vizType: "bar", label: "Bar Chart", icon: "sap-icon://horizontal-bar-chart-2" },
@@ -52,6 +48,12 @@ sap.ui.define([
         "100_stacked_column": { vizType: "100_stacked_column", label: "100% Stacked Column Chart", icon: "sap-icon://full-stacked-column-chart" }
 
     };
+
+    // ✅ One fixed color per category, in the order they appear in
+    // /chartData: PC received (blue), DM posted (green), Reconciliation
+    // gap (red — visually flags it as the "problem" bar). Reused by
+    // every axis-style chart type below.
+    var RECON_CHART_COLORS = ["#2E90FA", "#12B76A", "#F04438"];
 
 
     return Controller.extend(
@@ -69,17 +71,10 @@ sap.ui.define([
                         creditTotal: "0.00"
                     },
 
-                    /*
-                     * THIS IS THE RECONCILIATION CHART DATA.
-                     * DO NOT CHANGE Category TO Direction.
-                     * (restored — still static/hardcoded, exactly as it
-                     * was before the OData work started; not derived
-                     * from the table's OData rows)
-                     */
                     chartData: [
-                        { Category: "PC received", Amount: 10000 },
-                        { Category: "DM posted", Amount: 9800 },
-                        { Category: "Reconciliation gap", Amount: 200 }
+                        { Category: "PC received", Amount: 0 },
+                        { Category: "DM posted", Amount: 0 },
+                        { Category: "Reconciliation gap", Amount: 0 }
                     ],
 
                     filters: {
@@ -89,6 +84,12 @@ sap.ui.define([
 
                     groups: [],
 
+                    // ✅ Which chart category (if any) the table is
+                    // currently filtered to, and the message shown above
+                    // the table explaining that filter.
+                    selectedCategory: "",
+                    filterMessage: "",
+
                     busy: false
 
                 };
@@ -97,17 +98,12 @@ sap.ui.define([
                 oModel.setSizeLimit(1000);
                 this.getView().setModel(oModel, "reconciliation");
 
-
-                /* ========================================================
-                   DEFAULT CHART TYPE (restored)
-                   ======================================================== */
-
                 this._sActiveReconChartType = "column";
 
-
-                /* ========================================================
-                   CREATE CHART AFTER RENDERING (restored)
-                   ======================================================== */
+                // ✅ Full set of raw OData rows from the last successful
+                // load, kept so a bar click can re-filter the table
+                // client-side without a second OData round-trip.
+                this._aReconciliationRawData = [];
 
                 this.getView().addEventDelegate({
 
@@ -129,19 +125,10 @@ sap.ui.define([
 
                 });
 
-
-                /* ====================================================
-                   INITIAL TABLE LOAD (unchanged from your working version)
-                   ==================================================== */
-
                 this.loadReconciliationData();
 
             },
 
-
-            /* ============================================================
-               PUBLIC ENTRY POINT (unchanged)
-               ============================================================ */
 
             loadReconciliationData: function () {
 
@@ -263,14 +250,21 @@ sap.ui.define([
 
 
             /* ============================================================
-               TRANSFORM RAW ODATA ROWS INTO groups[] FOR THE TABLE
-               (unchanged — chartData is intentionally NOT touched here,
-               since the chart is static/hardcoded per your request)
+               FULL RENDER — runs on every fresh OData load. Always shows
+               ALL data first, per the requirement, and clears any bar
+               filter that was active from a previous load.
                ============================================================ */
 
             _processReconciliationData: function (aRawData) {
 
                 var oReconModel = this.getView().getModel("reconciliation");
+
+                this._aReconciliationRawData = aRawData || [];
+
+                // ✅ New data always starts unfiltered — clear any bar
+                // selection left over from the previous Clearing Area/Date.
+                oReconModel.setProperty("/selectedCategory", "");
+                oReconModel.setProperty("/filterMessage", "");
 
                 if (!aRawData || !aRawData.length) {
 
@@ -285,9 +279,53 @@ sap.ui.define([
                         creditTotal: "0.00"
                     });
 
+                    oReconModel.setProperty("/chartData", [
+                        { Category: "PC received", Amount: 0 },
+                        { Category: "DM posted", Amount: 0 },
+                        { Category: "Reconciliation gap", Amount: 0 }
+                    ]);
+
+                    this._createReconChart();
+
                     return;
 
                 }
+
+                var oResult = this._buildGroupsAndKpi(aRawData);
+
+                console.log("[Reconciliation] Built groups:", oResult.groups);
+
+                oReconModel.setProperty("/groups", oResult.groups);
+                oReconModel.setProperty("/kpi", oResult.kpi);
+
+                var fGap = Math.abs(oResult.fPcReceived - oResult.fDmPosted);
+
+                console.log(
+                    "[Reconciliation] Chart totals — PC received:", oResult.fPcReceived,
+                    "DM posted:", oResult.fDmPosted,
+                    "Gap:", fGap
+                );
+
+                oReconModel.setProperty("/chartData", [
+                    { Category: "PC received", Amount: oResult.fPcReceived },
+                    { Category: "DM posted", Amount: oResult.fDmPosted },
+                    { Category: "Reconciliation gap", Amount: fGap }
+                ]);
+
+                this._createReconChart();
+
+            },
+
+
+            /* ============================================================
+               SHARED BUILDER — turns a set of raw OData rows into the
+               groups[]/kpi shape the table needs, plus the two chart
+               bucket totals. Used both for the full dataset (above) and
+               for a bar-click filtered subset (below), so both paths
+               always group/aggregate identically.
+               ============================================================ */
+
+            _buildGroupsAndKpi: function (aRawData) {
 
                 var oGroupsMap = {};
                 var aGroupOrder = [];
@@ -297,6 +335,8 @@ sap.ui.define([
                 var fDebitTotal = 0;
                 var fCreditTotal = 0;
 
+                var fPcReceived = 0;
+                var fDmPosted = 0;
 
                 aRawData.forEach(function (oRow) {
 
@@ -351,6 +391,12 @@ sap.ui.define([
                         fCreditTotal += fAmount;
                     }
 
+                    if (oRow.reconc_group === "IN") {
+                        fPcReceived += fAmount;
+                    } else if (oRow.reconc_group === "BAS") {
+                        fDmPosted += fAmount;
+                    }
+
                 }.bind(this));
 
 
@@ -362,16 +408,17 @@ sap.ui.define([
                     return oGroupsMap[sKey];
                 });
 
-                console.log("[Reconciliation] Built groups:", aGroups);
-
-                oReconModel.setProperty("/groups", aGroups);
-
-                oReconModel.setProperty("/kpi", {
-                    totalAmount: fTotalAmount.toFixed(2),
-                    totalObjects: String(iTotalObjects),
-                    debitTotal: fDebitTotal.toFixed(2),
-                    creditTotal: fCreditTotal.toFixed(2)
-                });
+                return {
+                    groups: aGroups,
+                    kpi: {
+                        totalAmount: fTotalAmount.toFixed(2),
+                        totalObjects: String(iTotalObjects),
+                        debitTotal: fDebitTotal.toFixed(2),
+                        creditTotal: fCreditTotal.toFixed(2)
+                    },
+                    fPcReceived: fPcReceived,
+                    fDmPosted: fDmPosted
+                };
 
             },
 
@@ -387,8 +434,7 @@ sap.ui.define([
 
 
             /* ============================================================
-               CREATE RECONCILIATION CHART (restored, unchanged from the
-               original controller — reads the static /chartData)
+               CREATE RECONCILIATION CHART
                ============================================================ */
 
             _createReconChart: function () {
@@ -451,10 +497,6 @@ sap.ui.define([
 
             },
 
-
-            /* ============================================================
-               CHART TYPE MENU (restored)
-               ============================================================ */
 
             onReconChartTypeMenuPress: function (oEvent) {
 
@@ -560,6 +602,11 @@ sap.ui.define([
             },
 
 
+            /* ✅ FIX #1 — added a "color" feed bound to the same Category
+               dimension used for categoryAxis, plus an explicit
+               colorPalette. Without a color feed, sap.viz treats a
+               single-measure axis chart as one series, so every bar got
+               the same default blue regardless of category. */
             _configureReconAxisChart: function () {
 
                 var oChart = this.byId("reconciliationBarVizFrame");
@@ -579,14 +626,25 @@ sap.ui.define([
                     values: ["Amount"]
                 }));
 
+                // ✅ NEW — this is what actually makes each bar its own color
+                oChart.addFeed(new FeedItem({
+                    uid: "color",
+                    type: "Dimension",
+                    values: ["Category"]
+                }));
+
                 oChart.setVizProperties({
 
                     title: { visible: false },
+
+                    // Legend is more useful now that bars aren't all the
+                    // same color — flip on if you want a color key.
                     legend: { visible: false },
 
                     plotArea: {
                         dataLabel: { visible: true, formatString: "#,##0.00" },
-                        drawingEffect: "glossy"
+                        drawingEffect: "glossy",
+                        colorPalette: RECON_CHART_COLORS
                     },
 
                     categoryAxis: {
@@ -625,7 +683,10 @@ sap.ui.define([
                 oChart.setVizProperties({
                     title: { visible: false },
                     legend: { visible: true, position: "right" },
-                    plotArea: { dataLabel: { visible: true, formatString: "#,##0.00" } }
+                    plotArea: {
+                        dataLabel: { visible: true, formatString: "#,##0.00" },
+                        colorPalette: RECON_CHART_COLORS
+                    }
                 });
 
                 oChart.invalidate();
@@ -652,7 +713,10 @@ sap.ui.define([
                 oChart.setVizProperties({
                     title: { visible: false },
                     legend: { visible: true, position: "right" },
-                    plotArea: { dataLabel: { visible: true } }
+                    plotArea: {
+                        dataLabel: { visible: true },
+                        colorPalette: RECON_CHART_COLORS
+                    }
                 });
 
                 oChart.invalidate();
@@ -687,12 +751,105 @@ sap.ui.define([
             },
 
 
+            /* ============================================================
+               ✅ FIX #2 — CLICK-TO-FILTER
+
+               Clicking a bar filters the table below to just that
+               category's rows. "PC received"/"DM posted" map cleanly to
+               reconc_group = "IN" / "BAS". "Reconciliation gap" has no
+               such mapping (see _applyChartCategoryFilter) — it's a
+               derived difference, not a set of rows.
+               ============================================================ */
+
             onReconciliationChartSelect: function (oEvent) {
 
                 var aData = oEvent.getParameter("data");
                 if (!aData || !aData.length) { return; }
 
-                console.log("Selected reconciliation data:", aData[0].data);
+                var oSelected = aData[0].data;
+                var sCategory = oSelected.Category;
+
+                console.log("[Reconciliation] Chart bar clicked:", sCategory);
+
+                this._applyChartCategoryFilter(sCategory);
+
+            },
+
+
+            _applyChartCategoryFilter: function (sCategory) {
+
+                var oReconModel = this.getView().getModel("reconciliation");
+                var aRawData = this._aReconciliationRawData || [];
+
+                var aFilteredRows;
+                var sMessage;
+
+                switch (sCategory) {
+
+                    case "PC received":
+
+                        aFilteredRows = aRawData.filter(function (oRow) {
+                            return oRow.reconc_group === "IN";
+                        });
+
+                        sMessage = "Showing " + aFilteredRows.length + " item(s) for PC received (reconc_group = IN).";
+
+                        break;
+
+                    case "DM posted":
+
+                        aFilteredRows = aRawData.filter(function (oRow) {
+                            return oRow.reconc_group === "BAS";
+                        });
+
+                        sMessage = "Showing " + aFilteredRows.length + " item(s) for DM posted (reconc_group = BAS).";
+
+                        break;
+
+                    case "Reconciliation gap":
+
+                        // ⚠️ The gap is |PC received − DM posted| — a
+                        // computed difference, not a real subset of rows.
+                        // There's no line item that "is" the gap, so we
+                        // can't filter to it the way we can the other two
+                        // bars. Falling back to the full dataset with an
+                        // explanation rather than showing something
+                        // misleading.
+                        aFilteredRows = aRawData;
+
+                        sMessage =
+                            "\"Reconciliation gap\" is a calculated difference " +
+                            "(|PC received − DM posted|), not a specific set of " +
+                            "items — showing all items below instead.";
+
+                        break;
+
+                    default:
+
+                        aFilteredRows = aRawData;
+                        sMessage = "";
+
+                }
+
+                var oResult = this._buildGroupsAndKpi(aFilteredRows);
+
+                oReconModel.setProperty("/groups", oResult.groups);
+                oReconModel.setProperty("/selectedCategory", sCategory);
+                oReconModel.setProperty("/filterMessage", sMessage);
+
+            },
+
+
+            /* "Show All" button — clears the bar filter and restores the
+               full table for the currently loaded Clearing Area / Date. */
+            onClearChartFilter: function () {
+
+                var oReconModel = this.getView().getModel("reconciliation");
+                var oResult = this._buildGroupsAndKpi(this._aReconciliationRawData || []);
+
+                oReconModel.setProperty("/groups", oResult.groups);
+                oReconModel.setProperty("/selectedCategory", "");
+                oReconModel.setProperty("/filterMessage", "");
 
             },
 
@@ -781,7 +938,7 @@ sap.ui.define([
 
                 this._updateSystem2Availability();
 
-                MessageToast.show("Reconciliation filters reset");
+              
 
             },
 
@@ -870,6 +1027,98 @@ sap.ui.define([
                 oSpreadsheet.build().finally(function () {
                     oSpreadsheet.destroy();
                 });
+
+            },
+
+
+            /* ============================================================
+               MAXIMIZE / RESTORE — Reconciliation Details table panel.
+               ============================================================ */
+
+            onToggleReconDetailsSize: function () {
+
+                var oCard = this.byId("reconciliationDetailsPanel");
+                var oButton = this.byId("reconDetailsExpandButton");
+                var oScroll = this.byId("reconciliationDetailsScroll");
+
+                if (!this._oReconDetailsDialog) {
+
+                    this._oReconDetailsDialog = new sap.m.Dialog({
+                        contentWidth: "95%",
+                        contentHeight: "90%",
+                        stretch: false,
+                        draggable: true,
+                        resizable: true,
+                        horizontalScrolling: false,
+                        verticalScrolling: false
+                    });
+
+                    this.getView().addDependent(this._oReconDetailsDialog);
+
+                    this._oReconDetailsDialog.attachAfterClose(function () {
+
+                        if (this._oReconDetailsOriginalParent) {
+
+                            this._oReconDetailsOriginalParent.insertItem(
+                                oCard,
+                                this._iReconDetailsOriginalIndex
+                            );
+
+                            oCard.setWidth("100%");
+
+                            if (oScroll) {
+                                oScroll.setHeight("500px");
+                                oScroll.setVertical(true);
+                            }
+
+                            oButton.setIcon("sap-icon://full-screen");
+                            oButton.setTooltip("Maximize");
+
+                            this._bReconDetailsExpanded = false;
+
+                        }
+
+                    }.bind(this));
+
+                }
+
+                if (!this._bReconDetailsExpanded) {
+
+                    this._oReconDetailsOriginalParent = oCard.getParent();
+
+                    this._iReconDetailsOriginalIndex =
+                        this._oReconDetailsOriginalParent.indexOfItem(oCard);
+
+                    this._oReconDetailsOriginalParent.removeItem(oCard);
+
+                    this._oReconDetailsDialog.removeAllContent();
+
+                    oCard.setWidth("100%");
+
+                    if (oScroll) {
+                        oScroll.setHeight("70vh");
+                        oScroll.setVertical(true);
+                    }
+
+                    this._oReconDetailsDialog.addContent(oCard);
+
+                    oButton.setIcon("sap-icon://exit-full-screen");
+                    oButton.setTooltip("Restore");
+
+                    this._bReconDetailsExpanded = true;
+
+                    this._oReconDetailsDialog.open();
+
+                } else {
+
+                    if (oScroll) {
+                        oScroll.setHeight("500px");
+                        oScroll.setVertical(true);
+                    }
+
+                    this._oReconDetailsDialog.close();
+
+                }
 
             }
 

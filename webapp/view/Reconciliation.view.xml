@@ -81,7 +81,7 @@
 
                     <Label
                         id="system1Label"
-                        text="System 1"
+                        text="Source System"
                         labelFor="system1Select"/>
 
                     <Select
@@ -93,7 +93,7 @@
                         <core:Item
                             id="system1EmptyItem"
                             key=""
-                            text="Select System 1"/>
+                            text="Select System "/>
 
                         <core:Item
                             id="system1PCItem"
@@ -119,7 +119,7 @@
 
                     <Label
                         id="system2Label"
-                        text="System 2"
+                        text="Target System"
                         labelFor="system2Select"/>
 
                     <Select
@@ -131,7 +131,7 @@
                         <core:Item
                             id="system2EmptyItem"
                             key=""
-                            text="Select System 2"/>
+                            text="Select System"/>
 
                         <core:Item
                             id="system2DMItem"
@@ -246,6 +246,16 @@
                         icon="sap-icon://excel-attachment"
                         type="Transparent"
                         press=".onExportExcel"/>
+
+                         <!-- ✅ ADDED: maximize/restore, same pattern as
+                 trendExpandButton in Exceptions.view.xml -->
+            <Button
+                id="reconDetailsExpandButton"
+                icon="sap-icon://full-screen"
+                type="Default"
+                tooltip="Maximize"
+                press=".onToggleReconDetailsSize"
+                class="chartToolbarButton"/>
 
                 </OverflowToolbar>
 

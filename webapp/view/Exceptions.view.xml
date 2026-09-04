@@ -6,8 +6,9 @@
 >
     <VBox
         id="_IDGenVBox4"
-        class="sapUiMediumMargin"
-    >
+       width="100%"
+        class="reconciliationPage">
+
         <VBox
             id="_IDGenVBox40"
             class="sapUiSmallMargin"
@@ -40,7 +41,7 @@
                         <GenericTile
                             id="_IDGenGenericTile8"
                             header="Open Exceptions"
-                            class="sapUiTinyMargin kpiTile"
+                            class="sapUiTinyMargin kpiSummaryTile"
                             press="onOpenExceptionsPress"
                         >
                             <TileContent id="_IDGenTileContent4">
@@ -50,15 +51,18 @@
                                         id="_IDGenNumericContent4"
                                         value="{exceptionKpiModel>/OpenException}"
                                         valueColor="Error"
+                                        class="kpiValue"
                                     />
                                 </VBox>
                             </TileContent>
                         </GenericTile>
 
+                        
+
                         <GenericTile
                             id="_IDGenGenericTile5"
                             header="Value at Risk"
-                            class="sapUiTinyMargin kpiTile kpiTileNoClick"
+                            class="sapUiTinyMargin kpiSummaryTile kpiTileNoClick"
                         >
                             <TileContent id="_IDGenTileContent5">
                                 <VBox id="_IDGenVBox43">
@@ -66,6 +70,7 @@
                                         id="_IDGenNumericContent5"
                                         value="{exceptionKpiModel>/ValueAtRisk}"
                                         valueColor="Critical"
+                                        class="kpiValue"
                                     />
                                 </VBox>
                             </TileContent>
@@ -76,7 +81,7 @@
                         <GenericTile
                             id="_IDGenGenericTile7"
                             header="Awaiting Approval"
-                            class="sapUiTinyMargin kpiTile"
+                            class="sapUiTinyMargin kpiSummaryTile"
                         >
                             <TileContent id="_IDGenTileContent7">
                                 <VBox id="_IDGenVBox47">
@@ -84,6 +89,7 @@
                                         id="_IDGenNumericContent7"
                                         value="147"
                                         valueColor="Critical"
+                                        class="kpiValue"
                                     />
                                 </VBox>
                             </TileContent>
@@ -92,7 +98,7 @@
                         <GenericTile
                             id="_IDGenGenericTile9"
                             header="Sancation Holds"
-                            class="sapUiTinyMargin kpiTile"
+                            class="sapUiTinyMargin kpiSummaryTile"
                         >
                             <TileContent id="_IDGenTileContent8">
                                 <VBox id="_IDGenVBox41">
@@ -100,6 +106,7 @@
                                         id="_IDGenNumericContent8"
                                         value="38"
                                         valueColor="Critical"
+                                        class="kpiValue"
                                     />
                                 </VBox>
                             </TileContent>
@@ -817,21 +824,7 @@
                             class="maxAgeButton sapUiTinyMarginEnd"
                         />
 
-                        <!-- INVESTIGATE -->
-                        <Button
-                            id="_IDGenButton4"
-                            text="Investigate"
-                            type="Transparent"
-                            class="customLinkButton sapUiTinyMarginEnd"
-                        />
-
-                        <!-- BULK -->
-                       <Button
-    id="_IDGenButton5"
-    text="Bulk Action"
-    type="Emphasized"
-    press="onBulkAction"
-/>
+                       
                     </HBox>
 
             </VBox>
