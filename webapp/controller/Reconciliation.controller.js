@@ -78,8 +78,8 @@ sap.ui.define([
                     ],
 
                     filters: {
-                        system1: "",
-                        system2: ""
+                        system1: "PC",   // ✅ default
+                        system2: "DM"    // ✅ default
                     },
 
                     groups: [],
@@ -181,7 +181,7 @@ sap.ui.define([
 
                 var aFilters = [
                     new Filter("clearing_area", FilterOperator.EQ, sClearingArea),
-                    new Filter("reconc_date", FilterOperator.EQ, sDate)
+                    new Filter("pi_post_date", FilterOperator.EQ, sDate)
                 ];
 
                 var oListBinding = oODataModel.bindList(
@@ -261,58 +261,10 @@ sap.ui.define([
 
                 this._aReconciliationRawData = aRawData || [];
 
-                // ✅ New data always starts unfiltered — clear any bar
-                // selection left over from the previous Clearing Area/Date.
                 oReconModel.setProperty("/selectedCategory", "");
                 oReconModel.setProperty("/filterMessage", "");
 
-                if (!aRawData || !aRawData.length) {
-
-                    console.warn("[Reconciliation] No rows returned for the given filters.");
-
-                    oReconModel.setProperty("/groups", []);
-
-                    oReconModel.setProperty("/kpi", {
-                        totalAmount: "0.00",
-                        totalObjects: "0",
-                        debitTotal: "0.00",
-                        creditTotal: "0.00"
-                    });
-
-                    oReconModel.setProperty("/chartData", [
-                        { Category: "PC received", Amount: 0 },
-                        { Category: "DM posted", Amount: 0 },
-                        { Category: "Reconciliation gap", Amount: 0 }
-                    ]);
-
-                    this._createReconChart();
-
-                    return;
-
-                }
-
-                var oResult = this._buildGroupsAndKpi(aRawData);
-
-                console.log("[Reconciliation] Built groups:", oResult.groups);
-
-                oReconModel.setProperty("/groups", oResult.groups);
-                oReconModel.setProperty("/kpi", oResult.kpi);
-
-                var fGap = Math.abs(oResult.fPcReceived - oResult.fDmPosted);
-
-                console.log(
-                    "[Reconciliation] Chart totals — PC received:", oResult.fPcReceived,
-                    "DM posted:", oResult.fDmPosted,
-                    "Gap:", fGap
-                );
-
-                oReconModel.setProperty("/chartData", [
-                    { Category: "PC received", Amount: oResult.fPcReceived },
-                    { Category: "DM posted", Amount: oResult.fDmPosted },
-                    { Category: "Reconciliation gap", Amount: fGap }
-                ]);
-
-                this._createReconChart();
+                this._applySystemGate();   // ✅ was: manual group/kpi/chart building here
 
             },
 
@@ -345,7 +297,7 @@ sap.ui.define([
 
                     var sDirection = oRow.tr_debcredind === "D" ? "Debit" : "Credit";
                     var sDirectionState = sDirection === "Credit" ? "Success" : "Error";
-                    var sDateKey = oRow.reconc_date || oRow.pi_post_date;
+                    var sDateKey = oRow.pi_post_date || oRow.reconc_date;
                     var sGroupKey = sDateKey + "_" + oRow.tr_curr + "_" + sDirection;
 
                     if (!oGroupsMap[sGroupKey]) {
@@ -763,13 +715,13 @@ sap.ui.define([
 
             onReconciliationChartSelect: function (oEvent) {
 
+                if (!this._isValidSystemCombo()) { return; }   // ✅
+
                 var aData = oEvent.getParameter("data");
                 if (!aData || !aData.length) { return; }
 
                 var oSelected = aData[0].data;
                 var sCategory = oSelected.Category;
-
-                console.log("[Reconciliation] Chart bar clicked:", sCategory);
 
                 this._applyChartCategoryFilter(sCategory);
 
@@ -871,11 +823,13 @@ sap.ui.define([
                     oEvent.getSource().setSelectedKey("");
                     oModel.setProperty("/filters/system1", "");
                     this._updateSystem2Availability();
+                    this._applySystemGate();          // ✅
                     return;
                 }
 
                 oModel.setProperty("/filters/system1", sSystem1);
                 this._updateSystem2Availability();
+                this._applySystemGate();              // ✅
 
             },
 
@@ -891,10 +845,12 @@ sap.ui.define([
                     MessageToast.show("System 1 and System 2 cannot be the same.");
                     oEvent.getSource().setSelectedKey("");
                     oModel.setProperty("/filters/system2", "");
+                    this._applySystemGate();          // ✅
                     return;
                 }
 
                 oModel.setProperty("/filters/system2", sSystem2);
+                this._applySystemGate();              // ✅
 
             },
 
@@ -927,18 +883,17 @@ sap.ui.define([
                 var oModel = this.getView().getModel("reconciliation");
                 if (!oModel) { return; }
 
-                oModel.setProperty("/filters/system1", "");
-                oModel.setProperty("/filters/system2", "");
+                oModel.setProperty("/filters/system1", "PC");   // ✅ default, not ""
+                oModel.setProperty("/filters/system2", "DM");   // ✅ default, not ""
 
                 var oSystem1 = this.byId("system1Select");
                 var oSystem2 = this.byId("system2Select");
 
-                if (oSystem1) { oSystem1.setSelectedKey(""); }
-                if (oSystem2) { oSystem2.setSelectedKey(""); }
+                if (oSystem1) { oSystem1.setSelectedKey("PC"); }
+                if (oSystem2) { oSystem2.setSelectedKey("DM"); }
 
                 this._updateSystem2Availability();
-
-              
+                this._applySystemGate();               // ✅
 
             },
 
@@ -1120,7 +1075,82 @@ sap.ui.define([
 
                 }
 
-            }
+            },
+
+            _isValidSystemCombo: function () {
+
+                var oModel = this.getView().getModel("reconciliation");
+                if (!oModel) { return false; }
+
+                var sSystem1 = oModel.getProperty("/filters/system1");
+                var sSystem2 = oModel.getProperty("/filters/system2");
+
+                return sSystem1 === "PC" && sSystem2 === "DM";
+
+            },
+
+
+            /* ✅ Single choke point — chart + table are only ever populated
+               through here. If the combo isn't PC → DM, everything is cleared
+               and a blocked message is shown, regardless of how much raw data
+               was actually loaded from OData. */
+            _applySystemGate: function () {
+
+                var oReconModel = this.getView().getModel("reconciliation");
+                if (!oReconModel) { return; }
+
+                if (this._isValidSystemCombo()) {
+
+                    var oResult = this._buildGroupsAndKpi(this._aReconciliationRawData || []);
+                    var fGap = Math.abs(oResult.fPcReceived - oResult.fDmPosted);
+
+                    oReconModel.setProperty("/groups", oResult.groups);
+                    oReconModel.setProperty("/kpi", oResult.kpi);
+
+                    oReconModel.setProperty("/chartData", [
+                        { Category: "PC received", Amount: oResult.fPcReceived },
+                        { Category: "DM posted", Amount: oResult.fDmPosted },
+                        { Category: "Reconciliation gap", Amount: fGap }
+                    ]);
+
+                    oReconModel.setProperty("/systemsBlocked", false);
+                    oReconModel.setProperty("/systemsBlockedMessage", "");
+
+                } else {
+
+                    oReconModel.setProperty("/groups", []);
+
+                    oReconModel.setProperty("/kpi", {
+                        totalAmount: "0.00",
+                        totalObjects: "0",
+                        debitTotal: "0.00",
+                        creditTotal: "0.00"
+                    });
+
+                    oReconModel.setProperty("/chartData", [
+                        { Category: "PC received", Amount: 0 },
+                        { Category: "DM posted", Amount: 0 },
+                        { Category: "Reconciliation gap", Amount: 0 }
+                    ]);
+
+                    oReconModel.setProperty("/selectedCategory", "");
+                    oReconModel.setProperty("/filterMessage", "");
+
+                    oReconModel.setProperty(
+                        "/systemsBlocked",
+                        true
+                    );
+
+                    oReconModel.setProperty(
+                        "/systemsBlockedMessage",
+                        "Reconciliation is only available for Source System = PC and Target System = DM. Select this combination to view data."
+                    );
+
+                }
+
+                this._createReconChart();
+
+            },
 
         }
 

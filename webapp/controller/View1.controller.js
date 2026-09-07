@@ -735,6 +735,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             }
 
             this.updateTableInfo();
+             this._attachKpiCardClicks();
 
         }
         ,
@@ -3050,7 +3051,30 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this._refreshReconciliation();
             console.log("Loaded Variant", oVariant);
         },
+_attachKpiCardClicks: function () {
 
+    var aCardConfig = [
+        { id: "_IDGenKpiTotal",    handler: this.onTotalProcessedPress },
+        { id: "_IDGenKpiSuccess",  handler: this.onSuccessfulPaymentPress },
+        { id: "_IDGenKpiPending",  handler: this.onPendingPaymentPress },
+        { id: "_IDGenKpiFailed",   handler: this.onFailedPaymentPress },
+        { id: "_IDGenKpiRejected", handler: this.onRejectedPaymentPress }
+    ];
+
+    aCardConfig.forEach(function (oConfig) {
+
+        var oCard = this.byId(oConfig.id);
+        if (!oCard) { return; }
+
+        // ✅ Avoid double-binding on re-render
+        if (oCard.data("clickBound")) { return; }
+
+        oCard.attachBrowserEvent("click", oConfig.handler, this);
+        oCard.data("clickBound", true);
+
+    }.bind(this));
+
+},
 
 
     });

@@ -209,103 +209,67 @@
 
         
                                 <!-- KPI SECTION -->
-                                <FlexBox
-                                    id="kpiSummaryRow"
-                                    wrap="NoWrap"
-                                    fitContainer="true"
-                                    renderType="Bare"
+                              <FlexBox
+    id="kpiSummaryRow"
+    wrap="Wrap"
+    fitContainer="true"
+    renderType="Bare"
     justifyContent="SpaceBetween"
     alignItems="Stretch"
     width="100%"
     class="kpiSummaryRow">
-                                    <GenericTile
-                                        press="onTotalProcessedPress"
-                                        id="_IDGenGenericTile"
-                                        header="{= ${kpiSummaryModel>/TotalProcessed} &lt;= 1 ? 'Total Payment' : 'Total Payments'}"
-                                        class="sapUiTinyMargin kpiSummaryTile"
-                                        layoutData="1"
-                                    >
-                                        <TileContent id="_IDGenTileContent">
-                                            <VBox id="_IDGenVBox19">
-                                                <NumericContent
-                                                    id="_IDGenNumericContent"
-                                                    value="{kpiSummaryModel>/TotalProcessed}"
-                                                    valueColor="Neutral"
-                                                    class="kpiValueBlue"
-                                                />
-                                            </VBox>
-                                        </TileContent>
-                                    </GenericTile>
 
-                                    <GenericTile
-                                        id="_IDGenGenericTile4"
-                                        press="onSuccessfulPaymentPress"
-                                        header="{= ${kpiSummaryModel>/SuccessfulPayments} &lt;= 1 ? 'Successful Payment' : 'Successful Payments'}"
-                                        class="sapUiTinyMargin kpiSummaryTile"
-                                    >
-                                        <TileContent id="_IDGenTileContent10">
-                                            <VBox id="_IDGenVBox30">
-                                                <NumericContent
-                                                    id="_IDGenNumericContent3"
-                                                    value="{kpiSummaryModel>/SuccessfulPayments}"
-                                                    valueColor="Good"
-                                                />
-                                            </VBox>
-                                        </TileContent>
-                                    </GenericTile>
+    <VBox id="_IDGenKpiTotal" class="kpiCard" width="100%" height="100%">
+        <HBox id="_IDGenKpiTotalTop" class="kpiCardTopRow">
+            <Text id="_IDGenKpiTotalLabel" text="Total Payments" class="kpiCardLabel"/>
+            <HBox id="_IDGenKpiTotalIconBox" class="kpiIconBox kpiIconBlue">
+                <core:Icon id="_IDGenKpiTotalIcon" src="sap-icon://sales-order"/>
+            </HBox>
+        </HBox>
+        <Text id="_IDGenKpiTotalValue" text="{kpiSummaryModel>/TotalProcessed}" class="kpiCardValue kpiValueBlue"/>
+    </VBox>
 
-                                    <GenericTile
-                                        id="_IDGenGenericTile3"
-                                        press="onPendingPaymentPress"
-                                        header="{= ${kpiSummaryModel>/PendingPayments} &lt;= 1 ? 'Pending Payment' : 'Pending Payments'}"
-                                        class="sapUiTinyMargin kpiSummaryTile"
-                                    >
-                                        <TileContent id="_IDGenTileContent3">
-                                            <VBox id="_IDGenVBox8">
-                                                <NumericContent
-                                                    id="_IDGenNumericContent11"
-                                                    value="{kpiSummaryModel>/PendingPayments}"
-                                                    valueColor="Critical"
-                                                />
-                                            </VBox>
-                                        </TileContent>
-                                    </GenericTile>
+    <VBox id="_IDGenKpiSuccess" class="kpiCard" width="100%" height="100%">
+        <HBox id="_IDGenKpiSuccessTop" class="kpiCardTopRow">
+            <Text id="_IDGenKpiSuccessLabel" text="Successful Payments" class="kpiCardLabel"/>
+            <HBox id="_IDGenKpiSuccessIconBox" class="kpiIconBox kpiIconGreen">
+                <core:Icon id="_IDGenKpiSuccessIcon" src="sap-icon://accept"/>
+            </HBox>
+        </HBox>
+        <Text id="_IDGenKpiSuccessValue" text="{kpiSummaryModel>/SuccessfulPayments}" class="kpiCardValue kpiValueGreen"/>
+    </VBox>
 
-                                    <GenericTile
-                                        id="_IDGenGenericTile2"
-                                        press="onFailedPaymentPress"
-                                        header="{= ${kpiSummaryModel>/FailedPayments} &lt;= 1 ? 'Failed Payment' : 'Failed Payments'}"
-                                        class="sapUiTinyMargin kpiSummaryTile"
-                                    >
-                                        <TileContent id="_IDGenTileContent9">
-                                            <VBox id="_IDGenVBox25">
-                                                <NumericContent
-                                                    id="_IDGenNumericContent2"
-                                                    value="{kpiSummaryModel>/FailedPayments}"
-                                                    valueColor="Error"
-                                                />
-                                            </VBox>
-                                        </TileContent>
-                                    </GenericTile>
+    <VBox id="_IDGenKpiPending" class="kpiCard" width="100%" height="100%">
+        <HBox id="_IDGenKpiPendingTop" class="kpiCardTopRow">
+            <Text id="_IDGenKpiPendingLabel" text="Pending Payments" class="kpiCardLabel"/>
+            <HBox id="_IDGenKpiPendingIconBox" class="kpiIconBox kpiIconOrange">
+                <core:Icon id="_IDGenKpiPendingIcon" src="sap-icon://pending"/>
+            </HBox>
+        </HBox>
+        <Text id="_IDGenKpiPendingValue" text="{kpiSummaryModel>/PendingPayments}" class="kpiCardValue kpiValueOrange"/>
+    </VBox>
 
-                                    <GenericTile
-                                        press="onRejectedPaymentPress"
-                                        id="_IDGenGenericTile1"
-                                        header="{= ${kpiSummaryModel>/RejectedPayments} &lt;= 1 ? 'Rejected Payment' : 'Rejected Payments'}"
-                                        class="sapUiTinyMargin kpiSummaryTile"
-                                    >
-                                        <TileContent id="_IDGenTileContent1">
-                                            <VBox id="_IDGenVBox24">
-                                                <NumericContent
-                                                    id="_IDGenNumericContent1"
-                                                    value="{kpiSummaryModel>/RejectedPayments}"
-                                                    valueColor="Error"
-                                                />
-                                            </VBox>
-                                        </TileContent>
-                                    </GenericTile>
-                                </FlexBox>
+    <VBox id="_IDGenKpiFailed" class="kpiCard" width="100%" height="100%">
+        <HBox id="_IDGenKpiFailedTop" class="kpiCardTopRow">
+            <Text id="_IDGenKpiFailedLabel" text="Failed Payments" class="kpiCardLabel"/>
+            <HBox id="_IDGenKpiFailedIconBox" class="kpiIconBox kpiIconRed">
+                <core:Icon id="_IDGenKpiFailedIcon" src="sap-icon://error"/>
+            </HBox>
+        </HBox>
+        <Text id="_IDGenKpiFailedValue" text="{kpiSummaryModel>/FailedPayments}" class="kpiCardValue kpiValueRed"/>
+    </VBox>
 
+    <VBox id="_IDGenKpiRejected" class="kpiCard" width="100%" height="100%">
+        <HBox id="_IDGenKpiRejectedTop" class="kpiCardTopRow">
+            <Text id="_IDGenKpiRejectedLabel" text="Rejected Payments" class="kpiCardLabel"/>
+            <HBox id="_IDGenKpiRejectedIconBox" class="kpiIconBox kpiIconDarkRed">
+                <core:Icon id="_IDGenKpiRejectedIcon" src="sap-icon://decline"/>
+            </HBox>
+        </HBox>
+        <Text id="_IDGenKpiRejectedValue" text="{kpiSummaryModel>/RejectedPayments}" class="kpiCardValue kpiValueDarkRed"/>
+    </VBox>
+
+</FlexBox>
                                 </VBox>
                                 
                             </ScrollContainer>
