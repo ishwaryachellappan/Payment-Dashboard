@@ -3913,3 +3913,94 @@ body {
     background: #fff;
     box-shadow: 0 1px 0 #e5e7eb;
 }
+
+.statusDot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.statusDotGreen { background-color: #0ca30c; }
+.statusDotAmber { background-color: #fab219; }
+.statusDotGray  { background-color: #898781; }
+.statusDotCoral { background-color: #ec835a; }
+.statusDotRed   { background-color: #d03b3b; }
+
+.railProgressRow {
+    margin-bottom: 20px;
+}
+
+.railProgressRow:last-child {
+    margin-bottom: 0;
+}
+
+.railProgressLabelRow {
+    margin-bottom: 6px;
+}
+
+.railProgressLabel {
+    font-size: 0.85rem;
+    color: #1c1c1c;
+}
+
+.railProgressCount {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1c1c1c;
+}
+
+.railBarTrack {
+    width: 100%;
+    height: 6px;
+    background-color: #eceef0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.railBarFill {
+    height: 6px;
+    border-radius: 3px;
+}
+
+.railBarFillPending {
+    background-color: #8fb3d9;
+}
+
+.railBarFillPost {
+    background-color: #e3ba7f;
+}
+
+.railBarFillRejected {
+    background-color: #d99a9a;
+}
+
+.railKpiRow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+}
+
+.railKpiRow .kpiCard {
+    width: 100%;
+    flex: unset;
+    min-width: 0;
+}
+
+@media (max-width: 1399px) {
+    .railKpiRow {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .railKpiRow {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .railKpiRow {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

@@ -4,315 +4,131 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
 
-    <VBox id="_IDGenVBox5" class="sapUiMediumMargin">
+    <VBox id="_IDGenVBox5"   width="100%"
+      class="sapUiTinyMargin">
 
-        <Title id="_IDGenTitle6"
-            text="Rail Health Dashboard"
-            level="H2"
-            class="sapUiSmallMarginBottom"/>
+        <!-- ✅ KPI ROW -->
+    <ScrollContainer id="_IDGenScrollContainer1"
+     
+        horizontal="false"
+        vertical="false"
+        class="sapUiSmallMarginBottom"
+        width="100%"
+        height="auto"
+    >
 
-          
+        <VBox
+    id="_IDGenRailKpiSection"
+    class="kpiSectionContainer"
+>
+    <FlexBox
+        id="_IDGenRailKpiRow"
+        wrap="Wrap"
+        fitContainer="true"
+        renderType="Bare"
+        width="100%"
+        class="railKpiRow"
+    >
 
-
-        <HBox id="_IDGenHBox"
-            justifyContent="SpaceAround"
-            wrap="Wrap">
-
-            <!-- KPI 1 -->
-            <Panel id="_IDGenPanel1" class="railCard">
-
-              <HBox id="_IDGenHBox86"
-    alignItems="Center"
-    justifyContent="Start"
-    class="sapUiSmallMargin">
-
-                     <core:Icon id="_IDGenIcon3"
-        src="sap-icon://heart-2"
-        size="1.8rem"
-        color="#107E3E"/>
-
-    <VBox id="_IDGenVBox114" class="sapUiSmallMarginBegin">
-
-        <Text id="_IDGenText"
-            text="Overall Health"
-            class="railCardTitle"/>
-
-        <Title id="_IDGenTitle27"
-            text="{railHealth>/kpis/overallHealth}"
-            level="H3"
-            class="railValue"/>
-
-    </VBox>
-
+        <!-- OVERALL HEALTH -->
+        <VBox id="_IDGenKpiOverallHealth" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiOverallHealthTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiOverallHealthLabel" text="Overall Health" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiOverallHealthIconBox" class="kpiIconBox kpiIconGreen">
+                    <core:Icon id="_IDGenKpiOverallHealthIcon" src="sap-icon://heart-2"/>
                 </HBox>
-
-            </Panel>
-
-            <!-- KPI 2 -->
-            <!-- KPI 2 -->
-<Panel id="_IDGenPanel2" class="railCard">
-
-    <HBox
-        id="_IDGenHBox87"
-        alignItems="Center"
-        justifyContent="Start"
-        class="sapUiSmallMargin">
-
-        <core:Icon
-            id="_IDGenIcon4"
-            src="sap-icon://share-2"
-            size="1.8rem"
-            color="#107E3E"/>
-
-        <VBox
-            id="_IDGenVBox126"
-            class="sapUiSmallMarginBegin">
-
-            <Text
-                id="_IDGenText2"
-                text="Active Rails"
-                class="railCardTitle"/>
-
-            <Title
-                id="_IDGenTitle12"
-                text="{railHealth>/kpis/activeRails}"
-                level="H3"
-                class="railValue"/>
-
+            </HBox>
+            <Text id="_IDGenKpiOverallHealthValue" text="{railHealth>/kpis/overallHealth}" class="kpiCardValue kpiValueGreen"/>
+            <Text id="_IDGenKpiOverallHealthSub" text="" class="kpiCardSubtext"/>
         </VBox>
 
-    </HBox>
-
-</Panel>
-
-            <!-- KPI 3 -->
-           <!-- KPI 3 -->
-<Panel id="_IDGenPanel3" class="railCard">
-
-    <HBox
-        id="_IDGenHBox88"
-        alignItems="Center"
-        justifyContent="Start"
-        class="sapUiSmallMargin">
-
-        <core:Icon
-            id="_IDGenIcon5"
-            src="sap-icon://business-objects-experience"
-            size="1.8rem"
-            color="#0A6ED1"/>
-
-        <VBox
-            id="_IDGenVBox127"
-            class="sapUiSmallMarginBegin">
-
-            <Text
-                id="_IDGenText3"
-                text="Transactions"
-                class="railCardTitle"/>
-
-            <Title
-                id="_IDGenTitle13"
-                text="{railHealth>/kpis/transactions}"
-                level="H3"
-                class="railValue"/>
-
+        <!-- ACTIVE RAILS -->
+        <VBox id="_IDGenKpiActiveRails" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiActiveRailsTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiActiveRailsLabel" text="Active Rails" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiActiveRailsIconBox" class="kpiIconBox kpiIconBlue">
+                    <core:Icon id="_IDGenKpiActiveRailsIcon" src="sap-icon://share-2"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiActiveRailsValue" text="{railHealth>/kpis/activeRails}" class="kpiCardValue kpiValueBlue"/>
+            <Text id="_IDGenKpiActiveRailsSub" text="" class="kpiCardSubtext"/>
         </VBox>
 
-    </HBox>
-
-</Panel>
-
-            <!-- KPI 4 -->
-           <!-- KPI 4 -->
-<Panel id="_IDGenPanel4" class="railCard">
-
-    <HBox
-        id="_IDGenHBox89"
-        alignItems="Center"
-        justifyContent="Start"
-        class="sapUiSmallMargin">
-
-        <core:Icon
-            id="_IDGenIcon6"
-            src="sap-icon://accept"
-            size="1.8rem"
-            color="#107E3E"/>
-
-        <VBox
-            id="_IDGenVBox128"
-            class="sapUiSmallMarginBegin">
-
-            <Text
-                id="_IDGenText4"
-                text="Success Rate"
-                class="railCardTitle"/>
-
-            <Title
-                id="_IDGenTitle21"
-                text="{railHealth>/kpis/successRate}"
-                level="H3"
-                class="railValue"/>
-
+        <!-- TRANSACTIONS -->
+        <VBox id="_IDGenKpiTransactions" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiTransactionsTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiTransactionsLabel" text="Transactions" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiTransactionsIconBox" class="kpiIconBox kpiIconPurple">
+                    <core:Icon id="_IDGenKpiTransactionsIcon" src="sap-icon://business-objects-experience"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiTransactionsValue" text="{railHealth>/kpis/transactions}" class="kpiCardValue kpiValuePurple"/>
+            <Text id="_IDGenKpiTransactionsSub" text="" class="kpiCardSubtext"/>
         </VBox>
 
-    </HBox>
-
-</Panel>
-
-
- <!-- KPI 5 -->
-            <!-- KPI 5 -->
-<Panel id="_IDGenPanel" class="railCard">
-
-    <HBox
-        id="_IDGenHBox90"
-        alignItems="Center"
-        justifyContent="Start"
-        class="sapUiSmallMargin">
-
-        <core:Icon
-            id="_IDGenIcon7"
-            src="sap-icon://error"
-            size="1.8rem"
-            color="#BB0000"/>
-
-        <VBox
-            id="_IDGenVBox129"
-            class="sapUiSmallMarginBegin">
-
-            <Text
-                id="_IDGenText28"
-                text="Failed Payments"
-                class="railCardTitle"/>
-
-            <Title
-                id="_IDGenTitle22"
-                text="{railHealth>/kpis/failedPayments}"
-                level="H3"
-                class="railValue"/>
-
+        <!-- SUCCESS RATE -->
+        <VBox id="_IDGenKpiSuccessRate" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiSuccessRateTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiSuccessRateLabel" text="Success Rate" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiSuccessRateIconBox" class="kpiIconBox kpiIconGreen">
+                    <core:Icon id="_IDGenKpiSuccessRateIcon" src="sap-icon://accept"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiSuccessRateValue" text="{railHealth>/kpis/successRate}" class="kpiCardValue kpiValueGreen"/>
+            <Text id="_IDGenKpiSuccessRateSub" text="" class="kpiCardSubtext"/>
         </VBox>
 
-    </HBox>
-
-</Panel>
-
-            <!-- KPI 6 -->
-<!-- KPI 6 -->
-<Panel id="_IDGenPanel6" class="railCard">
-
-    <HBox
-        id="_IDGenHBox91"
-        alignItems="Center"
-        justifyContent="Start"
-        class="sapUiSmallMargin">
-
-        <core:Icon
-            id="_IDGenIcon8"
-            src="sap-icon://history"
-            size="1.8rem"
-            color="#107E3E"/>
-
-        <VBox
-            id="_IDGenVBox130"
-            class="sapUiSmallMarginBegin">
-
-            <Text
-                id="_IDGenText48"
-                text="Response Time"
-                class="railCardTitle"/>
-
-            <Title
-                id="_IDGenTitle23"
-                text="{railHealth>/kpis/responseTime}"
-                level="H3"
-                class="railValue"/>
-
+        <!-- FAILED PAYMENTS -->
+        <VBox id="_IDGenKpiFailedPayments" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiFailedPaymentsTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiFailedPaymentsLabel" text="Failed Payments" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiFailedPaymentsIconBox" class="kpiIconBox kpiIconDarkRed">
+                    <core:Icon id="_IDGenKpiFailedPaymentsIcon" src="sap-icon://error"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiFailedPaymentsValue" text="{railHealth>/kpis/failedPayments}" class="kpiCardValue kpiValueDarkRed"/>
+            <Text id="_IDGenKpiFailedPaymentsSub" text="" class="kpiCardSubtext"/>
         </VBox>
 
-    </HBox>
-
-</Panel>
-
-
-<!-- KPI 7 -->
-<!-- KPI 7 -->
-<Panel id="_IDGenPanel7" class="railCard">
-
-    <HBox
-        id="_IDGenHBox92"
-        alignItems="Center"
-        justifyContent="Start"
-        class="sapUiSmallMargin">
-
-        <core:Icon
-            id="_IDGenIcon9"
-            src="sap-icon://list"
-            size="1.8rem"
-            color="#E9730C"/>
-
-        <VBox
-            id="_IDGenVBox131"
-            class="sapUiSmallMarginBegin">
-
-            <Text
-                id="_IDGenText49"
-                text="Queue Depth"
-                class="railCardTitle"/>
-
-            <Title
-                id="_IDGenTitle24"
-                text="{railHealth>/kpis/queueDepth}"
-                level="H3"
-                class="railValue"/>
-
+        <!-- RESPONSE TIME -->
+        <VBox id="_IDGenKpiResponseTime" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiResponseTimeTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiResponseTimeLabel" text="Response Time" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiResponseTimeIconBox" class="kpiIconBox kpiIconBlue">
+                    <core:Icon id="_IDGenKpiResponseTimeIcon" src="sap-icon://history"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiResponseTimeValue" text="{railHealth>/kpis/responseTime}" class="kpiCardValue kpiValueBlue"/>
+            <Text id="_IDGenKpiResponseTimeSub" text="" class="kpiCardSubtext"/>
         </VBox>
 
-    </HBox>
-
-</Panel>
-
-<!-- KPI 8 -->
-<!-- KPI 8 -->
-<Panel id="_IDGenPanel5" class="railCard">
-
-    <HBox
-        id="_IDGenHBox93"
-        alignItems="Center"
-        justifyContent="Start"
-        class="sapUiSmallMargin">
-
-        <core:Icon
-            id="_IDGenIcon10"
-            src="sap-icon://bell"
-            size="1.8rem"
-            color="#BB0000"/>
-
-        <VBox
-            id="_IDGenVBox132"
-            class="sapUiSmallMarginBegin">
-
-            <Text
-                id="_IDGenText50"
-                text="Critical Alerts"
-                class="railCardTitle"/>
-
-            <Title
-                id="_IDGenTitle26"
-                text="{railHealth>/kpis/alerts}"
-                level="H3"
-                class="railValue"/>
-
+        <!-- QUEUE DEPTH -->
+        <VBox id="_IDGenKpiQueueDepth" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiQueueDepthTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiQueueDepthLabel" text="Queue Depth" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiQueueDepthIconBox" class="kpiIconBox kpiIconOrange">
+                    <core:Icon id="_IDGenKpiQueueDepthIcon" src="sap-icon://list"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiQueueDepthValue" text="{railHealth>/kpis/queueDepth}" class="kpiCardValue kpiValueOrange"/>
+            <Text id="_IDGenKpiQueueDepthSub" text="" class="kpiCardSubtext"/>
         </VBox>
 
-    </HBox>
+        <!-- CRITICAL ALERTS -->
+        <VBox id="_IDGenKpiCriticalAlerts" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiCriticalAlertsTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiCriticalAlertsLabel" text="Critical Alerts" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiCriticalAlertsIconBox" class="kpiIconBox kpiIconDarkRed">
+                    <core:Icon id="_IDGenKpiCriticalAlertsIcon" src="sap-icon://bell"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiCriticalAlertsValue" text="{railHealth>/kpis/alerts}" class="kpiCardValue kpiValueDarkRed"/>
+            <Text id="_IDGenKpiCriticalAlertsSub" text="" class="kpiCardSubtext"/>
+        </VBox>
 
-</Panel>
-
-        </HBox>
-
-
-
+    </FlexBox>
+</VBox>
+</ScrollContainer>
 
     </VBox>
 

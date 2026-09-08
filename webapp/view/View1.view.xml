@@ -506,7 +506,7 @@
                                     >
                                         <Title
                                             id="_IDGenTitle"
-                                            text="Status Breakdown (Today)"
+                                            text="Status Breakdown"
                                             level="H6"
                                         />
                                         <Button
@@ -524,15 +524,7 @@
                                         class="sapUiNoMarginBottom"
                                     />
 
-                                    <MessageStrip
-                                        id="_IDGenMessageStrip3"
-                                        text="Payment Item Information"
-                                        type="Information"
-                                        showIcon="true"
-                                        showCloseButton="false"
-                                        visible="{infoModel>/showSpike}"
-                                        class="sapUiSmallMarginTop"
-                                    />
+                                  
 
                                     <HBox
                                         id="_IDGenHBox4"
@@ -624,165 +616,51 @@
                                             </VBox>
                                         </VBox>
 
-                                        <!-- ✅ RIGHT: STATUS LIST -->
-                                        <VBox
-                                            id="_IDGenVBox14"
-                                            width="52%"
-                                            class="sapUiSmallMarginBegin statusListContainer"
-                                        >
-                                            <!-- ✅ ROW 1: POSTED -->
-                                            <HBox
-                                                id="_IDGenHBox5"
-                                                justifyContent="SpaceBetween"
-                                                alignItems="Center"
-                                                class="statusItemRow"
-                                            >
-                                                <HBox
-                                                    id="_IDGenHBox9"
-                                                    alignItems="Center"
-                                                    class="statusLabel"
-                                                >
-                                                    <core:Icon
-                                                        id="postedIcon"
-                                                        src="sap-icon://status-positive"
-                                                        class="statusGreen"
-                                                        size="1rem"
-                                                    />
-                                                    <Text
-                                                        id="_IDGenText10"
-                                                        text="Posted"
-                                                    />
-                                                </HBox>
+                                       <!-- ✅ RIGHT: STATUS LIST — dot colors matched to donut segments -->
+    <VBox
+        id="_IDGenVBox14"
+        width="52%"
+        class="sapUiSmallMarginBegin statusListContainer"
+    >
+        <HBox id="_IDGenHBox5" justifyContent="SpaceBetween" alignItems="Center" class="statusItemRow">
+            <HBox id="_IDGenHBox9" alignItems="Center" class="statusLabel">
+                <HBox id="_IDGenPostedDot" class="statusDot statusDotGreen"/>
+                <Text id="_IDGenText10" text="Posted"/>
+            </HBox>
+            <Text id="_IDGenText11" text="{statusModel>/posted/display}" class="statusValue"/>
+        </HBox>
 
-                                                <Text
-                                                    id="_IDGenText11"
-                                                    text="{statusModel>/posted/display}"
-                                                    class="statusValue"
-                                                />
-                                            </HBox>
+        <HBox id="_IDGenHBox10" justifyContent="SpaceBetween" alignItems="Center" class="statusItemRow">
+            <HBox id="_IDGenHBox11" alignItems="Center" class="statusLabel">
+                <HBox id="_IDGenPostProcDot" class="statusDot statusDotAmber"/>
+                <Text id="_IDGenText12" text="Post-Processing"/>
+            </HBox>
+            <Text id="_IDGenText13" text="{statusModel>/processing/display}" class="statusValue"/>
+        </HBox>
 
-                                            <!-- ✅ ROW 2: PROCESSING -->
-                                            <HBox
-                                                id="_IDGenHBox10"
-                                                justifyContent="SpaceBetween"
-                                                alignItems="Center"
-                                                class="statusItemRow"
-                                            >
-                                                <HBox
-                                                    id="_IDGenHBox11"
-                                                    alignItems="Center"
-                                                    class="statusLabel"
-                                                >
-                                                    <core:Icon
-                                                        id="processingIcon"
-                                                        src="sap-icon://alert"
-                                                        class="statusOrange"
-                                                        size="1rem"
-                                                    />
-                                                    <Text
-                                                        id="_IDGenText12"
-                                                        text="Post-Processing"
-                                                    />
-                                                </HBox>
+        <HBox id="_IDGenHBox24" justifyContent="SpaceBetween" alignItems="Center" class="statusItemRow">
+            <HBox id="_IDGenHBox25" alignItems="Center" class="statusLabel">
+                <HBox id="_IDGenPendingDot" class="statusDot statusDotGray"/>
+                <Text id="_IDGenText70" text="Pending"/>
+            </HBox>
+            <Text id="_IDGenText72" text="{statusModel>/pending/display}" class="statusValue"/>
+        </HBox>
 
-                                                <Text
-                                                    id="_IDGenText13"
-                                                    text="{statusModel>/processing/display}"
-                                                    class="statusValue"
-                                                />
-                                            </HBox>
+        <HBox id="_IDGenHBox78" justifyContent="SpaceBetween" alignItems="Center" class="statusItemRow">
+            <HBox id="_IDGenHBox79" alignItems="Center" class="statusLabel">
+                <HBox id="_IDGenFailedDot" class="statusDot statusDotCoral"/>
+                <Text id="_IDGenText73" text="Failed"/>
+            </HBox>
+            <Text id="_IDGenText74" text="{statusModel>/failed/display}" class="statusValue"/>
+        </HBox>
 
-                                            <HBox
-                                                id="_IDGenHBox24"
-                                                justifyContent="SpaceBetween"
-                                                alignItems="Center"
-                                                class="statusItemRow"
-                                            >
-                                                <HBox
-                                                    id="_IDGenHBox25"
-                                                    alignItems="Center"
-                                                    class="statusLabel"
-                                                >
-                                                    <core:Icon
-                                                        id="_IDGenIcon1"
-                                                        src="sap-icon://pending"
-                                                        class="statusYellow"
-                                                        size="1rem"
-                                                    />
-
-                                                    <Text
-                                                        id="_IDGenText70"
-                                                        text="Pending"
-                                                    />
-                                                </HBox>
-
-                                                <Text
-                                                    id="_IDGenText72"
-                                                    text="{statusModel>/pending/display}"
-                                                    class="statusValue"
-                                                />
-                                            </HBox>
-
-                                            <HBox
-                                                id="_IDGenHBox78"
-                                                justifyContent="SpaceBetween"
-                                                alignItems="Center"
-                                                class="statusItemRow"
-                                            >
-                                                <HBox
-                                                    id="_IDGenHBox79"
-                                                    alignItems="Center"
-                                                    class="statusLabel"
-                                                >
-                                                    <core:Icon
-                                                        id="_IDGenIcon2"
-                                                        src="sap-icon://error"
-                                                        class="statusRed"
-                                                        size="1rem"
-                                                    />
-
-                                                    <Text
-                                                        id="_IDGenText73"
-                                                        text="Failed"
-                                                    />
-                                                </HBox>
-
-                                                <Text
-                                                    id="_IDGenText74"
-                                                    text="{statusModel>/failed/display}"
-                                                    class="statusValue"
-                                                />
-                                            </HBox>
-                                            <!-- ✅ ROW 3: REJECTED -->
-                                            <HBox
-                                                id="_IDGenHBox12"
-                                                justifyContent="SpaceBetween"
-                                                alignItems="Center"
-                                                class="statusItemRow"
-                                            >
-                                                <HBox
-                                                    id="_IDGenHBox13"
-                                                    alignItems="Center"
-                                                    class="statusLabel"
-                                                >
-                                                    <core:Icon
-                                                        id="rejectedIcon"
-                                                        src="sap-icon://status-negative"
-                                                        class="statusRed"
-                                                        size="1rem"
-                                                    />
-                                                    <Text
-                                                        id="_IDGenText22"
-                                                        text="Rejected"
-                                                    />
-                                                </HBox>
-
-                                                <Text
-                                                    id="_IDGenText23"
-                                                    text="{statusModel>/rejected/display}"
-                                                    class="statusValue"
-                                                />
-                                            </HBox>
+        <HBox id="_IDGenHBox12" justifyContent="SpaceBetween" alignItems="Center" class="statusItemRow">
+            <HBox id="_IDGenHBox13" alignItems="Center" class="statusLabel">
+                <HBox id="_IDGenRejectedDot" class="statusDot statusDotRed"/>
+                <Text id="_IDGenText22" text="Rejected"/>
+            </HBox>
+            <Text id="_IDGenText23" text="{statusModel>/rejected/display}" class="statusValue"/>
+        </HBox>
                                         </VBox>
                                     </HBox>
 

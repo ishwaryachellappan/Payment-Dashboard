@@ -756,14 +756,14 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
         ,
 
         _setStickyTabOffset: function () {
-    var oTitleDom = document.querySelector(
-        "#mainPage .sapFDynamicPageTitleWrapper, #mainPage .sapFDynamicPageTitle"
-    );
-    if (oTitleDom) {
-        var iHeight = oTitleDom.getBoundingClientRect().height;
-        document.documentElement.style.setProperty("--stickyTabOffset", iHeight + "px");
-    }
-},
+            var oTitleDom = document.querySelector(
+                "#mainPage .sapFDynamicPageTitleWrapper, #mainPage .sapFDynamicPageTitle"
+            );
+            if (oTitleDom) {
+                var iHeight = oTitleDom.getBoundingClientRect().height;
+                document.documentElement.style.setProperty("--stickyTabOffset", iHeight + "px");
+            }
+        },
 
 
 
@@ -1240,7 +1240,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 oTotals[o.Channel] = (oTotals[o.Channel] || 0) + (o.Payments || 0);
             });
             return CHANNEL_ORDER
-                .filter(function (sChannel) { return oTotals[sChannel] !== undefined; })
+                .filter(function (sChannel) { return oTotals[sChannel] > 0; })
                 .map(function (sChannel) { return { Channel: sChannel, Total: oTotals[sChannel] }; });
         },
 
@@ -1736,6 +1736,8 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                         return CHANNEL_ORDER.indexOf(a.Channel) - CHANNEL_ORDER.indexOf(b.Channel);
                     });
 
+                aFlowData = this._filterActiveChannels(aFlowData);
+
                 oFlowModel.setProperty("/data", aFlowData);
                 this._reapplyActiveChartType();
 
@@ -1840,6 +1842,8 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                         if (iHourCompare !== 0) { return iHourCompare; }
                         return CHANNEL_ORDER.indexOf(a.Channel) - CHANNEL_ORDER.indexOf(b.Channel);
                     });
+
+                aFlowData = this._filterActiveChannels(aFlowData);
 
                 oFlowModel.setProperty("/data", aFlowData);
 
@@ -3197,6 +3201,24 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 ? "kpiCardSubtext kpiCardSubtextGood"
                 : "kpiCardSubtext kpiCardSubtextWarn";
 
+        },
+
+        _filterActiveChannels: function (aFlowData) {
+            var oChannelTotals = {};
+
+            aFlowData.forEach(function (oRow) {
+                var sChannel = oRow.Channel;
+                var iValue = Number(oRow.Payments) || 0;
+                oChannelTotals[sChannel] = (oChannelTotals[sChannel] || 0) + iValue;
+            });
+
+            var aActiveChannels = Object.keys(oChannelTotals).filter(function (sChannel) {
+                return oChannelTotals[sChannel] > 0;
+            });
+
+            return aFlowData.filter(function (oRow) {
+                return aActiveChannels.indexOf(oRow.Channel) > -1;
+            });
         },
 
 
