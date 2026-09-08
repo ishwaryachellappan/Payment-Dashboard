@@ -4,31 +4,27 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core"
 >
-    <VBox
-        id="_IDGenVBox4"
-       width="100%"
-        class="reconciliationPage">
+<VBox
+    id="_IDGenVBox4"
+    width="100%"
+    class="sapUiTinyMargin">
 
+    <!-- ✅ KPI ROW -->
+    <ScrollContainer
+        id="_IDGenScrollContainer2"
+        horizontal="false"
+        vertical="false"
+        class="sapUiSmallMarginBottom"
+        width="100%"
+        height="auto"
+    >
         <VBox
-            id="_IDGenVBox40"
-            class="sapUiSmallMargin"
+            id="_IDGenVBox119"
+            class="kpiSectionContainer"
         >
-            <!-- ✅ KPI ROW -->
-            <ScrollContainer
-                id="_IDGenScrollContainer2"
-                horizontal="false"
-                vertical="false"
-                class="sapUiSmallMarginBottom"
-                width="100%"
-                height="auto"
-            >
-                <VBox
-                    id="_IDGenVBox119"
-                    class="kpiSectionContainer sapUiMediumMarginTop"
-                >
                     <!-- KPI SECTION -->
 
-                    <FlexBox
+                 <FlexBox
     id="_IDGenFlexBox"
     wrap="NoWrap"
     fitContainer="true"
@@ -37,84 +33,72 @@
     alignItems="Stretch"
     width="100%"
     class="kpiSummaryRow">
-    
-                        <GenericTile
-                            id="_IDGenGenericTile8"
-                            header="Open Exceptions"
-                            class="sapUiTinyMargin kpiSummaryTile"
-                            press="onOpenExceptionsPress"
-                        >
-                            <TileContent id="_IDGenTileContent4">
-                                <VBox id="_IDGenVBox44">
-                                    <!-- ✅ MAIN NUMBER -->
-                                    <NumericContent
-                                        id="_IDGenNumericContent4"
-                                        value="{exceptionKpiModel>/OpenException}"
-                                        valueColor="Error"
-                                        class="kpiValue"
-                                    />
-                                </VBox>
-                            </TileContent>
-                        </GenericTile>
 
-                        
+    <!-- OPEN EXCEPTIONS -->
+<VBox id="_IDGenKpiOpenExceptions" class="kpiCard" width="100%" height="100%">
+    <HBox id="_IDGenKpiOpenExceptionsTop" class="kpiCardTopRow">
+        <Text id="_IDGenKpiOpenExceptionsLabel" text="Open Exceptions" class="kpiCardLabel"/>
+        <HBox id="_IDGenKpiOpenExceptionsIconBox" class="kpiIconBox kpiIconRed">
+            <core:Icon id="_IDGenKpiOpenExceptionsIcon" src="sap-icon://alert"/>
+        </HBox>
+    </HBox>
+    <Text id="_IDGenKpiOpenExceptionsValue" text="{exceptionKpiModel>/OpenException}" class="kpiCardValue kpiValueRed"/>
+    <Text 
+        id="_IDGenKpiOpenExceptionsSub" 
+        text="{ path: 'exceptionKpiModel>/openExceptionTrend', formatter: '.formatOpenExceptionTrendText' }" 
+        class="{ path: 'exceptionKpiModel>/openExceptionTrend', formatter: '.formatOpenExceptionTrendClass' }"
+    />
+</VBox>
 
-                        <GenericTile
-                            id="_IDGenGenericTile5"
-                            header="Value at Risk"
-                            class="sapUiTinyMargin kpiSummaryTile kpiTileNoClick"
-                        >
-                            <TileContent id="_IDGenTileContent5">
-                                <VBox id="_IDGenVBox43">
-                                    <NumericContent
-                                        id="_IDGenNumericContent5"
-                                        value="{exceptionKpiModel>/ValueAtRisk}"
-                                        valueColor="Critical"
-                                        class="kpiValue"
-                                    />
-                                </VBox>
-                            </TileContent>
-                        </GenericTile>
+<!-- VALUE AT RISK -->
+<VBox id="_IDGenKpiValueAtRisk" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+    <HBox id="_IDGenKpiValueAtRiskTop" class="kpiCardTopRow">
+        <Text id="_IDGenKpiValueAtRiskLabel" text="Value at Risk" class="kpiCardLabel"/>
+        <HBox id="_IDGenKpiValueAtRiskIconBox" class="kpiIconBox kpiIconOrange">
+            <core:Icon id="_IDGenKpiValueAtRiskIcon" src="sap-icon://money-bills"/>
+        </HBox>
+    </HBox>
+    <Text 
+        id="_IDGenKpiValueAtRiskValue" 
+        text="{ path: 'exceptionKpiModel>/ValueAtRisk', formatter: '.formatValueAtRisk' }" 
+        class="kpiCardValue kpiValueOrange"
+    />
+    <Text 
+        id="_IDGenKpiValueAtRiskSub" 
+        text="{ path: 'exceptionKpiModel>/valueAtRiskTrend', formatter: '.formatValueAtRiskTrendText' }" 
+        class="{ path: 'exceptionKpiModel>/valueAtRiskTrend', formatter: '.formatValueAtRiskTrendClass' }"
+    />
+</VBox>
 
-                        
+   <!-- AWAITING APPROVAL -->
+<VBox id="_IDGenKpiAwaitingApproval" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+    <HBox id="_IDGenKpiAwaitingApprovalTop" class="kpiCardTopRow">
+        <Text id="_IDGenKpiAwaitingApprovalLabel" text="Awaiting Approval" class="kpiCardLabel"/>
+        <HBox id="_IDGenKpiAwaitingApprovalIconBox" class="kpiIconBox kpiIconPurple">
+            <core:Icon id="_IDGenKpiAwaitingApprovalIcon" src="sap-icon://pending"/>
+        </HBox>
+    </HBox>
+    <Text id="_IDGenKpiAwaitingApprovalValue" text="147" class="kpiCardValue kpiValuePurple"/>
+    <Text id="_IDGenKpiAwaitingApprovalSub" text="" class="kpiCardSubtext"/>
+</VBox>
 
-                        <GenericTile
-                            id="_IDGenGenericTile7"
-                            header="Awaiting Approval"
-                            class="sapUiTinyMargin kpiSummaryTile"
-                        >
-                            <TileContent id="_IDGenTileContent7">
-                                <VBox id="_IDGenVBox47">
-                                    <NumericContent
-                                        id="_IDGenNumericContent7"
-                                        value="147"
-                                        valueColor="Critical"
-                                        class="kpiValue"
-                                    />
-                                </VBox>
-                            </TileContent>
-                        </GenericTile>
+<!-- SANCTIONS HOLDS -->
+<VBox id="_IDGenKpiSanctionsHolds" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+    <HBox id="_IDGenKpiSanctionsHoldsTop" class="kpiCardTopRow">
+        <Text id="_IDGenKpiSanctionsHoldsLabel" text="Sanctions Holds" class="kpiCardLabel"/>
+        <HBox id="_IDGenKpiSanctionsHoldsIconBox" class="kpiIconBox kpiIconDarkRed">
+            <core:Icon id="_IDGenKpiSanctionsHoldsIcon" src="sap-icon://shield"/>
+        </HBox>
+    </HBox>
+    <Text id="_IDGenKpiSanctionsHoldsValue" text="38" class="kpiCardValue kpiValueDarkRed"/>
+    <Text id="_IDGenKpiSanctionsHoldsSub" text="" class="kpiCardSubtext"/>
+</VBox>
 
-                        <GenericTile
-                            id="_IDGenGenericTile9"
-                            header="Sancation Holds"
-                            class="sapUiTinyMargin kpiSummaryTile"
-                        >
-                            <TileContent id="_IDGenTileContent8">
-                                <VBox id="_IDGenVBox41">
-                                    <NumericContent
-                                        id="_IDGenNumericContent8"
-                                        value="38"
-                                        valueColor="Critical"
-                                        class="kpiValue"
-                                    />
-                                </VBox>
-                            </TileContent>
-                        </GenericTile>
-                    </FlexBox>
+</FlexBox>
+
                 </VBox>
             </ScrollContainer>
-        </VBox>
+      
 
         <!-- // ADD BY Trend CARDS -->
 
@@ -198,8 +182,8 @@
            "legend": {        "visible": true,        "position": "bottom"  ,"alignment": "center"  },
            "layout": {        "padding": 0    },
     "plotArea": {
-        "colorPalette": ["#e53935", "#43a047"]   
-    },
+    "colorPalette": ["#c17b74", "#7a9e6f"]   
+},
     "categoryAxis": {
         "title": { "visible": false }
     },
@@ -325,226 +309,162 @@
          PIE CHART
          Visible when railViewModel>/chartType = pie
          ================================================== -->
+   <!-- ==================================================
+     PIE CHART (now DONUT + centered total)
+     Visible when railViewModel>/chartType = pie
+     ================================================== -->
+<VBox
+    id="_IDGenRailPieContainer"
+    width="100%"
+    height="280px"
+    class="sapUiSmallMarginTop railPieStack"
+    visible="{= ${railModel>/total} > 0 &amp;&amp; ${railViewModel>/chartType} === 'pie' }"
+>
+
+    <!-- DONUT + center total overlay -->
     <HBox
-        id="_IDGenRailPieContainer"
-        alignItems="Center"
-        justifyContent="Center"
+        id="_IDGenRailDonutWrapper"
         width="100%"
-        height="260px"
-        class="sapUiSmallMarginTop"
-        visible="{= ${railModel>/total} > 0 &amp;&amp; ${railViewModel>/chartType} === 'pie' }"
+        class="railPieVisual railDonutWrapper"
     >
 
-        <!-- PIE -->
-        <VBox
-            id="_IDGenRailDonutWrapper"
-            width="55%"
-            height="220px"
-            justifyContent="Center"
-            alignItems="Center"
-            class="donutWrapper"
+        <viz:VizFrame
+            id="railPieChart"
+            vizType="donut"
+            width="170px"
+            height="170px"
+            vizProperties='{
+                "plotArea": {
+                    "colorPalette": [
+                        "#1976d2",
+                        "#e9730c",
+                        "#bb0000"
+                    ],
+                    "dataLabel": { "visible": false }
+                },
+                "legend": {
+                    "visible": false
+                },
+                "title": {
+                    "visible": false
+                },
+                "tooltip": {
+                    "visible": true
+                }
+            }'
         >
 
-            <viz:VizFrame
-                id="railPieChart"
-                vizType="pie"
-                width="190px"
-                height="190px"
-                vizProperties='{
-                    "plotArea": {
-                        "colorPalette": [
-                            "#1976d2",
-                            "#fb8c00",
-                            "#d32f2f"
-                        ]
-                    },
-                    "legend": {
-                        "visible": false
-                    },
-                    "title": {
-                        "visible": false
-                    },
-                    "tooltip": {
-                        "visible": true
-                    }
-                }'
-            >
+            <viz:dataset>
+                <viz.data:FlattenedDataset
+                    id="_IDGenRailFlattenedDataset"
+                    data="{railModel>/data}"
+                >
+                    <viz.data:dimensions>
+                        <viz.data:DimensionDefinition
+                            id="_IDGenRailDimensionDefinition"
+                            name="Status"
+                            value="{railModel>status}"
+                        />
+                    </viz.data:dimensions>
+                    <viz.data:measures>
+                        <viz.data:MeasureDefinition
+                            id="_IDGenRailMeasureDefinition"
+                            name="Count"
+                            value="{railModel>value}"
+                        />
+                    </viz.data:measures>
+                </viz.data:FlattenedDataset>
+            </viz:dataset>
 
-                <viz:dataset>
+            <viz:feeds>
+                <viz.feeds:FeedItem
+                    id="_IDGenRailFeedItemSize"
+                    uid="size"
+                    type="Measure"
+                    values="Count"
+                />
+                <viz.feeds:FeedItem
+                    id="_IDGenRailFeedItemColor"
+                    uid="color"
+                    type="Dimension"
+                    values="Status"
+                />
+            </viz:feeds>
 
-                    <viz.data:FlattenedDataset
-                        id="_IDGenRailFlattenedDataset"
-                        data="{railModel>/data}"
-                    >
+        </viz:VizFrame>
 
-                        <viz.data:dimensions>
-
-                            <viz.data:DimensionDefinition
-                                id="_IDGenRailDimensionDefinition"
-                                name="Status"
-                                value="{railModel>status}"
-                            />
-
-                        </viz.data:dimensions>
-
-                        <viz.data:measures>
-
-                            <viz.data:MeasureDefinition
-                                id="_IDGenRailMeasureDefinition"
-                                name="Count"
-                                value="{railModel>value}"
-                            />
-
-                        </viz.data:measures>
-
-                    </viz.data:FlattenedDataset>
-
-                </viz:dataset>
-
-
-                <viz:feeds>
-
-                    <viz.feeds:FeedItem
-                        id="_IDGenRailFeedItemSize"
-                        uid="size"
-                        type="Measure"
-                        values="Count"
-                    />
-
-                    <viz.feeds:FeedItem
-                        id="_IDGenRailFeedItemColor"
-                        uid="color"
-                        type="Dimension"
-                        values="Status"
-                    />
-
-                </viz:feeds>
-
-            </viz:VizFrame>
-
-        </VBox>
-
-
-        <!-- PIE LEGEND -->
+        <!-- CENTER TOTAL — sits on top of the donut hole -->
         <VBox
-            id="_IDGenRailLegendBox"
-            width="45%"
-            class="sapUiSmallMarginBegin"
+            id="_IDGenRailDonutCenter"
+            class="railDonutCenterText"
         >
-
-            <!-- ON HOLD -->
-            <HBox
-                id="_IDGenRailLegendHold"
-                justifyContent="SpaceBetween"
-                alignItems="Center"
-                class="statusItemRow"
-            >
-
-                <HBox
-                    id="_IDGenRailLegendHoldLabel"
-                    alignItems="Center"
-                    class="statusLabel"
-                >
-
-                    <core:Icon
-                        id="_IDGenRailHoldIcon"
-                        src="sap-icon://status-inactive"
-                        class="statusBlue"
-                        size="1rem"
-                    />
-
-                    <Text
-                        id="_IDGenRailHoldText"
-                        text="Pending"
-                    />
-
-                </HBox>
-
-                <Text
-                    id="_IDGenRailHoldValue"
-                    text="{railModel>/data/0/value}"
-                    class="statusValue"
-                />
-
-            </HBox>
-
-
-            <!-- POST PROCESSING -->
-            <HBox
-                id="_IDGenRailLegendPost"
-                justifyContent="SpaceBetween"
-                alignItems="Center"
-                class="statusItemRow"
-            >
-
-                <HBox
-                    id="_IDGenRailLegendPostLabel"
-                    alignItems="Center"
-                    class="statusLabel"
-                >
-
-                    <core:Icon
-                        id="_IDGenRailPostIcon"
-                        src="sap-icon://alert"
-                        class="statusOrange"
-                        size="1rem"
-                    />
-
-                    <Text
-                        id="_IDGenRailPostText"
-                        text="In Post-Processing"
-                    />
-
-                </HBox>
-
-                <Text
-                    id="_IDGenRailPostValue"
-                    text="{railModel>/data/1/value}"
-                    class="statusValue"
-                />
-
-            </HBox>
-
-
-            <!-- REJECTED -->
-            <HBox
-                id="_IDGenRailLegendRejected"
-                justifyContent="SpaceBetween"
-                alignItems="Center"
-                class="statusItemRow"
-            >
-
-                <HBox
-                    id="_IDGenRailLegendRejectedLabel"
-                    alignItems="Center"
-                    class="statusLabel"
-                >
-
-                    <core:Icon
-                        id="_IDGenRailRejectedIcon"
-                        src="sap-icon://status-negative"
-                        class="statusRed"
-                        size="1rem"
-                    />
-
-                    <Text
-                        id="_IDGenRailRejectedText"
-                        text="Rejected"
-                    />
-
-                </HBox>
-
-                <Text
-                    id="_IDGenRailRejectedValue"
-                    text="{railModel>/data/2/value}"
-                    class="statusValue"
-                />
-
-            </HBox>
-
+            <Text
+                id="_IDGenRailDonutTotal"
+                text="{railModel>/total}"
+                class="railDonutValue"
+            />
+            <Text
+                id="_IDGenRailDonutTotalLabel"
+                text="total"
+                class="railDonutSubLabel"
+            />
         </VBox>
 
     </HBox>
+
+
+    <!-- LEGEND — dots now match the donut's colorPalette order -->
+    <VBox
+        id="_IDGenRailLegendBox"
+        width="100%"
+        class="railPieLegendRow"
+    >
+
+        <!-- PENDING -->
+        <HBox
+            id="_IDGenRailLegendHold"
+            justifyContent="SpaceBetween"
+            alignItems="Center"
+            class="statusItemRow"
+        >
+            <HBox id="_IDGenRailLegendHoldLabel" alignItems="Center" class="statusLabel">
+                <HBox id="_IDGenRailHoldDot" class="railLegendDot railDotPending"/>
+                <Text id="_IDGenRailHoldText" text="Pending"/>
+            </HBox>
+            <Text id="_IDGenRailHoldValue" text="{railModel>/data/0/value}" class="statusValue"/>
+        </HBox>
+
+        <!-- IN POST-PROCESSING -->
+        <HBox
+            id="_IDGenRailLegendPost"
+            justifyContent="SpaceBetween"
+            alignItems="Center"
+            class="statusItemRow"
+        >
+            <HBox id="_IDGenRailLegendPostLabel" alignItems="Center" class="statusLabel">
+                <HBox id="_IDGenRailPostDot" class="railLegendDot railDotPost"/>
+                <Text id="_IDGenRailPostText" text="In Post-Processing"/>
+            </HBox>
+            <Text id="_IDGenRailPostValue" text="{railModel>/data/1/value}" class="statusValue"/>
+        </HBox>
+
+        <!-- REJECTED -->
+        <HBox
+            id="_IDGenRailLegendRejected"
+            justifyContent="SpaceBetween"
+            alignItems="Center"
+            class="statusItemRow"
+        >
+            <HBox id="_IDGenRailLegendRejectedLabel" alignItems="Center" class="statusLabel">
+                <HBox id="_IDGenRailRejectedDot" class="railLegendDot railDotRejected"/>
+                <Text id="_IDGenRailRejectedText" text="Rejected"/>
+            </HBox>
+            <Text id="_IDGenRailRejectedValue" text="{railModel>/data/2/value}" class="statusValue"/>
+        </HBox>
+
+    </VBox>
+
+</VBox>
 
 
     <!-- ==================================================
@@ -652,104 +572,116 @@
 </VBox>
 
             <!-- New Tile -->
-            <VBox
-                id="_IDGenVBox75"
-                class="chartCard sapUiSmallPadding"
-                width="28%"
-                height="420px"
-            >
-                <!-- Header -->
-                <HBox
-                    id="_IDGenHBox45"
-                    justifyContent="SpaceBetween"
-                    alignItems="Center"
-                >
-                    <VBox id="_IDGenVBox78">
-                        <Title
-                            id="_IDGenTitle16"
-                            text="Exception Reasons"
-                            level="H6"
-                        />
-                        <Text
-                            id="_IDGenText117"
-                            text="Grouped Queue Overview"
-                            class="kpiSubText"
-                        />
-                    </VBox>
-
-                    <Button
-                        id="_IDGenButton"
-                          text="{= ${reasonModel>/criticalTotal} + ' Critical' }"
-                        type="Reject"
-                        class="sapUiTinyMarginBegin"
-                    />
-                </HBox>
-
-             
-                <!-- Info Strip - only shown when there IS data -->
-<MessageStrip
-    id="_IDGenMessageStrip2"
-    text="Top exception drivers requiring action today"
-    type="Information"
-    showCloseButton="false"
-    showIcon="true"
-    visible="{= ${reasonModel>/topReasons}.length > 0 }"
-    class="excInfoStrip sapUiSmallMarginTop"
-/>
-
-<!-- ✅ NO DATA state — centered message, no info strip on top -->
-<VBox
-    id="_IDGenReasonsNoData"
-    visible="{= ${reasonModel>/topReasons}.length === 0 }"
-    justifyContent="Center"
-    alignItems="Center"
-    class="excNoDataWrap"
+           <VBox
+    id="_IDGenVBox75"
+    class="chartCard sapUiSmallPadding"
+    width="28%"
+    height="420px"
 >
-    <Text
-        id="_IDGenReasonsNoDataText"
-        text="No Data"
-        class="excNoDataText"
-    />
+    <!-- Header -->
+    <HBox
+        id="_IDGenHBox45"
+        justifyContent="SpaceBetween"
+        alignItems="Center"
+    >
+        <VBox id="_IDGenVBox78">
+            <Title
+                id="_IDGenTitle16"
+                text="Exception Reasons"
+                level="H6"
+            />
+            <Text
+                id="_IDGenText117"
+                text="Grouped Queue Overview"
+                class="kpiSubText"
+            />
+        </VBox>
+
+        <Button
+            id="_IDGenButton"
+            text="{= ${reasonModel>/criticalTotal} + ' Critical' }"
+            type="Reject"
+            class="sapUiTinyMarginBegin"
+        />
+    </HBox>
+
+    <!-- Info strip — fixed height, wraps instead of clipping -->
+    <HBox
+        id="_IDGenReasonInfoStrip"
+        alignItems="Start"
+        visible="{= ${reasonModel>/topReasons}.length > 0 }"
+        class="excInfoStripCustom sapUiSmallMarginTop"
+    >
+        <core:Icon
+            id="_IDGenReasonInfoIcon"
+            src="sap-icon://message-information"
+            class="excInfoStripIcon"
+        />
+        <Text
+            id="_IDGenReasonInfoText"
+            text="Top exception drivers requiring action today"
+            class="excInfoStripText"
+        />
+    </HBox>
+
+    <!-- No data -->
+    <VBox
+        id="_IDGenReasonsNoData"
+        visible="{= ${reasonModel>/topReasons}.length === 0 }"
+        justifyContent="Center"
+        alignItems="Center"
+        class="excNoDataWrap"
+    >
+        <Text
+            id="_IDGenReasonsNoDataText"
+            text="No Data"
+            class="excNoDataText"
+        />
+    </VBox>
+
+    <!-- Rows -->
+    <VBox
+        id="_IDGenVBox79"
+        class="sapUiMediumMarginTop"
+        items="{reasonModel>/topReasons}"
+        visible="{= ${reasonModel>/topReasons}.length > 0 }"
+    >
+        <HBox id="_IDGenHBox26" alignItems="Center" class="excReasonRow">
+            <Text
+                id="_IDGenText5"
+                text="{reasonModel>reason}"
+                class="excReasonName"
+            >
+                <layoutData>
+                    <FlexItemData id="_IDGenFlexItemData1" growFactor="0" shrinkFactor="0" baseSize="120px" />
+                </layoutData>
+            </Text>
+
+            <ProgressIndicator
+                id="_IDGenReasonProgress"
+                percentValue="{reasonModel>percent}"
+             
+                width="100%"
+                class="excProgressBar excProgressBarNeutral"
+            >
+                <layoutData>
+                    <FlexItemData id="_IDGenFlexItemData2" growFactor="1" shrinkFactor="1" baseSize="0%" />
+                </layoutData>
+            </ProgressIndicator>
+
+            <Text
+                id="_IDGenReasonValueText"
+                text="{reasonModel>displayValue}"
+                class="excReasonValue"
+            >
+                <layoutData>
+                    <FlexItemData id="_IDGenFlexItemData3" growFactor="0" shrinkFactor="0" baseSize="24px" />
+                </layoutData>
+            </Text>
+        </HBox>
+    </VBox>
 </VBox>
 
-                <!-- Chart -->
-                <!-- ✅ Was 5 hardcoded rows — now one template row repeated per
-                     entry in reasonModel>/topReasons (set by
-                     Exceptions.controller.js#loadExceptionReasons). -->
-               <VBox
-    id="_IDGenVBox79"
-    class="sapUiMediumMarginTop"
-    items="{reasonModel>/topReasons}"
-    visible="{= ${reasonModel>/topReasons}.length > 0 }"
->
-                   <HBox id="_IDGenHBox26"
-    alignItems="Center"
-    class="excReasonRow"
->
-    <Text id="_IDGenText5"
-        text="{reasonModel>reason}"
-        class="excReasonName"
-    >
-        <layoutData>
-            <FlexItemData id="_IDGenFlexItemData1" growFactor="0" shrinkFactor="0" baseSize="40%" />
-        </layoutData>
-    </Text>
-
-    <ProgressIndicator
-        id="_IDGenReasonProgress"
-        percentValue="{reasonModel>percent}"
-        displayValue="{reasonModel>displayValue}"
-      
-        width="100%"
-        class="excProgressBar excProgressBarConstant"
-    >
-        <layoutData>
-            <FlexItemData id="_IDGenFlexItemData2" growFactor="1" shrinkFactor="1" baseSize="0%" />
-        </layoutData>
-    </ProgressIndicator>
-</HBox>
-                </VBox>
-            </VBox>
         </HBox>
 
         <!-- ✅ Manager Card -->
@@ -981,161 +913,66 @@
 
                 <!-- SANCTIONS TABLE -->
 
-                <VBox
-                    id="_IDGenVBox80"
-                    class="sapUiMediumMarginTop tableContainer"
-                    height="160px"
-                >
-      <ScrollContainer
-    id="exceptionTableScroll"
+ <VBox
+    id="_IDGenVBox80"
     width="100%"
-    height="520px"
-    vertical="true"
-    horizontal="true"
+    class="sapUiMediumMarginTop excTableOuter"
 >
-    <Table
-        id="_IDGenTable3"
-        items="{openExceptionModel>/data}"
-        mode="MultiSelect"
-        includeItemInSelection="true"
-        showNoData="false"
-        fixedLayout="false"
+    <ScrollContainer
+        id="exceptionTableScroll"
         width="100%"
+        height="440px"
+        vertical="true"
+        horizontal="true"
+        class="excTableScrollContainer"
     >
-                       <columns>
+        <Table
+            id="_IDGenTable3"
+            items="{openExceptionModel>/data}"
+            mode="MultiSelect"
+            includeItemInSelection="true"
+            showNoData="false"
+            fixedLayout="true"
+            width="100%"
+        >
+            <columns>
+                <Column id="colClearingArea" width="110px"><Text id="_IDGenText55" text="Clearing Area"/></Column>
+                <Column id="colPaymentItemDate" width="130px"><Text id="_IDGenText56" text="Payment Item Date"/></Column>
+                <Column id="colObjectCategory" width="120px"><Text id="_IDGenText58" text="Object Category"/></Column>
+                <Column id="_IDGenColumn17" width="100px"><Text id="_IDGenText6" text="PO type"/></Column>
+                <Column id="_IDGenColumn18" width="120px"><Text id="_IDGenText27" text="Po Type Status"/></Column>
+                <Column id="colTechStat" width="140px"><Text id="_IDGenText59" text="Technical Status"/></Column>
+                <Column id="colPaymentItemNumber" width="150px"><Text id="_IDGenText86" text="Payment Item Number"/></Column>
+                <Column id="colReference" width="120px"><Text id="_IDGenText87" text="Reference"/></Column>
+                <Column id="colReasonDetail" width="180px"><Text id="_IDGenText88" text="Reason Detail"/></Column>
+                <Column id="colAmount" width="110px" hAlign="End"><Text id="_IDGenText89" text="Amount"/></Column>
+                <Column id="colCurrency" width="90px"><Text id="_IDGenText90" text="Currency"/></Column>
+                <Column id="colAged" width="90px"><Text id="_IDGenText91" text="Aged"/></Column>
+                <Column id="colCounterParty" width="150px"><Text id="_IDGenText92" text="Counterparty"/></Column>
+            </columns>
 
-    <Column id="colClearingArea">
-        <Text id="_IDGenText55" text="Clearing Area"/>
-    </Column>
-
-    <Column id="colPaymentItemDate">
-        <Text id="_IDGenText56" text="Payment Item Date"/>
-    </Column>
-
-   
-
-    <Column id="colObjectCategory">
-        <Text id="_IDGenText58" text="Object Category"/>
-    </Column>
-
-     <Column id="_IDGenColumn17" >
-        <Text id="_IDGenText6"  text="PO type"/>
-    </Column>
-
-     <Column id="_IDGenColumn18" >
-        <Text id="_IDGenText27"  text="Po Type Status"/>
-    </Column>
-
-    <Column id="colTechStat">
-        <Text id="_IDGenText59" text="Technical Status"/>
-    </Column>
-
-    <Column id="colPaymentItemNumber">
-        <Text id="_IDGenText86" text="Payment Item Number"/>
-    </Column>
-
-    <Column id="colReference">
-        <Text id="_IDGenText87" text="Reference"/>
-    </Column>
-
-    <Column id="colReasonDetail">
-        <Text id="_IDGenText88" text="Reason Detail"/>
-    </Column>
-
-    <Column id="colAmount">
-        <Text id="_IDGenText89" text="Amount"/>
-    </Column>
-
-    <Column id="colCurrency">
-        <Text id="_IDGenText90" text="Currency"/>
-    </Column>
-
-    <Column id="colAged">
-        <Text id="_IDGenText91" text="Aged"/>
-    </Column>
-
-    <Column id="colCounterParty">
-        <Text id="_IDGenText92" text="Counterparty"/>
-    </Column>
-
-     
-
-</columns>
-
-                        <items>
-
-    <ColumnListItem
-        id="openExceptionRow"
-    >
-
-        <cells>
-
-            <Text id="_IDGenText93"
-                text="{openExceptionModel>ClearingArea}"
-            />
-
-            <Text id="_IDGenText94"
-                text="{openExceptionModel>PaymentItemDate}"
-            />
-
-           
-
-            <Text id="_IDGenText96"
-                text="{openExceptionModel>ObjectCategory}"
-            />
-
-                <Text id="_IDGenText54" 
-                text="{openExceptionModel>po_type}"
-            />
-
-                <Text id="_IDGenText57" 
-                text="{openExceptionModel>po_typet_s}"
-            />
-
-            <Text id="_IDGenText105"
-                text="{openExceptionModel>Status}"
-            />
-
-            <Text id="_IDGenText106"
-                text="{openExceptionModel>PaymentItemNumber}"
-            />
-
-            <Text id="_IDGenText107"
-                text="{openExceptionModel>Reference}"
-            />
-
-            <Text id="_IDGenText108"
-                text="{openExceptionModel>ReasonDetail}"
-            />
-
-            <Text id="_IDGenText109"
-                text="{openExceptionModel>Amount}"
-            />
-
-            <Text id="_IDGenText110"
-                text="{openExceptionModel>CURRENCY}"
-            />
-
-            <Text id="_IDGenText111"
-                text="{openExceptionModel>Aged}"
-            />
-
-            <Text id="_IDGenText112"
-                text="{openExceptionModel>CounterParty}"
-            />
-
-           
-
-        </cells>
-
-    </ColumnListItem>
-
-</items>
-               
-    </Table>
-</ScrollContainer>
-                </VBox>
-
+            <items>
+                <ColumnListItem id="openExceptionRow">
+                    <cells>
+                        <Text id="_IDGenText93" text="{openExceptionModel>ClearingArea}"/>
+                        <Text id="_IDGenText94" text="{openExceptionModel>PaymentItemDate}"/>
+                        <Text id="_IDGenText96" text="{openExceptionModel>ObjectCategory}"/>
+                        <Text id="_IDGenText54" text="{openExceptionModel>po_type}"/>
+                        <Text id="_IDGenText57" text="{openExceptionModel>po_typet_s}"/>
+                        <Text id="_IDGenText105" text="{openExceptionModel>Status}"/>
+                        <Text id="_IDGenText106" text="{openExceptionModel>PaymentItemNumber}"/>
+                        <Text id="_IDGenText107" text="{openExceptionModel>Reference}"/>
+                        <Text id="_IDGenText108" text="{openExceptionModel>ReasonDetail}"/>
+                        <Text id="_IDGenText109" text="{openExceptionModel>Amount}"/>
+                        <Text id="_IDGenText110" text="{openExceptionModel>CURRENCY}"/>
+                        <Text id="_IDGenText111" text="{openExceptionModel>Aged}"/>
+                        <Text id="_IDGenText112" text="{openExceptionModel>CounterParty}"/>
+                    </cells>
+                </ColumnListItem>
+            </items>
+        </Table>
+    </ScrollContainer>
+</VBox>
                 
             
             </VBox>

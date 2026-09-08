@@ -47,7 +47,9 @@ sap.ui.define([
             // Defaults to 0 until the first read completes; see loadExceptionKpis.
             var oExceptionKpiModel = new JSONModel({
                 OpenException: 0,
-                ValueAtRisk: 0
+                ValueAtRisk: 0,
+                openExceptionTrend: { percent: 0, direction: "flat", hasData: false },
+                valueAtRiskTrend: { percent: 0, direction: "flat", hasData: false }
             });
             this.getView().setModel(oExceptionKpiModel, "exceptionKpiModel");
 
@@ -92,6 +94,7 @@ sap.ui.define([
             this.loadExceptionReasons();
             this.loadExceptionTrend();
             this.loadRailKpi();
+            this._attachKpiCardClicks();
 
             var oApprovalModel = new JSONModel({
                 data: [
@@ -352,12 +355,12 @@ sap.ui.define([
 
 
 
-          var oOpenExceptionModel = new JSONModel({
-    data: [],
-    total: 0,
-    maxAge: "",
-    maxAmount: ""
-});
+            var oOpenExceptionModel = new JSONModel({
+                data: [],
+                total: 0,
+                maxAge: "",
+                maxAmount: ""
+            });
 
             this.getView().setModel(
                 oOpenExceptionModel,
@@ -667,223 +670,223 @@ sap.ui.define([
             this.onFilterChange();
         },
 
-       onFilterChange: function () {
+        onFilterChange: function () {
 
-    var aFilters = [];
+            var aFilters = [];
 
-    /*
-     * OBJECT CATEGORY
-     */
-    var oObjectCategory =
-        this.byId("filterObjectCategory");
+            /*
+             * OBJECT CATEGORY
+             */
+            var oObjectCategory =
+                this.byId("filterObjectCategory");
 
-    var sObjectCategory =
-        oObjectCategory
-            ? oObjectCategory.getSelectedKey()
-            : "ALL_OBJECT_CATEGORY";
+            var sObjectCategory =
+                oObjectCategory
+                    ? oObjectCategory.getSelectedKey()
+                    : "ALL_OBJECT_CATEGORY";
 
-    /*
-     * STATUS
-     */
-    var sStatus =
-        this.byId("filterStatus")
-            .getSelectedKey();
+            /*
+             * STATUS
+             */
+            var sStatus =
+                this.byId("filterStatus")
+                    .getSelectedKey();
 
-    /*
-     * AGING
-     */
-    var sAging =
-        this.byId("filterAging")
-            .getSelectedKey();
+            /*
+             * AGING
+             */
+            var sAging =
+                this.byId("filterAging")
+                    .getSelectedKey();
 
-    /*
-     * REASON
-     */
-    var sReason =
-        this.byId("_IDGenInput")
-            ? this.byId("_IDGenInput").getValue()
-            : "";
+            /*
+             * REASON
+             */
+            var sReason =
+                this.byId("_IDGenInput")
+                    ? this.byId("_IDGenInput").getValue()
+                    : "";
 
-    /*
-     * GLOBAL SEARCH
-     */
-    var sSearch =
-        this.byId("_IDGenSearchField1")
-            ? this.byId("_IDGenSearchField1").getValue()
-            : "";
-
-
-    /*
-     * OBJECT CATEGORY
-     * Actual field:
-     * ObjectCategory
-     */
-    if (
-        sObjectCategory &&
-        sObjectCategory !== "ALL_OBJECT_CATEGORY"
-    ) {
-
-        aFilters.push(
-            new sap.ui.model.Filter(
-                "ObjectCategory",
-                sap.ui.model.FilterOperator.EQ,
-                sObjectCategory
-            )
-        );
-    }
+            /*
+             * GLOBAL SEARCH
+             */
+            var sSearch =
+                this.byId("_IDGenSearchField1")
+                    ? this.byId("_IDGenSearchField1").getValue()
+                    : "";
 
 
-    /*
-     * STATUS
-     * Actual field:
-     * Status
-     */
-    if (
-        sStatus &&
-        sStatus !== "ALL"
-    ) {
+            /*
+             * OBJECT CATEGORY
+             * Actual field:
+             * ObjectCategory
+             */
+            if (
+                sObjectCategory &&
+                sObjectCategory !== "ALL_OBJECT_CATEGORY"
+            ) {
 
-        aFilters.push(
-            new sap.ui.model.Filter(
-                "Status",
-                sap.ui.model.FilterOperator.EQ,
-                sStatus
-            )
-        );
-    }
-
-
-    /*
-     * AGING
-     * Actual field:
-     * Aged
-     */
-    if (
-        sAging &&
-        sAging !== "ALL_AGE"
-    ) {
-
-        aFilters.push(
-            new sap.ui.model.Filter(
-                "Aged",
-                sap.ui.model.FilterOperator.EQ,
-                sAging
-            )
-        );
-    }
-
-
-    /*
-     * REASON
-     * Actual field:
-     * ReasonDetail
-     */
-    if (sReason) {
-
-        aFilters.push(
-            new sap.ui.model.Filter(
-                "ReasonDetail",
-                sap.ui.model.FilterOperator.Contains,
-                sReason
-            )
-        );
-    }
-
-
-    /*
-     * GLOBAL SEARCH
-     *
-     * Search across the actual
-     * EXCEPTIONDetail fields.
-     */
-    if (sSearch) {
-
-        var oSearchFilter =
-            new sap.ui.model.Filter({
-                filters: [
-
+                aFilters.push(
                     new sap.ui.model.Filter(
-                        "Reference",
-                        sap.ui.model.FilterOperator.Contains,
-                        sSearch
-                    ),
+                        "ObjectCategory",
+                        sap.ui.model.FilterOperator.EQ,
+                        sObjectCategory
+                    )
+                );
+            }
 
+
+            /*
+             * STATUS
+             * Actual field:
+             * Status
+             */
+            if (
+                sStatus &&
+                sStatus !== "ALL"
+            ) {
+
+                aFilters.push(
                     new sap.ui.model.Filter(
-                        "CounterParty",
-                        sap.ui.model.FilterOperator.Contains,
-                        sSearch
-                    ),
+                        "Status",
+                        sap.ui.model.FilterOperator.EQ,
+                        sStatus
+                    )
+                );
+            }
 
+
+            /*
+             * AGING
+             * Actual field:
+             * Aged
+             */
+            if (
+                sAging &&
+                sAging !== "ALL_AGE"
+            ) {
+
+                aFilters.push(
                     new sap.ui.model.Filter(
-                        "Amount",
-                        sap.ui.model.FilterOperator.Contains,
-                        sSearch
-                    ),
+                        "Aged",
+                        sap.ui.model.FilterOperator.EQ,
+                        sAging
+                    )
+                );
+            }
 
+
+            /*
+             * REASON
+             * Actual field:
+             * ReasonDetail
+             */
+            if (sReason) {
+
+                aFilters.push(
                     new sap.ui.model.Filter(
                         "ReasonDetail",
                         sap.ui.model.FilterOperator.Contains,
-                        sSearch
-                    ),
-
-                    new sap.ui.model.Filter(
-                        "ObjectCategory",
-                        sap.ui.model.FilterOperator.Contains,
-                        sSearch
-                    ),
-
-                    new sap.ui.model.Filter(
-                        "Aged",
-                        sap.ui.model.FilterOperator.Contains,
-                        sSearch
-                    ),
-
-                    new sap.ui.model.Filter(
-                        "PaymentItemNumber",
-                        sap.ui.model.FilterOperator.Contains,
-                        sSearch
+                        sReason
                     )
+                );
+            }
 
-                ],
+
+            /*
+             * GLOBAL SEARCH
+             *
+             * Search across the actual
+             * EXCEPTIONDetail fields.
+             */
+            if (sSearch) {
+
+                var oSearchFilter =
+                    new sap.ui.model.Filter({
+                        filters: [
+
+                            new sap.ui.model.Filter(
+                                "Reference",
+                                sap.ui.model.FilterOperator.Contains,
+                                sSearch
+                            ),
+
+                            new sap.ui.model.Filter(
+                                "CounterParty",
+                                sap.ui.model.FilterOperator.Contains,
+                                sSearch
+                            ),
+
+                            new sap.ui.model.Filter(
+                                "Amount",
+                                sap.ui.model.FilterOperator.Contains,
+                                sSearch
+                            ),
+
+                            new sap.ui.model.Filter(
+                                "ReasonDetail",
+                                sap.ui.model.FilterOperator.Contains,
+                                sSearch
+                            ),
+
+                            new sap.ui.model.Filter(
+                                "ObjectCategory",
+                                sap.ui.model.FilterOperator.Contains,
+                                sSearch
+                            ),
+
+                            new sap.ui.model.Filter(
+                                "Aged",
+                                sap.ui.model.FilterOperator.Contains,
+                                sSearch
+                            ),
+
+                            new sap.ui.model.Filter(
+                                "PaymentItemNumber",
+                                sap.ui.model.FilterOperator.Contains,
+                                sSearch
+                            )
+
+                        ],
+
+                        /*
+                         * Search fields use OR
+                         */
+                        and: false
+                    });
 
                 /*
-                 * Search fields use OR
+                 * Search filter is combined with
+                 * dropdown filters using AND.
                  */
-                and: false
-            });
-
-        /*
-         * Search filter is combined with
-         * dropdown filters using AND.
-         */
-        aFilters.push(oSearchFilter);
-    }
+                aFilters.push(oSearchFilter);
+            }
 
 
-    /*
-     * APPLY ONLY TO OPEN EXCEPTIONS TABLE
-     */
-    var oTable =
-        this.byId("_IDGenTable3");
+            /*
+             * APPLY ONLY TO OPEN EXCEPTIONS TABLE
+             */
+            var oTable =
+                this.byId("_IDGenTable3");
 
-    if (!oTable) {
-        return;
-    }
+            if (!oTable) {
+                return;
+            }
 
-    var oBinding =
-        oTable.getBinding("items");
+            var oBinding =
+                oTable.getBinding("items");
 
-    if (!oBinding) {
-        return;
-    }
+            if (!oBinding) {
+                return;
+            }
 
-    oBinding.filter(aFilters);
+            oBinding.filter(aFilters);
 
-    /*
-     * Update total visible rows
-     */
-    this._updateOpenExceptionCount(oBinding);
-},
+            /*
+             * Update total visible rows
+             */
+            this._updateOpenExceptionCount(oBinding);
+        },
 
         onToggleManager: function () {
             var oContent = this.byId("managerContent");
@@ -899,149 +902,149 @@ sap.ui.define([
             );
         },
 
-       _populateFilterDropdowns: function () {
+        _populateFilterDropdowns: function () {
 
-    var oModel =
-        this.getView()
-            .getModel("openExceptionModel");
+            var oModel =
+                this.getView()
+                    .getModel("openExceptionModel");
 
-    if (!oModel) {
-        return;
-    }
+            if (!oModel) {
+                return;
+            }
 
-    var aData =
-        oModel.getProperty("/data") || [];
+            var aData =
+                oModel.getProperty("/data") || [];
 
 
-    /*
-     * OBJECT CATEGORY
-     */
-    var aObjectCategory = [
-        ...new Set(
-            aData
-                .map(function (oRow) {
-                    return oRow.ObjectCategory;
+            /*
+             * OBJECT CATEGORY
+             */
+            var aObjectCategory = [
+                ...new Set(
+                    aData
+                        .map(function (oRow) {
+                            return oRow.ObjectCategory;
+                        })
+                        .filter(Boolean)
+                )
+            ];
+
+
+            /*
+             * STATUS
+             */
+            var aStatus = [
+                ...new Set(
+                    aData
+                        .map(function (oRow) {
+                            return oRow.Status;
+                        })
+                        .filter(function (sValue) {
+                            return sValue !== null &&
+                                sValue !== undefined &&
+                                sValue !== "";
+                        })
+                )
+            ];
+
+
+            /*
+             * AGED
+             */
+            var aAging = [
+                ...new Set(
+                    aData
+                        .map(function (oRow) {
+                            return oRow.Aged;
+                        })
+                        .filter(Boolean)
+                )
+            ];
+
+
+            var oObjectCategory =
+                this.byId("filterObjectCategory");
+
+            var oStatus =
+                this.byId("filterStatus");
+
+            var oAging =
+                this.byId("filterAging");
+
+
+            /*
+             * Clear old/static values
+             */
+            oObjectCategory.removeAllItems();
+            oStatus.removeAllItems();
+            oAging.removeAllItems();
+
+
+            /*
+             * OBJECT CATEGORY
+             */
+            oObjectCategory.addItem(
+                new sap.ui.core.Item({
+                    key: "ALL_OBJECT_CATEGORY",
+                    text: "All"
                 })
-                .filter(Boolean)
-        )
-    ];
+            );
+
+            aObjectCategory.forEach(function (sValue) {
+
+                oObjectCategory.addItem(
+                    new sap.ui.core.Item({
+                        key: sValue,
+                        text: sValue
+                    })
+                );
+
+            });
 
 
-    /*
-     * STATUS
-     */
-    var aStatus = [
-        ...new Set(
-            aData
-                .map(function (oRow) {
-                    return oRow.Status;
+            /*
+             * STATUS
+             */
+            oStatus.addItem(
+                new sap.ui.core.Item({
+                    key: "ALL",
+                    text: "All"
                 })
-                .filter(function (sValue) {
-                    return sValue !== null &&
-                           sValue !== undefined &&
-                           sValue !== "";
+            );
+
+            aStatus.forEach(function (sValue) {
+
+                oStatus.addItem(
+                    new sap.ui.core.Item({
+                        key: sValue,
+                        text: sValue
+                    })
+                );
+
+            });
+
+
+            /*
+             * AGING
+             */
+            oAging.addItem(
+                new sap.ui.core.Item({
+                    key: "ALL_AGE",
+                    text: "All Age"
                 })
-        )
-    ];
+            );
 
+            aAging.forEach(function (sValue) {
 
-    /*
-     * AGED
-     */
-    var aAging = [
-        ...new Set(
-            aData
-                .map(function (oRow) {
-                    return oRow.Aged;
-                })
-                .filter(Boolean)
-        )
-    ];
+                oAging.addItem(
+                    new sap.ui.core.Item({
+                        key: sValue,
+                        text: sValue
+                    })
+                );
 
-
-    var oObjectCategory =
-        this.byId("filterObjectCategory");
-
-    var oStatus =
-        this.byId("filterStatus");
-
-    var oAging =
-        this.byId("filterAging");
-
-
-    /*
-     * Clear old/static values
-     */
-    oObjectCategory.removeAllItems();
-    oStatus.removeAllItems();
-    oAging.removeAllItems();
-
-
-    /*
-     * OBJECT CATEGORY
-     */
-    oObjectCategory.addItem(
-        new sap.ui.core.Item({
-            key: "ALL_OBJECT_CATEGORY",
-            text: "All"
-        })
-    );
-
-    aObjectCategory.forEach(function (sValue) {
-
-        oObjectCategory.addItem(
-            new sap.ui.core.Item({
-                key: sValue,
-                text: sValue
-            })
-        );
-
-    });
-
-
-    /*
-     * STATUS
-     */
-    oStatus.addItem(
-        new sap.ui.core.Item({
-            key: "ALL",
-            text: "All"
-        })
-    );
-
-    aStatus.forEach(function (sValue) {
-
-        oStatus.addItem(
-            new sap.ui.core.Item({
-                key: sValue,
-                text: sValue
-            })
-        );
-
-    });
-
-
-    /*
-     * AGING
-     */
-    oAging.addItem(
-        new sap.ui.core.Item({
-            key: "ALL_AGE",
-            text: "All Age"
-        })
-    );
-
-    aAging.forEach(function (sValue) {
-
-        oAging.addItem(
-            new sap.ui.core.Item({
-                key: sValue,
-                text: sValue
-            })
-        );
-
-    });
-},
+            });
+        },
 
         _calculateStartupInfo: function () {
 
@@ -1212,7 +1215,6 @@ sap.ui.define([
         loadExceptionKpis: function () {
 
             var oODataModel = this.getOwnerComponent().getModel("odataModel");
-
             var oFilterModel = this.getView().getModel("filterModel");
 
             var sClearingArea = oFilterModel
@@ -1229,34 +1231,101 @@ sap.ui.define([
                 return;
             }
 
-            var aFilters = [
-                new Filter("clearingarea", FilterOperator.EQ, sClearingArea),
-                new Filter("paymentorderdate", FilterOperator.EQ, sDate)
-            ];
+            var sPreviousDate = this._getPreviousDateStr(sDate);
 
-            var oListBinding = oODataModel.bindList("/ExceptionKPI", undefined, undefined, aFilters, {
-                $select: "clearingarea,paymentorderdate,OpenException,ValueAtRisk"
-            });
+            var fnReadKpiForDate = function (sTargetDate) {
 
-            oListBinding.requestContexts(0, 1).then(function (aContexts) {
+                var aFilters = [
+                    new Filter("clearingarea", FilterOperator.EQ, sClearingArea),
+                    new Filter("paymentorderdate", FilterOperator.EQ, sTargetDate)
+                ];
 
-                if (!aContexts.length) {
-                    oExceptionKpiModel.setData({ OpenException: 0, ValueAtRisk: 0 });
-                    return;
-                }
-
-                var oRow = aContexts[0].getObject();
-
-                oExceptionKpiModel.setData({
-                    OpenException: oRow.OpenException || 0,
-                    ValueAtRisk: oRow.ValueAtRisk || 0
+                var oListBinding = oODataModel.bindList("/ExceptionKPI", undefined, undefined, aFilters, {
+                    $select: "clearingarea,paymentorderdate,OpenException,ValueAtRisk"
                 });
 
-            }).catch(function (oError) {
-                console.error("Exception KPI load failed:", oError);
-            });
+                return oListBinding.requestContexts(0, 1).then(function (aContexts) {
+
+                    if (!aContexts.length) {
+                        return { OpenException: 0, ValueAtRisk: 0 };
+                    }
+
+                    var oRow = aContexts[0].getObject();
+
+                    return {
+                        OpenException: oRow.OpenException || 0,
+                        ValueAtRisk: oRow.ValueAtRisk || 0
+                    };
+
+                }).catch(function (oError) {
+                    console.error("Exception KPI load failed for", sTargetDate, oError);
+                    return { OpenException: 0, ValueAtRisk: 0 };
+                });
+
+            };
+
+            Promise.all([
+                fnReadKpiForDate(sDate),
+                fnReadKpiForDate(sPreviousDate)
+            ]).then(function (aResults) {
+
+                var oToday = aResults[0];
+                var oYesterday = aResults[1];
+
+                oExceptionKpiModel.setData({
+                    OpenException: oToday.OpenException,
+                    ValueAtRisk: oToday.ValueAtRisk,
+                    openExceptionTrend: this._computeTrend(oToday.OpenException, oYesterday.OpenException),
+                    valueAtRiskTrend: this._computeTrend(oToday.ValueAtRisk, oYesterday.ValueAtRisk)
+                });
+
+            }.bind(this));
+
         },
 
+        // ✅ Returns "YYYY-MM-DD" for the day before sDate, using local date math
+        // (not toISOString()) to avoid the UTC-shift issues already flagged
+        // elsewhere in this controller (loadOpenExceptionDetails, loadExceptionTrend).
+        _getPreviousDateStr: function (sDate) {
+
+            var aParts = String(sDate).slice(0, 10).split("-");
+
+            var oDate = new Date(
+                Number(aParts[0]),
+                Number(aParts[1]) - 1,
+                Number(aParts[2])
+            );
+
+            oDate.setDate(oDate.getDate() - 1);
+
+            return oDate.getFullYear() + "-" +
+                String(oDate.getMonth() + 1).padStart(2, "0") + "-" +
+                String(oDate.getDate()).padStart(2, "0");
+
+        },
+
+        // ✅ Computes % change from fPrevious → fCurrent. "hasData" is false when
+        // yesterday had zero (no meaningful % to show), so the UI can fall back to
+        // a plain label instead of a nonsensical "+∞%" or "+100%".
+        _computeTrend: function (fCurrent, fPrevious) {
+
+            if (!fPrevious || fPrevious === 0) {
+                return {
+                    percent: 0,
+                    direction: fCurrent > 0 ? "up" : "flat",
+                    hasData: false
+                };
+            }
+
+            var fPercent = ((fCurrent - fPrevious) / fPrevious) * 100;
+
+            return {
+                percent: Math.abs(fPercent),
+                direction: fPercent > 0 ? "up" : (fPercent < 0 ? "down" : "flat"),
+                hasData: true
+            };
+
+        },
 
         loadOpenExceptionDetails: function () {
 
@@ -1359,9 +1428,9 @@ sap.ui.define([
                     "PaymentItemDate",
                     "PaymentItemGuid",
                     "ObjectCategory",
-                     "po_type",      
-    "po_typet_s",
-     "tech_stat",
+                    "po_type",
+                    "po_typet_s",
+                    "tech_stat",
                     "Status",
                     "PaymentItemNumber",
                     "Reference",
@@ -1491,28 +1560,28 @@ sap.ui.define([
                     /*
                      * Put data into the JSON model.
                      */
-               oOpenExceptionModel.setProperty(
-    "/data",
-    aUniqueRows
-);
+                    oOpenExceptionModel.setProperty(
+                        "/data",
+                        aUniqueRows
+                    );
 
-/*
- * Calculate Open count and maximum aging
- * from the actual loaded rows.
- */
-this._calculateOpenExceptionStats(aUniqueRows);
+                    /*
+                     * Calculate Open count and maximum aging
+                     * from the actual loaded rows.
+                     */
+                    this._calculateOpenExceptionStats(aUniqueRows);
 
-this._populateFilterDropdowns();
+                    this._populateFilterDropdowns();
 
-oOpenExceptionModel.refresh(true);
+                    oOpenExceptionModel.refresh(true);
 
-console.log(
-    "Open Exception stats:",
-    {
-        total: oOpenExceptionModel.getProperty("/total"),
-        maxAge: oOpenExceptionModel.getProperty("/maxAge")
-    }
-);
+                    console.log(
+                        "Open Exception stats:",
+                        {
+                            total: oOpenExceptionModel.getProperty("/total"),
+                            maxAge: oOpenExceptionModel.getProperty("/maxAge")
+                        }
+                    );
 
                     console.log(
                         "Open Exception table populated:",
@@ -1979,7 +2048,11 @@ console.log(
                         aTrendData
                     );
 
+
+
                     /*
+
+                    
                      * ====================================================
                      * Update existing trendModel
                      * ====================================================
@@ -2398,43 +2471,13 @@ console.log(
             );
 
             oTrendChart.setVizProperties({
-
-                title: {
-                    visible: false
-                },
-
-                legend: {
-                    visible: true,
-                    position: "bottom",
-                    alignment: "center"
-                },
-
+                title: { visible: false },
+                legend: { visible: true, position: "bottom", alignment: "center" },
                 plotArea: {
-                    colorPalette: [
-                        "#e53935",
-                        "#43a047"
-                    ]
+                    colorPalette: ["#c17b74", "#7a9e6f"]
                 },
-
-                categoryAxis: {
-                    title: {
-                        visible: false
-                    },
-
-                    label: {
-                        visible: true
-                    }
-                },
-
-                valueAxis: {
-                    title: {
-                        visible: false
-                    },
-
-                    label: {
-                        visible: true
-                    }
-                }
+                categoryAxis: { title: { visible: false }, label: { visible: true } },
+                valueAxis: { title: { visible: false }, label: { visible: true } }
             });
 
             /*
@@ -2470,7 +2513,7 @@ console.log(
             oTrendChart.addFeed(new FeedItem({ uid: "color", type: "Dimension", values: ["Category"] }));
 
             oTrendChart.setVizType(sVizType);
-            oTrendChart.setVizProperties({ plotArea: { colorPalette: ["#e53935", "#43a047"] } });
+            oTrendChart.setVizProperties({ plotArea: { colorPalette: ["#c17b74", "#7a9e6f"] } });
         },
 
         // Heat Map — Day × Type (Opened/Resolved) grid, colored by count.
@@ -2879,212 +2922,306 @@ console.log(
 
             this.loadOpenExceptionDetails();
         },
-_updateOpenExceptionCount: function (oBinding) {
+        _updateOpenExceptionCount: function (oBinding) {
 
-    if (!oBinding) {
-        return;
-    }
+            if (!oBinding) {
+                return;
+            }
 
-    var aContexts = oBinding.getCurrentContexts
-        ? oBinding.getCurrentContexts()
-        : [];
+            var aContexts = oBinding.getCurrentContexts
+                ? oBinding.getCurrentContexts()
+                : [];
 
-    var aRows = aContexts.map(function (oContext) {
-        return oContext.getObject();
-    });
+            var aRows = aContexts.map(function (oContext) {
+                return oContext.getObject();
+            });
 
-    var iTotal = aRows.length;
+            var iTotal = aRows.length;
 
-    var sMaxAge = "";
+            var sMaxAge = "";
 
-    var ageToMinutes = function (sAge) {
+            var ageToMinutes = function (sAge) {
 
-        if (!sAge) {
-            return 0;
-        }
+                if (!sAge) {
+                    return 0;
+                }
 
-        sAge = String(sAge).trim();
+                sAge = String(sAge).trim();
 
-        var iMinutes = 0;
+                var iMinutes = 0;
 
-        var oHourMatch =
-            sAge.match(/(\d+)\s*h/i);
+                var oHourMatch =
+                    sAge.match(/(\d+)\s*h/i);
 
-        var oMinuteMatch =
-            sAge.match(/(\d+)\s*m/i);
+                var oMinuteMatch =
+                    sAge.match(/(\d+)\s*m/i);
 
-        if (oHourMatch) {
-            iMinutes +=
-                parseInt(oHourMatch[1], 10) * 60;
-        }
+                if (oHourMatch) {
+                    iMinutes +=
+                        parseInt(oHourMatch[1], 10) * 60;
+                }
 
-        if (oMinuteMatch) {
-            iMinutes +=
-                parseInt(oMinuteMatch[1], 10);
-        }
+                if (oMinuteMatch) {
+                    iMinutes +=
+                        parseInt(oMinuteMatch[1], 10);
+                }
 
-        return iMinutes;
-    };
+                return iMinutes;
+            };
 
-    var iMaxMinutes = -1;
+            var iMaxMinutes = -1;
 
-    aRows.forEach(function (oRow) {
+            aRows.forEach(function (oRow) {
 
-        var sAge = oRow.Aged;
+                var sAge = oRow.Aged;
 
-        var iMinutes =
-            ageToMinutes(sAge);
+                var iMinutes =
+                    ageToMinutes(sAge);
 
-        if (iMinutes > iMaxMinutes) {
+                if (iMinutes > iMaxMinutes) {
 
-            iMaxMinutes = iMinutes;
+                    iMaxMinutes = iMinutes;
 
-            sMaxAge = sAge;
-        }
-    });
+                    sMaxAge = sAge;
+                }
+            });
 
-    var oModel =
-        this.getView()
-            .getModel("openExceptionModel");
+            var oModel =
+                this.getView()
+                    .getModel("openExceptionModel");
 
-    if (!oModel) {
-        return;
-    }
+            if (!oModel) {
+                return;
+            }
 
-    oModel.setProperty(
-        "/total",
-        iTotal
-    );
+            oModel.setProperty(
+                "/total",
+                iTotal
+            );
 
-    oModel.setProperty(
-        "/maxAge",
-        sMaxAge
-    );
+            oModel.setProperty(
+                "/maxAge",
+                sMaxAge
+            );
 
-    console.log(
-        "Filtered Open Exceptions:",
-        iTotal,
-        "Max Age:",
-        sMaxAge
-    );
-},
+            console.log(
+                "Filtered Open Exceptions:",
+                iTotal,
+                "Max Age:",
+                sMaxAge
+            );
+        },
 
         _calculateOpenExceptionStats: function (aRows) {
 
-    var iTotal = aRows.length;
-    var sMaxAge = "";
-    var iMaxAmount = 0;
+            var iTotal = aRows.length;
+            var sMaxAge = "";
+            var iMaxAmount = 0;
 
-    var ageToMinutes = function (sAge) {
+            var ageToMinutes = function (sAge) {
 
-        if (!sAge) {
-            return 0;
-        }
+                if (!sAge) {
+                    return 0;
+                }
 
-        sAge = String(sAge).trim();
+                sAge = String(sAge).trim();
 
-        var iMinutes = 0;
+                var iMinutes = 0;
 
-        var oHourMatch =
-            sAge.match(/(\d+)\s*h/i);
+                var oHourMatch =
+                    sAge.match(/(\d+)\s*h/i);
 
-        var oMinuteMatch =
-            sAge.match(/(\d+)\s*m/i);
+                var oMinuteMatch =
+                    sAge.match(/(\d+)\s*m/i);
 
-        if (oHourMatch) {
-            iMinutes +=
-                parseInt(oHourMatch[1], 10) * 60;
-        }
+                if (oHourMatch) {
+                    iMinutes +=
+                        parseInt(oHourMatch[1], 10) * 60;
+                }
 
-        if (oMinuteMatch) {
-            iMinutes +=
-                parseInt(oMinuteMatch[1], 10);
-        }
+                if (oMinuteMatch) {
+                    iMinutes +=
+                        parseInt(oMinuteMatch[1], 10);
+                }
 
-        return iMinutes;
-    };
+                return iMinutes;
+            };
 
-    var amountToNumber = function (sAmount) {
+            var amountToNumber = function (sAmount) {
 
-        if (sAmount === null ||
-            sAmount === undefined) {
-            return 0;
-        }
+                if (sAmount === null ||
+                    sAmount === undefined) {
+                    return 0;
+                }
 
-        var sValue = String(sAmount)
-            .replace(/SAR/gi, "")
-            .replace(/,/g, "")
-            .trim();
+                var sValue = String(sAmount)
+                    .replace(/SAR/gi, "")
+                    .replace(/,/g, "")
+                    .trim();
 
-        return parseFloat(sValue) || 0;
-    };
-
-
-    var iMaxMinutes = -1;
-
-    aRows.forEach(function (oRow) {
-
-        // =========================
-        // MAX AGE
-        // =========================
-        var sAge = oRow.Aged;
-
-        var iMinutes =
-            ageToMinutes(sAge);
-
-        if (iMinutes > iMaxMinutes) {
-
-            iMaxMinutes = iMinutes;
-
-            sMaxAge = sAge;
-        }
+                return parseFloat(sValue) || 0;
+            };
 
 
-        // =========================
-        // MAX AMOUNT
-        // =========================
-        var iAmount =
-            amountToNumber(oRow.Amount);
+            var iMaxMinutes = -1;
 
-        if (iAmount > iMaxAmount) {
+            aRows.forEach(function (oRow) {
 
-            iMaxAmount = iAmount;
-        }
+                // =========================
+                // MAX AGE
+                // =========================
+                var sAge = oRow.Aged;
 
-    });
+                var iMinutes =
+                    ageToMinutes(sAge);
+
+                if (iMinutes > iMaxMinutes) {
+
+                    iMaxMinutes = iMinutes;
+
+                    sMaxAge = sAge;
+                }
 
 
-    var oModel =
-        this.getView()
-            .getModel("openExceptionModel");
+                // =========================
+                // MAX AMOUNT
+                // =========================
+                var iAmount =
+                    amountToNumber(oRow.Amount);
+
+                if (iAmount > iMaxAmount) {
+
+                    iMaxAmount = iAmount;
+                }
+
+            });
 
 
-    oModel.setProperty(
-        "/total",
-        iTotal
-    );
+            var oModel =
+                this.getView()
+                    .getModel("openExceptionModel");
 
-    oModel.setProperty(
-        "/maxAge",
-        sMaxAge
-    );
 
-    oModel.setProperty(
-        "/maxAmount",
-         iMaxAmount.toLocaleString()
-    );
+            oModel.setProperty(
+                "/total",
+                iTotal
+            );
 
-    oModel.refresh(true);
+            oModel.setProperty(
+                "/maxAge",
+                sMaxAge
+            );
 
-    console.log(
-        "Open Exception Stats:",
-        {
-            total: iTotal,
-            maxAge: sMaxAge,
-            maxAmount: iMaxAmount
-        }
-    );
-},
+            oModel.setProperty(
+                "/maxAmount",
+                iMaxAmount.toLocaleString()
+            );
+
+            oModel.refresh(true);
+
+            console.log(
+                "Open Exception Stats:",
+                {
+                    total: iTotal,
+                    maxAge: sMaxAge,
+                    maxAmount: iMaxAmount
+                }
+            );
+        },
+
+        _attachKpiCardClicks: function () {
+
+            var oCard = this.byId("_IDGenKpiOpenExceptions");
+            if (!oCard) { return; }
+
+            if (oCard.data("clickBound")) { return; }
+
+            oCard.attachBrowserEvent("click", this.onOpenExceptionsPress, this);
+            oCard.data("clickBound", true);
+
+        },
+
+        // ✅ Formats ValueAtRisk as €86.0M / €142.5K / €420 depending on magnitude.
+        // Same K/M abbreviation pattern as _updateStatusBreakdown's fmt() in
+        // View1.controller.js, with a € prefix per the reference design.
+        formatValueAtRisk: function (vValue) {
+
+            var fValue = Number(vValue) || 0;
+
+            if (fValue >= 1000000) {
+                return "€" + (fValue / 1000000).toFixed(1) + "M";
+            }
+
+            if (fValue >= 1000) {
+                return "€" + (fValue / 1000).toFixed(1) + "K";
+            }
+
+            return "€" + fValue.toLocaleString();
+
+        },
+
+
+        // ✅ Open Exceptions: MORE exceptions is bad, so "up" = warn color, "down" = good color.
+        // Returns "" (nothing shown) when there's no real yesterday value to compare against.
+        formatOpenExceptionTrendText: function (oTrend) {
+
+            if (!oTrend || !oTrend.hasData) {
+                return "";
+            }
+
+            if (oTrend.direction === "flat") {
+                return "No change vs yesterday";
+            }
+
+            var sArrow = oTrend.direction === "up" ? "+" : "-";
+
+            return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
+
+        },
+
+        formatOpenExceptionTrendClass: function (oTrend) {
+
+            if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {
+                return "kpiCardSubtext";
+            }
+
+            // Rising open exceptions = bad (warn), falling = good.
+            return oTrend.direction === "up"
+                ? "kpiCardSubtext kpiCardSubtextWarn"
+                : "kpiCardSubtext kpiCardSubtextGood";
+
+        },
+
+        // ✅ Value at Risk: same "more is worse" semantics as Open Exceptions.
+        // ✅ Value at Risk: same "more is worse" semantics as Open Exceptions.
+        formatValueAtRiskTrendText: function (oTrend) {
+
+            if (!oTrend || !oTrend.hasData) {
+                return "";
+            }
+
+            if (oTrend.direction === "flat") {
+                return "No change vs yesterday";
+            }
+
+            var sArrow = oTrend.direction === "up" ? "+" : "-";
+
+            return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
+
+        },
+
+        formatValueAtRiskTrendClass: function (oTrend) {
+
+            if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {
+                return "kpiCardSubtext";
+            }
+
+            return oTrend.direction === "up"
+                ? "kpiCardSubtext kpiCardSubtextWarn"
+                : "kpiCardSubtext kpiCardSubtextGood";
+
+        },
+
 
     });
 });

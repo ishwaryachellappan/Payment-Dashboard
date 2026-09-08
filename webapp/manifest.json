@@ -20,9 +20,7 @@
         "uri": "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/",
         "type": "OData",
         "settings": {
-          "annotations": [
-            "annotation"
-          ],
+          
           "localUri": "localService/mainService/metadata.xml",
           "odataVersion": "4.0"
         }

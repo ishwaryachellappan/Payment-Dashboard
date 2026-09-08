@@ -209,7 +209,7 @@
 
         
                                 <!-- KPI SECTION -->
-                              <FlexBox
+                             <FlexBox
     id="kpiSummaryRow"
     wrap="Wrap"
     fitContainer="true"
@@ -219,6 +219,7 @@
     width="100%"
     class="kpiSummaryRow">
 
+    <!-- TOTAL PAYMENTS -->
     <VBox id="_IDGenKpiTotal" class="kpiCard" width="100%" height="100%">
         <HBox id="_IDGenKpiTotalTop" class="kpiCardTopRow">
             <Text id="_IDGenKpiTotalLabel" text="Total Payments" class="kpiCardLabel"/>
@@ -227,8 +228,14 @@
             </HBox>
         </HBox>
         <Text id="_IDGenKpiTotalValue" text="{kpiSummaryModel>/TotalProcessed}" class="kpiCardValue kpiValueBlue"/>
+        <Text 
+            id="_IDGenKpiTotalSub" 
+            text="{ path: 'kpiSummaryModel>/totalProcessedTrend', formatter: '.formatKpiTrendText' }" 
+            class="{ path: 'kpiSummaryModel>/totalProcessedTrend', formatter: '.formatKpiTrendClass' }"
+        />
     </VBox>
 
+    <!-- SUCCESSFUL PAYMENTS -->
     <VBox id="_IDGenKpiSuccess" class="kpiCard" width="100%" height="100%">
         <HBox id="_IDGenKpiSuccessTop" class="kpiCardTopRow">
             <Text id="_IDGenKpiSuccessLabel" text="Successful Payments" class="kpiCardLabel"/>
@@ -237,8 +244,14 @@
             </HBox>
         </HBox>
         <Text id="_IDGenKpiSuccessValue" text="{kpiSummaryModel>/SuccessfulPayments}" class="kpiCardValue kpiValueGreen"/>
+        <Text 
+            id="_IDGenKpiSuccessSub" 
+            text="{ path: 'kpiSummaryModel>/successfulTrend', formatter: '.formatKpiTrendText' }" 
+            class="{ path: 'kpiSummaryModel>/successfulTrend', formatter: '.formatKpiTrendClass' }"
+        />
     </VBox>
 
+    <!-- PENDING PAYMENTS -->
     <VBox id="_IDGenKpiPending" class="kpiCard" width="100%" height="100%">
         <HBox id="_IDGenKpiPendingTop" class="kpiCardTopRow">
             <Text id="_IDGenKpiPendingLabel" text="Pending Payments" class="kpiCardLabel"/>
@@ -247,8 +260,14 @@
             </HBox>
         </HBox>
         <Text id="_IDGenKpiPendingValue" text="{kpiSummaryModel>/PendingPayments}" class="kpiCardValue kpiValueOrange"/>
+        <Text 
+            id="_IDGenKpiPendingSub" 
+            text="{ path: 'kpiSummaryModel>/pendingTrend', formatter: '.formatKpiTrendText' }" 
+            class="{ path: 'kpiSummaryModel>/pendingTrend', formatter: '.formatKpiTrendClass' }"
+        />
     </VBox>
 
+    <!-- FAILED PAYMENTS -->
     <VBox id="_IDGenKpiFailed" class="kpiCard" width="100%" height="100%">
         <HBox id="_IDGenKpiFailedTop" class="kpiCardTopRow">
             <Text id="_IDGenKpiFailedLabel" text="Failed Payments" class="kpiCardLabel"/>
@@ -257,8 +276,14 @@
             </HBox>
         </HBox>
         <Text id="_IDGenKpiFailedValue" text="{kpiSummaryModel>/FailedPayments}" class="kpiCardValue kpiValueRed"/>
+        <Text 
+            id="_IDGenKpiFailedSub" 
+            text="{ path: 'kpiSummaryModel>/failedTrend', formatter: '.formatKpiTrendText' }" 
+            class="{ path: 'kpiSummaryModel>/failedTrend', formatter: '.formatKpiTrendClass' }"
+        />
     </VBox>
 
+    <!-- REJECTED PAYMENTS -->
     <VBox id="_IDGenKpiRejected" class="kpiCard" width="100%" height="100%">
         <HBox id="_IDGenKpiRejectedTop" class="kpiCardTopRow">
             <Text id="_IDGenKpiRejectedLabel" text="Rejected Payments" class="kpiCardLabel"/>
@@ -267,6 +292,11 @@
             </HBox>
         </HBox>
         <Text id="_IDGenKpiRejectedValue" text="{kpiSummaryModel>/RejectedPayments}" class="kpiCardValue kpiValueDarkRed"/>
+        <Text 
+            id="_IDGenKpiRejectedSub" 
+            text="{ path: 'kpiSummaryModel>/rejectedTrend', formatter: '.formatKpiTrendText' }" 
+            class="{ path: 'kpiSummaryModel>/rejectedTrend', formatter: '.formatKpiTrendClass' }"
+        />
     </VBox>
 
 </FlexBox>
@@ -280,7 +310,7 @@
                                 justifyContent="SpaceBetween"
                                 alignItems="Start"
                                 class="sapUiNoMarginTop"
-                                items="Stretch"
+                              
                             >
                                 <!-- BAR CHART -->
                                 <VBox
@@ -367,17 +397,17 @@
         "alignment": "center"
     },
     "layout": { "padding": 0 },
-    "plotArea": {
-        "colorPalette": ["#2E90FA", "#FF9800", "#12B76A", "#E53935"],
-        "dataLabel": {
-            "visible": false
-        },
-        "totalDataLabel": {
-            "visible": true,
-            "rotation": 0,
-            "formatString": "#,##0"
-        }
+   "plotArea": {
+    "colorPalette": ["#7a9e7e", "#c98f5a", "#7c93b3", "#8b7bb0"],
+    "dataLabel": {
+        "visible": false
     },
+    "totalDataLabel": {
+        "visible": true,
+        "rotation": 0,
+        "formatString": "#,##0"
+    }
+},
     "categoryAxis": {
         "title": {
             "visible": true,
@@ -527,12 +557,13 @@
                                                 selectData="onDonutSelect"
                                                 width="190px"
                                                 height="190px"
-                                                vizProperties='{       
-                                                 "plotArea": {            
-                                                     "innerRadius": "75%",      
-                                                     "colorPalette": ["#107e3e", "#FF9800", "#E53935"]   
-                                                 } ,
-                                                         "tooltip": {            "visible": false        }  }'
+                                               vizProperties='{       
+ "plotArea": {            
+     "innerRadius": "75%",      
+     "colorPalette": ["#90b195", "#dfb187", "#e99088"]   
+ } ,
+ "tooltip": { "visible": false }
+}'
                                                 xmlns:viz="sap.viz.ui5.controls"
                                                 xmlns:viz.data="sap.viz.ui5.data"
                                                 xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
@@ -1012,7 +1043,7 @@
                                 id="_IDGenHBox2"
                                 class="sapUiMediumMarginTop"
                                 justifyContent="SpaceBetween"
-                                items="Stretch"
+                            
                             >
                                 <!-- ✅ LEFT: TABLE -->
                                 <VBox

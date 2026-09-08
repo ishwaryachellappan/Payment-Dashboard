@@ -53,7 +53,8 @@ sap.ui.define([
     // /chartData: PC received (blue), DM posted (green), Reconciliation
     // gap (red — visually flags it as the "problem" bar). Reused by
     // every axis-style chart type below.
-    var RECON_CHART_COLORS = ["#2E90FA", "#12B76A", "#F04438"];
+   // ✅ Muted palette — PC received, DM posted, Reconciliation gap
+var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
 
     return Controller.extend(
