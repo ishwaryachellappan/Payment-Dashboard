@@ -11,8 +11,8 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
     // exact order (zero-filled where there's no data), which keeps the
     // first-seen order ‚Äî and therefore the color ‚Äî identical everywhere.
     var CHANNEL_ORDER = ["EBICS", "EBAST2", "BUBASCL", "ISO"];
-   // ✅ muted
-var CHANNEL_COLORS = ["#cd738b", "#c9a35f", "#7a9e6f", "#8b7aa8"];
+    // ✅ muted
+    var CHANNEL_COLORS = ["#cd738b", "#c9a35f", "#7a9e6f", "#8b7aa8"];
 
     var DONUT_STATUS_CODE_MAP = {
         "Posted": ["31", "34"],
@@ -126,22 +126,22 @@ var CHANNEL_COLORS = ["#cd738b", "#c9a35f", "#7a9e6f", "#8b7aa8"];
 
             //KPI tiles
 
-         var oKpiSummaryModel = new JSONModel({
-    TotalProcessed: 0,
-    SuccessfulPayments: 0,
-    FailedPayments: 0,
-    RejectedPayments: 0,
-    PendingPayments: 0,
-    IncomingPayments: 0,
-    OutgoingPayments: 0,
+            var oKpiSummaryModel = new JSONModel({
+                TotalProcessed: 0,
+                SuccessfulPayments: 0,
+                FailedPayments: 0,
+                RejectedPayments: 0,
+                PendingPayments: 0,
+                IncomingPayments: 0,
+                OutgoingPayments: 0,
 
-    totalProcessedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "neutral" },
-    successfulTrend: { percent: 0, direction: "flat", hasData: false, semantic: "goodUp" },
-    pendingTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" },
-    failedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" },
-    rejectedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" }
-});
-this.getView().setModel(oKpiSummaryModel, "kpiSummaryModel");
+                totalProcessedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "neutral" },
+                successfulTrend: { percent: 0, direction: "flat", hasData: false, semantic: "goodUp" },
+                pendingTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" },
+                failedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" },
+                rejectedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" }
+            });
+            this.getView().setModel(oKpiSummaryModel, "kpiSummaryModel");
 
             console.log("Before Save", this._mVariants);
             this._mVariants = JSON.parse(
@@ -742,10 +742,28 @@ this.getView().setModel(oKpiSummaryModel, "kpiSummaryModel");
             }
 
             this.updateTableInfo();
-             this._attachKpiCardClicks();
+            this._attachKpiCardClicks();
+
+            this._setStickyTabOffset();
+            if (!this._resizeHandlerId) {
+                this._resizeHandlerId = sap.ui.core.ResizeHandler.register(
+                    this.byId("mainPage"),
+                    this._setStickyTabOffset.bind(this)
+                );
+            }
 
         }
         ,
+
+        _setStickyTabOffset: function () {
+    var oTitleDom = document.querySelector(
+        "#mainPage .sapFDynamicPageTitleWrapper, #mainPage .sapFDynamicPageTitle"
+    );
+    if (oTitleDom) {
+        var iHeight = oTitleDom.getBoundingClientRect().height;
+        document.documentElement.style.setProperty("--stickyTabOffset", iHeight + "px");
+    }
+},
 
 
 
@@ -1459,139 +1477,139 @@ this.getView().setModel(oKpiSummaryModel, "kpiSummaryModel");
 
         },
 
-       _loadKpiSummary: function () {
+        _loadKpiSummary: function () {
 
-    var oODataModel = this.getOwnerComponent().getModel("odataModel");
-    var oKpiSummaryModel = this.getView().getModel("kpiSummaryModel");
-    var sKpiDate = this.getView().getModel("filterModel").getProperty("/kpiDate");
+            var oODataModel = this.getOwnerComponent().getModel("odataModel");
+            var oKpiSummaryModel = this.getView().getModel("kpiSummaryModel");
+            var sKpiDate = this.getView().getModel("filterModel").getProperty("/kpiDate");
 
-    var sClearingArea = this.getView()
-        .getModel("filterModel")
-        .getProperty("/clearingArea");
+            var sClearingArea = this.getView()
+                .getModel("filterModel")
+                .getProperty("/clearingArea");
 
-    if (!oODataModel || !sClearingArea || !sKpiDate) {
-        return;
-    }
+            if (!oODataModel || !sClearingArea || !sKpiDate) {
+                return;
+            }
 
-    var sPreviousDate = this._getPreviousDateStr(sKpiDate);
+            var sPreviousDate = this._getPreviousDateStr(sKpiDate);
 
-    var fnReadKpiForDate = function (sTargetDate) {
+            var fnReadKpiForDate = function (sTargetDate) {
 
-        var aFilters = [
-            new Filter("ClearingArea", FilterOperator.EQ, sClearingArea),
-            new Filter("PaymentOrderDate", FilterOperator.EQ, sTargetDate)
-        ];
+                var aFilters = [
+                    new Filter("ClearingArea", FilterOperator.EQ, sClearingArea),
+                    new Filter("PaymentOrderDate", FilterOperator.EQ, sTargetDate)
+                ];
 
-        var oListBinding = oODataModel.bindList("/OrderKPI", undefined, undefined, aFilters, {
-            $select: "ClearingArea,PaymentOrderDate,TotalProcessed,SuccessfulPayments,RejectedPayments,FailedPayments,PendingPayments"
-        });
+                var oListBinding = oODataModel.bindList("/OrderKPI", undefined, undefined, aFilters, {
+                    $select: "ClearingArea,PaymentOrderDate,TotalProcessed,SuccessfulPayments,RejectedPayments,FailedPayments,PendingPayments"
+                });
 
-        return oListBinding.requestContexts(0, 1).then(function (aContexts) {
+                return oListBinding.requestContexts(0, 1).then(function (aContexts) {
 
-            if (!aContexts.length) {
+                    if (!aContexts.length) {
+                        return {
+                            TotalProcessed: 0, SuccessfulPayments: 0,
+                            RejectedPayments: 0, FailedPayments: 0, PendingPayments: 0
+                        };
+                    }
+
+                    var oRow = aContexts[0].getObject();
+
+                    return {
+                        TotalProcessed: oRow.TotalProcessed || 0,
+                        SuccessfulPayments: oRow.SuccessfulPayments || 0,
+                        RejectedPayments: oRow.RejectedPayments || 0,
+                        FailedPayments: oRow.FailedPayments || 0,
+                        PendingPayments: oRow.PendingPayments || 0
+                    };
+
+                }).catch(function (oError) {
+                    console.error("KPI summary load failed for", sTargetDate, oError);
+                    return {
+                        TotalProcessed: 0, SuccessfulPayments: 0,
+                        RejectedPayments: 0, FailedPayments: 0, PendingPayments: 0
+                    };
+                });
+
+            };
+
+            Promise.all([
+                fnReadKpiForDate(sKpiDate),
+                fnReadKpiForDate(sPreviousDate)
+            ]).then(function (aResults) {
+
+                var oToday = aResults[0];
+                var oYesterday = aResults[1];
+
+                oKpiSummaryModel.setData({
+                    TotalProcessed: oToday.TotalProcessed,
+                    SuccessfulPayments: oToday.SuccessfulPayments,
+                    RejectedPayments: oToday.RejectedPayments,
+                    FailedPayments: oToday.FailedPayments,
+                    PendingPayments: oToday.PendingPayments,
+                    IncomingPayments: 0,
+                    OutgoingPayments: 0,
+
+                    totalProcessedTrend: this._computeKpiTrend(oToday.TotalProcessed, oYesterday.TotalProcessed, "neutral"),
+                    successfulTrend: this._computeKpiTrend(oToday.SuccessfulPayments, oYesterday.SuccessfulPayments, "goodUp"),
+                    pendingTrend: this._computeKpiTrend(oToday.PendingPayments, oYesterday.PendingPayments, "badUp"),
+                    failedTrend: this._computeKpiTrend(oToday.FailedPayments, oYesterday.FailedPayments, "badUp"),
+                    rejectedTrend: this._computeKpiTrend(oToday.RejectedPayments, oYesterday.RejectedPayments, "badUp")
+                });
+
+                this._updateStatusBreakdown();
+
+            }.bind(this));
+
+        },
+
+        // ✅ Returns "YYYY-MM-DD" for the day before sDate — local date math (not
+        // toISOString()) to avoid UTC-shift issues, same pattern already used in
+        // Exceptions.controller.js's _getPreviousDateStr.
+        _getPreviousDateStr: function (sDate) {
+
+            var aParts = String(sDate).slice(0, 10).split("-");
+
+            var oDate = new Date(
+                Number(aParts[0]),
+                Number(aParts[1]) - 1,
+                Number(aParts[2])
+            );
+
+            oDate.setDate(oDate.getDate() - 1);
+
+            return oDate.getFullYear() + "-" +
+                String(oDate.getMonth() + 1).padStart(2, "0") + "-" +
+                String(oDate.getDate()).padStart(2, "0");
+
+        },
+
+        // ✅ Computes % change fPrevious → fCurrent, tagged with which direction
+        // counts as "good" so the formatter can pick the right color:
+        //   "goodUp"  — rising is good (Successful Payments)
+        //   "badUp"   — rising is bad (Pending/Failed/Rejected)
+        //   "neutral" — no color judgement (Total Processed — just informational)
+        _computeKpiTrend: function (fCurrent, fPrevious, sSemantic) {
+
+            if (!fPrevious || fPrevious === 0) {
                 return {
-                    TotalProcessed: 0, SuccessfulPayments: 0,
-                    RejectedPayments: 0, FailedPayments: 0, PendingPayments: 0
+                    percent: 0,
+                    direction: fCurrent > 0 ? "up" : "flat",
+                    hasData: false,
+                    semantic: sSemantic
                 };
             }
 
-            var oRow = aContexts[0].getObject();
+            var fPercent = ((fCurrent - fPrevious) / fPrevious) * 100;
 
             return {
-                TotalProcessed: oRow.TotalProcessed || 0,
-                SuccessfulPayments: oRow.SuccessfulPayments || 0,
-                RejectedPayments: oRow.RejectedPayments || 0,
-                FailedPayments: oRow.FailedPayments || 0,
-                PendingPayments: oRow.PendingPayments || 0
+                percent: Math.abs(fPercent),
+                direction: fPercent > 0 ? "up" : (fPercent < 0 ? "down" : "flat"),
+                hasData: true,
+                semantic: sSemantic
             };
 
-        }).catch(function (oError) {
-            console.error("KPI summary load failed for", sTargetDate, oError);
-            return {
-                TotalProcessed: 0, SuccessfulPayments: 0,
-                RejectedPayments: 0, FailedPayments: 0, PendingPayments: 0
-            };
-        });
-
-    };
-
-    Promise.all([
-        fnReadKpiForDate(sKpiDate),
-        fnReadKpiForDate(sPreviousDate)
-    ]).then(function (aResults) {
-
-        var oToday = aResults[0];
-        var oYesterday = aResults[1];
-
-        oKpiSummaryModel.setData({
-            TotalProcessed: oToday.TotalProcessed,
-            SuccessfulPayments: oToday.SuccessfulPayments,
-            RejectedPayments: oToday.RejectedPayments,
-            FailedPayments: oToday.FailedPayments,
-            PendingPayments: oToday.PendingPayments,
-            IncomingPayments: 0,
-            OutgoingPayments: 0,
-
-            totalProcessedTrend: this._computeKpiTrend(oToday.TotalProcessed, oYesterday.TotalProcessed, "neutral"),
-            successfulTrend: this._computeKpiTrend(oToday.SuccessfulPayments, oYesterday.SuccessfulPayments, "goodUp"),
-            pendingTrend: this._computeKpiTrend(oToday.PendingPayments, oYesterday.PendingPayments, "badUp"),
-            failedTrend: this._computeKpiTrend(oToday.FailedPayments, oYesterday.FailedPayments, "badUp"),
-            rejectedTrend: this._computeKpiTrend(oToday.RejectedPayments, oYesterday.RejectedPayments, "badUp")
-        });
-
-        this._updateStatusBreakdown();
-
-    }.bind(this));
-
-},
-
-// ✅ Returns "YYYY-MM-DD" for the day before sDate — local date math (not
-// toISOString()) to avoid UTC-shift issues, same pattern already used in
-// Exceptions.controller.js's _getPreviousDateStr.
-_getPreviousDateStr: function (sDate) {
-
-    var aParts = String(sDate).slice(0, 10).split("-");
-
-    var oDate = new Date(
-        Number(aParts[0]),
-        Number(aParts[1]) - 1,
-        Number(aParts[2])
-    );
-
-    oDate.setDate(oDate.getDate() - 1);
-
-    return oDate.getFullYear() + "-" +
-        String(oDate.getMonth() + 1).padStart(2, "0") + "-" +
-        String(oDate.getDate()).padStart(2, "0");
-
-},
-
-// ✅ Computes % change fPrevious → fCurrent, tagged with which direction
-// counts as "good" so the formatter can pick the right color:
-//   "goodUp"  — rising is good (Successful Payments)
-//   "badUp"   — rising is bad (Pending/Failed/Rejected)
-//   "neutral" — no color judgement (Total Processed — just informational)
-_computeKpiTrend: function (fCurrent, fPrevious, sSemantic) {
-
-    if (!fPrevious || fPrevious === 0) {
-        return {
-            percent: 0,
-            direction: fCurrent > 0 ? "up" : "flat",
-            hasData: false,
-            semantic: sSemantic
-        };
-    }
-
-    var fPercent = ((fCurrent - fPrevious) / fPrevious) * 100;
-
-    return {
-        percent: Math.abs(fPercent),
-        direction: fPercent > 0 ? "up" : (fPercent < 0 ? "down" : "flat"),
-        hasData: true,
-        semantic: sSemantic
-    };
-
-},
+        },
 
 
         onKpiDateChange: function (oEvent) {
@@ -2111,23 +2129,23 @@ _computeKpiTrend: function (fCurrent, fPrevious, sSemantic) {
 
                 var oDonut = this.byId("donutChart");
 
-               // ❌ current
-// ✅ muted
-if (oDonut) {
-    oDonut.setVizProperties({
-        plotArea: {
-            colorPalette: bNoData
-                ? ["#E0E0E0"]
-                : [
-                    "#cd738b", // Posted
-                    "#7a9e6f", // Post Processing
-                    "#c9cbd9", // Pending
-                    "#8b7aa8", // Failed
-                    "#c9a35f"  // Rejected
-                ]
-        }
-    });
-}
+                // ❌ current
+                // ✅ muted
+                if (oDonut) {
+                    oDonut.setVizProperties({
+                        plotArea: {
+                            colorPalette: bNoData
+                                ? ["#E0E0E0"]
+                                : [
+                                    "#cd738b", // Posted
+                                    "#7a9e6f", // Post Processing
+                                    "#c9cbd9", // Pending
+                                    "#8b7aa8", // Failed
+                                    "#c9a35f"  // Rejected
+                                ]
+                        }
+                    });
+                }
 
                 this.getView()
                     .getModel("donutModel")
@@ -3120,66 +3138,66 @@ if (oDonut) {
             this._refreshReconciliation();
             console.log("Loaded Variant", oVariant);
         },
-_attachKpiCardClicks: function () {
+        _attachKpiCardClicks: function () {
 
-    var aCardConfig = [
-        { id: "_IDGenKpiTotal",    handler: this.onTotalProcessedPress },
-        { id: "_IDGenKpiSuccess",  handler: this.onSuccessfulPaymentPress },
-        { id: "_IDGenKpiPending",  handler: this.onPendingPaymentPress },
-        { id: "_IDGenKpiFailed",   handler: this.onFailedPaymentPress },
-        { id: "_IDGenKpiRejected", handler: this.onRejectedPaymentPress }
-    ];
+            var aCardConfig = [
+                { id: "_IDGenKpiTotal", handler: this.onTotalProcessedPress },
+                { id: "_IDGenKpiSuccess", handler: this.onSuccessfulPaymentPress },
+                { id: "_IDGenKpiPending", handler: this.onPendingPaymentPress },
+                { id: "_IDGenKpiFailed", handler: this.onFailedPaymentPress },
+                { id: "_IDGenKpiRejected", handler: this.onRejectedPaymentPress }
+            ];
 
-    aCardConfig.forEach(function (oConfig) {
+            aCardConfig.forEach(function (oConfig) {
 
-        var oCard = this.byId(oConfig.id);
-        if (!oCard) { return; }
+                var oCard = this.byId(oConfig.id);
+                if (!oCard) { return; }
 
-        // ✅ Avoid double-binding on re-render
-        if (oCard.data("clickBound")) { return; }
+                // ✅ Avoid double-binding on re-render
+                if (oCard.data("clickBound")) { return; }
 
-        oCard.attachBrowserEvent("click", oConfig.handler, this);
-        oCard.data("clickBound", true);
+                oCard.attachBrowserEvent("click", oConfig.handler, this);
+                oCard.data("clickBound", true);
 
-    }.bind(this));
+            }.bind(this));
 
-},
+        },
 
 
-// ✅ Shared text formatter for all 5 Overview KPI trends — empty string
-// when there's no prior-day data (tile shows nothing, per your requirement).
-formatKpiTrendText: function (oTrend) {
+        // ✅ Shared text formatter for all 5 Overview KPI trends — empty string
+        // when there's no prior-day data (tile shows nothing, per your requirement).
+        formatKpiTrendText: function (oTrend) {
 
-    if (!oTrend || !oTrend.hasData) {
-        return "";
-    }
+            if (!oTrend || !oTrend.hasData) {
+                return "";
+            }
 
-    if (oTrend.direction === "flat") {
-        return "No change vs yesterday";
-    }
+            if (oTrend.direction === "flat") {
+                return "No change vs yesterday";
+            }
 
-    var sArrow = oTrend.direction === "up" ? "+" : "-";
+            var sArrow = oTrend.direction === "up" ? "+" : "-";
 
-    return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
+            return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
 
-},
+        },
 
-// ✅ Shared class formatter — colors the subtext based on whether the
-// direction is "good" or "bad" for that specific KPI's semantic.
-formatKpiTrendClass: function (oTrend) {
+        // ✅ Shared class formatter — colors the subtext based on whether the
+        // direction is "good" or "bad" for that specific KPI's semantic.
+        formatKpiTrendClass: function (oTrend) {
 
-    if (!oTrend || !oTrend.hasData || oTrend.direction === "flat" || oTrend.semantic === "neutral") {
-        return "kpiCardSubtext";
-    }
+            if (!oTrend || !oTrend.hasData || oTrend.direction === "flat" || oTrend.semantic === "neutral") {
+                return "kpiCardSubtext";
+            }
 
-    var bIsGood = (oTrend.semantic === "goodUp" && oTrend.direction === "up") ||
-                  (oTrend.semantic === "badUp" && oTrend.direction === "down");
+            var bIsGood = (oTrend.semantic === "goodUp" && oTrend.direction === "up") ||
+                (oTrend.semantic === "badUp" && oTrend.direction === "down");
 
-    return bIsGood
-        ? "kpiCardSubtext kpiCardSubtextGood"
-        : "kpiCardSubtext kpiCardSubtextWarn";
+            return bIsGood
+                ? "kpiCardSubtext kpiCardSubtextGood"
+                : "kpiCardSubtext kpiCardSubtextWarn";
 
-},
+        },
 
 
     });

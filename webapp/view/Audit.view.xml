@@ -7,84 +7,83 @@
     xmlns:viz.data="sap.viz.ui5.data"
     xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
 >
-    <HBox
-        id="_IDGenHBox119"
+    <VBox
+    id="_IDGenAuditKpiSection"
+    class="kpiSectionContainer"
+>
+    <FlexBox
+        id="_IDGenAuditKpiRow"
+        wrap="NoWrap"
+        fitContainer="true"
+        renderType="Bare"
         justifyContent="SpaceBetween"
-        wrap="Wrap"
-        class="sapUiMediumMargin"
+        alignItems="Stretch"
+        width="100%"
+        class="kpiSummaryRow"
     >
-        <GenericTile
-            id="_IDGenGenericTile11"
-            header="Total Audit Events"
-            class="auditTile auditBlue"
-        >
-            <TileContent id="_IDGenTileContent2">
-                <NumericContent
-                    id="_IDGenNumericContent9"
-                    value="1245"
-                    scale=""
-                    valueColor="Good"
-                    width="100%"
-                />
-            </TileContent>
-        </GenericTile>
 
-        <GenericTile
-            id="_IDGenGenericTile12"
-            header="Critical Events"
-            class="auditTile auditRed"
-        >
-            <TileContent id="_IDGenTileContent11">
-                <NumericContent
-                    id="_IDGenNumericContent10"
-                    value="23"
-                    valueColor="Error"
-                />
-            </TileContent>
-        </GenericTile>
+        <!-- TOTAL AUDIT EVENTS -->
+        <VBox id="_IDGenKpiAuditTotal" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiAuditTotalTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiAuditTotalLabel" text="Total Audit Events" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiAuditTotalIconBox" class="kpiIconBox kpiIconBlue">
+                    <core:Icon id="_IDGenKpiAuditTotalIcon" src="sap-icon://history"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiAuditTotalValue" text="1245" class="kpiCardValue kpiValueBlue"/>
+            <Text id="_IDGenKpiAuditTotalSub" text="" class="kpiCardSubtext"/>
+        </VBox>
 
-        <GenericTile
-            id="_IDGenGenericTile13"
-            header="Warning Events"
-            class="auditTile auditOrange"
-        >
-            <TileContent id="_IDGenTileContent12">
-                <NumericContent
-                    id="_IDGenNumericContent12"
-                    value="58"
-                    valueColor="Critical"
-                />
-            </TileContent>
-        </GenericTile>
+        <!-- CRITICAL EVENTS -->
+        <VBox id="_IDGenKpiAuditCritical" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiAuditCriticalTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiAuditCriticalLabel" text="Critical Events" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiAuditCriticalIconBox" class="kpiIconBox kpiIconDarkRed">
+                    <core:Icon id="_IDGenKpiAuditCriticalIcon" src="sap-icon://error"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiAuditCriticalValue" text="23" class="kpiCardValue kpiValueDarkRed"/>
+            <Text id="_IDGenKpiAuditCriticalSub" text="" class="kpiCardSubtext"/>
+        </VBox>
 
-        <GenericTile
-            id="_IDGenGenericTile14"
-            header="Resolved Events"
-            class="auditTile auditGreen"
-        >
-            <TileContent id="_IDGenTileContent13">
-                <NumericContent
-                    id="_IDGenNumericContent13"
-                    value="1160"
-                    valueColor="Good"
-                />
-            </TileContent>
-        </GenericTile>
+        <!-- WARNING EVENTS -->
+        <VBox id="_IDGenKpiAuditWarning" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiAuditWarningTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiAuditWarningLabel" text="Warning Events" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiAuditWarningIconBox" class="kpiIconBox kpiIconOrange">
+                    <core:Icon id="_IDGenKpiAuditWarningIcon" src="sap-icon://alert"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiAuditWarningValue" text="58" class="kpiCardValue kpiValueOrange"/>
+            <Text id="_IDGenKpiAuditWarningSub" text="" class="kpiCardSubtext"/>
+        </VBox>
 
-        <GenericTile
-            id="_IDGenGenericTile15"
-            header="Failed Events"
-            class="auditTile auditDarkRed"
-        >
-            <TileContent id="_IDGenTileContent14">
-                <NumericContent
-                    id="_IDGenNumericContent14"
-                    value="4"
-                    valueColor="Error"
-                />
-            </TileContent>
-        </GenericTile>
-    </HBox>
+        <!-- RESOLVED EVENTS -->
+        <VBox id="_IDGenKpiAuditResolved" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiAuditResolvedTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiAuditResolvedLabel" text="Resolved Events" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiAuditResolvedIconBox" class="kpiIconBox kpiIconGreen">
+                    <core:Icon id="_IDGenKpiAuditResolvedIcon" src="sap-icon://accept"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiAuditResolvedValue" text="1160" class="kpiCardValue kpiValueGreen"/>
+            <Text id="_IDGenKpiAuditResolvedSub" text="" class="kpiCardSubtext"/>
+        </VBox>
+
+        <!-- FAILED EVENTS -->
+        <VBox id="_IDGenKpiAuditFailed" class="kpiCard kpiCardNoClick" width="100%" height="100%">
+            <HBox id="_IDGenKpiAuditFailedTop" class="kpiCardTopRow">
+                <Text id="_IDGenKpiAuditFailedLabel" text="Failed Events" class="kpiCardLabel"/>
+                <HBox id="_IDGenKpiAuditFailedIconBox" class="kpiIconBox kpiIconRed">
+                    <core:Icon id="_IDGenKpiAuditFailedIcon" src="sap-icon://decline"/>
+                </HBox>
+            </HBox>
+            <Text id="_IDGenKpiAuditFailedValue" text="4" class="kpiCardValue kpiValueRed"/>
+            <Text id="_IDGenKpiAuditFailedSub" text="" class="kpiCardSubtext"/>
+        </VBox>
+
+    </FlexBox>
+</VBox>
 
     <HBox
         id="_IDGenHBox125"

@@ -1226,18 +1226,18 @@ body {
 
 }
 
-.kpiSummaryTile{
-    flex:1;
-    min-width:220px;
-    max-width:none;
+.kpiSummaryTile {
+    flex: 1;
+    min-width: 220px;
+    max-width: none;
 
-    height:170px;
+    height: 170px;
 
-    border-radius:14px;
+    border-radius: 14px;
 
-    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
 
-    transition:.2s;
+    transition: .2s;
 }
 
 .paymentFlowTileContainer {
@@ -1774,64 +1774,13 @@ body {
 
 }
 
-@media (min-width:2200px){
+@media (min-width:2200px) {
 
-    .kpiSummaryTile .sapMNCValue{
+    .kpiSummaryTile .sapMNCValue {
 
-        font-size:3.4rem;
+        font-size: 3.4rem;
 
-        line-height:1;
-
-    }
-
-}
-
-
-
-@media (min-width:1600px){
-
-    .kpiSectionContainer{
-
-        padding:34px 42px;
-
-    }
-
-    .kpiSummaryRow{
-
-        gap:34px;
-
-         flex-wrap:nowrap;
-
-    }
-
-    .kpiSummaryTile.sapMGT{
-
-        height:210px;
-
-    }
-
-    .kpiSummaryTile .sapMNCValue{
-
-        font-size:3.2rem;
-
-    }
-
-}
-
-.kpiSummaryTile:hover{
-
-    transform:translateY(-3px);
-
-    box-shadow:0 10px 22px rgba(0,0,0,.10);
-}
-
-@media (min-width:2200px){
-
-    .kpiSummaryTile .sapMGTHdrTxt{
-
-        font-size:1.15rem;
-
-        font-weight:600;
+        line-height: 1;
 
     }
 
@@ -1839,12 +1788,63 @@ body {
 
 
 
+@media (min-width:1600px) {
 
-@media (min-width:2200px){
+    .kpiSectionContainer {
 
-    .kpiSummaryTile.sapMGT{
+        padding: 34px 42px;
 
-        height:210px;
+    }
+
+    .kpiSummaryRow {
+
+        gap: 34px;
+
+        flex-wrap: nowrap;
+
+    }
+
+    .kpiSummaryTile.sapMGT {
+
+        height: 210px;
+
+    }
+
+    .kpiSummaryTile .sapMNCValue {
+
+        font-size: 3.2rem;
+
+    }
+
+}
+
+.kpiSummaryTile:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .10);
+}
+
+@media (min-width:2200px) {
+
+    .kpiSummaryTile .sapMGTHdrTxt {
+
+        font-size: 1.15rem;
+
+        font-weight: 600;
+
+    }
+
+}
+
+
+
+
+@media (min-width:2200px) {
+
+    .kpiSummaryTile.sapMGT {
+
+        height: 210px;
 
     }
 
@@ -1869,9 +1869,9 @@ body {
 
 
 
-.kpiSummaryTile{
+.kpiSummaryTile {
 
-    transition:.25s;
+    transition: .25s;
 
 }
 
@@ -1897,15 +1897,15 @@ body {
  KPI SECTION
 ======================================================*/
 
-.kpiSectionContainer{
-    width:100%;
-    margin:0;
-    padding:24px 28px;
-    background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:16px;
-    box-shadow:0 2px 8px rgba(0,0,0,.05);
-    box-sizing:border-box;
+.kpiSectionContainer {
+    width: 100%;
+    margin: 0;
+    padding: 24px 28px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
+    box-sizing: border-box;
 }
 
 
@@ -1913,32 +1913,32 @@ body {
  KPI ROW
 ======================================================*/
 
-.kpiSummaryRow{
-    display:flex;
-    align-items:stretch;
-    justify-content:space-between;
-    gap:24px;
-    width:100%;
-    flex-wrap:wrap;
+.kpiSummaryRow {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+    flex-wrap: wrap;
 }
 
 /*======================================================
  KPI TILE
 ======================================================*/
 
-.kpiSummaryTile.sapMGT{
+.kpiSummaryTile.sapMGT {
 
-    flex:1 1 240px;
+    flex: 1 1 240px;
 
-    min-width:220px;
+    min-width: 220px;
 
-    max-width:none;
+    max-width: none;
 
-    width:auto;
+    width: auto;
 
-    height:170px;
+    height: 170px;
 
-    transition:.25s;
+    transition: .25s;
 }
 
 
@@ -1949,81 +1949,81 @@ body {
  TILE CONTENT
 ======================================================*/
 
-.kpiSummaryTile .sapMTileCnt{
+.kpiSummaryTile .sapMTileCnt {
 
-    width:100%;
+    width: 100%;
 
-    height:100%;
-
-}
-
-
-.kpiSummaryTile .sapMGTContent{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    height:100%;
+    height: 100%;
 
 }
 
 
-.kpiSummaryTile .sapMGTHdrTxt{
+.kpiSummaryTile .sapMGTContent {
 
-    text-align:center;
+    display: flex;
 
-    font-size:15px;
+    align-items: center;
 
-    font-weight:600;
+    justify-content: center;
 
-    margin-top:8px;
-}
-
-
-.kpiSummaryTile .sapMNC{
-
-    justify-content:center;
+    height: 100%;
 
 }
 
 
-.kpiSummaryTile .sapMNCValue{
+.kpiSummaryTile .sapMGTHdrTxt {
 
-    font-size:44px;
+    text-align: center;
 
-    font-weight:700;
+    font-size: 15px;
 
-    line-height:1;
+    font-weight: 600;
+
+    margin-top: 8px;
+}
+
+
+.kpiSummaryTile .sapMNC {
+
+    justify-content: center;
+
+}
+
+
+.kpiSummaryTile .sapMNCValue {
+
+    font-size: 44px;
+
+    font-weight: 700;
+
+    line-height: 1;
 }
 
 /* ===========================
    Ultra Wide Monitor
 =========================== */
-@media (min-width:1900px){
+@media (min-width:1900px) {
 
-    .kpiSummaryRow{
-        flex-wrap:nowrap;
-        gap:34px;
+    .kpiSummaryRow {
+        flex-wrap: nowrap;
+        gap: 34px;
     }
 
-    .kpiSummaryTile.sapMGT{
+    .kpiSummaryTile.sapMGT {
 
-        flex:1 1 0;
+        flex: 1 1 0;
 
-        min-width:0;
+        min-width: 0;
 
-        height:210px;
+        height: 210px;
     }
 
-    .kpiSummaryTile .sapMNCValue{
-        font-size:3.2rem;
+    .kpiSummaryTile .sapMNCValue {
+        font-size: 3.2rem;
     }
 
-    .kpiSummaryTile .sapMGTHdrTxt{
-        font-size:1rem;
+    .kpiSummaryTile .sapMGTHdrTxt {
+        font-size: 1rem;
     }
 
 }
@@ -2032,19 +2032,19 @@ body {
 /* ===========================
    Desktop
 =========================== */
-@media (min-width:1400px) and (max-width:1899px){
+@media (min-width:1400px) and (max-width:1899px) {
 
-    .kpiSummaryRow{
-        flex-wrap:nowrap;
+    .kpiSummaryRow {
+        flex-wrap: nowrap;
     }
 
-    .kpiSummaryTile.sapMGT{
+    .kpiSummaryTile.sapMGT {
 
-        flex:1 1 0;
+        flex: 1 1 0;
 
-        min-width:0;
+        min-width: 0;
 
-        height:185px;
+        height: 185px;
     }
 
 }
@@ -2053,17 +2053,17 @@ body {
 /* ===========================
    Laptop
 =========================== */
-@media (max-width:1399px){
+@media (max-width:1399px) {
 
-    .kpiSummaryRow{
-        flex-wrap:wrap;
+    .kpiSummaryRow {
+        flex-wrap: wrap;
     }
 
-    .kpiSummaryTile.sapMGT{
+    .kpiSummaryTile.sapMGT {
 
-        flex:1 1 calc(33.33% - 24px);
+        flex: 1 1 calc(33.33% - 24px);
 
-        min-width:220px;
+        min-width: 220px;
     }
 
 }
@@ -2072,13 +2072,13 @@ body {
 /* ===========================
    Tablet
 =========================== */
-@media (max-width:1024px){
+@media (max-width:1024px) {
 
-    .kpiSummaryTile.sapMGT{
+    .kpiSummaryTile.sapMGT {
 
-        flex:1 1 calc(50% - 20px);
+        flex: 1 1 calc(50% - 20px);
 
-        min-width:220px;
+        min-width: 220px;
     }
 
 }
@@ -2087,13 +2087,13 @@ body {
 /* ===========================
    Mobile
 =========================== */
-@media (max-width:600px){
+@media (max-width:600px) {
 
-    .kpiSummaryTile.sapMGT{
+    .kpiSummaryTile.sapMGT {
 
-        flex:1 1 100%;
+        flex: 1 1 100%;
 
-        min-width:100%;
+        min-width: 100%;
     }
 
 }
@@ -2144,7 +2144,8 @@ body {
 .excReasonRow {
     display: flex;
     align-items: center;
-    padding: 6px 0;   /* was 10px 0 — frees up ~40px total across 5 rows */
+    padding: 6px 0;
+    /* was 10px 0 — frees up ~40px total across 5 rows */
     gap: 10px;
 }
 
@@ -2417,14 +2418,17 @@ body {
 .reconChartCard .sapVizFrame {
     width: 100% !important;
 }
+
 .reconTableToolbar {
     min-height: 3.5rem !important;
     height: 3.5rem !important;
     padding: 0 1rem !important;
 }
+
 .reconTableCard .sapMPanelContent {
     padding: 0 !important;
 }
+
 .reconGroupHeader {
     min-height: 4.4rem;
     padding: 0.55rem 1rem;
@@ -3077,12 +3081,10 @@ body {
    ============================================================ */
 
 .reconGroupRow {
-    background: linear-gradient(
-        90deg,
-        #eef6ff 0%,
-        #e7f2ff 55%,
-        #dcecff 100%
-    ) !important;
+    background: linear-gradient(90deg,
+            #eef6ff 0%,
+            #e7f2ff 55%,
+            #dcecff 100%) !important;
 
     border-bottom: 1px solid #c4daf0 !important;
     box-sizing: border-box;
@@ -3176,12 +3178,10 @@ body {
    ============================================================ */
 
 .reconGroupRow:hover {
-    background: linear-gradient(
-        90deg,
-        #e4f1ff 0%,
-        #dcecff 55%,
-        #d3e7fb 100%
-    ) !important;
+    background: linear-gradient(90deg,
+            #e4f1ff 0%,
+            #dcecff 55%,
+            #d3e7fb 100%) !important;
 }
 
 
@@ -3263,12 +3263,25 @@ body {
 }
 
 @media (min-width:1400px) and (max-width:1899px) {
-    .kpiTile.sapMGT { height: 185px !important; min-height: 185px !important; }
+    .kpiTile.sapMGT {
+        height: 185px !important;
+        min-height: 185px !important;
+    }
 }
+
 @media (min-width:1900px) {
-    .kpiTile.sapMGT { height: 210px !important; min-height: 210px !important; }
-    .kpiTile .sapMNCValue { font-size: 3.2rem; }
-    .kpiTile .sapMGTHdrTxt { font-size: 1rem; }
+    .kpiTile.sapMGT {
+        height: 210px !important;
+        min-height: 210px !important;
+    }
+
+    .kpiTile .sapMNCValue {
+        font-size: 3.2rem;
+    }
+
+    .kpiTile .sapMGTHdrTxt {
+        font-size: 1rem;
+    }
 }
 
 /* ========================================
@@ -3339,11 +3352,25 @@ body {
 }
 
 /* ---- Muted value text colors ---- */
-.kpiValueBlue    { color: #3f5f8f !important; }
-.kpiValueGreen   { color: #3f7d5c !important; }
-.kpiValueOrange  { color: #a56a2e !important; }
-.kpiValueRed     { color: #a13c3c !important; }
-.kpiValueDarkRed { color: #8a3a3a !important; }
+.kpiValueBlue {
+    color: #3f5f8f !important;
+}
+
+.kpiValueGreen {
+    color: #3f7d5c !important;
+}
+
+.kpiValueOrange {
+    color: #a56a2e !important;
+}
+
+.kpiValueRed {
+    color: #a13c3c !important;
+}
+
+.kpiValueDarkRed {
+    color: #8a3a3a !important;
+}
 
 /* ---- Icon badge — soft/desaturated fills ---- */
 .kpiIconBox {
@@ -3362,34 +3389,72 @@ body {
 
 /* Muted, low-saturation fills + matching darker-tone icon color
    (icon color slightly darker than bg for subtle contrast, no white-on-bright) */
-.kpiIconBlue    { background: #e3ebf7; }
-.kpiIconBlue    .sapUiIcon { color: #4a6fa5 !important; }
+.kpiIconBlue {
+    background: #e3ebf7;
+}
 
-.kpiIconGreen   { background: #e5f0e8; }
-.kpiIconGreen   .sapUiIcon { color: #4f8f6a !important; }
+.kpiIconBlue .sapUiIcon {
+    color: #4a6fa5 !important;
+}
 
-.kpiIconOrange  { background: #f5ecdf; }
-.kpiIconOrange  .sapUiIcon { color: #b5793a !important; }
+.kpiIconGreen {
+    background: #e5f0e8;
+}
 
-.kpiIconRed     { background: #f3e3e3; }
-.kpiIconRed     .sapUiIcon { color: #b25454 !important; }
+.kpiIconGreen .sapUiIcon {
+    color: #4f8f6a !important;
+}
 
-.kpiIconDarkRed { background: #efe0e0; }
-.kpiIconDarkRed .sapUiIcon { color: #9c4a4a !important; }
+.kpiIconOrange {
+    background: #f5ecdf;
+}
+
+.kpiIconOrange .sapUiIcon {
+    color: #b5793a !important;
+}
+
+.kpiIconRed {
+    background: #f3e3e3;
+}
+
+.kpiIconRed .sapUiIcon {
+    color: #b25454 !important;
+}
+
+.kpiIconDarkRed {
+    background: #efe0e0;
+}
+
+.kpiIconDarkRed .sapUiIcon {
+    color: #9c4a4a !important;
+}
 
 @media (max-width: 900px) {
-    .kpiCard { flex: 1 1 100%; height: auto; min-height: 120px; }
+    .kpiCard {
+        flex: 1 1 100%;
+        height: auto;
+        min-height: 120px;
+    }
 }
 
 /* Extra muted variant for KPI cards that need a 3rd/4th tone */
-.kpiIconPurple  { background: #ece7f2; }
-.kpiIconPurple  .sapUiIcon { color: #7c6a9c !important; }
-.kpiValuePurple { color: #6f5f8f !important; }
+.kpiIconPurple {
+    background: #ece7f2;
+}
+
+.kpiIconPurple .sapUiIcon {
+    color: #7c6a9c !important;
+}
+
+.kpiValuePurple {
+    color: #6f5f8f !important;
+}
 
 /* Non-clickable KPI card (Value at Risk has no drill-down) */
 .kpiCardNoClick {
     cursor: default;
 }
+
 .kpiCardNoClick:hover {
     transform: none;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
@@ -3428,7 +3493,8 @@ body {
     font-size: 0.72rem;
     color: #6a6d70;
     margin-top: 0.35rem;
-    min-height: 1.1em;   /* holds the line's height even when text is empty */
+    min-height: 1.1em;
+    /* holds the line's height even when text is empty */
 }
 
 /* ============================================================
@@ -3471,15 +3537,18 @@ body {
 }
 
 .railDotPending {
-    background-color: #1976d2; /* matches colorPalette[0] */
+    background-color: #1976d2;
+    /* matches colorPalette[0] */
 }
 
 .railDotPost {
-    background-color: #e9730c; /* matches colorPalette[1] */
+    background-color: #e9730c;
+    /* matches colorPalette[1] */
 }
 
 .railDotRejected {
-    background-color: #bb0000; /* matches colorPalette[2] */
+    background-color: #bb0000;
+    /* matches colorPalette[2] */
 }
 
 /* ============================================================
@@ -3690,4 +3759,157 @@ body {
 .excTableScrollContainer {
     scrollbar-width: auto;
     scrollbar-color: #9599a1 #eef0f2;
+}
+
+.excReasonRow {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    gap: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.excReasonRow:last-child {
+    border-bottom: none;
+}
+
+.excReasonRankBadge {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border-radius: 50%;
+    background: #f3f4f5;
+    color: #5f6368;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-align: center;
+    line-height: 22px;
+}
+
+.excReasonName {
+    font-size: 0.8rem;
+    color: #1c1c1c;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.excReasonValue {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #1c1c1c;
+    text-align: right;
+}
+
+.railProgressBar .sapMPIBar {
+    height: 6px !important;
+    background-color: #f0f1f2 !important;
+    border-radius: 3px;
+}
+
+
+/* ============================================================
+   BY RAIL — progress view, semantic color per status
+   ============================================================ */
+.railProgressRow {
+    margin-bottom: 20px;
+}
+
+.railProgressRow:last-child {
+    margin-bottom: 0;
+}
+
+.railProgressLabelRow {
+    margin-bottom: 6px;
+}
+
+.railProgressLabel {
+    font-size: 0.85rem;
+    color: #1c1c1c;
+}
+
+.railProgressCount {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1c1c1c;
+}
+
+.railProgressBar .sapMPIBar {
+    height: 6px !important;
+    background-color: #eceef0 !important;
+    border-radius: 3px;
+}
+
+.railProgressBarPending .sapMPIBarPositive {
+    background-color: #1976d2 !important;
+    border-radius: 3px;
+    box-shadow: none;
+}
+
+.railProgressBarPost .sapMPIBarPositive {
+    background-color: "#377dc3" !important;
+    border-radius: 3px;
+    box-shadow: none;
+}
+
+.railProgressBarRejected .sapMPIBarPositive {
+    background-color: #bb0000 !important;
+    border-radius: 3px;
+    box-shadow: none;
+}
+
+
+.railProgressBarPending .sapMPIBarPositive {
+    background-color: "#e49753" !important;
+    border-radius: 3px;
+    box-shadow: none;
+}
+
+.railProgressBarPost .sapMPIBarPositive {
+    background-color: #e3ba7f !important;
+    border-radius: 3px;
+    box-shadow: none;
+}
+
+.railProgressBarRejected .sapMPIBarPositive {
+    background-color: "#ef5f5f" !important;
+    border-radius: 3px;
+    box-shadow: none;
+}
+
+
+.stickyPageHeader {
+    position: sticky;
+    top: 0;
+    z-index: 11;
+    background: #fff;
+}
+
+.stickyTabBar {
+    position: sticky;
+    top: 96px;
+    z-index: 10;
+    background: #fff;
+    box-shadow: 0 1px 0 #e5e7eb;
+}
+
+
+.stickyIconTabBar>.sapMITBHead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: #fff;
+    box-shadow: 0 1px 0 #e5e7eb;
+}
+
+:root {
+    --stickyTabOffset: 132px;
+}
+
+.stickyIconTabBar .sapMITBHead {
+    position: sticky;
+    top: var(--stickyTabOffset);
+    z-index: 15;
+    background: #fff;
+    box-shadow: 0 1px 0 #e5e7eb;
 }

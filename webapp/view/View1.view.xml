@@ -182,7 +182,7 @@
             <IconTabBar
                 id="mainTabs"
                 expandable="false"
-                class="sapUiResponsivePadding"
+                class="sapUiResponsivePadding stickyIconTabBar"
                 select="onTabSelect"
             >
                 <items>

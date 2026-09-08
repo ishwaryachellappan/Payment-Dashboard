@@ -305,10 +305,7 @@
     </VBox>
 
 
-    <!-- ==================================================
-         PIE CHART
-         Visible when railViewModel>/chartType = pie
-         ================================================== -->
+   
    <!-- ==================================================
      PIE CHART (now DONUT + centered total)
      Visible when railViewModel>/chartType = pie
@@ -336,9 +333,9 @@
             vizProperties='{
                 "plotArea": {
                     "colorPalette": [
-                        "#1976d2",
-                        "#e9730c",
-                        "#bb0000"
+                        "#377dc3",
+                        "#e49753",
+                        "#ef5f5f"
                     ],
                     "dataLabel": { "visible": false }
                 },
@@ -466,110 +463,69 @@
 
 </VBox>
 
+<!-- ==================================================
+     PROGRESS BAR VIEW — semantic color per status
+     Visible when railViewModel>/chartType = progress
+     ================================================== -->
+<VBox
+    id="_IDGenRailProgressContainer"
+    width="100%"
+    class="sapUiMediumMarginTop"
+    visible="{= ${railModel>/total} > 0 &amp;&amp; ${railViewModel>/chartType} === 'progress' }"
+>
 
-    <!-- ==================================================
-         PROGRESS BAR VIEW
-         Visible when railViewModel>/chartType = progress
-         ================================================== -->
-    <VBox
-        id="_IDGenRailProgressContainer"
-        width="100%"
-        class="sapUiMediumMarginTop"
-        visible="{= ${railModel>/total} > 0 &amp;&amp; ${railViewModel>/chartType} === 'progress' }"
-    >
-
-        <!-- ON HOLD -->
-        <VBox
-            id="_IDGenRailProgressHold"
-            class="sapUiSmallMarginBottom"
-        >
-
-            <HBox id="_IDGenHBox28"
-                justifyContent="SpaceBetween"
-                alignItems="Center"
-            >
-
-                <Text id="_IDGenText1"
-                    text="Pending"
-                    class="statusLabel"
-                />
-
-               
-
-            </HBox>
-
-           <ProgressIndicator
+    <!-- PENDING -->
+    <VBox id="_IDGenRailProgressHold" class="railProgressRow">
+        <HBox id="_IDGenHBox28" justifyContent="SpaceBetween" alignItems="Center" class="railProgressLabelRow">
+            <Text id="_IDGenText1" text="Pending" class="railProgressLabel"/>
+            <Text id="_IDGenRailHoldCount" text="{railModel>/data/0/value}" class="railProgressCount"/>
+        </HBox>
+        <ProgressIndicator
     id="_IDGenRailProgressIndicatorHold"
     percentValue="{railModel>/data/0/percent}"
-    displayValue="{railModel>/data/0/value}"
+    displayValue=" "
+    state="Success"
     width="100%"
+    class=" railProgressBarPending"
 />
+    </VBox>
 
-        </VBox>
-
-
-        <!-- POST PROCESSING -->
-        <VBox
-            id="_IDGenRailProgressPost"
-            class="sapUiSmallMarginBottom"
-        >
-
-            <HBox id="_IDGenHBox29"
-                justifyContent="SpaceBetween"
-                alignItems="Center"
-            >
-
-                <Text id="_IDGenText21"
-                    text="In Post-Processing"
-                    class="statusLabel"
-                />
-
-             
-
-            </HBox>
-
-            <ProgressIndicator
+    <!-- IN POST-PROCESSING -->
+    <VBox id="_IDGenRailProgressPost" class="railProgressRow">
+        <HBox id="_IDGenHBox29" justifyContent="SpaceBetween" alignItems="Center" class="railProgressLabelRow">
+            <Text id="_IDGenText21" text="In Post-Processing" class="railProgressLabel"/>
+            <Text id="_IDGenRailPostCount" text="{railModel>/data/1/value}" class="railProgressCount"/>
+        </HBox>
+      <ProgressIndicator
     id="_IDGenRailProgressIndicatorPost"
     percentValue="{railModel>/data/1/percent}"
-    displayValue="{railModel>/data/1/value}"
+    displayValue=" "
+    state="Warning"
     width="100%"
+    class=" railProgressBarPost"
 />
+    </VBox>
 
-        </VBox>
-
-
-        <!-- REJECTED -->
-        <VBox
-            id="_IDGenRailProgressRejected"
-            class="sapUiSmallMarginBottom"
-        >
-
-            <HBox id="_IDGenHBox30"
-                justifyContent="SpaceBetween"
-                alignItems="Center"
-            >
-
-                <Text id="_IDGenText36"
-                    text="Rejected"
-                    class="statusLabel"
-                />
-
-               
-
-            </HBox>
-
-            <ProgressIndicator
+    <!-- REJECTED -->
+    <VBox id="_IDGenRailProgressRejected" class="railProgressRow">
+        <HBox id="_IDGenHBox30" justifyContent="SpaceBetween" alignItems="Center" class="railProgressLabelRow">
+            <Text id="_IDGenText36" text="Rejected" class="railProgressLabel"/>
+            <Text id="_IDGenRailRejectedCount" text="{railModel>/data/2/value}" class="railProgressCount"/>
+        </HBox>
+       <ProgressIndicator
     id="_IDGenRailProgressIndicatorRejected"
     percentValue="{railModel>/data/2/percent}"
-    displayValue="{railModel>/data/2/value}"
+    displayValue=" "
+    state="Error"
     width="100%"
+    class=" railProgressBarRejected"
 />
-
-        </VBox>
-
     </VBox>
 
 </VBox>
+
+
+   </VBox>
 
             <!-- New Tile -->
            <VBox
@@ -640,46 +596,46 @@
     </VBox>
 
     <!-- Rows -->
-    <VBox
-        id="_IDGenVBox79"
-        class="sapUiMediumMarginTop"
-        items="{reasonModel>/topReasons}"
-        visible="{= ${reasonModel>/topReasons}.length > 0 }"
-    >
-        <HBox id="_IDGenHBox26" alignItems="Center" class="excReasonRow">
-            <Text
-                id="_IDGenText5"
-                text="{reasonModel>reason}"
-                class="excReasonName"
-            >
-                <layoutData>
-                    <FlexItemData id="_IDGenFlexItemData1" growFactor="0" shrinkFactor="0" baseSize="120px" />
-                </layoutData>
-            </Text>
+   
 
-            <ProgressIndicator
-                id="_IDGenReasonProgress"
-                percentValue="{reasonModel>percent}"
-             
-                width="100%"
-                class="excProgressBar excProgressBarNeutral"
-            >
-                <layoutData>
-                    <FlexItemData id="_IDGenFlexItemData2" growFactor="1" shrinkFactor="1" baseSize="0%" />
-                </layoutData>
-            </ProgressIndicator>
+   <!-- Rows -->
+<VBox
+    id="_IDGenVBox79"
+    class="sapUiMediumMarginTop"
+    items="{reasonModel>/topReasons}"
+    visible="{= ${reasonModel>/topReasons}.length > 0 }"
+>
+    <HBox id="_IDGenHBox26" alignItems="Center" class="excReasonRow">
 
-            <Text
-                id="_IDGenReasonValueText"
-                text="{reasonModel>displayValue}"
-                class="excReasonValue"
-            >
-                <layoutData>
-                    <FlexItemData id="_IDGenFlexItemData3" growFactor="0" shrinkFactor="0" baseSize="24px" />
-                </layoutData>
-            </Text>
-        </HBox>
-    </VBox>
+        <Text
+            id="_IDGenReasonRank"
+            text="{= ${reasonModel>rank} }"
+            class="excReasonRankBadge"
+        />
+
+        <Text
+            id="_IDGenText5"
+            text="{reasonModel>reason}"
+            class="excReasonName"
+        >
+            <layoutData>
+                <FlexItemData id="_IDGenFlexItemData1" growFactor="1" shrinkFactor="1" baseSize="0%" />
+            </layoutData>
+        </Text>
+
+        <Text
+            id="_IDGenReasonValueText"
+            text="{reasonModel>displayValue}"
+            class="excReasonValue"
+        >
+            <layoutData>
+                <FlexItemData id="_IDGenFlexItemData3" growFactor="0" shrinkFactor="0" baseSize="32px" />
+            </layoutData>
+        </Text>
+
+    </HBox>
+</VBox>
+
 </VBox>
 
         </HBox>
