@@ -4004,3 +4004,12 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+.dashboardExpandDialog {
+    max-height: 92vh !important;
+}
+
+.dashboardExpandDialog .sapMDialogScrollCont {
+    max-height: calc(92vh - 80px);
+    overflow-y: auto;
+}

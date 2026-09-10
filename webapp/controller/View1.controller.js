@@ -2236,221 +2236,216 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
         onToggleChartSize: function () {
 
-            var oCard = this.byId("_IDGenVBox1");
-            var oButton = this.byId("chartExpandButton");
+    var oCard = this.byId("_IDGenVBox1");
+    var oButton = this.byId("chartExpandButton");
 
-            if (!this._oChartDialog) {
+    var iContentWidth = this._getContentAreaWidth();
 
-                this._oChartDialog = new sap.m.Dialog({
-                    contentWidth: "92%",
-                    contentHeight: "85%",
-                    stretch: false,
-                    draggable: true,
-                    resizable: true,
-                    horizontalScrolling: false,
-                    verticalScrolling: false
-                });
+    if (!this._oChartDialog) {
 
-                this.getView().addDependent(this._oChartDialog);
+        this._oChartDialog = new sap.m.Dialog({
+            contentWidth: iContentWidth + "px",
+            contentHeight: "85vh",
+            stretch: false,
+            draggable: true,
+            resizable: true,
+            horizontalScrolling: false,
+            verticalScrolling: true,
+            class: "dashboardExpandDialog"
+        });
 
-                this._oChartDialog.attachAfterClose(function () {
+        this.getView().addDependent(this._oChartDialog);
 
-                    if (this._oOriginalChartParent) {
+        this._oChartDialog.attachAfterClose(function () {
 
-                        this._oOriginalChartParent.insertItem(
-                            oCard,
-                            this._iOriginalChartIndex
-                        );
+            if (this._oOriginalChartParent) {
 
-                        this.byId("barChart").setHeight("300px");
-
-                        oButton.setIcon("sap-icon://full-screen");
-
-                        this._bChartExpanded = false;
-                    }
-
-                }.bind(this));
-            }
-
-            if (!this._bChartExpanded) {
-
-                this._oOriginalChartParent = oCard.getParent();
-
-                this._iOriginalChartIndex =
-                    this._oOriginalChartParent.indexOfItem(oCard);
-
-                this._oOriginalChartParent.removeItem(oCard);
-
-                this.byId("barChart").setHeight("620px");
-
-                this._oChartDialog.removeAllContent();
-
-                oCard.setWidth("100%");
-                oCard.setHeight("100%");
-
-                this.byId("barChart").setWidth("100%");
-                this.byId("barChart").setHeight("650px");
-
-                this._oChartDialog.addContent(oCard);
-
-                oButton.setIcon("sap-icon://exit-full-screen");
-
-                this._bChartExpanded = true;
-
-                this._oChartDialog.open();
-
-            } else {
-
-                oCard.setWidth("68%");
-                oCard.setHeight("440px");
+                this._oOriginalChartParent.insertItem(
+                    oCard,
+                    this._iOriginalChartIndex
+                );
 
                 this.byId("barChart").setHeight("300px");
-                this._oChartDialog.close();
 
+                oButton.setIcon("sap-icon://full-screen");
+
+                this._bChartExpanded = false;
             }
 
-        },
+        }.bind(this));
 
-        onToggleDonutSize: function () {
+    } else {
+        this._oChartDialog.setContentWidth(iContentWidth + "px");
+    }
 
-            var oCard = this.byId("_IDGenVBox2");
-            var oButton = this.byId("donutExpandButton");
-            var oDonutViewModel = this.getView().getModel("donutViewModel");
+    if (!this._bChartExpanded) {
 
-            if (!this._oDonutDialog) {
+        this._oOriginalChartParent = oCard.getParent();
 
-                this._oDonutDialog = new sap.m.Dialog({
-                    contentWidth: "92%",
-                    contentHeight: "85%",
-                    stretch: false,
-                    draggable: true,
-                    resizable: true,
-                    horizontalScrolling: false,
-                    verticalScrolling: true
-                });
+        this._iOriginalChartIndex =
+            this._oOriginalChartParent.indexOfItem(oCard);
 
-                this.getView().addDependent(this._oDonutDialog);
+        this._oOriginalChartParent.removeItem(oCard);
 
-                this._oDonutDialog.attachAfterClose(function () {
+        this.byId("barChart").setHeight("620px");
 
-                    if (this._oOriginalDonutParent) {
-                        this._oOriginalDonutParent.insertItem(oCard, this._iOriginalDonutIndex);
-                    }
+        this._oChartDialog.removeAllContent();
 
-                    oCard.setWidth("30%");
-                    oCard.setHeight("440px");
+        oCard.setWidth("100%");
+        oCard.setHeight("100%");
 
-                    oButton.setIcon("sap-icon://full-screen");
-                    oDonutViewModel.setProperty("/expanded", false);
+        this.byId("barChart").setWidth("100%");
+        this.byId("barChart").setHeight("650px");
 
-                    this._bDonutExpanded = false;
+        this._oChartDialog.addContent(oCard);
 
-                    sap.ui.core.Fragment.byId(
-                        this.getView().getId(),
-                        "btnDonutExport"
+        oButton.setIcon("sap-icon://exit-full-screen");
 
-                    ).setVisible(false);
+        this._bChartExpanded = true;
 
-                }.bind(this));
+        this._oChartDialog.open();
+
+    } else {
+
+        oCard.setWidth("68%");
+        oCard.setHeight("440px");
+
+        this.byId("barChart").setHeight("300px");
+        this._oChartDialog.close();
+
+    }
+
+},
+
+       onToggleDonutSize: function () {
+
+    var oCard = this.byId("_IDGenVBox2");
+    var oButton = this.byId("donutExpandButton");
+    var oDonutViewModel = this.getView().getModel("donutViewModel");
+
+    var iContentWidth = this._getContentAreaWidth();
+
+    if (!this._oDonutDialog) {
+
+        this._oDonutDialog = new sap.m.Dialog({
+            contentWidth: iContentWidth + "px",
+            contentHeight: "85vh",
+            stretch: false,
+            draggable: true,
+            resizable: true,
+            horizontalScrolling: false,
+            verticalScrolling: true,
+            class: "dashboardExpandDialog"
+        });
+
+        this.getView().addDependent(this._oDonutDialog);
+
+        this._oDonutDialog.attachAfterClose(function () {
+            if (this._oOriginalDonutParent) {
+                this._oOriginalDonutParent.insertItem(oCard, this._iOriginalDonutIndex);
             }
+            oCard.setWidth("30%");
+            oCard.setHeight("440px");
+            oButton.setIcon("sap-icon://full-screen");
+            oDonutViewModel.setProperty("/expanded", false);
+            this._bDonutExpanded = false;
+            sap.ui.core.Fragment.byId(this.getView().getId(), "btnDonutExport").setVisible(false);
+        }.bind(this));
+    } else {
+        this._oDonutDialog.setContentWidth(iContentWidth + "px");
+    }
 
-            if (!this._bDonutExpanded) {
-
-                this._oOriginalDonutParent = oCard.getParent();
-                this._iOriginalDonutIndex = this._oOriginalDonutParent.indexOfItem(oCard);
-                this._oOriginalDonutParent.removeItem(oCard);
-
-                oCard.setWidth("100%");
-                oCard.setHeight("100%");
-
-                this._oDonutDialog.removeAllContent();
-                this._oDonutDialog.addContent(oCard);
-
-                oButton.setIcon("sap-icon://exit-full-screen");
-                oDonutViewModel.setProperty("/expanded", true);
-
-                this._bDonutExpanded = true;
-                sap.ui.core.Fragment.byId(
-                    this.getView().getId(),
-                    "btnDonutExport"
-
-                ).setVisible(true);
-
-                this._oDonutDialog.open();
-
-            } else {
-                this._oDonutDialog.close();
-            }
-        },
-
+    if (!this._bDonutExpanded) {
+        this._oOriginalDonutParent = oCard.getParent();
+        this._iOriginalDonutIndex = this._oOriginalDonutParent.indexOfItem(oCard);
+        this._oOriginalDonutParent.removeItem(oCard);
+        oCard.setWidth("100%");
+        oCard.setHeight("100%");
+        this._oDonutDialog.removeAllContent();
+        this._oDonutDialog.addContent(oCard);
+        oButton.setIcon("sap-icon://exit-full-screen");
+        oDonutViewModel.setProperty("/expanded", true);
+        this._bDonutExpanded = true;
+        sap.ui.core.Fragment.byId(this.getView().getId(), "btnDonutExport").setVisible(true);
+        this._oDonutDialog.open();
+    } else {
+        this._oDonutDialog.close();
+    }
+},
         onToggleTransactionSize: function () {
 
-            var oCard = this.byId("_IDGenVBox3");
-            var oButton = this.byId("transactionExpandButton");
+    var oCard = this.byId("_IDGenVBox3");
+    var oButton = this.byId("transactionExpandButton");
 
-            if (!this._oTransactionDialog) {
+    var iContentWidth = this._getContentAreaWidth();
 
-                this._oTransactionDialog = new sap.m.Dialog({
+    if (!this._oTransactionDialog) {
 
-                    contentWidth: "95%",
-                    contentHeight: "90%",
-                    stretch: false,
+        this._oTransactionDialog = new sap.m.Dialog({
 
-                    draggable: true,
-                    resizable: true,
+            contentWidth: iContentWidth + "px",
+            contentHeight: "85vh",
+            stretch: false,
 
-                    horizontalScrolling: false,
-                    verticalScrolling: false
+            draggable: true,
+            resizable: true,
 
-                });
+            horizontalScrolling: false,
+            verticalScrolling: true,
 
-                this.getView().addDependent(this._oTransactionDialog);
+            class: "dashboardExpandDialog"
 
-                this._oTransactionDialog.attachAfterClose(function () {
+        });
 
-                    this._oTransactionParent.insertItem(
-                        oCard,
-                        this._iTransactionIndex
-                    );
+        this.getView().addDependent(this._oTransactionDialog);
 
-                    oCard.setWidth("68%");
+        this._oTransactionDialog.attachAfterClose(function () {
 
-                    oButton.setIcon("sap-icon://full-screen");
+            this._oTransactionParent.insertItem(
+                oCard,
+                this._iTransactionIndex
+            );
 
-                    this._bTransactionExpanded = false;
+            oCard.setWidth("68%");
 
-                }.bind(this));
+            oButton.setIcon("sap-icon://full-screen");
 
-            }
+            this._bTransactionExpanded = false;
 
-            if (!this._bTransactionExpanded) {
+        }.bind(this));
 
-                this._oTransactionParent = oCard.getParent();
+    } else {
+        this._oTransactionDialog.setContentWidth(iContentWidth + "px");
+    }
 
-                this._iTransactionIndex =
-                    this._oTransactionParent.indexOfItem(oCard);
+    if (!this._bTransactionExpanded) {
 
-                this._oTransactionParent.removeItem(oCard);
+        this._oTransactionParent = oCard.getParent();
 
-                oCard.setWidth("100%");
+        this._iTransactionIndex =
+            this._oTransactionParent.indexOfItem(oCard);
 
-                this._oTransactionDialog.removeAllContent();
+        this._oTransactionParent.removeItem(oCard);
 
-                this._oTransactionDialog.addContent(oCard);
+        oCard.setWidth("100%");
 
-                oButton.setIcon("sap-icon://exit-full-screen");
+        this._oTransactionDialog.removeAllContent();
 
-                this._bTransactionExpanded = true;
+        this._oTransactionDialog.addContent(oCard);
 
-                this._oTransactionDialog.open();
+        oButton.setIcon("sap-icon://exit-full-screen");
 
-            } else {
+        this._bTransactionExpanded = true;
 
-                this._oTransactionDialog.close();
+        this._oTransactionDialog.open();
 
-            }
+    } else {
 
-        },
+        this._oTransactionDialog.close();
+
+    }
+
+},
 
         onExportTransactions: function () {
 
@@ -3220,6 +3215,24 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 return aActiveChannels.indexOf(oRow.Channel) > -1;
             });
         },
+
+
+        _getContentAreaWidth: function () {
+    var oContentWrapper = this.byId("_IDGenContentWrapper");
+    if (oContentWrapper && oContentWrapper.getDomRef()) {
+        return oContentWrapper.getDomRef().offsetWidth;
+    }
+    return window.innerWidth * 0.92;
+},
+
+_getContentAreaLeft: function () {
+    var oContentWrapper = this.byId("_IDGenContentWrapper");
+    if (oContentWrapper && oContentWrapper.getDomRef()) {
+        return oContentWrapper.getDomRef().getBoundingClientRect().left;
+    }
+    return 0;
+},
+
 
 
     });
