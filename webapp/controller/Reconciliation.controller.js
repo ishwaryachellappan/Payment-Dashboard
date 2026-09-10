@@ -6,6 +6,12 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/m/Menu",
     "sap/m/MenuItem",
+    "sap/m/Dialog",
+    "sap/m/List",
+    "sap/m/CustomListItem",
+    "sap/m/CheckBox",
+    "sap/m/SearchField",
+    "sap/m/Button",
     "sap/ui/export/Spreadsheet",
     "sap/ui/core/format/DateFormat",
     "sap/viz/ui5/data/FlattenedDataset",
@@ -20,6 +26,12 @@ sap.ui.define([
     MessageToast,
     Menu,
     MenuItem,
+    Dialog,
+    List,
+    CustomListItem,
+    CheckBox,
+    SearchField,
+    Button,
     Spreadsheet,
     DateFormat,
     FlattenedDataset,
@@ -53,8 +65,141 @@ sap.ui.define([
     // /chartData: PC received (blue), DM posted (green), Reconciliation
     // gap (red — visually flags it as the "problem" bar). Reused by
     // every axis-style chart type below.
-   // ✅ Muted palette — PC received, DM posted, Reconciliation gap
-var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
+    // ✅ Muted palette — PC received, DM posted, Reconciliation gap
+    var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
+
+    /* ============================================================
+       RECONCILIATION DETAIL COLUMN CONFIGURATION
+       ============================================================ */
+
+    var RECON_DETAIL_COLUMNS = [
+        {
+            key: "ClearingArea",
+            label: "Clearing Area",
+            type: "text",
+            defaultVisible: true
+        },
+        {
+            key: "PiDate",
+            label: "PI Date",
+            type: "date",
+            defaultVisible: true
+        },
+        {
+            key: "PiNo",
+            label: "PI No.",
+            type: "text",
+            defaultVisible: true
+        },
+        {
+            key: "TechStat",
+            label: "Technical Status",
+            type: "text",
+            defaultVisible: false
+        },
+        {
+            key: "PiKind",
+            label: "PI Kind",
+            type: "text",
+            defaultVisible: true
+        },
+        {
+            key: "TrCurr",
+            label: "Currency",
+            type: "text",
+            defaultVisible: true
+        },
+        {
+            key: "TrAmount",
+            label: "Transaction Amount",
+            type: "amount",
+            defaultVisible: true
+        },
+        {
+            key: "Holder",
+            label: "Holder",
+            type: "text",
+            defaultVisible: true
+        },
+        {
+            key: "RefRoute",
+            label: "Reference Route",
+            type: "text",
+            defaultVisible: true
+        },
+        {
+            key: "RefItemExt",
+            label: "Reference Item",
+            type: "text",
+            defaultVisible: false
+        },
+        {
+            key: "RefCustagr",
+            label: "Customer Agreement",
+            type: "text",
+            defaultVisible: false
+        },
+        {
+            key: "Country",
+            label: "Country",
+            type: "text",
+            defaultVisible: false
+        },
+        {
+            key: "Bic",
+            label: "BIC",
+            type: "text",
+            defaultVisible: false
+        },
+        {
+            key: "Iban",
+            label: "IBAN",
+            type: "text",
+            defaultVisible: false
+        },
+        {
+            key: "AcctNo",
+            label: "Account No.",
+            type: "text",
+            defaultVisible: false
+        },
+        {
+            key: "ValDate",
+            label: "Value Date",
+            type: "date",
+            defaultVisible: false
+        },
+        {
+            key: "PiPostDate",
+            label: "PI Post Date",
+            type: "date",
+            defaultVisible: true
+        },
+        {
+            key: "TransType",
+            label: "Transaction Type",
+            type: "text",
+            defaultVisible: false
+        },
+        {
+            key: "RiskScore",
+            label: "Risk Score",
+            type: "number",
+            defaultVisible: false
+        },
+        {
+            key: "EndToEndId",
+            label: "End-to-End ID",
+            type: "text",
+            defaultVisible: false
+        },
+        {
+            key: "SettlementBic",
+            label: "Settlement BIC",
+            type: "text",
+            defaultVisible: false
+        }
+    ];
 
 
     return Controller.extend(
@@ -63,8 +208,11 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
             onInit: function () {
 
-                var oData = {
+                var aVisibleColumns = RECON_DETAIL_COLUMNS.filter(function (oColumn) {
+                    return oColumn.defaultVisible;
+                });
 
+                var oData = {
                     kpi: {
                         totalAmount: "0.00",
                         totalObjects: "0",
@@ -73,26 +221,27 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
                     },
 
                     chartData: [
-                        { Category: "PC received", Amount: 0 },
-                        { Category: "DM posted", Amount: 0 },
-                        { Category: "Reconciliation gap", Amount: 0 }
+                        { Category: "PC Received", Amount: 0 },
+                        { Category: "DM Received", Amount: 0 },
+                        { Category: "Reconciliation Gap", Amount: 0 }
                     ],
 
                     filters: {
-                        system1: "PC",   // ✅ default
-                        system2: "DM"    // ✅ default
+                        system1: "PC",
+                        system2: "DM"
                     },
 
                     groups: [],
 
-                    // ✅ Which chart category (if any) the table is
-                    // currently filtered to, and the message shown above
-                    // the table explaining that filter.
                     selectedCategory: "",
                     filterMessage: "",
 
-                    busy: false
+                    busy: false,
 
+                    /* NEW */
+                    availableColumns: RECON_DETAIL_COLUMNS,
+
+                    visibleColumns: aVisibleColumns
                 };
 
                 var oModel = new JSONModel(oData);
@@ -107,23 +256,23 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
                 this._aReconciliationRawData = [];
 
                 this.getView().addEventDelegate({
-
                     onAfterRendering: function () {
 
                         setTimeout(
-
                             function () {
 
                                 this._createReconChart();
 
+                                /*
+                                 * Configure dynamic reconciliation columns
+                                 */
+                                this._refreshReconDetailTables();
+
                             }.bind(this),
-
                             300
-
                         );
 
                     }.bind(this)
-
                 });
 
                 this.loadReconciliationData();
@@ -135,6 +284,17 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
                 var oODataModel = this.getOwnerComponent().getModel("odataModel");
                 var oFilterModel = this.getView().getModel("filterModel");
+                var oReconModel = this.getView().getModel("reconciliation");
+
+                if (!oODataModel) {
+                    console.error("[Reconciliation] 'odataModel' not found.");
+                    return;
+                }
+
+                if (!oReconModel) {
+                    console.error("[Reconciliation] 'reconciliation' model not found.");
+                    return;
+                }
 
                 var sClearingArea = oFilterModel
                     ? oFilterModel.getProperty("/clearingArea")
@@ -144,82 +304,145 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
                     ? oFilterModel.getProperty("/kpiDate")
                     : new Date().toISOString().slice(0, 10);
 
-                var oReconModel = this.getView().getModel("reconciliation");
-
-                if (!oODataModel) {
-                    console.error("[Reconciliation] 'odataModel' not found on the component.");
-                    return;
-                }
-
-                if (!oReconModel) {
-                    console.error("[Reconciliation] 'reconciliation' model not found on the view.");
-                    return;
-                }
-
-                var sDate;
-
                 if (sSelectedDate instanceof Date) {
 
-                    sDate =
+                    sSelectedDate =
                         sSelectedDate.getFullYear() + "-" +
                         String(sSelectedDate.getMonth() + 1).padStart(2, "0") + "-" +
                         String(sSelectedDate.getDate()).padStart(2, "0");
 
                 } else {
 
-                    sDate = String(sSelectedDate).slice(0, 10);
+                    sSelectedDate = String(sSelectedDate).slice(0, 10);
 
                 }
 
-                if (!sClearingArea || !sDate) {
-                    console.warn("[Reconciliation] Missing clearing area or date — skipping load.");
+                if (!sClearingArea || !sSelectedDate) {
+
+                    console.warn(
+                        "[Reconciliation] Missing clearing area or date."
+                    );
+
                     return;
                 }
 
-                console.log("[Reconciliation] Loading for", sClearingArea, sDate);
+                console.log(
+                    "[Reconciliation] Loading for",
+                    sClearingArea,
+                    sSelectedDate
+                );
 
                 oReconModel.setProperty("/busy", true);
 
-                var aFilters = [
-                    new Filter("clearing_area", FilterOperator.EQ, sClearingArea),
-                    new Filter("pi_post_date", FilterOperator.EQ, sDate)
-                ];
+                /*
+                 * IMPORTANT:
+                 *
+                 * Do NOT use bindList() here.
+                 *
+                 * The Reconcilation entity currently appears to have
+                 * ClearingArea as a key, while multiple transaction
+                 * records have the same ClearingArea.
+                 *
+                 * That causes:
+                 *
+                 * Duplicate key predicate: ('DEBNKC')
+                 *
+                 * Therefore we request the collection directly.
+                 */
 
-                var oListBinding = oODataModel.bindList(
-                    "/Reconcilation",
-                    undefined,
-                    undefined,
-                    aFilters,
-                    {
-                        $select: [
-                            "clearing_area",
-                            "pi_post_date",
-                            "reconc_date",
-                            "reconc_system",
-                            "AM_AREA",
-                            "reconc_appl",
-                            "reconc_id",
-                            "reconc_group",
-                            "pi_kind",
-                            "tr_curr",
-                            "tr_debcredind",
-                            "object_count",
-                            "amount_sum"
-                        ].join(",")
-                    }
+                var sSelect = [
+                    "ClearingArea",
+                    "PiDate",
+                    "PiNo",
+                    "TechStat",
+                    "PiKind",
+                    "Crusr",
+                    "Chusr",
+                    "Rlusr",
+                    "TrCurr",
+                    "TrAmount",
+                    "Holder",
+                    "RefRoute",
+                    "RefCustagr",
+                    "RefAmArea",
+                    "CheckAltCa",
+                    "PredetermRoute",
+                    "RpToDetermine",
+                    "RefAcctLocSrv",
+                    "RefItemExt",
+                    "Country",
+                    "Bic",
+                    "Iban",
+                    "AcctNo",
+                    "ValDate",
+                    "PiPostDate",
+                    "TransType",
+                    "RiskScore",
+                    "EndToEndId",
+                    "SettlementBic"
+                ].join(",");
+
+                var sFilter =
+                    "ClearingArea eq '" +
+                    encodeURIComponent(sClearingArea).replace(/'/g, "''") +
+                    "' and PiPostDate eq " +
+                    sSelectedDate;
+
+                var sPath =
+                    "/Reconcilation?$select=" +
+                    encodeURIComponent(sSelect) +
+                    "&$filter=" +
+                    encodeURIComponent(sFilter) +
+                    "&$top=5000";
+
+                console.log(
+                    "[Reconciliation] OData request:",
+                    sPath
                 );
 
-                oListBinding.requestContexts(0, 5000)
+                /*
+                 * requestObject() retrieves the collection without
+                 * creating an ODataListBinding cache that requires
+                 * unique entity keys.
+                 */
 
-                    .then(function (aContexts) {
+                oODataModel.bindContext(sPath)
+                    .requestObject()
 
-                        console.log("[Reconciliation] Rows received:", aContexts.length);
+                    .then(function (oResponse) {
 
-                        var aRawData = aContexts.map(function (oContext) {
-                            return oContext.getObject();
-                        });
+                        console.log(
+                            "[Reconciliation] OData response:",
+                            oResponse
+                        );
 
-                        console.log("[Reconciliation] Raw data sample:", aRawData.slice(0, 3));
+                        var aRawData = [];
+
+                        if (oResponse && Array.isArray(oResponse.value)) {
+
+                            aRawData = oResponse.value;
+
+                        } else if (Array.isArray(oResponse)) {
+
+                            aRawData = oResponse;
+
+                        } else {
+
+                            console.warn(
+                                "[Reconciliation] Unexpected OData response format."
+                            );
+
+                        }
+
+                        console.log(
+                            "[Reconciliation] Rows received:",
+                            aRawData.length
+                        );
+
+                        console.log(
+                            "[Reconciliation] Raw data sample:",
+                            aRawData.slice(0, 3)
+                        );
 
                         this._processReconciliationData(aRawData);
 
@@ -227,8 +450,14 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
                     .catch(function (oError) {
 
-                        MessageToast.show("Error loading reconciliation data.");
-                        console.error("[Reconciliation] OData load failed:", oError);
+                        console.error(
+                            "[Reconciliation] OData load failed:",
+                            oError
+                        );
+
+                        MessageToast.show(
+                            "Error loading reconciliation data."
+                        );
 
                         this._processReconciliationData([]);
 
@@ -236,12 +465,14 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
                     .finally(function () {
 
-                        oReconModel.setProperty("/busy", false);
+                        oReconModel.setProperty(
+                            "/busy",
+                            false
+                        );
 
                     });
 
             },
-
 
             reload: function () {
 
@@ -262,6 +493,8 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
                 this._aReconciliationRawData = aRawData || [];
 
+                this._debugTransactionFields(aRawData);
+
                 oReconModel.setProperty("/selectedCategory", "");
                 oReconModel.setProperty("/filterMessage", "");
 
@@ -280,99 +513,340 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
             _buildGroupsAndKpi: function (aRawData) {
 
+                var oModel = this.getView().getModel("reconciliation");
+
                 var oGroupsMap = {};
                 var aGroupOrder = [];
 
                 var fTotalAmount = 0;
                 var iTotalObjects = 0;
+
                 var fDebitTotal = 0;
                 var fCreditTotal = 0;
 
                 var fPcReceived = 0;
-                var fDmPosted = 0;
+                var fDmReceived = 0;
 
-                aRawData.forEach(function (oRow) {
+                var iPcCount = 0;
+                var iDmCount = 0;
+                var iUnknownCount = 0;
 
-                    var fAmount = Number(oRow.amount_sum) || 0;
-                    var iObjectCount = Number(oRow.object_count) || 0;
 
-                    var sDirection = oRow.tr_debcredind === "D" ? "Debit" : "Credit";
-                    var sDirectionState = sDirection === "Credit" ? "Success" : "Error";
-                    var sDateKey = oRow.pi_post_date || oRow.reconc_date;
-                    var sGroupKey = sDateKey + "_" + oRow.tr_curr + "_" + sDirection;
+                // ============================================================
+                // PROCESS ALL TRANSACTIONS
+                // ============================================================
+
+                (aRawData || []).forEach(function (oRow) {
+
+                    if (!oRow) {
+                        return;
+                    }
+
+                    var fAmount =
+                        Number(oRow.TrAmount) || 0;
+
+                    var sCurrency =
+                        oRow.TrCurr || "";
+
+                    var sDateKey =
+                        oRow.PiPostDate ||
+                        oRow.PiDate ||
+                        "";
+
+                    var sDirection =
+                        "Credit";
+
+                    var sDirectionState =
+                        sDirection === "Credit"
+                            ? "Success"
+                            : "Error";
+
+
+                    // ========================================================
+                    // CLASSIFY TRANSACTION
+                    // ========================================================
+
+                    var sCategory =
+                        this._getTransactionCategory(oRow);
+
+
+                    // ========================================================
+                    // PC / DM TOTALS
+                    // ========================================================
+
+                    if (sCategory === "PC") {
+
+                        fPcReceived += fAmount;
+                        iPcCount++;
+
+                    } else if (sCategory === "DM") {
+
+                        fDmReceived += fAmount;
+                        iDmCount++;
+
+                    } else {
+
+                        iUnknownCount++;
+                    }
+
+
+                    // ========================================================
+                    // GROUP KEY
+                    // ========================================================
+
+                    var sGroupKey =
+                        sDateKey + "_" +
+                        sCurrency + "_" +
+                        sDirection;
+
+
+                    // ========================================================
+                    // CREATE GROUP
+                    // ========================================================
 
                     if (!oGroupsMap[sGroupKey]) {
 
                         oGroupsMap[sGroupKey] = {
+
                             groupId: sGroupKey,
+
                             date: this._formatDate(sDateKey),
-                            currency: oRow.tr_curr,
+
+                            currency: sCurrency,
+
                             direction: sDirection,
+
                             directionState: sDirectionState,
+
+                            // IMPORTANT:
+                            // These names match the XML bindings
                             count: 0,
+
                             amount: 0,
+
                             expanded: false,
+
                             details: []
                         };
 
                         aGroupOrder.push(sGroupKey);
-
                     }
 
-                    var oGroup = oGroupsMap[sGroupKey];
 
-                    oGroup.count += iObjectCount;
+                    var oGroup =
+                        oGroupsMap[sGroupKey];
+
+
+                    // ========================================================
+                    // UPDATE GROUP
+                    // ========================================================
+
+                    oGroup.count++;
+
                     oGroup.amount += fAmount;
 
-                    oGroup.details.push({
-                        AccountManagement: oRow.AM_AREA,
-                        SystemId: oRow.reconc_system,
-                        ApplicationId: oRow.reconc_appl,
-                        AddId: oRow.reconc_id,
-                        ReconciliationGroupKey: oRow.reconc_group,
-                        PaymentItemCategory: oRow.pi_kind,
-                        ReconciliationObjects: iObjectCount,
-                        ReconciliationAmount: fAmount
-                    });
+
+                    // ========================================================
+                    // KEEP ORIGINAL ODATA ROW
+                    // ========================================================
+
+                    var oDetail =
+                        Object.assign({}, oRow);
+
+                    // Store classification for future filtering
+                    oDetail._reconCategory =
+                        sCategory;
+
+                    oGroup.details.push(
+                        oDetail
+                    );
+
+
+                    // ========================================================
+                    // KPI TOTALS
+                    // ========================================================
 
                     fTotalAmount += fAmount;
-                    iTotalObjects += iObjectCount;
 
-                    if (oRow.tr_debcredind === "D") {
-                        fDebitTotal += fAmount;
-                    } else {
-                        fCreditTotal += fAmount;
-                    }
+                    iTotalObjects++;
 
-                    if (oRow.reconc_group === "IN") {
-                        fPcReceived += fAmount;
-                    } else if (oRow.reconc_group === "BAS") {
-                        fDmPosted += fAmount;
-                    }
+                    fCreditTotal += fAmount;
 
                 }.bind(this));
 
 
+                // ============================================================
+                // EXPAND FIRST GROUP
+                // ============================================================
+
                 if (aGroupOrder.length) {
-                    oGroupsMap[aGroupOrder[0]].expanded = true;
+
+                    oGroupsMap[
+                        aGroupOrder[0]
+                    ].expanded = true;
                 }
 
-                var aGroups = aGroupOrder.map(function (sKey) {
-                    return oGroupsMap[sKey];
-                });
 
-                return {
-                    groups: aGroups,
-                    kpi: {
-                        totalAmount: fTotalAmount.toFixed(2),
-                        totalObjects: String(iTotalObjects),
-                        debitTotal: fDebitTotal.toFixed(2),
-                        creditTotal: fCreditTotal.toFixed(2)
+                // ============================================================
+                // CONVERT GROUP MAP TO ARRAY
+                // ============================================================
+
+                var aGroups =
+                    aGroupOrder.map(function (sKey) {
+
+                        return oGroupsMap[sKey];
+
+                    });
+
+
+                // ============================================================
+                // RECONCILIATION GAP
+                // ============================================================
+
+                var fReconciliationGap =
+                    Math.abs(
+                        fPcReceived -
+                        fDmReceived
+                    );
+
+
+                // ============================================================
+                // CHART DATA
+                // ============================================================
+
+                var aChartData = [
+
+                    {
+                        Category: "PC Received",
+                        Amount: fPcReceived
                     },
-                    fPcReceived: fPcReceived,
-                    fDmPosted: fDmPosted
+
+                    {
+                        Category: "DM Received",
+                        Amount: fDmReceived
+                    },
+
+                    {
+                        Category: "Reconciliation Gap",
+                        Amount: fReconciliationGap
+                    }
+
+                ];
+
+
+                // ============================================================
+                // RESULT
+                // ============================================================
+
+                var oResult = {
+
+                    groups: aGroups,
+
+                    kpi: {
+
+                        totalAmount:
+                            fTotalAmount.toFixed(2),
+
+                        totalObjects:
+                            String(iTotalObjects),
+
+                        debitTotal:
+                            fDebitTotal.toFixed(2),
+
+                        creditTotal:
+                            fCreditTotal.toFixed(2)
+                    },
+
+                    fPcReceived:
+                        fPcReceived,
+
+                    iPcCount:
+                        iPcCount,
+
+                    fDmPosted:
+                        fDmReceived,
+
+                    fDmReceived:
+                        fDmReceived,
+
+                    iDmCount:
+                        iDmCount,
+
+                    iUnknownCount:
+                        iUnknownCount,
+
+                    fReconciliationGap:
+                        fReconciliationGap,
+
+                    chartData:
+                        aChartData
                 };
 
+
+                // ============================================================
+                // UPDATE MODEL
+                // ============================================================
+
+                oModel.setProperty(
+                    "/groups",
+                    aGroups
+                );
+
+                oModel.setProperty(
+                    "/kpi",
+                    oResult.kpi
+                );
+
+                oModel.setProperty(
+                    "/chartData",
+                    aChartData
+                );
+
+                oModel.setProperty(
+                    "/pcReceived",
+                    fPcReceived
+                );
+
+                oModel.setProperty(
+                    "/dmReceived",
+                    fDmReceived
+                );
+
+                oModel.setProperty(
+                    "/reconciliationGap",
+                    fReconciliationGap
+                );
+
+                oModel.setProperty(
+                    "/pcCount",
+                    iPcCount
+                );
+
+                oModel.setProperty(
+                    "/dmCount",
+                    iDmCount
+                );
+
+                oModel.setProperty(
+                    "/unknownCount",
+                    iUnknownCount
+                );
+
+
+                console.log(
+                    "[Reconciliation] Groups:",
+                    aGroups
+                );
+
+                console.log(
+                    "[Reconciliation] PC:",
+                    fPcReceived,
+                    "DM:",
+                    fDmReceived
+                );
+
+
+                return oResult;
             },
 
 
@@ -706,7 +1180,7 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
             /* ============================================================
                ✅ FIX #2 — CLICK-TO-FILTER
-
+        
                Clicking a bar filters the table below to just that
                category's rows. "PC received"/"DM posted" map cleanly to
                reconc_group = "IN" / "BAS". "Reconciliation gap" has no
@@ -716,83 +1190,200 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
             onReconciliationChartSelect: function (oEvent) {
 
-                if (!this._isValidSystemCombo()) { return; }   // ✅
+                if (!this._isValidSystemCombo()) {
+                    return;
+                }
 
-                var aData = oEvent.getParameter("data");
-                if (!aData || !aData.length) { return; }
+                var aData =
+                    oEvent.getParameter("data");
 
-                var oSelected = aData[0].data;
-                var sCategory = oSelected.Category;
+                if (!aData || !aData.length) {
+                    return;
+                }
 
-                this._applyChartCategoryFilter(sCategory);
+                var oSelected =
+                    aData[0].data;
 
+                var sCategory =
+                    oSelected.Category;
+
+                this._applyChartCategoryFilter(
+                    sCategory
+                );
             },
 
 
             _applyChartCategoryFilter: function (sCategory) {
 
-                var oReconModel = this.getView().getModel("reconciliation");
-                var aRawData = this._aReconciliationRawData || [];
+                var oReconModel =
+                    this.getView().getModel("reconciliation");
 
-                var aFilteredRows;
-                var sMessage;
+                var aRawData =
+                    this._aReconciliationRawData || [];
 
-                switch (sCategory) {
 
-                    case "PC received":
+                // ============================================================
+                // SAVE ORIGINAL CHART DATA
+                //
+                // The graph must NOT change when we filter the table.
+                // ============================================================
 
-                        aFilteredRows = aRawData.filter(function (oRow) {
-                            return oRow.reconc_group === "IN";
-                        });
+                var aOriginalChartData =
+                    oReconModel.getProperty("/chartData");
 
-                        sMessage = "Showing " + aFilteredRows.length + " item(s) for PC received (reconc_group = IN).";
 
-                        break;
+                var aFilteredRows = [];
+                var sMessage = "";
 
-                    case "DM posted":
 
-                        aFilteredRows = aRawData.filter(function (oRow) {
-                            return oRow.reconc_group === "BAS";
-                        });
+                // ============================================================
+                // PC RECEIVED
+                // ============================================================
 
-                        sMessage = "Showing " + aFilteredRows.length + " item(s) for DM posted (reconc_group = BAS).";
+                if (
+                    sCategory === "PC Received" ||
+                    sCategory === "PC received"
+                ) {
 
-                        break;
+                    aFilteredRows =
+                        aRawData.filter(function (oRow) {
 
-                    case "Reconciliation gap":
+                            return this._getTransactionCategory(oRow)
+                                === "PC";
 
-                        // ⚠️ The gap is |PC received − DM posted| — a
-                        // computed difference, not a real subset of rows.
-                        // There's no line item that "is" the gap, so we
-                        // can't filter to it the way we can the other two
-                        // bars. Falling back to the full dataset with an
-                        // explanation rather than showing something
-                        // misleading.
-                        aFilteredRows = aRawData;
+                        }.bind(this));
 
-                        sMessage =
-                            "\"Reconciliation gap\" is a calculated difference " +
-                            "(|PC received − DM posted|), not a specific set of " +
-                            "items — showing all items below instead.";
 
-                        break;
-
-                    default:
-
-                        aFilteredRows = aRawData;
-                        sMessage = "";
-
+                    sMessage =
+                        "Showing " +
+                        aFilteredRows.length +
+                        " PC Received transaction(s).";
                 }
 
-                var oResult = this._buildGroupsAndKpi(aFilteredRows);
 
-                oReconModel.setProperty("/groups", oResult.groups);
-                oReconModel.setProperty("/selectedCategory", sCategory);
-                oReconModel.setProperty("/filterMessage", sMessage);
+                // ============================================================
+                // DM RECEIVED / DM POSTED
+                // ============================================================
 
+                else if (
+                    sCategory === "DM Received" ||
+                    sCategory === "DM received" ||
+                    sCategory === "DM posted" ||
+                    sCategory === "DM Posted"
+                ) {
+
+                    aFilteredRows =
+                        aRawData.filter(function (oRow) {
+
+                            return this._getTransactionCategory(oRow)
+                                === "DM";
+
+                        }.bind(this));
+
+
+                    sMessage =
+                        "Showing " +
+                        aFilteredRows.length +
+                        " DM transaction(s).";
+                }
+
+
+                // ============================================================
+                // RECONCILIATION GAP
+                // ============================================================
+
+                else if (
+                    sCategory === "Reconciliation Gap"
+                ) {
+
+                    /*
+                     * Gap is not an actual transaction.
+                     *
+                     * It is:
+                     *
+                     * |PC Received - DM Received|
+                     *
+                     * Therefore show all transactions.
+                     */
+
+                    aFilteredRows =
+                        aRawData;
+
+                    sMessage =
+                        "Reconciliation Gap is a calculated value. Showing all transactions.";
+                }
+
+
+                // ============================================================
+                // UNKNOWN CATEGORY
+                // ============================================================
+
+                else {
+
+                    aFilteredRows =
+                        aRawData;
+
+                    sMessage = "";
+                }
+
+
+                // ============================================================
+                // REBUILD ONLY THE TABLE GROUPS
+                // ============================================================
+
+                var oResult =
+                    this._buildGroupsAndKpi(
+                        aFilteredRows
+                    );
+
+
+                // ============================================================
+                // UPDATE TABLE
+                // ============================================================
+
+                oReconModel.setProperty(
+                    "/groups",
+                    oResult.groups
+                );
+
+
+                // ============================================================
+                // RESTORE ORIGINAL GRAPH
+                //
+                // VERY IMPORTANT
+                // ============================================================
+
+                oReconModel.setProperty(
+                    "/chartData",
+                    aOriginalChartData
+                );
+
+
+                // ============================================================
+                // UI STATE
+                // ============================================================
+
+                oReconModel.setProperty(
+                    "/selectedCategory",
+                    sCategory
+                );
+
+                oReconModel.setProperty(
+                    "/filterMessage",
+                    sMessage
+                );
+
+
+                console.log(
+                    "[Reconciliation] Selected graph category:",
+                    sCategory
+                );
+
+                console.log(
+                    "[Reconciliation] Table rows after filter:",
+                    aFilteredRows.length
+                );
             },
-
-
             /* "Show All" button — clears the bar filter and restores the
                full table for the currently loaded Clearing Area / Date. */
             onClearChartFilter: function () {
@@ -919,74 +1510,160 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
             onExportExcel: function () {
 
-                var oModel = this.getView().getModel("reconciliation");
+                var oModel =
+                    this.getView().getModel(
+                        "reconciliation"
+                    );
 
                 if (!oModel) {
-                    MessageToast.show("Reconciliation data is not available.");
+
+                    MessageToast.show(
+                        "Reconciliation data is not available."
+                    );
+
                     return;
                 }
 
-                var aGroups = oModel.getProperty("/groups") || [];
+
+                var aGroups =
+                    oModel.getProperty(
+                        "/groups"
+                    ) || [];
+
+
+                var aVisibleColumns =
+                    oModel.getProperty(
+                        "/visibleColumns"
+                    ) || [];
+
+
+                if (!aVisibleColumns.length) {
+
+                    MessageToast.show(
+                        "No columns selected."
+                    );
+
+                    return;
+                }
+
+
                 var aRows = [];
+
 
                 aGroups.forEach(function (oGroup) {
 
-                    if (!oGroup.details || !oGroup.details.length) { return; }
+                    if (
+                        !oGroup.details ||
+                        !oGroup.details.length
+                    ) {
+                        return;
+                    }
+
 
                     oGroup.details.forEach(function (oDetail) {
 
-                        aRows.push({
-                            Date: oGroup.date,
-                            Currency: oGroup.currency,
-                            Direction: oGroup.direction,
-                            AccountManagement: oDetail.AccountManagement,
-                            SystemId: oDetail.SystemId,
-                            ApplicationId: oDetail.ApplicationId,
-                            AddId: oDetail.AddId,
-                            ReconciliationGroupKey: oDetail.ReconciliationGroupKey,
-                            PaymentItemCategory: oDetail.PaymentItemCategory,
-                            ReconciliationObjects: oDetail.ReconciliationObjects,
-                            ReconciliationAmount: oDetail.ReconciliationAmount
-                        });
+                        var oExportRow = {};
 
-                    });
 
-                });
+                        aVisibleColumns.forEach(
+                            function (oColumn) {
+
+                                var vValue =
+                                    oDetail[
+                                    oColumn.key
+                                    ];
+
+
+                                /*
+                                 * Format dates for Excel
+                                 */
+                                if (
+                                    oColumn.type === "date" &&
+                                    vValue
+                                ) {
+
+                                    vValue =
+                                        this._formatDate(
+                                            vValue
+                                        );
+                                }
+
+
+                                oExportRow[
+                                    oColumn.label
+                                ] = vValue;
+
+                            }.bind(this)
+                        );
+
+
+                        aRows.push(
+                            oExportRow
+                        );
+
+                    }.bind(this));
+
+                }.bind(this));
+
 
                 if (!aRows.length) {
-                    MessageToast.show("No reconciliation data to export.");
+
+                    MessageToast.show(
+                        "No reconciliation data to export."
+                    );
+
                     return;
                 }
 
-                var aColumns = [
-                    { label: "Date", property: "Date" },
-                    { label: "Currency", property: "Currency" },
-                    { label: "Direction", property: "Direction" },
-                    { label: "Acct Mgmt", property: "AccountManagement" },
-                    { label: "System ID", property: "SystemId" },
-                    { label: "Appl. ID", property: "ApplicationId" },
-                    { label: "Add. ID", property: "AddId" },
-                    { label: "Reconc. Grp Key", property: "ReconciliationGroupKey" },
-                    { label: "Payment Item Category", property: "PaymentItemCategory" },
-                    { label: "No. of Rcn Obj.", property: "ReconciliationObjects" },
-                    { label: "Recon. Amount", property: "ReconciliationAmount" }
-                ];
+
+                var aExcelColumns =
+                    aVisibleColumns.map(
+                        function (oColumn) {
+
+                            return {
+
+                                label:
+                                    oColumn.label,
+
+                                property:
+                                    oColumn.label
+
+                            };
+
+                        }
+                    );
+
 
                 var oSettings = {
-                    workbook: { columns: aColumns },
-                    dataSource: aRows,
-                    fileName: "Reconciliation_Details.xlsx"
+
+                    workbook: {
+
+                        columns:
+                            aExcelColumns
+                    },
+
+                    dataSource:
+                        aRows,
+
+                    fileName:
+                        "Reconciliation_Details.xlsx"
                 };
 
-                var oSpreadsheet = new Spreadsheet(oSettings);
 
-                oSpreadsheet.build().finally(function () {
-                    oSpreadsheet.destroy();
-                });
+                var oSpreadsheet =
+                    new Spreadsheet(
+                        oSettings
+                    );
 
+
+                oSpreadsheet
+                    .build()
+                    .finally(function () {
+
+                        oSpreadsheet.destroy();
+
+                    });
             },
-
-
             /* ============================================================
                MAXIMIZE / RESTORE — Reconciliation Details table panel.
                ============================================================ */
@@ -1102,55 +1779,656 @@ var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
                 if (this._isValidSystemCombo()) {
 
-                    var oResult = this._buildGroupsAndKpi(this._aReconciliationRawData || []);
-                    var fGap = Math.abs(oResult.fPcReceived - oResult.fDmPosted);
+                    var oResult =
+                        this._buildGroupsAndKpi(
+                            this._aReconciliationRawData || []
+                        );
 
-                    oReconModel.setProperty("/groups", oResult.groups);
-                    oReconModel.setProperty("/kpi", oResult.kpi);
+                    oReconModel.setProperty(
+                        "/groups",
+                        oResult.groups
+                    );
 
-                    oReconModel.setProperty("/chartData", [
-                        { Category: "PC received", Amount: oResult.fPcReceived },
-                        { Category: "DM posted", Amount: oResult.fDmPosted },
-                        { Category: "Reconciliation gap", Amount: fGap }
-                    ]);
+                    oReconModel.setProperty(
+                        "/kpi",
+                        oResult.kpi
+                    );
 
-                    oReconModel.setProperty("/systemsBlocked", false);
-                    oReconModel.setProperty("/systemsBlockedMessage", "");
+                    oReconModel.setProperty(
+                        "/chartData",
+                        oResult.chartData
+                    );
 
-                } else {
+                    oReconModel.setProperty(
+                        "/selectedCategory",
+                        ""
+                    );
 
-                    oReconModel.setProperty("/groups", []);
-
-                    oReconModel.setProperty("/kpi", {
-                        totalAmount: "0.00",
-                        totalObjects: "0",
-                        debitTotal: "0.00",
-                        creditTotal: "0.00"
-                    });
-
-                    oReconModel.setProperty("/chartData", [
-                        { Category: "PC received", Amount: 0 },
-                        { Category: "DM posted", Amount: 0 },
-                        { Category: "Reconciliation gap", Amount: 0 }
-                    ]);
-
-                    oReconModel.setProperty("/selectedCategory", "");
-                    oReconModel.setProperty("/filterMessage", "");
+                    oReconModel.setProperty(
+                        "/filterMessage",
+                        ""
+                    );
 
                     oReconModel.setProperty(
                         "/systemsBlocked",
-                        true
+                        false
                     );
 
                     oReconModel.setProperty(
                         "/systemsBlockedMessage",
-                        "Reconciliation is only available for Source System = PC and Target System = DM. Select this combination to view data."
+                        ""
                     );
-
                 }
 
                 this._createReconChart();
 
+            },
+
+            /* ============================================================
+        COLUMN SETTINGS
+        ============================================================ */
+
+            onReconColumnSettingsPress: function () {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel) {
+                    return;
+                }
+
+                if (!this._oReconColumnDialog) {
+
+                    var oSearchField = new SearchField({
+                        width: "100%",
+                        placeholder: "Search columns...",
+                        liveChange: function (oEvent) {
+
+                            var sQuery =
+                                oEvent.getParameter("newValue") || "";
+
+                            var oList =
+                                this._oReconColumnList;
+
+                            if (!oList) {
+                                return;
+                            }
+
+                            oList.getItems().forEach(function (oItem) {
+
+                                var oContext =
+                                    oItem.getBindingContext("reconciliation");
+
+                                if (!oContext) {
+                                    return;
+                                }
+
+                                var sLabel =
+                                    oContext.getProperty("label") || "";
+
+                                var bVisible =
+                                    sLabel
+                                        .toLowerCase()
+                                        .indexOf(
+                                            sQuery.toLowerCase()
+                                        ) !== -1;
+
+                                oItem.setVisible(bVisible);
+                            });
+                        }
+                    });
+
+                    this._oReconColumnList =
+                        new List({
+                            mode: "None",
+                            growing: false,
+                            showSeparators: "Inner"
+                        });
+
+                    this._oReconColumnList.bindItems({
+                        path: "reconciliation>/availableColumns",
+                        factory: function (sId, oContext) {
+
+                            var oCheckBox =
+                                new CheckBox({
+                                    text: "{reconciliation>label}",
+                                    selected: "{reconciliation>selected}"
+                                });
+
+                            oCheckBox.attachSelect(
+                                function (oEvent) {
+
+                                    var oCtx =
+                                        oEvent
+                                            .getSource()
+                                            .getBindingContext(
+                                                "reconciliation"
+                                            );
+
+                                    if (!oCtx) {
+                                        return;
+                                    }
+
+                                    oCtx.getModel().setProperty(
+                                        oCtx.getPath() + "/selected",
+                                        oEvent.getParameter(
+                                            "selected"
+                                        )
+                                    );
+                                }
+                            );
+
+                            return new CustomListItem({
+                                content: [
+                                    oCheckBox
+                                ]
+                            });
+                        }
+                    });
+
+                    this._oReconColumnDialog =
+                        new Dialog({
+
+                            title: "Select Columns",
+
+                            contentWidth: "420px",
+
+                            contentHeight: "600px",
+
+                            resizable: true,
+
+                            draggable: true,
+
+                            content: [
+                                new sap.m.VBox({
+                                    width: "100%",
+                                    items: [
+
+                                        oSearchField,
+
+                                        this._oReconColumnList
+
+                                    ]
+                                })
+                            ],
+
+                            beginButton:
+                                new Button({
+                                    text: "Apply",
+                                    type: "Emphasized",
+                                    press: function () {
+
+                                        this._applyReconColumnSettings();
+
+                                        this._oReconColumnDialog.close();
+
+                                    }.bind(this)
+                                }),
+
+                            endButton:
+                                new Button({
+                                    text: "Cancel",
+                                    press: function () {
+
+                                        this._resetTemporaryColumnSelection();
+
+                                        this._oReconColumnDialog.close();
+
+                                    }.bind(this)
+                                }),
+
+                            afterClose: function () {
+
+                                if (oSearchField) {
+                                    oSearchField.setValue("");
+                                }
+
+                                if (this._oReconColumnList) {
+
+                                    this._oReconColumnList
+                                        .getItems()
+                                        .forEach(function (oItem) {
+
+                                            oItem.setVisible(true);
+
+                                        });
+                                }
+
+                            }.bind(this)
+                        });
+
+                    this.getView()
+                        .addDependent(
+                            this._oReconColumnDialog
+                        );
+                }
+
+                /*
+                 * Create temporary selection state
+                 */
+                var aColumns =
+                    oModel.getProperty(
+                        "/availableColumns"
+                    ) || [];
+
+                aColumns.forEach(function (oColumn) {
+
+                    oColumn.selected =
+                        this._isReconColumnVisible(
+                            oColumn.key
+                        );
+
+                }.bind(this));
+
+                oModel.setProperty(
+                    "/availableColumns",
+                    aColumns
+                );
+
+                this._oReconColumnDialog.open();
+            },
+
+
+            /* ============================================================
+               APPLY COLUMN SETTINGS
+               ============================================================ */
+
+            _applyReconColumnSettings: function () {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel) {
+                    return;
+                }
+
+                var aColumns =
+                    oModel.getProperty(
+                        "/availableColumns"
+                    ) || [];
+
+                var aSelected =
+                    aColumns.filter(function (oColumn) {
+                        return oColumn.selected === true;
+                    });
+
+                /*
+                 * Do not allow an empty table.
+                 */
+                if (!aSelected.length) {
+
+                    MessageToast.show(
+                        "Select at least one column."
+                    );
+
+                    aColumns.forEach(function (oColumn) {
+
+                        if (oColumn.defaultVisible) {
+                            oColumn.selected = true;
+                        }
+
+                    });
+
+                    aSelected =
+                        aColumns.filter(function (oColumn) {
+                            return oColumn.selected === true;
+                        });
+                }
+
+                oModel.setProperty(
+                    "/visibleColumns",
+                    aSelected
+                );
+
+                this._refreshReconDetailTables();
+            },
+
+
+            /* ============================================================
+               CHECK CURRENT VISIBILITY
+               ============================================================ */
+
+            _isReconColumnVisible: function (sKey) {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel) {
+                    return false;
+                }
+
+                var aVisible =
+                    oModel.getProperty(
+                        "/visibleColumns"
+                    ) || [];
+
+                return aVisible.some(function (oColumn) {
+
+                    return oColumn.key === sKey;
+
+                });
+            },
+
+
+            /* ============================================================
+               CANCEL SETTINGS
+               ============================================================ */
+
+            _resetTemporaryColumnSelection: function () {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel) {
+                    return;
+                }
+
+                var aColumns =
+                    oModel.getProperty(
+                        "/availableColumns"
+                    ) || [];
+
+                aColumns.forEach(function (oColumn) {
+
+                    oColumn.selected =
+                        this._isReconColumnVisible(
+                            oColumn.key
+                        );
+
+                }.bind(this));
+
+                oModel.setProperty(
+                    "/availableColumns",
+                    aColumns
+                );
+            },
+
+            /* ============================================================
+               REFRESH ALL RECONCILIATION DETAIL TABLES
+               ============================================================ */
+
+            _refreshReconDetailTables: function () {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel) {
+                    return;
+                }
+
+                var oList =
+                    this.byId(
+                        "reconciliationGroupList"
+                    );
+
+                if (!oList) {
+                    return;
+                }
+
+                var aItems =
+                    oList.getItems();
+
+                aItems.forEach(function (oGroupItem) {
+
+                    var aTables =
+                        oGroupItem.findAggregatedObjects(
+                            true,
+                            function (oControl) {
+
+                                return oControl.isA(
+                                    "sap.m.Table"
+                                ) &&
+                                    oControl.getId()
+                                        .indexOf(
+                                            "reconciliationDetailTable"
+                                        ) !== -1;
+
+                            }
+                        );
+
+                    aTables.forEach(function (oTable) {
+
+                        this._configureReconDetailTable(
+                            oTable
+                        );
+
+                    }.bind(this));
+
+                }.bind(this));
+            },
+
+
+            /* ============================================================
+               CONFIGURE ONE DETAIL TABLE
+               ============================================================ */
+
+            _configureReconDetailTable: function (oTable) {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel || !oTable) {
+                    return;
+                }
+
+                var aColumns =
+                    oModel.getProperty(
+                        "/visibleColumns"
+                    ) || [];
+
+                /*
+                 * Remove existing columns
+                 */
+                oTable.removeAllColumns();
+
+                /*
+                 * Remove existing item template
+                 */
+                oTable.unbindItems();
+
+                /*
+                 * Create dynamic columns
+                 */
+                aColumns.forEach(function (oColumnConfig) {
+
+                    var oColumn =
+                        new sap.m.Column({
+
+                            hAlign:
+                                oColumnConfig.type === "amount" ||
+                                    oColumnConfig.type === "number"
+                                    ? "End"
+                                    : "Begin",
+
+                            header:
+                                new sap.m.Text({
+                                    text:
+                                        oColumnConfig.label
+                                })
+                        });
+
+                    oTable.addColumn(oColumn);
+
+                });
+
+
+                /*
+                 * Dynamic row template
+                 */
+                var oRow =
+                    new sap.m.ColumnListItem({
+                        type: "Inactive"
+                    });
+
+
+                aColumns.forEach(function (oColumnConfig) {
+
+                    var oCell;
+
+                    switch (oColumnConfig.type) {
+
+                        case "amount":
+
+                            oCell =
+                                new sap.m.ObjectNumber({
+
+                                    number: {
+                                        path:
+                                            "reconciliation>" +
+                                            oColumnConfig.key,
+
+                                        formatter:
+                                            function (vValue) {
+
+                                                if (
+                                                    vValue === null ||
+                                                    vValue === undefined ||
+                                                    vValue === ""
+                                                ) {
+                                                    return "";
+                                                }
+
+                                                var n =
+                                                    Number(vValue);
+
+                                                return isNaN(n)
+                                                    ? String(vValue)
+                                                    : n.toFixed(2);
+                                            }
+                                    },
+
+                                    unit: {
+                                        path:
+                                            "reconciliation>TrCurr"
+                                    }
+
+                                });
+
+                            break;
+
+
+                        case "number":
+
+                            oCell =
+                                new sap.m.ObjectNumber({
+
+                                    number:
+                                        "{reconciliation>" +
+                                        oColumnConfig.key +
+                                        "}"
+
+                                });
+
+                            break;
+
+
+                        case "date":
+
+                            oCell =
+                                new sap.m.Text({
+
+                                    text: {
+
+                                        path:
+                                            "reconciliation>" +
+                                            oColumnConfig.key,
+
+                                        formatter:
+                                            function (vValue) {
+
+                                                return this._formatDate(
+                                                    vValue
+                                                );
+
+                                            }.bind(this)
+                                    }
+
+                                });
+
+                            break;
+
+
+                        default:
+
+                            oCell =
+                                new sap.m.Text({
+
+                                    text:
+                                        "{reconciliation>" +
+                                        oColumnConfig.key +
+                                        "}"
+
+                                });
+
+                            break;
+                    }
+
+                    oRow.addCell(oCell);
+
+                }.bind(this));
+
+
+                /*
+                 * Bind directly to group's details
+                 */
+                oTable.bindItems({
+
+                    path:
+                        "reconciliation>details",
+
+                    template:
+                        oRow,
+
+                    templateShareable:
+                        false
+
+                });
+            },
+
+
+
+
+
+            _debugTransactionFields: function (aData) {
+
+                console.log("========== RECONCILIATION TRANSACTION ANALYSIS ==========");
+
+                console.table(aData.map(function (oRow) {
+                    return {
+                        PiNo: oRow.PiNo,
+                        PiKind: oRow.PiKind,
+                        TechStat: oRow.TechStat,
+                        TrCurr: oRow.TrCurr,
+                        TrAmount: oRow.TrAmount,
+                        RefRoute: oRow.RefRoute,
+                        RefCustagr: oRow.RefCustagr,
+                        RefAmArea: oRow.RefAmArea,
+                        CheckAltCa: oRow.CheckAltCa,
+                        PredetermRoute: oRow.PredetermRoute,
+                        RpToDetermine: oRow.RpToDetermine,
+                        RefAcctLocSrv: oRow.RefAcctLocSrv,
+                        RefItemExt: oRow.RefItemExt,
+                        TransType: oRow.TransType
+                    };
+                }));
+
+                console.log("========== END TRANSACTION ANALYSIS ==========");
+            },
+
+            _getTransactionCategory: function (oRow) {
+
+                if (
+                    oRow.RefRoute === "SAP_DM" ||
+                    oRow.RefAmArea === "SAP_DM"
+                ) {
+                    return "DM";
+                }
+
+                if (oRow.TechStat === "10") {
+                    return "PC";
+                }
+
+                return "UNKNOWN";
             },
 
         }
