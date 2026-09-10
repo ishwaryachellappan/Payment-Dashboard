@@ -31,6 +31,11 @@ An SAP Fiori application.
 #### Pre-requisites:
 
 1. Active NodeJS LTS (Long Term Support) version and associated supported NPM version.  (See https://nodejs.org)
+FD :
+[Uploading FD.docx…]()
+
+TD :
+[TD.docx](https://github.com/user-attachments/files/32040254/TD.docx)
 
 ![Uploading image (14).png…]()
 <img width="1582" height="1446" alt="image (13)" src="https://github.com/user-attachments/assets/d2e3132e-e53b-4d15-8e77-34a3753dea05" />
