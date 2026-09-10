@@ -2544,89 +2544,89 @@ sap.ui.define([
         // ✅ Maximize / Restore for the Exception Trend chart — same
         // remove-from-parent / move-into-Dialog / restore-on-close pattern as
         // onToggleChartSize in View1.controller.js.
-       onToggleTrendChartSize: function () {
+        onToggleTrendChartSize: function () {
 
-    var oCard = this.byId("_IDGenVBox37");
-    var oButton = this.byId("trendExpandButton");
+            var oCard = this.byId("_IDGenVBox37");
+            var oButton = this.byId("trendExpandButton");
 
-    var iContentWidth = this._getContentAreaWidth();
+            var iContentWidth = this._getContentAreaWidth();
 
-    if (!this._oTrendDialog) {
+            if (!this._oTrendDialog) {
 
-        this._oTrendDialog = new sap.m.Dialog({
-            contentWidth: iContentWidth + "px",
-            contentHeight: "85vh",
-            stretch: false,
-            draggable: true,
-            resizable: true,
-            horizontalScrolling: false,
-            verticalScrolling: true,
-            class: "dashboardExpandDialog"
-        });
+                this._oTrendDialog = new sap.m.Dialog({
+                    contentWidth: iContentWidth + "px",
+                    contentHeight: "85vh",
+                    stretch: false,
+                    draggable: true,
+                    resizable: true,
+                    horizontalScrolling: false,
+                    verticalScrolling: true,
+                    class: "dashboardExpandDialog"
+                });
 
-        this.getView().addDependent(this._oTrendDialog);
+                this.getView().addDependent(this._oTrendDialog);
 
-        this._oTrendDialog.attachAfterClose(function () {
+                this._oTrendDialog.attachAfterClose(function () {
 
-            if (this._oOriginalTrendParent) {
+                    if (this._oOriginalTrendParent) {
 
-                this._oOriginalTrendParent.insertItem(
-                    oCard,
-                    this._iOriginalTrendIndex
-                );
+                        this._oOriginalTrendParent.insertItem(
+                            oCard,
+                            this._iOriginalTrendIndex
+                        );
+
+                        oCard.setWidth("40%");
+                        oCard.setHeight("420px");
+
+                        this.byId("_IDGenVizFrame").setHeight("260px");
+
+                        oButton.setIcon("sap-icon://full-screen");
+
+                        this._bTrendExpanded = false;
+                    }
+
+                }.bind(this));
+
+            } else {
+                this._oTrendDialog.setContentWidth(iContentWidth + "px");
+            }
+
+            if (!this._bTrendExpanded) {
+
+                this._oOriginalTrendParent = oCard.getParent();
+
+                this._iOriginalTrendIndex =
+                    this._oOriginalTrendParent.indexOfItem(oCard);
+
+                this._oOriginalTrendParent.removeItem(oCard);
+
+                oCard.setWidth("100%");
+                oCard.setHeight("100%");
+
+                this.byId("_IDGenVizFrame").setWidth("100%");
+                this.byId("_IDGenVizFrame").setHeight("650px");
+
+                this._oTrendDialog.removeAllContent();
+                this._oTrendDialog.addContent(oCard);
+
+                oButton.setIcon("sap-icon://exit-full-screen");
+
+                this._bTrendExpanded = true;
+
+                this._oTrendDialog.open();
+
+            } else {
 
                 oCard.setWidth("40%");
                 oCard.setHeight("420px");
 
                 this.byId("_IDGenVizFrame").setHeight("260px");
 
-                oButton.setIcon("sap-icon://full-screen");
+                this._oTrendDialog.close();
 
-                this._bTrendExpanded = false;
             }
 
-        }.bind(this));
-
-    } else {
-        this._oTrendDialog.setContentWidth(iContentWidth + "px");
-    }
-
-    if (!this._bTrendExpanded) {
-
-        this._oOriginalTrendParent = oCard.getParent();
-
-        this._iOriginalTrendIndex =
-            this._oOriginalTrendParent.indexOfItem(oCard);
-
-        this._oOriginalTrendParent.removeItem(oCard);
-
-        oCard.setWidth("100%");
-        oCard.setHeight("100%");
-
-        this.byId("_IDGenVizFrame").setWidth("100%");
-        this.byId("_IDGenVizFrame").setHeight("650px");
-
-        this._oTrendDialog.removeAllContent();
-        this._oTrendDialog.addContent(oCard);
-
-        oButton.setIcon("sap-icon://exit-full-screen");
-
-        this._bTrendExpanded = true;
-
-        this._oTrendDialog.open();
-
-    } else {
-
-        oCard.setWidth("40%");
-        oCard.setHeight("420px");
-
-        this.byId("_IDGenVizFrame").setHeight("260px");
-
-        this._oTrendDialog.close();
-
-    }
-
-},
+        },
         // ✅ sap.viz has no vizProperties option to style a single categoryAxis
         // label differently from the rest — "categoryAxis.label" applies to
         // every label uniformly. So instead, once the chart has actually
@@ -3223,13 +3223,13 @@ sap.ui.define([
 
         },
 
-_getContentAreaWidth: function () {
-    var oViewDom = this.getView().getDomRef();
-    if (oViewDom) {
-        return oViewDom.offsetWidth;
-    }
-    return window.innerWidth * 0.92;
-}
+        _getContentAreaWidth: function () {
+            var oViewDom = this.getView().getDomRef();
+            if (oViewDom) {
+                return oViewDom.offsetWidth;
+            }
+            return window.innerWidth * 0.92;
+        }
 
 
     });

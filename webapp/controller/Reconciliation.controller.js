@@ -2234,6 +2234,10 @@ sap.ui.define([
                     var oColumn =
                         new sap.m.Column({
 
+                            // Fixed width prevents the table from compressing
+                            // all columns when many fields are displayed.
+                            width: "10rem",
+
                             hAlign:
                                 oColumnConfig.type === "amount" ||
                                     oColumnConfig.type === "number"
@@ -2242,8 +2246,7 @@ sap.ui.define([
 
                             header:
                                 new sap.m.Text({
-                                    text:
-                                        oColumnConfig.label
+                                    text: oColumnConfig.label
                                 })
                         });
 

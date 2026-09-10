@@ -5,14 +5,11 @@
     xmlns:f="sap.f"
     xmlns:core="sap.ui.core"
     xmlns:fl="sap.ui.fl.variants"
-    xmlns:smartvariants="sap.ui.comp.smartvariants"
 >
     <VBox
         id="_IDGenBreadcrumbBar"
         class="breadcrumbBar"
     >
-
-   
         <HBox
             id="_IDGenBreadcrumbRow"
             alignItems="Center"
@@ -52,7 +49,7 @@
     </VBox>
 
     <f:DynamicPage id="mainPage">
-        <!-- HEADER -->
+        <!-- Page header -->
         <f:title>
             <f:DynamicPageTitle id="_IDGenDynamicPageTitle">
                 <f:heading>
@@ -61,9 +58,6 @@
                             id="_IDGenTitleRow"
                             alignItems="Center"
                         >
-
-       
-
                             <Title
                                 id="_IDGenTitle10"
                                 text="Payment Overview - Department Manager"
@@ -76,320 +70,417 @@
                         />
                     </VBox>
                 </f:heading>
-
-                <!-- ✅ GLOBAL FILTER BAR — common across all tabs, placed in
-                     the title's "actions" area so it sits at the top-right
-                     corner next to the "Payment Overview" heading. Bound to
-                     the shared "filterModel" so every tab reads/writes the
-                     same values. -->
                 <f:actions>
-                   
-                        <Label
-                            id="_IDGenLabel"
-                            text="Clearing Area:"
-                            class="sapUiTinyMarginBegin"
-                        />
+                    <Label
+                        id="_IDGenLabel"
+                        text="Clearing Area:"
+                        class="sapUiTinyMarginBegin"
+                    />
 
-                        <Select
-                            id="clearingAreaSelect"
-                            width="120px"
-                            selectedKey="{filterModel>/clearingArea}"
-                            change="onClearingAreaChange"
-                            class="sapUiTinyMarginEnd sapUiTinyMarginBegin"
-                        >
-                            <core:Item
-                                id="_IDGenItem10"
-                                key="BOI"
-                                text="BOI"
-                            />
-                            <core:Item
-                                id="_IDGenItem11"
-                                key="CRDMGM"
-                                text="CRDMGM"
-                            />
-                            <core:Item
-                                id="_IDGenItem12"
-                                key="DEBNK1"
-                                text="DEBNK1"
-                            />
-                            <core:Item
-                                id="_IDGenItem13"
-                                key="DEBNKC"
-                                text="DEBNKC"
-                            />
-                            <core:Item
-                                id="_IDGenItem14"
-                                key="DEBNKM"
-                                text="DEBNKM"
-                            />
-                            <core:Item
-                                id="_IDGenItem15"
-                                key="DZBSCL"
-                                text="DZBSCL"
-                            />
-                            <core:Item
-                                id="_IDGenItem16"
-                                key="EBATST"
-                                text="EBATST"
-                            />
-                            <core:Item
-                                id="_IDGenItem17"
-                                key="FRBNFR"
-                                text="FRBNFR"
-                            />
-                            <core:Item
-                                id="_IDGenItem18"
-                                key="FRBNKC"
-                                text="FRBNKC"
-                            />
-                            <core:Item
-                                id="_IDGenItem19"
-                                key="FRBNKM"
-                                text="FRBNKM"
-                            />
-                            <core:Item
-                                id="_IDGenItem20"
-                                key="MASTER"
-                                text="MASTER"
-                            />
-                        </Select>
-
-                        <Label
-                            id="_IDGenLabel1"
-                            text="Date:"
-                            class="sapUiTinyMarginEnd sapUiTinyMarginBegin"
+                    <Select
+                        id="clearingAreaSelect"
+                        width="120px"
+                        selectedKey="{filterModel>/clearingArea}"
+                        change="onClearingAreaChange"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBegin"
+                    >
+                        <core:Item
+                            id="_IDGenItem10"
+                            key="BOI"
+                            text="BOI"
                         />
-
-                        <DatePicker
-                            id="kpiDatePicker"
-                            value="{filterModel>/kpiDate}"
-                            valueFormat="yyyy-MM-dd"
-                            displayFormat="medium"
-                            change="onKpiDateChange"
-                            width="180px"
+                        <core:Item
+                            id="_IDGenItem11"
+                            key="CRDMGM"
+                            text="CRDMGM"
                         />
-                
+                        <core:Item
+                            id="_IDGenItem12"
+                            key="DEBNK1"
+                            text="DEBNK1"
+                        />
+                        <core:Item
+                            id="_IDGenItem13"
+                            key="DEBNKC"
+                            text="DEBNKC"
+                        />
+                        <core:Item
+                            id="_IDGenItem14"
+                            key="DEBNKM"
+                            text="DEBNKM"
+                        />
+                        <core:Item
+                            id="_IDGenItem15"
+                            key="DZBSCL"
+                            text="DZBSCL"
+                        />
+                        <core:Item
+                            id="_IDGenItem16"
+                            key="EBATST"
+                            text="EBATST"
+                        />
+                        <core:Item
+                            id="_IDGenItem17"
+                            key="FRBNFR"
+                            text="FRBNFR"
+                        />
+                        <core:Item
+                            id="_IDGenItem18"
+                            key="FRBNKC"
+                            text="FRBNKC"
+                        />
+                        <core:Item
+                            id="_IDGenItem19"
+                            key="FRBNKM"
+                            text="FRBNKM"
+                        />
+                        <core:Item
+                            id="_IDGenItem20"
+                            key="MASTER"
+                            text="MASTER"
+                        />
+                    </Select>
+
+                    <Label
+                        id="_IDGenLabel1"
+                        text="Date:"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBegin"
+                    />
+
+                    <DatePicker
+                        id="kpiDatePicker"
+                        value="{filterModel>/kpiDate}"
+                        valueFormat="yyyy-MM-dd"
+                        displayFormat="medium"
+                        change="onKpiDateChange"
+                        width="180px"
+                    />
                 </f:actions>
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- CONTENT -->
+        <!-- Page content -->
         <f:content>
-          <!-- ✅ f:DynamicPage's "content" aggregation only accepts a single
-               control, so it's wrapped here (single VBox holding the tabs). -->
-          <VBox id="_IDGenContentWrapper">
-            <!-- TABS -->
-            <IconTabBar
-                id="mainTabs"
-                expandable="false"
-                class="sapUiResponsivePadding stickyIconTabBar"
-                select="onTabSelect"
-            >
-                <items>
-                    <!-- ✅ TAB 1: OVERVIEW -->
-                    <IconTabFilter
-                        id="_IDGenIconTabFilter"
-                        text="Overview"
-                        key="overview"
-                    >
-                        <VBox
-                            id="_IDGenVBox"
-                            class="sapUiTinyMargin"
+            <VBox id="_IDGenContentWrapper">
+                <!-- Main navigation -->
+                <IconTabBar
+                    id="mainTabs"
+                    expandable="false"
+                    class="sapUiResponsivePadding stickyIconTabBar"
+                    select="onTabSelect"
+                >
+                    <items>
+                        <!-- Overview tab -->
+                        <IconTabFilter
+                            id="_IDGenIconTabFilter"
+                            text="Overview"
+                            key="overview"
                         >
-                            <ScrollContainer
-                                id="_IDGenKpiScroll"
-                                horizontal="false"
-                                vertical="false"
-                                class="sapUiSmallMarginBottom"
-                                width="100%"
-                                height="auto"
+                            <VBox
+                                id="_IDGenVBox"
+                                class="sapUiTinyMargin"
                             >
-
-                             <VBox id="_IDGenVBox118" class="kpiSectionContainer">
-
-        
-                                <!-- KPI SECTION -->
-                             <FlexBox
-    id="kpiSummaryRow"
-    wrap="Wrap"
-    fitContainer="true"
-    renderType="Bare"
-    justifyContent="SpaceBetween"
-    alignItems="Stretch"
-    width="100%"
-    class="kpiSummaryRow">
-
-    <!-- TOTAL PAYMENTS -->
-    <VBox id="_IDGenKpiTotal" class="kpiCard" width="100%" height="100%">
-        <HBox id="_IDGenKpiTotalTop" class="kpiCardTopRow">
-            <Text id="_IDGenKpiTotalLabel" text="Total Payments" class="kpiCardLabel"/>
-            <HBox id="_IDGenKpiTotalIconBox" class="kpiIconBox kpiIconBlue">
-                <core:Icon id="_IDGenKpiTotalIcon" src="sap-icon://sales-order"/>
-            </HBox>
-        </HBox>
-        <Text id="_IDGenKpiTotalValue" text="{kpiSummaryModel>/TotalProcessed}" class="kpiCardValue kpiValueBlue"/>
-        <Text 
-            id="_IDGenKpiTotalSub" 
-            text="{ path: 'kpiSummaryModel>/totalProcessedTrend', formatter: '.formatKpiTrendText' }" 
-            class="{ path: 'kpiSummaryModel>/totalProcessedTrend', formatter: '.formatKpiTrendClass' }"
-        />
-    </VBox>
-
-    <!-- SUCCESSFUL PAYMENTS -->
-    <VBox id="_IDGenKpiSuccess" class="kpiCard" width="100%" height="100%">
-        <HBox id="_IDGenKpiSuccessTop" class="kpiCardTopRow">
-            <Text id="_IDGenKpiSuccessLabel" text="Successful Payments" class="kpiCardLabel"/>
-            <HBox id="_IDGenKpiSuccessIconBox" class="kpiIconBox kpiIconGreen">
-                <core:Icon id="_IDGenKpiSuccessIcon" src="sap-icon://accept"/>
-            </HBox>
-        </HBox>
-        <Text id="_IDGenKpiSuccessValue" text="{kpiSummaryModel>/SuccessfulPayments}" class="kpiCardValue kpiValueGreen"/>
-        <Text 
-            id="_IDGenKpiSuccessSub" 
-            text="{ path: 'kpiSummaryModel>/successfulTrend', formatter: '.formatKpiTrendText' }" 
-            class="{ path: 'kpiSummaryModel>/successfulTrend', formatter: '.formatKpiTrendClass' }"
-        />
-    </VBox>
-
-    <!-- PENDING PAYMENTS -->
-    <VBox id="_IDGenKpiPending" class="kpiCard" width="100%" height="100%">
-        <HBox id="_IDGenKpiPendingTop" class="kpiCardTopRow">
-            <Text id="_IDGenKpiPendingLabel" text="Pending Payments" class="kpiCardLabel"/>
-            <HBox id="_IDGenKpiPendingIconBox" class="kpiIconBox kpiIconOrange">
-                <core:Icon id="_IDGenKpiPendingIcon" src="sap-icon://pending"/>
-            </HBox>
-        </HBox>
-        <Text id="_IDGenKpiPendingValue" text="{kpiSummaryModel>/PendingPayments}" class="kpiCardValue kpiValueOrange"/>
-        <Text 
-            id="_IDGenKpiPendingSub" 
-            text="{ path: 'kpiSummaryModel>/pendingTrend', formatter: '.formatKpiTrendText' }" 
-            class="{ path: 'kpiSummaryModel>/pendingTrend', formatter: '.formatKpiTrendClass' }"
-        />
-    </VBox>
-
-    <!-- FAILED PAYMENTS -->
-    <VBox id="_IDGenKpiFailed" class="kpiCard" width="100%" height="100%">
-        <HBox id="_IDGenKpiFailedTop" class="kpiCardTopRow">
-            <Text id="_IDGenKpiFailedLabel" text="Failed Payments" class="kpiCardLabel"/>
-            <HBox id="_IDGenKpiFailedIconBox" class="kpiIconBox kpiIconRed">
-                <core:Icon id="_IDGenKpiFailedIcon" src="sap-icon://error"/>
-            </HBox>
-        </HBox>
-        <Text id="_IDGenKpiFailedValue" text="{kpiSummaryModel>/FailedPayments}" class="kpiCardValue kpiValueRed"/>
-        <Text 
-            id="_IDGenKpiFailedSub" 
-            text="{ path: 'kpiSummaryModel>/failedTrend', formatter: '.formatKpiTrendText' }" 
-            class="{ path: 'kpiSummaryModel>/failedTrend', formatter: '.formatKpiTrendClass' }"
-        />
-    </VBox>
-
-    <!-- REJECTED PAYMENTS -->
-    <VBox id="_IDGenKpiRejected" class="kpiCard" width="100%" height="100%">
-        <HBox id="_IDGenKpiRejectedTop" class="kpiCardTopRow">
-            <Text id="_IDGenKpiRejectedLabel" text="Rejected Payments" class="kpiCardLabel"/>
-            <HBox id="_IDGenKpiRejectedIconBox" class="kpiIconBox kpiIconDarkRed">
-                <core:Icon id="_IDGenKpiRejectedIcon" src="sap-icon://decline"/>
-            </HBox>
-        </HBox>
-        <Text id="_IDGenKpiRejectedValue" text="{kpiSummaryModel>/RejectedPayments}" class="kpiCardValue kpiValueDarkRed"/>
-        <Text 
-            id="_IDGenKpiRejectedSub" 
-            text="{ path: 'kpiSummaryModel>/rejectedTrend', formatter: '.formatKpiTrendText' }" 
-            class="{ path: 'kpiSummaryModel>/rejectedTrend', formatter: '.formatKpiTrendClass' }"
-        />
-    </VBox>
-
-</FlexBox>
-                                </VBox>
-                                
-                            </ScrollContainer>
-
-                            <!-- CHARTS -->
-                            <HBox
-                                id="_IDGenHBox1"
-                                justifyContent="SpaceBetween"
-                                alignItems="Start"
-                                class="sapUiNoMarginTop"
-                              
-                            >
-                                <!-- BAR CHART -->
-                                <VBox
-                                    id="_IDGenVBox1"
-                                    width="68%"
-                                    height="440px"
-                                    class="chartCard chartResizable sapUiSmallPadding"
-                                    justifyContent="SpaceBetween"
+                                <ScrollContainer
+                                    id="_IDGenKpiScroll"
+                                    horizontal="false"
+                                    vertical="false"
+                                    class="sapUiSmallMarginBottom"
+                                    width="100%"
+                                    height="auto"
                                 >
-                                    <HBox
-                                        id="_IDGenFlowHeaderRow"
-                                        justifyContent="SpaceBetween"
-                                        alignItems="Center"
-                                        width="100%"
+                                    <VBox
+                                        id="_IDGenVBox118"
+                                        class="kpiSectionContainer"
                                     >
-                                        <Title
-                                            id="_IDGenTitle2"
-                                            text="{infoModel>/flowChartTitle}"
-                                        />
-                                        <HBox
-                                            id="_IDGenFlowControlsGroup"
-                                            alignItems="Center"
+                                        <!-- KPI summary -->
+                                        <FlexBox
+                                            id="kpiSummaryRow"
+                                            wrap="Wrap"
+                                            fitContainer="true"
+                                            renderType="Bare"
+                                            justifyContent="SpaceBetween"
+                                            alignItems="Stretch"
+                                            width="100%"
+                                            class="kpiSummaryRow"
                                         >
-                                            <Button
-                                                id="chartTypeButton"
-                                                icon="sap-icon://bar-chart"
-                                                type="Default"
-                                                tooltip="Change chart type"
-                                                press="onChartTypeMenuPress"
-                                                class="sapUiTinyMarginBegin"
-                                            />
-
-                                            <!-- Maximize / Restore -->
-                                            <Button
-                                                id="chartExpandButton"
-                                                icon="sap-icon://full-screen"
-                                                type="Default"
-                                                tooltip="Maximize"
-                                                press="onToggleChartSize"
-                                                class="chartToolbarButton sapUiTinyMarginBegin"
-                                            />
-
-                                            <Select
-                                                id="flowGranularitySelect"
-                                                selectedKey="Day"
-                                                change="onFlowGranularityChange"
-                                                width="110px"
-                                                class="sapUiTinyMarginBegin"
+                                            <!-- Total payments KPI -->
+                                            <VBox
+                                                id="_IDGenKpiTotal"
+                                                class="kpiCard"
+                                                width="100%"
+                                                height="100%"
                                             >
-                                                <core:Item
-                                                    id="_IDGenFlowGranDay"
-                                                    key="Day"
-                                                    text="Daily"
+                                                <HBox
+                                                    id="_IDGenKpiTotalTop"
+                                                    class="kpiCardTopRow"
+                                                >
+                                                    <Text
+                                                        id="_IDGenKpiTotalLabel"
+                                                        text="Total Payments"
+                                                        class="kpiCardLabel"
+                                                    />
+                                                    <HBox
+                                                        id="_IDGenKpiTotalIconBox"
+                                                        class="kpiIconBox kpiIconBlue"
+                                                    >
+                                                        <core:Icon
+                                                            id="_IDGenKpiTotalIcon"
+                                                            src="sap-icon://sales-order"
+                                                        />
+                                                    </HBox>
+                                                </HBox>
+                                                <Text
+                                                    id="_IDGenKpiTotalValue"
+                                                    text="{kpiSummaryModel>/TotalProcessed}"
+                                                    class="kpiCardValue kpiValueBlue"
                                                 />
-                                                <core:Item
-                                                    id="_IDGenFlowGranHour"
-                                                    key="Hour"
-                                                    text="Hourly"
+                                                <Text
+                                                    id="_IDGenKpiTotalSub"
+                                                    text="{ path: 'kpiSummaryModel>/totalProcessedTrend', formatter: '.formatKpiTrendText' }"
+                                                    class="{ path: 'kpiSummaryModel>/totalProcessedTrend', formatter: '.formatKpiTrendClass' }"
                                                 />
-                                            </Select>
+                                            </VBox>
+
+                                            <!-- Successful payments KPI -->
+                                            <VBox
+                                                id="_IDGenKpiSuccess"
+                                                class="kpiCard"
+                                                width="100%"
+                                                height="100%"
+                                            >
+                                                <HBox
+                                                    id="_IDGenKpiSuccessTop"
+                                                    class="kpiCardTopRow"
+                                                >
+                                                    <Text
+                                                        id="_IDGenKpiSuccessLabel"
+                                                        text="Successful Payments"
+                                                        class="kpiCardLabel"
+                                                    />
+                                                    <HBox
+                                                        id="_IDGenKpiSuccessIconBox"
+                                                        class="kpiIconBox kpiIconGreen"
+                                                    >
+                                                        <core:Icon
+                                                            id="_IDGenKpiSuccessIcon"
+                                                            src="sap-icon://accept"
+                                                        />
+                                                    </HBox>
+                                                </HBox>
+                                                <Text
+                                                    id="_IDGenKpiSuccessValue"
+                                                    text="{kpiSummaryModel>/SuccessfulPayments}"
+                                                    class="kpiCardValue kpiValueGreen"
+                                                />
+                                                <Text
+                                                    id="_IDGenKpiSuccessSub"
+                                                    text="{ path: 'kpiSummaryModel>/successfulTrend', formatter: '.formatKpiTrendText' }"
+                                                    class="{ path: 'kpiSummaryModel>/successfulTrend', formatter: '.formatKpiTrendClass' }"
+                                                />
+                                            </VBox>
+
+                                            <!-- Pending payments KPI -->
+                                            <VBox
+                                                id="_IDGenKpiPending"
+                                                class="kpiCard"
+                                                width="100%"
+                                                height="100%"
+                                            >
+                                                <HBox
+                                                    id="_IDGenKpiPendingTop"
+                                                    class="kpiCardTopRow"
+                                                >
+                                                    <Text
+                                                        id="_IDGenKpiPendingLabel"
+                                                        text="Pending Payments"
+                                                        class="kpiCardLabel"
+                                                    />
+                                                    <HBox
+                                                        id="_IDGenKpiPendingIconBox"
+                                                        class="kpiIconBox kpiIconOrange"
+                                                    >
+                                                        <core:Icon
+                                                            id="_IDGenKpiPendingIcon"
+                                                            src="sap-icon://pending"
+                                                        />
+                                                    </HBox>
+                                                </HBox>
+                                                <Text
+                                                    id="_IDGenKpiPendingValue"
+                                                    text="{kpiSummaryModel>/PendingPayments}"
+                                                    class="kpiCardValue kpiValueOrange"
+                                                />
+                                                <Text
+                                                    id="_IDGenKpiPendingSub"
+                                                    text="{ path: 'kpiSummaryModel>/pendingTrend', formatter: '.formatKpiTrendText' }"
+                                                    class="{ path: 'kpiSummaryModel>/pendingTrend', formatter: '.formatKpiTrendClass' }"
+                                                />
+                                            </VBox>
+
+                                            <!-- Failed payments KPI -->
+                                            <VBox
+                                                id="_IDGenKpiFailed"
+                                                class="kpiCard"
+                                                width="100%"
+                                                height="100%"
+                                            >
+                                                <HBox
+                                                    id="_IDGenKpiFailedTop"
+                                                    class="kpiCardTopRow"
+                                                >
+                                                    <Text
+                                                        id="_IDGenKpiFailedLabel"
+                                                        text="Failed Payments"
+                                                        class="kpiCardLabel"
+                                                    />
+                                                    <HBox
+                                                        id="_IDGenKpiFailedIconBox"
+                                                        class="kpiIconBox kpiIconRed"
+                                                    >
+                                                        <core:Icon
+                                                            id="_IDGenKpiFailedIcon"
+                                                            src="sap-icon://error"
+                                                        />
+                                                    </HBox>
+                                                </HBox>
+                                                <Text
+                                                    id="_IDGenKpiFailedValue"
+                                                    text="{kpiSummaryModel>/FailedPayments}"
+                                                    class="kpiCardValue kpiValueRed"
+                                                />
+                                                <Text
+                                                    id="_IDGenKpiFailedSub"
+                                                    text="{ path: 'kpiSummaryModel>/failedTrend', formatter: '.formatKpiTrendText' }"
+                                                    class="{ path: 'kpiSummaryModel>/failedTrend', formatter: '.formatKpiTrendClass' }"
+                                                />
+                                            </VBox>
+
+                                            <!-- Rejected payments KPI -->
+                                            <VBox
+                                                id="_IDGenKpiRejected"
+                                                class="kpiCard"
+                                                width="100%"
+                                                height="100%"
+                                            >
+                                                <HBox
+                                                    id="_IDGenKpiRejectedTop"
+                                                    class="kpiCardTopRow"
+                                                >
+                                                    <Text
+                                                        id="_IDGenKpiRejectedLabel"
+                                                        text="Rejected Payments"
+                                                        class="kpiCardLabel"
+                                                    />
+                                                    <HBox
+                                                        id="_IDGenKpiRejectedIconBox"
+                                                        class="kpiIconBox kpiIconDarkRed"
+                                                    >
+                                                        <core:Icon
+                                                            id="_IDGenKpiRejectedIcon"
+                                                            src="sap-icon://decline"
+                                                        />
+                                                    </HBox>
+                                                </HBox>
+                                                <Text
+                                                    id="_IDGenKpiRejectedValue"
+                                                    text="{kpiSummaryModel>/RejectedPayments}"
+                                                    class="kpiCardValue kpiValueDarkRed"
+                                                />
+                                                <Text
+                                                    id="_IDGenKpiRejectedSub"
+                                                    text="{ path: 'kpiSummaryModel>/rejectedTrend', formatter: '.formatKpiTrendText' }"
+                                                    class="{ path: 'kpiSummaryModel>/rejectedTrend', formatter: '.formatKpiTrendClass' }"
+                                                />
+                                            </VBox>
+                                        </FlexBox>
+                                    </VBox>
+                                </ScrollContainer>
+
+                                <!-- Charts -->
+                                <HBox
+                                    id="_IDGenHBox1"
+                                    justifyContent="SpaceBetween"
+                                    alignItems="Start"
+                                    class="sapUiNoMarginTop"
+                                >
+                                    <!-- Payment flow chart -->
+                                    <VBox
+                                        id="_IDGenVBox1"
+                                        width="68%"
+                                        height="440px"
+                                        class="chartCard chartResizable sapUiSmallPadding"
+                                        justifyContent="SpaceBetween"
+                                    >
+                                        <HBox
+                                            id="_IDGenFlowHeaderRow"
+                                            justifyContent="SpaceBetween"
+                                            alignItems="Center"
+                                            width="100%"
+                                        >
+                                            <Title
+                                                id="_IDGenTitle2"
+                                                text="{infoModel>/flowChartTitle}"
+                                            />
+                                            <HBox
+                                                id="_IDGenFlowControlsGroup"
+                                                alignItems="Center"
+                                            >
+                                                <Button
+                                                    id="chartTypeButton"
+                                                    icon="sap-icon://bar-chart"
+                                                    type="Default"
+                                                    tooltip="Change chart type"
+                                                    press="onChartTypeMenuPress"
+                                                    class="sapUiTinyMarginBegin"
+                                                />
+
+                                                <!-- Maximize / restore -->
+                                                <Button
+                                                    id="chartExpandButton"
+                                                    icon="sap-icon://full-screen"
+                                                    type="Default"
+                                                    tooltip="Maximize"
+                                                    press="onToggleChartSize"
+                                                    class="chartToolbarButton sapUiTinyMarginBegin"
+                                                />
+
+                                                <Select
+                                                    id="flowGranularitySelect"
+                                                    selectedKey="Day"
+                                                    change="onFlowGranularityChange"
+                                                    width="110px"
+                                                    class="sapUiTinyMarginBegin"
+                                                >
+                                                    <core:Item
+                                                        id="_IDGenFlowGranDay"
+                                                        key="Day"
+                                                        text="Daily"
+                                                    />
+                                                    <core:Item
+                                                        id="_IDGenFlowGranHour"
+                                                        key="Hour"
+                                                        text="Hourly"
+                                                    />
+                                                </Select>
+                                            </HBox>
                                         </HBox>
-                                    </HBox>
 
-                                    <MessageStrip
-                                        id="_IDGenMessageStrip"
-                                        text="{infoModel>/spikeMessage}"
-                                        type="Information"
-                                        showIcon="true"
-                                        showCloseButton="false"
-                                        visible="{infoModel>/showSpike}"
-                                        class="sapUiSmallMarginTop"
-                                    />
+                                        <MessageStrip
+                                            id="_IDGenMessageStrip"
+                                            text="{infoModel>/spikeMessage}"
+                                            type="Information"
+                                            showIcon="true"
+                                            showCloseButton="false"
+                                            visible="{infoModel>/showSpike}"
+                                            class="sapUiSmallMarginTop"
+                                        />
 
-                                    <viz:VizFrame
-                                        id="barChart"
-                                        vizType="stacked_column"
-                                        width="100%"
-                                        height="300px"
-                                        vizProperties='{
+                                        <viz:VizFrame
+                                            id="barChart"
+                                            vizType="stacked_column"
+                                            width="100%"
+                                            height="300px"
+                                            vizProperties='{
     "title": { "visible": false },
     "legend": {
         "visible": true,
@@ -421,870 +512,943 @@
         }
     }
 }'
-                                        xmlns:viz="sap.viz.ui5.controls"
-                                        xmlns:viz.data="sap.viz.ui5.data"
-                                        xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
-                                    >
-                                        <viz:dataset>
-                                            <viz.data:FlattenedDataset
-                                                id="_IDGenFlattenedDataset"
-                                                data="{flowModel>/data}"
-                                            >
-                                                <viz.data:dimensions>
-                                                    <viz.data:DimensionDefinition
-                                                        id="_IDGenDimensionDefinition"
-                                                        name="Day"
-                                                        value="{flowModel>Day}"
-                                                    />
-                                                    <viz.data:DimensionDefinition
-                                                        id="_IDGenDimensionDefinition10"
-                                                        name="Channel"
-                                                        value="{flowModel>Channel}"
-                                                    />
-                                                </viz.data:dimensions>
-                                                <viz.data:measures>
-                                                    <viz.data:MeasureDefinition
-                                                        id="_IDGenMeasureDefinition"
-                                                        name="Payments"
-                                                        value="{flowModel>Payments}"
-                                                    />
-                                                </viz.data:measures>
-                                            </viz.data:FlattenedDataset>
-                                        </viz:dataset>
-
-                                        <viz:feeds>
-                                            <viz.feeds:FeedItem
-                                                id="_IDGenFeedItem"
-                                                uid="valueAxis"
-                                                type="Measure"
-                                                values="Payments"
-                                            />
-                                            <viz.feeds:FeedItem
-                                                id="_IDGenFeedItem1"
-                                                uid="categoryAxis"
-                                                type="Dimension"
-                                                values="Day"
-                                            />
-                                            <viz.feeds:FeedItem
-                                                id="_IDGenFeedItem9"
-                                                uid="color"
-                                                type="Dimension"
-                                                values="Channel"
-                                            />
-                                        </viz:feeds>
-                                    </viz:VizFrame>
-
-                                    <!-- <HBox id="_IDGenHBox17" justifyContent="Start" -->
-                                    <!-- class="sapUiTinyMarginTop sapUiSmallMarginBegin"> -->
-
-                                    <!-- <HBox id="_IDGenHBox24" alignItems="Center"> -->
-
-                                    <!-- blue box -->
-                                    <!-- <VBox id="_IDGenVBox27" width="8px" height="8px" class="legendColorBox"/> -->
-
-                                    <!-- <Text id="_IDGenText26" text="Payments" class="sapUiTinyMarginBegin legendText"/> -->
-
-                                    <!-- </HBox> -->
-
-                                    <!-- </HBox>   -->
-                                </VBox>
-
-                                <!-- DONUT -->
-                                <VBox
-                                    id="_IDGenVBox2"
-                                    width="30%"
-                                    height="440px"
-                                    class="chartCard"
-                                    justifyContent="Start"
-                                >
-                                    <!-- HEADER -->
-                                    <HBox
-                                        id="donutHeaderRow"
-                                        justifyContent="SpaceBetween"
-                                        alignItems="Center"
-                                        width="100%"
-                                    >
-                                        <Title
-                                            id="_IDGenTitle"
-                                            text="Status Breakdown"
-                                            level="H6"
-                                        />
-                                        <Button
-                                            id="donutExpandButton"
-                                            icon="sap-icon://full-screen"
-                                            type="Transparent"
-                                            tooltip="Maximize"
-                                            press="onToggleDonutSize"
-                                            class="chartToolbarButton"
-                                        />
-                                    </HBox>
-                                    <Text
-                                        id="_IDGenText8"
-                                        text="{statusModel>/totalText}"
-                                        class="sapUiNoMarginBottom"
-                                    />
-
-                                  
-
-                                    <HBox
-                                        id="_IDGenHBox4"
-                                        alignItems="Center"
-                                        justifyContent="Start"
-                                        class="sapUiNoMargin"
-                                        width="100%"
-                                        height="220px"
-                                    >
-                                        <!-- ✅ LEFT: DONUT -->
-                                        <VBox
-                                            id="_IDGenVBox9"
-                                            width="48%"
-                                            height="220px"
-                                            justifyContent="Center"
-                                            alignItems="Center"
-                                            class="donutWrapper"
+                                            xmlns:viz="sap.viz.ui5.controls"
+                                            xmlns:viz.data="sap.viz.ui5.data"
+                                            xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
                                         >
-                                            <viz:VizFrame
-                                                id="donutChart"
-                                                vizType="donut"
-                                                selectData="onDonutSelect"
-                                                width="190px"
-                                                height="190px"
-                                               vizProperties='{       
+                                            <viz:dataset>
+                                                <viz.data:FlattenedDataset
+                                                    id="_IDGenFlattenedDataset"
+                                                    data="{flowModel>/data}"
+                                                >
+                                                    <viz.data:dimensions>
+                                                        <viz.data:DimensionDefinition
+                                                            id="_IDGenDimensionDefinition"
+                                                            name="Day"
+                                                            value="{flowModel>Day}"
+                                                        />
+                                                        <viz.data:DimensionDefinition
+                                                            id="_IDGenDimensionDefinition10"
+                                                            name="Channel"
+                                                            value="{flowModel>Channel}"
+                                                        />
+                                                    </viz.data:dimensions>
+                                                    <viz.data:measures>
+                                                        <viz.data:MeasureDefinition
+                                                            id="_IDGenMeasureDefinition"
+                                                            name="Payments"
+                                                            value="{flowModel>Payments}"
+                                                        />
+                                                    </viz.data:measures>
+                                                </viz.data:FlattenedDataset>
+                                            </viz:dataset>
+
+                                            <viz:feeds>
+                                                <viz.feeds:FeedItem
+                                                    id="_IDGenFeedItem"
+                                                    uid="valueAxis"
+                                                    type="Measure"
+                                                    values="Payments"
+                                                />
+                                                <viz.feeds:FeedItem
+                                                    id="_IDGenFeedItem1"
+                                                    uid="categoryAxis"
+                                                    type="Dimension"
+                                                    values="Day"
+                                                />
+                                                <viz.feeds:FeedItem
+                                                    id="_IDGenFeedItem9"
+                                                    uid="color"
+                                                    type="Dimension"
+                                                    values="Channel"
+                                                />
+                                            </viz:feeds>
+                                        </viz:VizFrame>
+                                        <!-- </HBox>   -->
+                                    </VBox>
+
+                                    <!-- Status breakdown -->
+                                    <VBox
+                                        id="_IDGenVBox2"
+                                        width="30%"
+                                        height="440px"
+                                        class="chartCard"
+                                        justifyContent="Start"
+                                    >
+                                        <!-- Page header -->
+                                        <HBox
+                                            id="donutHeaderRow"
+                                            justifyContent="SpaceBetween"
+                                            alignItems="Center"
+                                            width="100%"
+                                        >
+                                            <Title
+                                                id="_IDGenTitle"
+                                                text="Status Breakdown"
+                                                level="H6"
+                                            />
+                                            <Button
+                                                id="donutExpandButton"
+                                                icon="sap-icon://full-screen"
+                                                type="Transparent"
+                                                tooltip="Maximize"
+                                                press="onToggleDonutSize"
+                                                class="chartToolbarButton"
+                                            />
+                                        </HBox>
+                                        <Text
+                                            id="_IDGenText8"
+                                            text="{statusModel>/totalText}"
+                                            class="sapUiNoMarginBottom"
+                                        />
+
+                                        <HBox
+                                            id="_IDGenHBox4"
+                                            alignItems="Center"
+                                            justifyContent="Start"
+                                            class="sapUiNoMargin"
+                                            width="100%"
+                                            height="220px"
+                                        >
+                                            <!-- ✅ LEFT: DONUT -->
+                                            <VBox
+                                                id="_IDGenVBox9"
+                                                width="48%"
+                                                height="220px"
+                                                justifyContent="Center"
+                                                alignItems="Center"
+                                                class="donutWrapper"
+                                            >
+                                                <viz:VizFrame
+                                                    id="donutChart"
+                                                    vizType="donut"
+                                                    selectData="onDonutSelect"
+                                                    width="190px"
+                                                    height="190px"
+                                                    vizProperties='{       
  "plotArea": {            
      "innerRadius": "75%",      
      "colorPalette": ["#90b195", "#dfb187", "#e99088"]   
  } ,
  "tooltip": { "visible": false }
 }'
-                                                xmlns:viz="sap.viz.ui5.controls"
-                                                xmlns:viz.data="sap.viz.ui5.data"
-                                                xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
-                                            >
-                                                <viz:dataset>
-                                                    <viz.data:FlattenedDataset
-                                                        id="_IDGenFlattenedDataset2"
-                                                        data="{statusModel>/data}"
-                                                    >
-                                                        <viz.data:dimensions>
-                                                            <viz.data:DimensionDefinition
-                                                                id="_IDGenDimensionDefinition1"
-                                                                name="Status"
-                                                                value="{statusModel>status}"
-                                                            />
-                                                        </viz.data:dimensions>
-                                                        <viz.data:measures>
-                                                            <viz.data:MeasureDefinition
-                                                                id="_IDGenMeasureDefinition1"
-                                                                name="Count"
-                                                                value="{statusModel>value}"
-                                                            />
-                                                        </viz.data:measures>
-                                                    </viz.data:FlattenedDataset>
-                                                </viz:dataset>
+                                                    xmlns:viz="sap.viz.ui5.controls"
+                                                    xmlns:viz.data="sap.viz.ui5.data"
+                                                    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+                                                >
+                                                    <viz:dataset>
+                                                        <viz.data:FlattenedDataset
+                                                            id="_IDGenFlattenedDataset2"
+                                                            data="{statusModel>/data}"
+                                                        >
+                                                            <viz.data:dimensions
+                                                            >
+                                                                <viz.data:DimensionDefinition
+                                                                    id="_IDGenDimensionDefinition1"
+                                                                    name="Status"
+                                                                    value="{statusModel>status}"
+                                                                />
+                                                            </viz.data:dimensions>
+                                                            <viz.data:measures>
+                                                                <viz.data:MeasureDefinition
+                                                                    id="_IDGenMeasureDefinition1"
+                                                                    name="Count"
+                                                                    value="{statusModel>value}"
+                                                                />
+                                                            </viz.data:measures>
+                                                        </viz.data:FlattenedDataset>
+                                                    </viz:dataset>
 
-                                                <viz:feeds>
-                                                    <viz.feeds:FeedItem
-                                                        id="_IDGenFeedItem2"
-                                                        uid="size"
-                                                        type="Measure"
-                                                        values="Count"
-                                                    />
-                                                    <viz.feeds:FeedItem
-                                                        id="_IDGenFeedItem3"
-                                                        uid="color"
-                                                        type="Dimension"
-                                                        values="Status"
-                                                    />
-                                                </viz:feeds>
-                                            </viz:VizFrame>
+                                                    <viz:feeds>
+                                                        <viz.feeds:FeedItem
+                                                            id="_IDGenFeedItem2"
+                                                            uid="size"
+                                                            type="Measure"
+                                                            values="Count"
+                                                        />
+                                                        <viz.feeds:FeedItem
+                                                            id="_IDGenFeedItem3"
+                                                            uid="color"
+                                                            type="Dimension"
+                                                            values="Status"
+                                                        />
+                                                    </viz:feeds>
+                                                </viz:VizFrame>
 
-                                            <!-- ✅ CENTER TEXT INSIDE DONUT -->
+                                                <!-- ✅ CENTER TEXT INSIDE DONUT -->
+                                                <VBox
+                                                    id="_IDGenVBox10"
+                                                    class="donutCenterText"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText9"
+                                                        text="{donutModel>/value}"
+                                                        class="donutValue"
+                                                    />
+                                                    <Text
+                                                        id="_IDGenText26"
+                                                        text="{donutModel>/label}"
+                                                        class="donutSubText"
+                                                    />
+                                                </VBox>
+                                            </VBox>
+
+                                            <!-- ✅ RIGHT: STATUS LIST — dot colors matched to donut segments -->
                                             <VBox
-                                                id="_IDGenVBox10"
-                                                class="donutCenterText"
+                                                id="_IDGenVBox14"
+                                                width="52%"
+                                                class="sapUiSmallMarginBegin statusListContainer"
                                             >
-                                                <Text
-                                                    id="_IDGenText9"
-                                                    text="{donutModel>/value}"
-                                                    class="donutValue"
-                                                />
-                                                <Text
-                                                    id="_IDGenText26"
-                                                    text="{donutModel>/label}"
-                                                    class="donutSubText"
-                                                />
+                                                <HBox
+                                                    id="_IDGenHBox5"
+                                                    justifyContent="SpaceBetween"
+                                                    alignItems="Center"
+                                                    class="statusItemRow"
+                                                >
+                                                    <HBox
+                                                        id="_IDGenHBox9"
+                                                        alignItems="Center"
+                                                        class="statusLabel"
+                                                    >
+                                                        <HBox
+                                                            id="_IDGenPostedDot"
+                                                            class="statusDot statusDotGreen"
+                                                        />
+                                                        <Text
+                                                            id="_IDGenText10"
+                                                            text="Posted"
+                                                        />
+                                                    </HBox>
+                                                    <Text
+                                                        id="_IDGenText11"
+                                                        text="{statusModel>/posted/display}"
+                                                        class="statusValue"
+                                                    />
+                                                </HBox>
+
+                                                <HBox
+                                                    id="_IDGenHBox10"
+                                                    justifyContent="SpaceBetween"
+                                                    alignItems="Center"
+                                                    class="statusItemRow"
+                                                >
+                                                    <HBox
+                                                        id="_IDGenHBox11"
+                                                        alignItems="Center"
+                                                        class="statusLabel"
+                                                    >
+                                                        <HBox
+                                                            id="_IDGenPostProcDot"
+                                                            class="statusDot statusDotAmber"
+                                                        />
+                                                        <Text
+                                                            id="_IDGenText12"
+                                                            text="Post-Processing"
+                                                        />
+                                                    </HBox>
+                                                    <Text
+                                                        id="_IDGenText13"
+                                                        text="{statusModel>/processing/display}"
+                                                        class="statusValue"
+                                                    />
+                                                </HBox>
+
+                                                <HBox
+                                                    id="_IDGenHBox24"
+                                                    justifyContent="SpaceBetween"
+                                                    alignItems="Center"
+                                                    class="statusItemRow"
+                                                >
+                                                    <HBox
+                                                        id="_IDGenHBox25"
+                                                        alignItems="Center"
+                                                        class="statusLabel"
+                                                    >
+                                                        <HBox
+                                                            id="_IDGenPendingDot"
+                                                            class="statusDot statusDotGray"
+                                                        />
+                                                        <Text
+                                                            id="_IDGenText70"
+                                                            text="Pending"
+                                                        />
+                                                    </HBox>
+                                                    <Text
+                                                        id="_IDGenText72"
+                                                        text="{statusModel>/pending/display}"
+                                                        class="statusValue"
+                                                    />
+                                                </HBox>
+
+                                                <HBox
+                                                    id="_IDGenHBox78"
+                                                    justifyContent="SpaceBetween"
+                                                    alignItems="Center"
+                                                    class="statusItemRow"
+                                                >
+                                                    <HBox
+                                                        id="_IDGenHBox79"
+                                                        alignItems="Center"
+                                                        class="statusLabel"
+                                                    >
+                                                        <HBox
+                                                            id="_IDGenFailedDot"
+                                                            class="statusDot statusDotCoral"
+                                                        />
+                                                        <Text
+                                                            id="_IDGenText73"
+                                                            text="Failed"
+                                                        />
+                                                    </HBox>
+                                                    <Text
+                                                        id="_IDGenText74"
+                                                        text="{statusModel>/failed/display}"
+                                                        class="statusValue"
+                                                    />
+                                                </HBox>
+
+                                                <HBox
+                                                    id="_IDGenHBox12"
+                                                    justifyContent="SpaceBetween"
+                                                    alignItems="Center"
+                                                    class="statusItemRow"
+                                                >
+                                                    <HBox
+                                                        id="_IDGenHBox13"
+                                                        alignItems="Center"
+                                                        class="statusLabel"
+                                                    >
+                                                        <HBox
+                                                            id="_IDGenRejectedDot"
+                                                            class="statusDot statusDotRed"
+                                                        />
+                                                        <Text
+                                                            id="_IDGenText22"
+                                                            text="Rejected"
+                                                        />
+                                                    </HBox>
+                                                    <Text
+                                                        id="_IDGenText23"
+                                                        text="{statusModel>/rejected/display}"
+                                                        class="statusValue"
+                                                    />
+                                                </HBox>
+                                            </VBox>
+                                        </HBox>
+
+                                        <!-- Top post-processing reasons -->
+                                        <VBox id="_IDGenVBox13">
+                                            <Title
+                                                id="_IDGenTitle1"
+                                                text="Top Reasons (Post-Processing)"
+                                                level="H6"
+                                            />
+
+                                            <VBox
+                                                id="_IDGenTopReasonsList"
+                                                class="sapUiTinyMarginTop"
+                                            >
+                                                <!-- Reason 1 -->
+                                                <HBox
+                                                    id="_IDGenHBox3"
+                                                    alignItems="Center"
+                                                    class="topReasonRow"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText15"
+                                                        text="Awaiting Confirmation"
+                                                        class="topReasonName"
+                                                    />
+                                                    <HBox
+                                                        id="_IDGenTopBarWrap1"
+                                                        alignItems="Center"
+                                                        class="topBarWrap"
+                                                    >
+                                                        <VBox
+                                                            id="_IDGenTopBarTrack1"
+                                                            class="topBarTrack"
+                                                        >
+                                                            <HBox
+                                                                id="_IDGenTopBarFill1"
+                                                                width="80%"
+                                                                alignItems="Center"
+                                                                justifyContent="End"
+                                                                class="topBarFill"
+                                                            >
+                                                                <VBox
+                                                                    id="_IDGenTopBarDot1"
+                                                                    class="topBarDot"
+                                                                />
+                                                            </HBox>
+                                                        </VBox>
+                                                    </HBox>
+                                                    <Text
+                                                        id="_IDGenText25"
+                                                        text="2"
+                                                        class="topReasonValue"
+                                                    />
+                                                </HBox>
+
+                                                <!-- Reason 2 -->
+                                                <HBox
+                                                    id="_IDGenHBox14"
+                                                    alignItems="Center"
+                                                    class="topReasonRow"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText14"
+                                                        text="Manual Review"
+                                                        class="topReasonName"
+                                                    />
+                                                    <HBox
+                                                        id="_IDGenTopBarWrap2"
+                                                        alignItems="Center"
+                                                        class="topBarWrap"
+                                                    >
+                                                        <VBox
+                                                            id="_IDGenTopBarTrack2"
+                                                            class="topBarTrack"
+                                                        >
+                                                            <HBox
+                                                                id="_IDGenTopBarFill2"
+                                                                width="60%"
+                                                                alignItems="Center"
+                                                                justifyContent="End"
+                                                                class="topBarFill"
+                                                            >
+                                                                <VBox
+                                                                    id="_IDGenTopBarDot2"
+                                                                    class="topBarDot"
+                                                                />
+                                                            </HBox>
+                                                        </VBox>
+                                                    </HBox>
+                                                    <Text
+                                                        id="_IDGenText16"
+                                                        text="1"
+                                                        class="topReasonValue"
+                                                    />
+                                                </HBox>
+
+                                                <!-- Reason 3 -->
+                                                <HBox
+                                                    id="_IDGenHBox7"
+                                                    alignItems="Center"
+                                                    class="topReasonRow"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText17"
+                                                        text="Sanctions Hold"
+                                                        class="topReasonName"
+                                                    />
+                                                    <HBox
+                                                        id="_IDGenTopBarWrap3"
+                                                        alignItems="Center"
+                                                        class="topBarWrap"
+                                                    >
+                                                        <VBox
+                                                            id="_IDGenTopBarTrack3"
+                                                            class="topBarTrack"
+                                                        >
+                                                            <HBox
+                                                                id="_IDGenTopBarFill3"
+                                                                width="40%"
+                                                                alignItems="Center"
+                                                                justifyContent="End"
+                                                                class="topBarFill"
+                                                            >
+                                                                <VBox
+                                                                    id="_IDGenTopBarDot3"
+                                                                    class="topBarDot"
+                                                                />
+                                                            </HBox>
+                                                        </VBox>
+                                                    </HBox>
+                                                    <Text
+                                                        id="_IDGenText18"
+                                                        text="5"
+                                                        class="topReasonValue"
+                                                    />
+                                                </HBox>
+
+                                                <!-- Reason 4 -->
+                                                <HBox
+                                                    id="_IDGenHBox8"
+                                                    alignItems="Center"
+                                                    class="topReasonRow"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText19"
+                                                        text="Reconciliation Pending"
+                                                        class="topReasonName"
+                                                    />
+                                                    <HBox
+                                                        id="_IDGenTopBarWrap4"
+                                                        alignItems="Center"
+                                                        class="topBarWrap"
+                                                    >
+                                                        <VBox
+                                                            id="_IDGenTopBarTrack4"
+                                                            class="topBarTrack"
+                                                        >
+                                                            <HBox
+                                                                id="_IDGenTopBarFill4"
+                                                                width="30%"
+                                                                alignItems="Center"
+                                                                justifyContent="End"
+                                                                class="topBarFill"
+                                                            >
+                                                                <VBox
+                                                                    id="_IDGenTopBarDot4"
+                                                                    class="topBarDot"
+                                                                />
+                                                            </HBox>
+                                                        </VBox>
+                                                    </HBox>
+                                                    <Text
+                                                        id="_IDGenText20"
+                                                        text="3"
+                                                        class="topReasonValue"
+                                                    />
+                                                </HBox>
                                             </VBox>
                                         </VBox>
 
-                                       <!-- ✅ RIGHT: STATUS LIST — dot colors matched to donut segments -->
-    <VBox
-        id="_IDGenVBox14"
-        width="52%"
-        class="sapUiSmallMarginBegin statusListContainer"
-    >
-        <HBox id="_IDGenHBox5" justifyContent="SpaceBetween" alignItems="Center" class="statusItemRow">
-            <HBox id="_IDGenHBox9" alignItems="Center" class="statusLabel">
-                <HBox id="_IDGenPostedDot" class="statusDot statusDotGreen"/>
-                <Text id="_IDGenText10" text="Posted"/>
-            </HBox>
-            <Text id="_IDGenText11" text="{statusModel>/posted/display}" class="statusValue"/>
-        </HBox>
-
-        <HBox id="_IDGenHBox10" justifyContent="SpaceBetween" alignItems="Center" class="statusItemRow">
-            <HBox id="_IDGenHBox11" alignItems="Center" class="statusLabel">
-                <HBox id="_IDGenPostProcDot" class="statusDot statusDotAmber"/>
-                <Text id="_IDGenText12" text="Post-Processing"/>
-            </HBox>
-            <Text id="_IDGenText13" text="{statusModel>/processing/display}" class="statusValue"/>
-        </HBox>
-
-        <HBox id="_IDGenHBox24" justifyContent="SpaceBetween" alignItems="Center" class="statusItemRow">
-            <HBox id="_IDGenHBox25" alignItems="Center" class="statusLabel">
-                <HBox id="_IDGenPendingDot" class="statusDot statusDotGray"/>
-                <Text id="_IDGenText70" text="Pending"/>
-            </HBox>
-            <Text id="_IDGenText72" text="{statusModel>/pending/display}" class="statusValue"/>
-        </HBox>
-
-        <HBox id="_IDGenHBox78" justifyContent="SpaceBetween" alignItems="Center" class="statusItemRow">
-            <HBox id="_IDGenHBox79" alignItems="Center" class="statusLabel">
-                <HBox id="_IDGenFailedDot" class="statusDot statusDotCoral"/>
-                <Text id="_IDGenText73" text="Failed"/>
-            </HBox>
-            <Text id="_IDGenText74" text="{statusModel>/failed/display}" class="statusValue"/>
-        </HBox>
-
-        <HBox id="_IDGenHBox12" justifyContent="SpaceBetween" alignItems="Center" class="statusItemRow">
-            <HBox id="_IDGenHBox13" alignItems="Center" class="statusLabel">
-                <HBox id="_IDGenRejectedDot" class="statusDot statusDotRed"/>
-                <Text id="_IDGenText22" text="Rejected"/>
-            </HBox>
-            <Text id="_IDGenText23" text="{statusModel>/rejected/display}" class="statusValue"/>
-        </HBox>
-                                        </VBox>
-                                    </HBox>
-
-                                    <!-- Top Reasons-->
-                                    <VBox id="_IDGenVBox13">
-                                        <Title
-                                            id="_IDGenTitle1"
-                                            text="Top Reasons (Post-Processing)"
-                                            level="H6"
-                                        />
-
-                                        <VBox
-                                            id="_IDGenTopReasonsList"
-                                            class="sapUiTinyMarginTop"
-                                        >
-                                            <!-- Row 1: Awaiting SAR Confirmation -->
-                                            <HBox
-                                                id="_IDGenHBox3"
-                                                alignItems="Center"
-                                                class="topReasonRow"
-                                            >
-                                                <Text
-                                                    id="_IDGenText15"
-                                                    text="Awaiting Confirmation"
-                                                    class="topReasonName"
-                                                />
-                                                <HBox
-                                                    id="_IDGenTopBarWrap1"
-                                                    alignItems="Center"
-                                                    class="topBarWrap"
-                                                >
-                                                    <VBox
-                                                        id="_IDGenTopBarTrack1"
-                                                        class="topBarTrack"
-                                                    >
-                                                        <HBox
-                                                            id="_IDGenTopBarFill1"
-                                                            width="80%"
-                                                            alignItems="Center"
-                                                            justifyContent="End"
-                                                            class="topBarFill"
-                                                        >
-                                                            <VBox
-                                                                id="_IDGenTopBarDot1"
-                                                                class="topBarDot"
-                                                            />
-                                                        </HBox>
-                                                    </VBox>
-                                                </HBox>
-                                                <Text
-                                                    id="_IDGenText25"
-                                                    text="2"
-                                                    class="topReasonValue"
-                                                />
-                                            </HBox>
-
-                                            <!-- Row 2: Manual Review (AML) -->
-                                            <HBox
-                                                id="_IDGenHBox14"
-                                                alignItems="Center"
-                                                class="topReasonRow"
-                                            >
-                                                <Text
-                                                    id="_IDGenText14"
-                                                    text="Manual Review"
-                                                    class="topReasonName"
-                                                />
-                                                <HBox
-                                                    id="_IDGenTopBarWrap2"
-                                                    alignItems="Center"
-                                                    class="topBarWrap"
-                                                >
-                                                    <VBox
-                                                        id="_IDGenTopBarTrack2"
-                                                        class="topBarTrack"
-                                                    >
-                                                        <HBox
-                                                            id="_IDGenTopBarFill2"
-                                                            width="60%"
-                                                            alignItems="Center"
-                                                            justifyContent="End"
-                                                            class="topBarFill"
-                                                        >
-                                                            <VBox
-                                                                id="_IDGenTopBarDot2"
-                                                                class="topBarDot"
-                                                            />
-                                                        </HBox>
-                                                    </VBox>
-                                                </HBox>
-                                                <Text
-                                                    id="_IDGenText16"
-                                                    text="1"
-                                                    class="topReasonValue"
-                                                />
-                                            </HBox>
-
-                                            <!-- Row 3: Sanctions Hold -->
-                                            <HBox
-                                                id="_IDGenHBox7"
-                                                alignItems="Center"
-                                                class="topReasonRow"
-                                            >
-                                                <Text
-                                                    id="_IDGenText17"
-                                                    text="Sanctions Hold"
-                                                    class="topReasonName"
-                                                />
-                                                <HBox
-                                                    id="_IDGenTopBarWrap3"
-                                                    alignItems="Center"
-                                                    class="topBarWrap"
-                                                >
-                                                    <VBox
-                                                        id="_IDGenTopBarTrack3"
-                                                        class="topBarTrack"
-                                                    >
-                                                        <HBox
-                                                            id="_IDGenTopBarFill3"
-                                                            width="40%"
-                                                            alignItems="Center"
-                                                            justifyContent="End"
-                                                            class="topBarFill"
-                                                        >
-                                                            <VBox
-                                                                id="_IDGenTopBarDot3"
-                                                                class="topBarDot"
-                                                            />
-                                                        </HBox>
-                                                    </VBox>
-                                                </HBox>
-                                                <Text
-                                                    id="_IDGenText18"
-                                                    text="5"
-                                                    class="topReasonValue"
-                                                />
-                                            </HBox>
-
-                                            <!-- Row 4: Reconciliation Pending -->
-                                            <HBox
-                                                id="_IDGenHBox8"
-                                                alignItems="Center"
-                                                class="topReasonRow"
-                                            >
-                                                <Text
-                                                    id="_IDGenText19"
-                                                    text="Reconciliation Pending"
-                                                    class="topReasonName"
-                                                />
-                                                <HBox
-                                                    id="_IDGenTopBarWrap4"
-                                                    alignItems="Center"
-                                                    class="topBarWrap"
-                                                >
-                                                    <VBox
-                                                        id="_IDGenTopBarTrack4"
-                                                        class="topBarTrack"
-                                                    >
-                                                        <HBox
-                                                            id="_IDGenTopBarFill4"
-                                                            width="30%"
-                                                            alignItems="Center"
-                                                            justifyContent="End"
-                                                            class="topBarFill"
-                                                        >
-                                                            <VBox
-                                                                id="_IDGenTopBarDot4"
-                                                                class="topBarDot"
-                                                            />
-                                                        </HBox>
-                                                    </VBox>
-                                                </HBox>
-                                                <Text
-                                                    id="_IDGenText20"
-                                                    text="3"
-                                                    class="topReasonValue"
-                                                />
-                                            </HBox>
-                                        </VBox>
-                                    </VBox>
-
-                                    <!-- ✅ Drill-down row: only takes real estate once the
+                                        <!-- ✅ Drill-down row: only takes real estate once the
                                          card is maximized. Left = existing Top Reasons,
                                          right = payment items filtered by the clicked slice. -->
-                                    <HBox
-                                        id="donutBottomRow"
-                                        width="100%"
-                                        justifyContent="SpaceBetween"
-                                        visible="{donutViewModel>/expanded}"
-                                        class="sapUiMediumMarginTop"
-                                    >
-                                        <VBox
-                                            id="donutDrillCard"
+                                        <HBox
+                                            id="donutBottomRow"
                                             width="100%"
-                                            class="chartCard"
+                                            justifyContent="SpaceBetween"
+                                            visible="{donutViewModel>/expanded}"
+                                            class="sapUiMediumMarginTop"
                                         >
+                                            <VBox
+                                                id="donutDrillCard"
+                                                width="100%"
+                                                class="chartCard"
+                                            >
+                                                <HBox
+                                                    id="donutDrillHeaderRow"
+                                                    justifyContent="SpaceBetween"
+                                                    alignItems="Center"
+                                                >
+                                                    <Title
+                                                        id="donutDrillTitle"
+                                                        text="Payment Items ({= ${donutItemsModel>/items}.length }) — {donutViewModel>/selectedStatus}"
+                                                        level="H6"
+                                                    />
+
+                                                    <HBox
+                                                        id="_IDGenHBox110"
+                                                        justifyContent="End"
+                                                        alignItems="Center"
+                                                    >
+                                                        <Button
+                                                            id="btnDonutExport"
+                                                            icon="sap-icon://excel-attachment"
+                                                            tooltip="Export"
+                                                            visible="false"
+                                                            type="Transparent"
+                                                            press=".onExportDonutItems"
+                                                        />
+
+                                                        <Button
+                                                            id="donutDrillSettingsButton"
+                                                            icon="sap-icon://action-settings"
+                                                            type="Transparent"
+                                                            tooltip="Table Settings"
+                                                            press="onOpenDonutTableSettings"
+                                                        />
+                                                    </HBox>
+                                                </HBox>
+
+                                                <ScrollContainer
+                                                    id="donutDrillScroll"
+                                                    width="100%"
+                                                    height="260px"
+                                                    horizontal="true"
+                                                    vertical="true"
+                                                >
+                                                    <Table
+                                                        id="donutItemsTable"
+                                                        width="100%"
+                                                        sticky="ColumnHeaders"
+                                                        growing="true"
+                                                        growingThreshold="20"
+                                                        growingScrollToLoad="true"
+                                                        fixedLayout="false"
+                                                        autoPopinMode="false"
+                                                        noDataText="Click a status segment in the donut to view its payment items"
+                                                    />
+                                                </ScrollContainer>
+                                            </VBox>
+                                        </HBox>
+                                    </VBox>
+                                </HBox>
+
+                                <!-- Payment transactions -->
+                                <HBox
+                                    id="_IDGenHBox2"
+                                    class="sapUiMediumMarginTop"
+                                    justifyContent="SpaceBetween"
+                                >
+                                    <!-- ✅ LEFT: TABLE -->
+                                    <VBox
+                                        id="_IDGenVBox3"
+                                        width="68%"
+                                        class="chartCard"
+                                    >
+                                        <VBox id="_IDGenVBox28">
+                                            <!-- Table header and actions -->
                                             <HBox
-                                                id="donutDrillHeaderRow"
+                                                id="_IDGenHBox15"
                                                 justifyContent="SpaceBetween"
                                                 alignItems="Center"
                                             >
                                                 <Title
-                                                    id="donutDrillTitle"
-                                                    text="Payment Items ({= ${donutItemsModel>/items}.length }) — {donutViewModel>/selectedStatus}"
+                                                    id="_IDGenTitle4"
+                                                    text="Payment Transactions"
                                                     level="H6"
                                                 />
-
                                                 <HBox
-                                                    id="_IDGenHBox110"
-                                                    justifyContent="End"
+                                                    id="_IDGenHBox17"
                                                     alignItems="Center"
                                                 >
-                                                    <Button
-                                                        id="btnDonutExport"
-                                                        icon="sap-icon://excel-attachment"
-                                                        tooltip="Export"
-                                                        visible="false"
-                                                        type="Transparent"
-                                                        press=".onExportDonutItems"
+                                                    <SearchField
+                                                        id="_IDGenPaymentInfoSearch"
+                                                        width="220px"
+                                                        placeholder="Search order, status, date..."
+                                                        liveChange="onFilterPaymentInfo"
+                                                        class="sapUiTinyMarginEnd"
                                                     />
 
                                                     <Button
-                                                        id="donutDrillSettingsButton"
+                                                        id="transactionSettingsButton"
                                                         icon="sap-icon://action-settings"
                                                         type="Transparent"
                                                         tooltip="Table Settings"
-                                                        press="onOpenDonutTableSettings"
+                                                        press="onOpenTableSettings"
+                                                    />
+
+                                                    <Button
+                                                        id="transactionExpandButton"
+                                                        icon="sap-icon://full-screen"
+                                                        type="Transparent"
+                                                        tooltip="Maximize"
+                                                        press="onToggleTransactionSize"
+                                                    />
+
+                                                    <Button
+                                                        id="transactionExportButton"
+                                                        icon="sap-icon://excel-attachment"
+                                                        type="Transparent"
+                                                        tooltip="Export to Excel"
+                                                        press="onExportTransactions"
                                                     />
                                                 </HBox>
                                             </HBox>
-
-                                            <ScrollContainer
-                                                id="donutDrillScroll"
-                                                width="100%"
-                                                height="260px"
-                                                horizontal="true"
-                                                vertical="true"
-                                            >
-                                                <Table
-                                                    id="donutItemsTable"
-                                                    width="100%"
-                                                    sticky="ColumnHeaders"
-                                                    growing="true"
-                                                    growingThreshold="20"
-                                                    growingScrollToLoad="true"
-                                                    fixedLayout="false"
-                                                    autoPopinMode="false"
-                                                    noDataText="Click a status segment in the donut to view its payment items"
-                                                />
-                                            </ScrollContainer>
+                                            <Text
+                                                id="_IDGenText7"
+                                                text="{= 'Top ' + ${tableInfoModel>/visible} + ' by Combined Flow   ' }"
+                                                class="tableRecordText sapUiTinyMarginTop"
+                                            />
                                         </VBox>
-                                    </HBox>
-                                </VBox>
-                            </HBox>
+                                        <VBox
+                                            id="_IDGenVBox27"
+                                            width="100%"
+                                            height="380px"
+                                            class="tableContainer"
+                                        >
+                                            <Table
+                                                id="_IDGenTable"
+                                                updateFinished="onPaymentInfoTableUpdateFinished"
+                                            />
+                                        </VBox>
+                                    </VBox>
 
-                            <!-- TABLE -->
-                            <HBox
-                                id="_IDGenHBox2"
-                                class="sapUiMediumMarginTop"
-                                justifyContent="SpaceBetween"
-                            
-                            >
-                                <!-- ✅ LEFT: TABLE -->
-                                <VBox
-                                    id="_IDGenVBox3"
-                                    width="68%"
-                                    class="chartCard"
-                                >
-                                    <VBox id="_IDGenVBox28">
-                                        <!-- Top row: title + actions -->
+                                    <!-- ✅ RIGHT: CUT-OFF & SLA PANEL -->
+                                    <VBox
+                                        id="_IDGenVBox15"
+                                        width="30%"
+                                        class="chartCard sapUiSmallPadding"
+                                    >
+                                        <Title
+                                            id="_IDGenTitle3"
+                                            text="Cutoff &amp; SLA"
+                                        />
+                                        <Text
+                                            id="_IDGenText29"
+                                            text="Time-to-Cutoff for Each Settlement Rail"
+                                            class="sapUiSmallMarginBottom"
+                                        />
+
                                         <HBox
-                                            id="_IDGenHBox15"
+                                            id="_IDGenHBox54"
+                                            class="railDivider"
+                                        />
+
+                                        <!-- SAR rail -->
+
+                                        <HBox
+                                            id="_IDGenHBox6"
                                             justifyContent="SpaceBetween"
                                             alignItems="Center"
+                                            class="sapUiSmallMarginTop"
                                         >
-                                            <Title
-                                                id="_IDGenTitle4"
-                                                text="Payment Transactions"
-                                                level="H6"
-                                            />
+                                            <!-- LEFT -->
                                             <HBox
-                                                id="_IDGenHBox17"
+                                                id="_IDGenHBox18"
                                                 alignItems="Center"
+                                                width="75%"
                                             >
-                                                <SearchField
-                                                    id="_IDGenPaymentInfoSearch"
-                                                    width="220px"
-                                                    placeholder="Search order, status, date..."
-                                                    liveChange="onFilterPaymentInfo"
-                                                    class="sapUiTinyMarginEnd"
-                                                />
-
-                                                <Button
-                                                    id="transactionSettingsButton"
-                                                    icon="sap-icon://action-settings"
-                                                    type="Transparent"
-                                                    tooltip="Table Settings"
-                                                    press="onOpenTableSettings"
-                                                />
-
-                                                <Button
-                                                    id="transactionExpandButton"
-                                                    icon="sap-icon://full-screen"
-                                                    type="Transparent"
-                                                    tooltip="Maximize"
-                                                    press="onToggleTransactionSize"
-                                                />
-
-                                                <Button
-                                                    id="transactionExportButton"
-                                                    icon="sap-icon://excel-attachment"
-                                                    type="Transparent"
-                                                    tooltip="Export to Excel"
-                                                    press="onExportTransactions"
-                                                />
+                                                <!-- Rail icon -->
+                                                <VBox
+                                                    id="_IDGenVBox16"
+                                                    class="slaIconBox"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText30"
+                                                        text="SAR"
+                                                    />
+                                                </VBox>
+                                                <!-- Rail details -->
+                                                <VBox
+                                                    id="_IDGenVBox20"
+                                                    class="sapUiTinyMarginBegin"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText31"
+                                                        text="SARIE"
+                                                        class="slaTitle"
+                                                    />
+                                                    <Text
+                                                        id="_IDGenText38"
+                                                        text="Domestic RTGS – SAMA"
+                                                        class="slaSubText"
+                                                    />
+                                                </VBox>
                                             </HBox>
-                                        </HBox>
-                                        <!-- ✅ Dynamic record count -->
 
-                                        <Text
-                                            id="_IDGenText7"
-                                            text="{= 'Top ' + ${tableInfoModel>/visible} + ' by Combined Flow   ' }"
-                                            class="tableRecordText sapUiTinyMarginTop"
+                                            <!-- RIGHT -->
+                                            <Text
+                                                id="_IDGenText39"
+                                                text="18m Remaining"
+                                                class="slaTime"
+                                            />
+                                        </HBox>
+
+                                        <HBox
+                                            id="_IDGenHBox44"
+                                            class="railDivider"
+                                        />
+
+                                        <!-- USD rail -->
+                                        <!-- Rail 2 -->
+                                        <HBox
+                                            id="_IDGenHBox19"
+                                            justifyContent="SpaceBetween"
+                                            alignItems="Center"
+                                            class="sapUiSmallMarginTop"
+                                        >
+                                            <HBox
+                                                id="_IDGenHBox20"
+                                                alignItems="Center"
+                                                width="75%"
+                                            >
+                                                <VBox
+                                                    id="_IDGenVBox12"
+                                                    class="slaIconBox"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText32"
+                                                        text="USD"
+                                                    />
+                                                </VBox>
+                                                <VBox
+                                                    id="_IDGenVBox17"
+                                                    class="sapUiTinyMarginBegin"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText33"
+                                                        text="Fedwire"
+                                                        class="slaTitle"
+                                                    />
+                                                    <Text
+                                                        id="_IDGenText40"
+                                                        text="Via JPM.C"
+                                                        class="slaSubText"
+                                                    />
+                                                </VBox>
+                                            </HBox>
+                                            <Text
+                                                id="_IDGenText41"
+                                                text="7h 48m Remaining"
+                                                class="slaTime"
+                                            />
+                                        </HBox>
+
+                                        <HBox
+                                            id="_IDGenHBox51"
+                                            class="railDivider"
+                                        />
+
+                                        <!-- EUR rail -->
+                                        <!-- Rail 3 -->
+                                        <HBox
+                                            id="_IDGenHBox16"
+                                            justifyContent="SpaceBetween"
+                                            alignItems="Center"
+                                            class="sapUiSmallMarginTop"
+                                        >
+                                            <HBox
+                                                id="_IDGenHBox21"
+                                                alignItems="Center"
+                                                width="75%"
+                                            >
+                                                <VBox
+                                                    id="_IDGenVBox18"
+                                                    class="slaIconBox"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText34"
+                                                        text="EUR"
+                                                    />
+                                                </VBox>
+                                                <VBox
+                                                    id="_IDGenVBox21"
+                                                    class="sapUiTinyMarginBegin"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText35"
+                                                        text="TARGET2"
+                                                        class="slaTitle"
+                                                    />
+                                                    <Text
+                                                        id="_IDGenText42"
+                                                        text="Via Deutsche Bank"
+                                                        class="slaSubText"
+                                                    />
+                                                </VBox>
+                                            </HBox>
+                                            <Text
+                                                id="_IDGenText43"
+                                                text="2h 48m Remaining"
+                                                class="slaTime"
+                                            />
+                                        </HBox>
+
+                                        <HBox
+                                            id="_IDGenHBox52"
+                                            class="railDivider"
+                                        />
+
+                                        <!-- GBP rail -->
+                                        <!-- Rail 4 -->
+                                        <HBox
+                                            id="_IDGenHBox22"
+                                            justifyContent="SpaceBetween"
+                                            alignItems="Center"
+                                            class="sapUiSmallMarginTop"
+                                        >
+                                            <HBox
+                                                id="_IDGenHBox23"
+                                                alignItems="Center"
+                                                width="75%"
+                                            >
+                                                <VBox
+                                                    id="_IDGenVBox22"
+                                                    class="slaIconBox"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText44"
+                                                        text="CHAPS"
+                                                    />
+                                                </VBox>
+                                                <VBox
+                                                    id="_IDGenVBox23"
+                                                    class="sapUiTinyMarginBegin"
+                                                >
+                                                    <Text
+                                                        id="_IDGenText45"
+                                                        text="TARGET2"
+                                                        class="slaTitle"
+                                                    />
+                                                    <Text
+                                                        id="_IDGenText46"
+                                                        text="Via Deutsche Bank"
+                                                        class="slaSubText"
+                                                    />
+                                                </VBox>
+                                            </HBox>
+                                            <Text
+                                                id="_IDGenText47"
+                                                text="1h 48m Remaining"
+                                                class="slaTime"
+                                            />
+                                        </HBox>
+
+                                        <HBox
+                                            id="_IDGenHBox53"
+                                            class="railDivider"
+                                        />
+
+                                        <VBox
+                                            id="_IDGenVBox29"
+                                            class="sapUiMediumMarginTop"
                                         />
                                     </VBox>
-                                    <VBox
-                                        id="_IDGenVBox27"
-                                        width="100%"
-                                        height="380px"
-                                        class="tableContainer"
-                                    >
-                                        <!-- ✅ Columns + rows are built dynamically in the controller
-                                              (_rebuildPaymentTable) from tableColumnsModel>/visibleFields,
-                                              so the field set here starts empty. -->
-                                        <Table
-                                            id="_IDGenTable"
-                                            updateFinished="onPaymentInfoTableUpdateFinished"
-                                        />
-                                    </VBox>
-                                </VBox>
+                                </HBox>
+                            </VBox>
+                        </IconTabFilter>
 
-                                <!-- ✅ RIGHT: CUT-OFF & SLA PANEL -->
-                                <VBox
-                                    id="_IDGenVBox15"
-                                    width="30%"
-                                    class="chartCard sapUiSmallPadding"
-                                >
-                                    <Title
-                                        id="_IDGenTitle3"
-                                        text="Cutoff &amp; SLA"
-                                    />
-                                    <Text
-                                        id="_IDGenText29"
-                                        text="Time-to-Cutoff for Each Settlement Rail"
-                                        class="sapUiSmallMarginBottom"
-                                    />
+                        <!-- Exceptions tab -->
+                        <IconTabFilter
+                            id="_IDGenIconTabFilter1"
+                            text="Exceptions"
+                        >
+                            <mvc:XMLView
+                                id="ExceptionsView"
+                                viewName="payment.dashboard.view.Exceptions"
+                            />
+                        </IconTabFilter>
 
-                                    <HBox
-                                        id="_IDGenHBox54"
-                                        class="railDivider"
-                                    />
+                        <!-- Reconciliation tab -->
+                        <IconTabFilter
+                            id="_IDGenIconTabFilter3"
+                            text="Reconcillations"
+                        >
+                            <mvc:XMLView
+                                id="ReconciliationView"
+                                viewName="payment.dashboard.view.Reconciliation"
+                            />
+                        </IconTabFilter>
 
-                                    <!-- ✅ SAR -->
+                        <!-- Rail Health tab -->
+                        <IconTabFilter
+                            id="railHealthTab"
+                            text="Rail Health"
+                        >
+                            <mvc:XMLView
+                                id="railHealthView"
+                                viewName="payment.dashboard.view.RailHealth"
+                            />
+                        </IconTabFilter>
 
-                                    <HBox
-                                        id="_IDGenHBox6"
-                                        justifyContent="SpaceBetween"
-                                        alignItems="Center"
-                                        class="sapUiSmallMarginTop"
-                                    >
-                                        <!-- LEFT -->
-                                        <HBox
-                                            id="_IDGenHBox18"
-                                            alignItems="Center"
-                                            width="75%"
-                                        >
-                                            <!-- Icon tile -->
-                                            <VBox
-                                                id="_IDGenVBox16"
-                                                class="slaIconBox"
-                                            >
-                                                <Text
-                                                    id="_IDGenText30"
-                                                    text="SAR"
-                                                />
-                                            </VBox>
-                                            <!-- Text -->
-                                            <VBox
-                                                id="_IDGenVBox20"
-                                                class="sapUiTinyMarginBegin"
-                                            >
-                                                <Text
-                                                    id="_IDGenText31"
-                                                    text="SARIE"
-                                                    class="slaTitle"
-                                                />
-                                                <Text
-                                                    id="_IDGenText38"
-                                                    text="Domestic RTGS – SAMA"
-                                                    class="slaSubText"
-                                                />
-                                            </VBox>
-                                        </HBox>
-
-                                        <!-- RIGHT -->
-                                        <Text
-                                            id="_IDGenText39"
-                                            text="18m Remaining"
-                                            class="slaTime"
-                                        />
-                                    </HBox>
-
-                                    <HBox
-                                        id="_IDGenHBox44"
-                                        class="railDivider"
-                                    />
-
-                                    <!-- ✅ USD -->
-                                    <!-- ✅ ROW 2 -->
-                                    <HBox
-                                        id="_IDGenHBox19"
-                                        justifyContent="SpaceBetween"
-                                        alignItems="Center"
-                                        class="sapUiSmallMarginTop"
-                                    >
-                                        <HBox
-                                            id="_IDGenHBox20"
-                                            alignItems="Center"
-                                            width="75%"
-                                        >
-                                            <VBox
-                                                id="_IDGenVBox12"
-                                                class="slaIconBox"
-                                            >
-                                                <Text
-                                                    id="_IDGenText32"
-                                                    text="USD"
-                                                />
-                                            </VBox>
-                                            <VBox
-                                                id="_IDGenVBox17"
-                                                class="sapUiTinyMarginBegin"
-                                            >
-                                                <Text
-                                                    id="_IDGenText33"
-                                                    text="Fedwire"
-                                                    class="slaTitle"
-                                                />
-                                                <Text
-                                                    id="_IDGenText40"
-                                                    text="Via JPM.C"
-                                                    class="slaSubText"
-                                                />
-                                            </VBox>
-                                        </HBox>
-                                        <Text
-                                            id="_IDGenText41"
-                                            text="7h 48m Remaining"
-                                            class="slaTime"
-                                        />
-                                    </HBox>
-
-                                    <HBox
-                                        id="_IDGenHBox51"
-                                        class="railDivider"
-                                    />
-
-                                    <!-- ✅ EUR -->
-                                    <!-- ✅ ROW 3 -->
-                                    <HBox
-                                        id="_IDGenHBox16"
-                                        justifyContent="SpaceBetween"
-                                        alignItems="Center"
-                                        class="sapUiSmallMarginTop"
-                                    >
-                                        <HBox
-                                            id="_IDGenHBox21"
-                                            alignItems="Center"
-                                            width="75%"
-                                        >
-                                            <VBox
-                                                id="_IDGenVBox18"
-                                                class="slaIconBox"
-                                            >
-                                                <Text
-                                                    id="_IDGenText34"
-                                                    text="EUR"
-                                                />
-                                            </VBox>
-                                            <VBox
-                                                id="_IDGenVBox21"
-                                                class="sapUiTinyMarginBegin"
-                                            >
-                                                <Text
-                                                    id="_IDGenText35"
-                                                    text="TARGET2"
-                                                    class="slaTitle"
-                                                />
-                                                <Text
-                                                    id="_IDGenText42"
-                                                    text="Via Deutsche Bank"
-                                                    class="slaSubText"
-                                                />
-                                            </VBox>
-                                        </HBox>
-                                        <Text
-                                            id="_IDGenText43"
-                                            text="2h 48m Remaining"
-                                            class="slaTime"
-                                        />
-                                    </HBox>
-
-                                    <HBox
-                                        id="_IDGenHBox52"
-                                        class="railDivider"
-                                    />
-
-                                    <!-- ✅ GBP -->
-                                    <!-- ✅ ROW 4 -->
-                                    <HBox
-                                        id="_IDGenHBox22"
-                                        justifyContent="SpaceBetween"
-                                        alignItems="Center"
-                                        class="sapUiSmallMarginTop"
-                                    >
-                                        <HBox
-                                            id="_IDGenHBox23"
-                                            alignItems="Center"
-                                            width="75%"
-                                        >
-                                            <VBox
-                                                id="_IDGenVBox22"
-                                                class="slaIconBox"
-                                            >
-                                                <Text
-                                                    id="_IDGenText44"
-                                                    text="CHAPS"
-                                                />
-                                            </VBox>
-                                            <VBox
-                                                id="_IDGenVBox23"
-                                                class="sapUiTinyMarginBegin"
-                                            >
-                                                <Text
-                                                    id="_IDGenText45"
-                                                    text="TARGET2"
-                                                    class="slaTitle"
-                                                />
-                                                <Text
-                                                    id="_IDGenText46"
-                                                    text="Via Deutsche Bank"
-                                                    class="slaSubText"
-                                                />
-                                            </VBox>
-                                        </HBox>
-                                        <Text
-                                            id="_IDGenText47"
-                                            text="1h 48m Remaining"
-                                            class="slaTime"
-                                        />
-                                    </HBox>
-
-                                    <HBox
-                                        id="_IDGenHBox53"
-                                        class="railDivider"
-                                    />
-
-                                    <VBox
-                                        id="_IDGenVBox29"
-                                        class="sapUiMediumMarginTop"
-                                    />
-                                </VBox>
-                            </HBox>
-                        </VBox>
-                    </IconTabFilter>
-
-                    <!-- ✅ TAB 2 -->
-                    <IconTabFilter
-                        id="_IDGenIconTabFilter1"
-                        text="Exceptions"
-                    >
-                        <mvc:XMLView
-                            id="ExceptionsView"
-                            viewName="payment.dashboard.view.Exceptions"
-                        />
-                    </IconTabFilter>
-
-                    <!-- ✅ TAB 3 -->
-                    <IconTabFilter
-                        id="_IDGenIconTabFilter3"
-                        text="Reconcillations"
-                    >
-                        <mvc:XMLView
-                            id="ReconciliationView"
-                            viewName="payment.dashboard.view.Reconciliation"
-                        />
-                    </IconTabFilter>
-
-                   <!-- ✅ TAB 4 -->
-                    <IconTabFilter
-                        id="railHealthTab"
-                        text="Rail Health"
-                    >
-                        <mvc:XMLView
-                            id="railHealthView"
-                            viewName="payment.dashboard.view.RailHealth"
-                        />
-                    </IconTabFilter>
-
-                    
-
-                    <!-- ✅ TAB 5 -->
-                    <IconTabFilter
-                        id="_IDGenIconTabFilter4"
-                        text="Audit"
-                    >
-                        <mvc:XMLView
-                            id="AuditView"
-                            viewName="payment.dashboard.view.Audit"
-                        />
-                    </IconTabFilter>
-                </items>
-            </IconTabBar>
-          </VBox>
+                        <!-- Audit tab -->
+                        <IconTabFilter
+                            id="_IDGenIconTabFilter4"
+                            text="Audit"
+                        >
+                            <mvc:XMLView
+                                id="AuditView"
+                                viewName="payment.dashboard.view.Audit"
+                            />
+                        </IconTabFilter>
+                    </items>
+                </IconTabBar>
+            </VBox>
         </f:content>
     </f:DynamicPage>
 </mvc:View>

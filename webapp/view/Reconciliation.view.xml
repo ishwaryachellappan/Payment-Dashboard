@@ -358,13 +358,24 @@
                                 <!-- IMPORTANT: detail rows remain WHITE            -->
                                 <!-- ================================================= -->
 
-                                <Table
-                                    id="reconciliationDetailTable"
-                                    width="100%"
-                                    inset="false"
-                                    visible="{reconciliation>expanded}"
-                                    class="reconDetailTable"
-                                />
+                                <ScrollContainer
+    id="reconciliationHorizontalScroll"
+    width="100%"
+    horizontal="true"
+    vertical="false"
+    focusable="true"
+    class="reconHorizontalScroll">
+
+    <Table
+        id="reconciliationDetailTable"
+        width="auto"
+        inset="false"
+        visible="{reconciliation>expanded}"
+        fixedLayout="false"
+        class="reconDetailTable"
+    />
+
+</ScrollContainer>
                             </VBox>
                         </CustomListItem>
                     </List>

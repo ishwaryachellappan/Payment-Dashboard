@@ -3921,11 +3921,25 @@ body {
     margin-right: 6px;
 }
 
-.statusDotGreen { background-color: #0ca30c; }
-.statusDotAmber { background-color: #fab219; }
-.statusDotGray  { background-color: #898781; }
-.statusDotCoral { background-color: #ec835a; }
-.statusDotRed   { background-color: #d03b3b; }
+.statusDotGreen {
+    background-color: #0ca30c;
+}
+
+.statusDotAmber {
+    background-color: #fab219;
+}
+
+.statusDotGray {
+    background-color: #898781;
+}
+
+.statusDotCoral {
+    background-color: #ec835a;
+}
+
+.statusDotRed {
+    background-color: #d03b3b;
+}
 
 .railProgressRow {
     margin-bottom: 20px;
@@ -4012,4 +4026,30 @@ body {
 .dashboardExpandDialog .sapMDialogScrollCont {
     max-height: calc(92vh - 80px);
     overflow-y: auto;
+}
+
+/* ============================================================
+   RECONCILIATION DETAIL TABLE
+   Horizontal scrolling for large numbers of columns
+   ============================================================ */
+
+.reconHorizontalScroll {
+    width: 100%;
+}
+
+.reconHorizontalScroll .sapMScrollContScroll {
+    min-width: max-content;
+}
+
+.reconDetailTable {
+    min-width: max-content;
+}
+
+.reconDetailTable .sapMListTbl {
+    width: max-content;
+}
+
+.reconDetailTable .sapMListTblCell,
+.reconDetailTable .sapMListTblHeaderCell {
+    white-space: nowrap;
 }
