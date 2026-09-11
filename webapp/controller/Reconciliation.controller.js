@@ -3144,21 +3144,27 @@ sap.ui.define([
                 console.log("========== END TRANSACTION ANALYSIS ==========");
             },
 
-            _getTransactionCategory: function (oRow) {
+           _getTransactionCategory: function (oRow) {
 
-                if (
-                    oRow.RefRoute === "SAP_DM" ||
-                    oRow.RefAmArea === "SAP_DM"
-                ) {
-                    return "DM";
-                }
+    if (!oRow) {
+        return "DM";
+    }
 
-                if (oRow.TechStat === "10") {
-                    return "PC";
-                }
+    /*
+     * ============================================================
+     * RECONCILIATION CLASSIFICATION
+     * ============================================================
+     *
+     * TechStat 31  -> PC Received
+     * Everything else -> DM Received
+     */
 
-                return "UNKNOWN";
-            },
+    if (String(oRow.TechStat) === "31") {
+        return "PC";
+    }
+
+    return "DM";
+},
 
         }
 
