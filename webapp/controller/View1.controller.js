@@ -2184,7 +2184,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             var sFilter = "ClearingArea eq '" + sClearingArea + "'" +
                 " and PaymentOrderDate eq " + sKpiDate;
 
-            var sUrl = sServiceUrl + "ItemDetails?$filter=" + encodeURIComponent(sFilter) + "&$top=500";
+            var sUrl = sServiceUrl + "ItemDetails?$filter=" + encodeURIComponent(sFilter) ;
 
             var aAllItems = [];
             try {

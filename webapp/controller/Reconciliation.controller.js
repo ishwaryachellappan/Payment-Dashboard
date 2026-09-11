@@ -280,199 +280,180 @@ sap.ui.define([
             },
 
 
-            loadReconciliationData: function () {
+           loadReconciliationData: async function () {
 
-                var oODataModel = this.getOwnerComponent().getModel("odataModel");
-                var oFilterModel = this.getView().getModel("filterModel");
-                var oReconModel = this.getView().getModel("reconciliation");
+    var oFilterModel = this.getView().getModel("filterModel");
+    var oReconModel = this.getView().getModel("reconciliation");
 
-                if (!oODataModel) {
-                    console.error("[Reconciliation] 'odataModel' not found.");
-                    return;
-                }
+    if (!oReconModel) {
+        console.error("[Reconciliation] 'reconciliation' model not found.");
+        return;
+    }
 
-                if (!oReconModel) {
-                    console.error("[Reconciliation] 'reconciliation' model not found.");
-                    return;
-                }
+    var sClearingArea = oFilterModel
+        ? oFilterModel.getProperty("/clearingArea")
+        : "DEBNKC";
 
-                var sClearingArea = oFilterModel
-                    ? oFilterModel.getProperty("/clearingArea")
-                    : "DEBNKC";
+    var sSelectedDate = oFilterModel
+        ? oFilterModel.getProperty("/kpiDate")
+        : new Date().toISOString().slice(0, 10);
 
-                var sSelectedDate = oFilterModel
-                    ? oFilterModel.getProperty("/kpiDate")
-                    : new Date().toISOString().slice(0, 10);
+    // Normalize Date objects to yyyy-MM-dd.
+    if (sSelectedDate instanceof Date) {
+        sSelectedDate =
+            sSelectedDate.getFullYear() + "-" +
+            String(sSelectedDate.getMonth() + 1).padStart(2, "0") + "-" +
+            String(sSelectedDate.getDate()).padStart(2, "0");
+    } else {
+        sSelectedDate = String(sSelectedDate).slice(0, 10);
+    }
 
-                if (sSelectedDate instanceof Date) {
+    if (!sClearingArea || !sSelectedDate) {
+        console.warn(
+            "[Reconciliation] Missing clearing area or date."
+        );
+        return;
+    }
 
-                    sSelectedDate =
-                        sSelectedDate.getFullYear() + "-" +
-                        String(sSelectedDate.getMonth() + 1).padStart(2, "0") + "-" +
-                        String(sSelectedDate.getDate()).padStart(2, "0");
+    oReconModel.setProperty("/busy", true);
 
-                } else {
+    try {
 
-                    sSelectedDate = String(sSelectedDate).slice(0, 10);
-
-                }
-
-                if (!sClearingArea || !sSelectedDate) {
-
-                    console.warn(
-                        "[Reconciliation] Missing clearing area or date."
-                    );
-
-                    return;
-                }
-
-                console.log(
-                    "[Reconciliation] Loading for",
-                    sClearingArea,
-                    sSelectedDate
+        /*
+         * Use the manifest service URL directly.
+         *
+         * This avoids OData V4 list-binding key handling and also
+         * prevents sap-client from being accidentally appended inside
+         * the $filter expression.
+         */
+        var sServiceUrl =
+            this.getOwnerComponent()
+                .getManifestEntry(
+                    "/sap.app/dataSources/mainService/uri"
                 );
 
-                oReconModel.setProperty("/busy", true);
+        /*
+         * Remove an existing query string from the service URL.
+         * sap-client must be added as a separate query parameter,
+         * never as part of the $filter expression.
+         */
+        var sBaseUrl = sServiceUrl.split("?")[0];
 
-                /*
-                 * IMPORTANT:
-                 *
-                 * Do NOT use bindList() here.
-                 *
-                 * The Reconcilation entity currently appears to have
-                 * ClearingArea as a key, while multiple transaction
-                 * records have the same ClearingArea.
-                 *
-                 * That causes:
-                 *
-                 * Duplicate key predicate: ('DEBNKC')
-                 *
-                 * Therefore we request the collection directly.
-                 */
+        var sSelect = [
+            "ClearingArea",
+            "PiDate",
+            "PiNo",
+            "TechStat",
+            "PiKind",
+            "Crusr",
+            "Chusr",
+            "Rlusr",
+            "TrCurr",
+            "TrAmount",
+            "Holder",
+            "RefRoute",
+            "RefCustagr",
+            "RefAmArea",
+            "CheckAltCa",
+            "PredetermRoute",
+            "RpToDetermine",
+            "RefAcctLocSrv",
+            "RefItemExt",
+            "Country",
+            "Bic",
+            "Iban",
+            "AcctNo",
+            "ValDate",
+            "PiPostDate",
+            "TransType",
+            "RiskScore",
+            "EndToEndId",
+            "SettlementBic"
+        ].join(",");
 
-                var sSelect = [
-                    "ClearingArea",
-                    "PiDate",
-                    "PiNo",
-                    "TechStat",
-                    "PiKind",
-                    "Crusr",
-                    "Chusr",
-                    "Rlusr",
-                    "TrCurr",
-                    "TrAmount",
-                    "Holder",
-                    "RefRoute",
-                    "RefCustagr",
-                    "RefAmArea",
-                    "CheckAltCa",
-                    "PredetermRoute",
-                    "RpToDetermine",
-                    "RefAcctLocSrv",
-                    "RefItemExt",
-                    "Country",
-                    "Bic",
-                    "Iban",
-                    "AcctNo",
-                    "ValDate",
-                    "PiPostDate",
-                    "TransType",
-                    "RiskScore",
-                    "EndToEndId",
-                    "SettlementBic"
-                ].join(",");
+        var sFilter =
+            "ClearingArea eq '" +
+            String(sClearingArea).replace(/'/g, "''") +
+            "' and PiPostDate eq " +
+            sSelectedDate;
 
-                var sFilter =
-                    "ClearingArea eq '" +
-                    encodeURIComponent(sClearingArea).replace(/'/g, "''") +
-                    "' and PiPostDate eq " +
-                    sSelectedDate;
+        /*
+         * Build every query parameter separately.
+         */
+        var oParams = new URLSearchParams();
 
-                var sPath =
-                    "/Reconcilation?$select=" +
-                    encodeURIComponent(sSelect) +
-                    "&$filter=" +
-                    encodeURIComponent(sFilter) +
-                    "&$top=5000";
+        oParams.set("$select", sSelect);
+        oParams.set("$filter", sFilter);
+        oParams.set("sap-client", "500");
 
-                console.log(
-                    "[Reconciliation] OData request:",
-                    sPath
-                );
+        var sUrl =
+            sBaseUrl +
+            "Reconcilation?" +
+            oParams.toString();
 
-                /*
-                 * requestObject() retrieves the collection without
-                 * creating an ODataListBinding cache that requires
-                 * unique entity keys.
-                 */
+        console.log(
+            "[Reconciliation] Fetch URL:",
+            sUrl
+        );
 
-                oODataModel.bindContext(sPath)
-                    .requestObject()
-
-                    .then(function (oResponse) {
-
-                        console.log(
-                            "[Reconciliation] OData response:",
-                            oResponse
-                        );
-
-                        var aRawData = [];
-
-                        if (oResponse && Array.isArray(oResponse.value)) {
-
-                            aRawData = oResponse.value;
-
-                        } else if (Array.isArray(oResponse)) {
-
-                            aRawData = oResponse;
-
-                        } else {
-
-                            console.warn(
-                                "[Reconciliation] Unexpected OData response format."
-                            );
-
-                        }
-
-                        console.log(
-                            "[Reconciliation] Rows received:",
-                            aRawData.length
-                        );
-
-                        console.log(
-                            "[Reconciliation] Raw data sample:",
-                            aRawData.slice(0, 3)
-                        );
-
-                        this._processReconciliationData(aRawData);
-
-                    }.bind(this))
-
-                    .catch(function (oError) {
-
-                        console.error(
-                            "[Reconciliation] OData load failed:",
-                            oError
-                        );
-
-                        MessageToast.show(
-                            "Error loading reconciliation data."
-                        );
-
-                        this._processReconciliationData([]);
-
-                    }.bind(this))
-
-                    .finally(function () {
-
-                        oReconModel.setProperty(
-                            "/busy",
-                            false
-                        );
-
-                    });
-
+        var oResponse = await fetch(sUrl, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
             },
+            credentials: "same-origin"
+        });
+
+        if (!oResponse.ok) {
+            throw new Error(
+                "HTTP " +
+                oResponse.status +
+                " - " +
+                oResponse.statusText
+            );
+        }
+
+        var oJson = await oResponse.json();
+
+        var aRawData = [];
+
+        if (oJson && Array.isArray(oJson.value)) {
+            aRawData = oJson.value;
+        }
+
+        console.log(
+            "[Reconciliation] Rows received:",
+            aRawData.length
+        );
+
+        console.log(
+            "[Reconciliation] Raw data sample:",
+            aRawData.slice(0, 3)
+        );
+
+        this._processReconciliationData(aRawData);
+
+    } catch (oError) {
+
+        console.error(
+            "[Reconciliation] OData load failed:",
+            oError
+        );
+
+        MessageToast.show(
+            "Error loading reconciliation data."
+        );
+
+        this._processReconciliationData([]);
+
+    } finally {
+
+        oReconModel.setProperty(
+            "/busy",
+            false
+        );
+    }
+},
 
             reload: function () {
 

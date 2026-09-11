@@ -1439,8 +1439,7 @@ sap.ui.define([
                     "CURRENCY",
                     "Aged",
                     "CounterParty"
-                ].join(",") +
-                "&$top=5000";
+                ].join(",") ;
 
             console.log(
                 "EXCEPTIONDetail URL:",
