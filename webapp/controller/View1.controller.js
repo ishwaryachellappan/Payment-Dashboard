@@ -1584,31 +1584,48 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
         },
 
-        // ✅ Computes % change fPrevious → fCurrent, tagged with which direction
-        // counts as "good" so the formatter can pick the right color:
-        //   "goodUp"  — rising is good (Successful Payments)
-        //   "badUp"   — rising is bad (Pending/Failed/Rejected)
-        //   "neutral" — no color judgement (Total Processed — just informational)
+        // Computes the KPI percentage based on today's value.
+        //
+        // Business rule:
+        //     Percentage = (Today - Yesterday) / Today × 100
+        //
+        // Example:
+        //     Yesterday = 1
+        //     Today     = 10
+        //
+        //     (10 - 1) / 10 × 100 = 90%
+        //
+        // This keeps the comparison within the context of today's total
+        // instead of calculating percentage growth from yesterday's value.
         _computeKpiTrend: function (fCurrent, fPrevious, sSemantic) {
 
-            if (!fPrevious || fPrevious === 0) {
+            fCurrent = Number(fCurrent) || 0;
+            fPrevious = Number(fPrevious) || 0;
+
+            // If today's value is zero, there is no meaningful percentage.
+            if (fCurrent === 0) {
                 return {
                     percent: 0,
-                    direction: fCurrent > 0 ? "up" : "flat",
+                    direction: "flat",
                     hasData: false,
                     semantic: sSemantic
                 };
             }
 
-            var fPercent = ((fCurrent - fPrevious) / fPrevious) * 100;
+            // Business percentage:
+            // (Today - Yesterday) / Today × 100
+            var fPercent =
+                ((fCurrent - fPrevious) / fCurrent) * 100;
 
             return {
                 percent: Math.abs(fPercent),
-                direction: fPercent > 0 ? "up" : (fPercent < 0 ? "down" : "flat"),
+                direction:
+                    fPercent > 0
+                        ? "up"
+                        : (fPercent < 0 ? "down" : "flat"),
                 hasData: true,
                 semantic: sSemantic
             };
-
         },
 
 
@@ -2184,7 +2201,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             var sFilter = "ClearingArea eq '" + sClearingArea + "'" +
                 " and PaymentOrderDate eq " + sKpiDate;
 
-            var sUrl = sServiceUrl + "ItemDetails?$filter=" + encodeURIComponent(sFilter) ;
+            var sUrl = sServiceUrl + "ItemDetails?$filter=" + encodeURIComponent(sFilter);
 
             var aAllItems = [];
             try {

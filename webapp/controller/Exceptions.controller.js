@@ -1309,22 +1309,50 @@ sap.ui.define([
         // a plain label instead of a nonsensical "+∞%" or "+100%".
         _computeTrend: function (fCurrent, fPrevious) {
 
-            if (!fPrevious || fPrevious === 0) {
+            fCurrent = Number(fCurrent) || 0;
+            fPrevious = Number(fPrevious) || 0;
+
+            /*
+             * No previous value means there is no meaningful
+             * percentage comparison.
+             */
+            if (fCurrent === 0) {
                 return {
                     percent: 0,
-                    direction: fCurrent > 0 ? "up" : "flat",
+                    direction: "flat",
                     hasData: false
                 };
             }
 
-            var fPercent = ((fCurrent - fPrevious) / fPrevious) * 100;
+            /*
+             * Business logic:
+             *
+             * Trend % = (Today - Yesterday) / Today × 100
+             *
+             * Example:
+             * Yesterday = 1
+             * Today     = 10
+             *
+             * (10 - 1) / 10 × 100 = 90%
+             */
+            var fPercent =
+                ((fCurrent - fPrevious) / fCurrent) * 100;
+
+            /*
+             * Keep displayed percentage within -100% to +100%.
+             */
+            fPercent = Math.max(-100, Math.min(100, fPercent));
 
             return {
                 percent: Math.abs(fPercent),
-                direction: fPercent > 0 ? "up" : (fPercent < 0 ? "down" : "flat"),
+
+                direction:
+                    fPercent > 0
+                        ? "up"
+                        : (fPercent < 0 ? "down" : "flat"),
+
                 hasData: true
             };
-
         },
 
         loadOpenExceptionDetails: function () {
@@ -1439,7 +1467,7 @@ sap.ui.define([
                     "CURRENCY",
                     "Aged",
                     "CounterParty"
-                ].join(",") ;
+                ].join(",");
 
             console.log(
                 "EXCEPTIONDetail URL:",
