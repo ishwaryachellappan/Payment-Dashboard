@@ -338,10 +338,51 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
             aVisibleFields.forEach(function (sKey) {
                 var oFieldDef = that._getPaymentFieldDef(sKey);
-                oTable.addColumn(new sap.m.Column({
-                    width: "9rem",
-                    header: new sap.m.Text({ text: oFieldDef ? oFieldDef.label : sKey })
-                }));
+               
+                var iColumnWidth = "9rem";
+
+switch (sKey) {
+
+    case "OrderKey":
+        iColumnWidth = "13rem";
+        break;
+
+    case "ProcessingStatus":
+        iColumnWidth = "9rem";
+        break;
+
+    case "TechnicalStatus":
+        iColumnWidth = "10rem";
+        break;
+
+    case "CreatedOn":
+        iColumnWidth = "9rem";
+        break;
+
+    case "LastChangedBy":
+        iColumnWidth = "10rem";
+        break;
+
+    case "CreatedBy":
+        iColumnWidth = "9rem";
+        break;
+
+    case "ReleasedBy":
+        iColumnWidth = "9rem";
+        break;
+
+    default:
+        iColumnWidth = "10rem";
+}
+
+oTable.addColumn(
+    new sap.m.Column({
+        width: iColumnWidth,
+        header: new sap.m.Text({
+            text: oFieldDef ? oFieldDef.label : sKey
+        })
+    })
+);
             });
 
 
@@ -3184,19 +3225,20 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
         // when there's no prior-day data (tile shows nothing, per your requirement).
         formatKpiTrendText: function (oTrend) {
 
-            if (!oTrend || !oTrend.hasData) {
-                return "";
-            }
+    // No previous-day data available
+    if (!oTrend || !oTrend.hasData) {
+        return "Insufficient data to compare";
+    }
 
-            if (oTrend.direction === "flat") {
-                return "No change vs yesterday";
-            }
+    // Current and previous values are the same
+    if (oTrend.direction === "flat") {
+        return "No change vs yesterday";
+    }
 
-            var sArrow = oTrend.direction === "up" ? "+" : "-";
+    var sArrow = oTrend.direction === "up" ? "+" : "-";
 
-            return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
-
-        },
+    return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
+},
 
         // ✅ Shared class formatter — colors the subtext based on whether the
         // direction is "good" or "bad" for that specific KPI's semantic.

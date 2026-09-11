@@ -193,206 +193,248 @@
                                         class="kpiSectionContainer"
                                     >
                                         <!-- KPI summary -->
-                                        <FlexBox
-                                            id="kpiSummaryRow"
-                                            wrap="Wrap"
-                                            fitContainer="true"
-                                            renderType="Bare"
-                                            justifyContent="SpaceBetween"
-                                            alignItems="Stretch"
-                                            width="100%"
-                                            class="kpiSummaryRow"
-                                        >
-                                            <!-- Total payments KPI -->
-                                            <VBox
-                                                id="_IDGenKpiTotal"
-                                                class="kpiCard"
-                                                width="100%"
-                                                height="100%"
-                                            >
-                                                <HBox
-                                                    id="_IDGenKpiTotalTop"
-                                                    class="kpiCardTopRow"
-                                                >
-                                                    <Text
-                                                        id="_IDGenKpiTotalLabel"
-                                                        text="Total Payments"
-                                                        class="kpiCardLabel"
-                                                    />
-                                                    <HBox
-                                                        id="_IDGenKpiTotalIconBox"
-                                                        class="kpiIconBox kpiIconBlue"
-                                                    >
-                                                        <core:Icon
-                                                            id="_IDGenKpiTotalIcon"
-                                                            src="sap-icon://sales-order"
-                                                        />
-                                                    </HBox>
-                                                </HBox>
-                                                <Text
-                                                    id="_IDGenKpiTotalValue"
-                                                    text="{kpiSummaryModel>/TotalProcessed}"
-                                                    class="kpiCardValue kpiValueBlue"
-                                                />
-                                                <Text
-                                                    id="_IDGenKpiTotalSub"
-                                                    text="{ path: 'kpiSummaryModel>/totalProcessedTrend', formatter: '.formatKpiTrendText' }"
-                                                    class="{ path: 'kpiSummaryModel>/totalProcessedTrend', formatter: '.formatKpiTrendClass' }"
-                                                />
-                                            </VBox>
+                                        <!-- KPI summary -->
+<FlexBox
+    id="kpiSummaryRow"
+    wrap="Wrap"
+    fitContainer="true"
+    renderType="Bare"
+    justifyContent="SpaceBetween"
+    alignItems="Stretch"
+    width="100%"
+    class="kpiSummaryRow"
+>
 
-                                            <!-- Successful payments KPI -->
-                                            <VBox
-                                                id="_IDGenKpiSuccess"
-                                                class="kpiCard"
-                                                width="100%"
-                                                height="100%"
-                                            >
-                                                <HBox
-                                                    id="_IDGenKpiSuccessTop"
-                                                    class="kpiCardTopRow"
-                                                >
-                                                    <Text
-                                                        id="_IDGenKpiSuccessLabel"
-                                                        text="Successful Payments"
-                                                        class="kpiCardLabel"
-                                                    />
-                                                    <HBox
-                                                        id="_IDGenKpiSuccessIconBox"
-                                                        class="kpiIconBox kpiIconGreen"
-                                                    >
-                                                        <core:Icon
-                                                            id="_IDGenKpiSuccessIcon"
-                                                            src="sap-icon://accept"
-                                                        />
-                                                    </HBox>
-                                                </HBox>
-                                                <Text
-                                                    id="_IDGenKpiSuccessValue"
-                                                    text="{kpiSummaryModel>/SuccessfulPayments}"
-                                                    class="kpiCardValue kpiValueGreen"
-                                                />
-                                                <Text
-                                                    id="_IDGenKpiSuccessSub"
-                                                    text="{ path: 'kpiSummaryModel>/successfulTrend', formatter: '.formatKpiTrendText' }"
-                                                    class="{ path: 'kpiSummaryModel>/successfulTrend', formatter: '.formatKpiTrendClass' }"
-                                                />
-                                            </VBox>
+    <!-- ==================== TOTAL PAYMENTS ==================== -->
+    <VBox
+        id="_IDGenKpiTotal"
+        class="kpiCard"
+        width="100%"
+        height="100%"
+    >
+        <Text
+            id="_IDGenKpiTotalLabel"
+            text="Total Payments"
+            class="kpiCardLabel"
+        />
 
-                                            <!-- Pending payments KPI -->
-                                            <VBox
-                                                id="_IDGenKpiPending"
-                                                class="kpiCard"
-                                                width="100%"
-                                                height="100%"
-                                            >
-                                                <HBox
-                                                    id="_IDGenKpiPendingTop"
-                                                    class="kpiCardTopRow"
-                                                >
-                                                    <Text
-                                                        id="_IDGenKpiPendingLabel"
-                                                        text="Pending Payments"
-                                                        class="kpiCardLabel"
-                                                    />
-                                                    <HBox
-                                                        id="_IDGenKpiPendingIconBox"
-                                                        class="kpiIconBox kpiIconOrange"
-                                                    >
-                                                        <core:Icon
-                                                            id="_IDGenKpiPendingIcon"
-                                                            src="sap-icon://pending"
-                                                        />
-                                                    </HBox>
-                                                </HBox>
-                                                <Text
-                                                    id="_IDGenKpiPendingValue"
-                                                    text="{kpiSummaryModel>/PendingPayments}"
-                                                    class="kpiCardValue kpiValueOrange"
-                                                />
-                                                <Text
-                                                    id="_IDGenKpiPendingSub"
-                                                    text="{ path: 'kpiSummaryModel>/pendingTrend', formatter: '.formatKpiTrendText' }"
-                                                    class="{ path: 'kpiSummaryModel>/pendingTrend', formatter: '.formatKpiTrendClass' }"
-                                                />
-                                            </VBox>
+        <HBox
+            id="_IDGenKpiTotalValueRow"
+            class="kpiValueRow"
+            alignItems="Center"
+            justifyContent="SpaceBetween"
+        >
+            <Text
+                id="_IDGenKpiTotalValue"
+                text="{kpiSummaryModel>/TotalProcessed}"
+                class="kpiCardValue kpiValueBlue"
+            />
 
-                                            <!-- Failed payments KPI -->
-                                            <VBox
-                                                id="_IDGenKpiFailed"
-                                                class="kpiCard"
-                                                width="100%"
-                                                height="100%"
-                                            >
-                                                <HBox
-                                                    id="_IDGenKpiFailedTop"
-                                                    class="kpiCardTopRow"
-                                                >
-                                                    <Text
-                                                        id="_IDGenKpiFailedLabel"
-                                                        text="Failed Payments"
-                                                        class="kpiCardLabel"
-                                                    />
-                                                    <HBox
-                                                        id="_IDGenKpiFailedIconBox"
-                                                        class="kpiIconBox kpiIconRed"
-                                                    >
-                                                        <core:Icon
-                                                            id="_IDGenKpiFailedIcon"
-                                                            src="sap-icon://error"
-                                                        />
-                                                    </HBox>
-                                                </HBox>
-                                                <Text
-                                                    id="_IDGenKpiFailedValue"
-                                                    text="{kpiSummaryModel>/FailedPayments}"
-                                                    class="kpiCardValue kpiValueRed"
-                                                />
-                                                <Text
-                                                    id="_IDGenKpiFailedSub"
-                                                    text="{ path: 'kpiSummaryModel>/failedTrend', formatter: '.formatKpiTrendText' }"
-                                                    class="{ path: 'kpiSummaryModel>/failedTrend', formatter: '.formatKpiTrendClass' }"
-                                                />
-                                            </VBox>
+            <HBox
+                id="_IDGenKpiTotalIconBox"
+                class="kpiIconBox kpiIconBlue"
+                alignItems="Center"
+                justifyContent="Center"
+            >
+                <core:Icon
+                    id="_IDGenKpiTotalIcon"
+                    src="sap-icon://sales-order"
+                />
+            </HBox>
+        </HBox>
 
-                                            <!-- Rejected payments KPI -->
-                                            <VBox
-                                                id="_IDGenKpiRejected"
-                                                class="kpiCard"
-                                                width="100%"
-                                                height="100%"
-                                            >
-                                                <HBox
-                                                    id="_IDGenKpiRejectedTop"
-                                                    class="kpiCardTopRow"
-                                                >
-                                                    <Text
-                                                        id="_IDGenKpiRejectedLabel"
-                                                        text="Rejected Payments"
-                                                        class="kpiCardLabel"
-                                                    />
-                                                    <HBox
-                                                        id="_IDGenKpiRejectedIconBox"
-                                                        class="kpiIconBox kpiIconDarkRed"
-                                                    >
-                                                        <core:Icon
-                                                            id="_IDGenKpiRejectedIcon"
-                                                            src="sap-icon://decline"
-                                                        />
-                                                    </HBox>
-                                                </HBox>
-                                                <Text
-                                                    id="_IDGenKpiRejectedValue"
-                                                    text="{kpiSummaryModel>/RejectedPayments}"
-                                                    class="kpiCardValue kpiValueDarkRed"
-                                                />
-                                                <Text
-                                                    id="_IDGenKpiRejectedSub"
-                                                    text="{ path: 'kpiSummaryModel>/rejectedTrend', formatter: '.formatKpiTrendText' }"
-                                                    class="{ path: 'kpiSummaryModel>/rejectedTrend', formatter: '.formatKpiTrendClass' }"
-                                                />
-                                            </VBox>
-                                        </FlexBox>
+        <Text
+            id="_IDGenKpiTotalSub"
+            text="{ path: 'kpiSummaryModel>/totalProcessedTrend', formatter: '.formatKpiTrendText' }"
+            class="{ path: 'kpiSummaryModel>/totalProcessedTrend', formatter: '.formatKpiTrendClass' }"
+        />
+    </VBox>
+
+
+    <!-- ==================== SUCCESSFUL PAYMENTS ==================== -->
+    <VBox
+        id="_IDGenKpiSuccess"
+        class="kpiCard"
+        width="100%"
+        height="100%"
+    >
+        <Text
+            id="_IDGenKpiSuccessLabel"
+            text="Successful Payments"
+            class="kpiCardLabel"
+        />
+
+        <HBox
+            id="_IDGenKpiSuccessValueRow"
+            class="kpiValueRow"
+            alignItems="Center"
+            justifyContent="SpaceBetween"
+        >
+            <Text
+                id="_IDGenKpiSuccessValue"
+                text="{kpiSummaryModel>/SuccessfulPayments}"
+                class="kpiCardValue kpiValueGreen"
+            />
+
+            <HBox
+                id="_IDGenKpiSuccessIconBox"
+                class="kpiIconBox kpiIconGreen"
+                alignItems="Center"
+                justifyContent="Center"
+            >
+                <core:Icon
+                    id="_IDGenKpiSuccessIcon"
+                    src="sap-icon://accept"
+                />
+            </HBox>
+        </HBox>
+
+        <Text
+            id="_IDGenKpiSuccessSub"
+            text="{ path: 'kpiSummaryModel>/successfulTrend', formatter: '.formatKpiTrendText' }"
+            class="{ path: 'kpiSummaryModel>/successfulTrend', formatter: '.formatKpiTrendClass' }"
+        />
+    </VBox>
+
+
+    <!-- ==================== PENDING PAYMENTS ==================== -->
+    <VBox
+        id="_IDGenKpiPending"
+        class="kpiCard"
+        width="100%"
+        height="100%"
+    >
+        <Text
+            id="_IDGenKpiPendingLabel"
+            text="Pending Payments"
+            class="kpiCardLabel"
+        />
+
+        <HBox
+            id="_IDGenKpiPendingValueRow"
+            class="kpiValueRow"
+            alignItems="Center"
+            justifyContent="SpaceBetween"
+        >
+            <Text
+                id="_IDGenKpiPendingValue"
+                text="{kpiSummaryModel>/PendingPayments}"
+                class="kpiCardValue kpiValueOrange"
+            />
+
+            <HBox
+                id="_IDGenKpiPendingIconBox"
+                class="kpiIconBox kpiIconOrange"
+                alignItems="Center"
+                justifyContent="Center"
+            >
+                <core:Icon
+                    id="_IDGenKpiPendingIcon"
+                    src="sap-icon://pending"
+                />
+            </HBox>
+        </HBox>
+
+        <Text
+            id="_IDGenKpiPendingSub"
+            text="{ path: 'kpiSummaryModel>/pendingTrend', formatter: '.formatKpiTrendText' }"
+            class="{ path: 'kpiSummaryModel>/pendingTrend', formatter: '.formatKpiTrendClass' }"
+        />
+    </VBox>
+
+
+    <!-- ==================== FAILED PAYMENTS ==================== -->
+    <VBox
+        id="_IDGenKpiFailed"
+        class="kpiCard"
+        width="100%"
+        height="100%"
+    >
+        <Text
+            id="_IDGenKpiFailedLabel"
+            text="Failed Payments"
+            class="kpiCardLabel"
+        />
+
+        <HBox
+            id="_IDGenKpiFailedValueRow"
+            class="kpiValueRow"
+            alignItems="Center"
+            justifyContent="SpaceBetween"
+        >
+            <Text
+                id="_IDGenKpiFailedValue"
+                text="{kpiSummaryModel>/FailedPayments}"
+                class="kpiCardValue kpiValueRed"
+            />
+
+            <HBox
+                id="_IDGenKpiFailedIconBox"
+                class="kpiIconBox kpiIconRed"
+                alignItems="Center"
+                justifyContent="Center"
+            >
+                <core:Icon
+                    id="_IDGenKpiFailedIcon"
+                    src="sap-icon://error"
+                />
+            </HBox>
+        </HBox>
+
+        <Text
+            id="_IDGenKpiFailedSub"
+            text="{ path: 'kpiSummaryModel>/failedTrend', formatter: '.formatKpiTrendText' }"
+            class="{ path: 'kpiSummaryModel>/failedTrend', formatter: '.formatKpiTrendClass' }"
+        />
+    </VBox>
+
+
+    <!-- ==================== REJECTED PAYMENTS ==================== -->
+    <VBox
+        id="_IDGenKpiRejected"
+        class="kpiCard"
+        width="100%"
+        height="100%"
+    >
+        <Text
+            id="_IDGenKpiRejectedLabel"
+            text="Rejected Payments"
+            class="kpiCardLabel"
+        />
+
+        <HBox
+            id="_IDGenKpiRejectedValueRow"
+            class="kpiValueRow"
+            alignItems="Center"
+            justifyContent="SpaceBetween"
+        >
+            <Text
+                id="_IDGenKpiRejectedValue"
+                text="{kpiSummaryModel>/RejectedPayments}"
+                class="kpiCardValue kpiValueDarkRed"
+            />
+
+            <HBox
+                id="_IDGenKpiRejectedIconBox"
+                class="kpiIconBox kpiIconDarkRed"
+                alignItems="Center"
+                justifyContent="Center"
+            >
+                <core:Icon
+                    id="_IDGenKpiRejectedIcon"
+                    src="sap-icon://decline"
+                />
+            </HBox>
+        </HBox>
+
+        <Text
+            id="_IDGenKpiRejectedSub"
+            text="{ path: 'kpiSummaryModel>/rejectedTrend', formatter: '.formatKpiTrendText' }"
+            class="{ path: 'kpiSummaryModel>/rejectedTrend', formatter: '.formatKpiTrendClass' }"
+        />
+    </VBox>
+
+</FlexBox>
                                     </VBox>
                                 </ScrollContainer>
 
@@ -411,59 +453,112 @@
                                         class="chartCard chartResizable sapUiSmallPadding"
                                         justifyContent="SpaceBetween"
                                     >
-                                        <HBox
-                                            id="_IDGenFlowHeaderRow"
-                                            justifyContent="SpaceBetween"
-                                            alignItems="Center"
-                                            width="100%"
-                                        >
-                                            <Title
-                                                id="_IDGenTitle2"
-                                                text="{infoModel>/flowChartTitle}"
-                                            />
-                                            <HBox
-                                                id="_IDGenFlowControlsGroup"
-                                                alignItems="Center"
-                                            >
-                                                <Button
-                                                    id="chartTypeButton"
-                                                    icon="sap-icon://bar-chart"
-                                                    type="Default"
-                                                    tooltip="Change chart type"
-                                                    press="onChartTypeMenuPress"
-                                                    class="sapUiTinyMarginBegin"
-                                                />
+                                       <!-- =========================================================
+     PAYMENT FLOW CHART HEADER
+     ========================================================= -->
+<HBox
+    id="_IDGenFlowHeaderRow"
+    justifyContent="SpaceBetween"
+    alignItems="Center"
+    width="100%"
+    class="dashboardCardHeader"
+>
 
-                                                <!-- Maximize / restore -->
-                                                <Button
-                                                    id="chartExpandButton"
-                                                    icon="sap-icon://full-screen"
-                                                    type="Default"
-                                                    tooltip="Maximize"
-                                                    press="onToggleChartSize"
-                                                    class="chartToolbarButton sapUiTinyMarginBegin"
-                                                />
+    <!-- LEFT: ICON + TITLE + SUBTITLE -->
+    <HBox
+        id="_IDGenFlowHeaderLeft"
+        alignItems="Center"
+        class="dashboardCardHeaderLeft"
+    >
 
-                                                <Select
-                                                    id="flowGranularitySelect"
-                                                    selectedKey="Day"
-                                                    change="onFlowGranularityChange"
-                                                    width="110px"
-                                                    class="sapUiTinyMarginBegin"
-                                                >
-                                                    <core:Item
-                                                        id="_IDGenFlowGranDay"
-                                                        key="Day"
-                                                        text="Daily"
-                                                    />
-                                                    <core:Item
-                                                        id="_IDGenFlowGranHour"
-                                                        key="Hour"
-                                                        text="Hourly"
-                                                    />
-                                                </Select>
-                                            </HBox>
-                                        </HBox>
+        <!-- Chart icon -->
+        <HBox
+            id="_IDGenFlowIconBox"
+            alignItems="Center"
+            justifyContent="Center"
+            class="dashboardHeaderIconBox"
+        >
+            <core:Icon
+                id="_IDGenFlowHeaderIcon"
+                src="sap-icon://vertical-bar-chart"
+                size="1.25rem"
+            />
+        </HBox>
+
+        <!-- Title + subtitle -->
+        <VBox
+            id="_IDGenFlowTitleBox"
+            class="dashboardHeaderTitleBox"
+        >
+            <Title
+                id="_IDGenTitle2"
+                text="{infoModel>/flowChartTitle}"
+                level="H6"
+                class="dashboardCardTitle"
+            />
+
+            <Text
+                id="_IDGenFlowSubtitle"
+                text="Value flow across payment channels "
+                class="dashboardCardSubtitle"
+            />
+        </VBox>
+
+    </HBox>
+
+
+    <!-- RIGHT: CHART ACTIONS -->
+    <HBox
+        id="_IDGenFlowControlsGroup"
+        alignItems="Center"
+        justifyContent="End"
+        class="dashboardCardActions"
+    >
+
+        <!-- Change chart type -->
+        <Button
+            id="chartTypeButton"
+            icon="sap-icon://bar-chart"
+            type="Default"
+            tooltip="Change chart type"
+            press="onChartTypeMenuPress"
+            class="dashboardHeaderButton"
+        />
+
+        <!-- Maximize -->
+        <Button
+            id="chartExpandButton"
+            icon="sap-icon://full-screen"
+            type="Default"
+            tooltip="Maximize"
+            press="onToggleChartSize"
+            class="dashboardHeaderButton"
+        />
+
+        <!-- Daily / Hourly -->
+        <Select
+            id="flowGranularitySelect"
+            selectedKey="Day"
+            change="onFlowGranularityChange"
+            width="110px"
+            class="dashboardGranularitySelect"
+        >
+            <core:Item
+                id="_IDGenFlowGranDay"
+                key="Day"
+                text="Daily"
+            />
+
+            <core:Item
+                id="_IDGenFlowGranHour"
+                key="Hour"
+                text="Hourly"
+            />
+        </Select>
+
+    </HBox>
+
+</HBox>
 
                                         <MessageStrip
                                             id="_IDGenMessageStrip"
@@ -859,6 +954,8 @@
                                                         text="Awaiting Confirmation"
                                                         class="topReasonName"
                                                     />
+
+                                                    
                                                     <HBox
                                                         id="_IDGenTopBarWrap1"
                                                         alignItems="Center"
@@ -1095,78 +1192,153 @@
                                     justifyContent="SpaceBetween"
                                 >
                                     <!-- ✅ LEFT: TABLE -->
-                                    <VBox
-                                        id="_IDGenVBox3"
-                                        width="68%"
-                                        class="chartCard"
-                                    >
-                                        <VBox id="_IDGenVBox28">
-                                            <!-- Table header and actions -->
-                                            <HBox
-                                                id="_IDGenHBox15"
-                                                justifyContent="SpaceBetween"
-                                                alignItems="Center"
-                                            >
-                                                <Title
-                                                    id="_IDGenTitle4"
-                                                    text="Payment Transactions"
-                                                    level="H6"
-                                                />
-                                                <HBox
-                                                    id="_IDGenHBox17"
-                                                    alignItems="Center"
-                                                >
-                                                    <SearchField
-                                                        id="_IDGenPaymentInfoSearch"
-                                                        width="220px"
-                                                        placeholder="Search order, status, date..."
-                                                        liveChange="onFilterPaymentInfo"
-                                                        class="sapUiTinyMarginEnd"
-                                                    />
+                                    <!-- ========================================================= -->
+<!-- PAYMENT TRANSACTIONS                                      -->
+<!-- ========================================================= -->
 
-                                                    <Button
-                                                        id="transactionSettingsButton"
-                                                        icon="sap-icon://action-settings"
-                                                        type="Transparent"
-                                                        tooltip="Table Settings"
-                                                        press="onOpenTableSettings"
-                                                    />
+<VBox
+    id="_IDGenVBox3"
+    width="68%"
+    class="chartCard paymentTransactionsCard"
+>
 
-                                                    <Button
-                                                        id="transactionExpandButton"
-                                                        icon="sap-icon://full-screen"
-                                                        type="Transparent"
-                                                        tooltip="Maximize"
-                                                        press="onToggleTransactionSize"
-                                                    />
+    <!-- HEADER -->
+    <VBox
+        id="_IDGenVBox28"
+        class="paymentTransactionsHeader"
+    >
 
-                                                    <Button
-                                                        id="transactionExportButton"
-                                                        icon="sap-icon://excel-attachment"
-                                                        type="Transparent"
-                                                        tooltip="Export to Excel"
-                                                        press="onExportTransactions"
-                                                    />
-                                                </HBox>
-                                            </HBox>
-                                            <Text
-                                                id="_IDGenText7"
-                                                text="{= 'Top ' + ${tableInfoModel>/visible} + ' by Combined Flow   ' }"
-                                                class="tableRecordText sapUiTinyMarginTop"
-                                            />
-                                        </VBox>
-                                        <VBox
-                                            id="_IDGenVBox27"
-                                            width="100%"
-                                            height="380px"
-                                            class="tableContainer"
-                                        >
-                                            <Table
-                                                id="_IDGenTable"
-                                                updateFinished="onPaymentInfoTableUpdateFinished"
-                                            />
-                                        </VBox>
-                                    </VBox>
+        <HBox
+            id="_IDGenHBox15"
+            width="100%"
+            justifyContent="SpaceBetween"
+            alignItems="Center"
+        >
+
+            <!-- LEFT: ICON + TITLE -->
+
+            <HBox
+                id="paymentTransactionsTitleGroup"
+                alignItems="Center"
+                class="paymentTransactionsTitleGroup"
+            >
+
+                <HBox
+                    id="paymentTransactionsIconBox"
+                    alignItems="Center"
+                    justifyContent="Center"
+                    class="paymentTransactionsIconBox"
+                >
+
+                    <core:Icon
+                        id="paymentTransactionsIcon"
+                        src="sap-icon://credit-card"
+                    />
+
+                </HBox>
+
+
+                <VBox
+                    id="paymentTransactionsTitleBox"
+                    class="paymentTransactionsTitleBox"
+                >
+
+                    <Title
+                        id="_IDGenTitle4"
+                        text="Payment Transactions"
+                        level="H6"
+                        class="paymentTransactionsTitle"
+                    />
+
+                    <Text
+                        id="_IDGenText7"
+                        text="{= 'Top ' + ${tableInfoModel>/visible} + ' by Combined Flow' }"
+                        class="paymentTransactionsSubtitle"
+                    />
+
+                </VBox>
+
+            </HBox>
+
+
+            <!-- RIGHT: SEARCH + ACTIONS -->
+
+            <HBox
+                id="_IDGenHBox17"
+                alignItems="Center"
+                class="paymentTransactionsActions"
+            >
+
+                <SearchField
+                    id="_IDGenPaymentInfoSearch"
+                    width="280px"
+                    placeholder="Search order, status, reference..."
+                    liveChange="onFilterPaymentInfo"
+                    class="paymentTransactionsSearch"
+                />
+
+
+                <Button
+                    id="transactionSettingsButton"
+                    icon="sap-icon://action-settings"
+                    type="Transparent"
+                    tooltip="Table Settings"
+                    press="onOpenTableSettings"
+                    class="transactionHeaderButton"
+                />
+
+
+                <Button
+                    id="transactionExpandButton"
+                    icon="sap-icon://full-screen"
+                    type="Transparent"
+                    tooltip="Maximize"
+                    press="onToggleTransactionSize"
+                    class="transactionHeaderButton"
+                />
+
+
+                <Button
+                    id="transactionExportButton"
+                    icon="sap-icon://excel-attachment"
+                    type="Transparent"
+                    tooltip="Export to Excel"
+                    press="onExportTransactions"
+                    class="transactionHeaderButton"
+                />
+
+            </HBox>
+
+        </HBox>
+
+    </VBox>
+
+
+    <!-- TABLE -->
+<VBox
+    id="_IDGenVBox27"
+    width="100%"
+    height="380px"
+    class="tableContainer paymentTransactionsTableContainer"
+>
+    <ScrollContainer
+        id="paymentTransactionsScroll"
+        width="100%"
+        height="100%"
+        horizontal="true"
+        vertical="true"
+        focusable="true"
+    >
+        <Table
+            id="_IDGenTable"
+            width="auto"
+            fixedLayout="false"
+            updateFinished="onPaymentInfoTableUpdateFinished"
+        />
+    </ScrollContainer>
+</VBox>
+
+</VBox>
 
                                     <!-- ✅ RIGHT: CUT-OFF & SLA PANEL -->
                                     <VBox

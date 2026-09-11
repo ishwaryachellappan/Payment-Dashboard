@@ -4,6 +4,8 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core"
     xmlns:viz="sap.viz.ui5.controls"
+    xmlns:fb="sap.ui.comp.filterbar"
+
 >
     <VBox
         id="reconciliationPage"
@@ -36,123 +38,164 @@
         <!-- SYSTEM FILTERS                                        -->
         <!-- ===================================================== -->
 
+       <!-- ===================================================== -->
+<!-- RECONCILIATION SYSTEM SELECTION                      -->
+<!-- ===================================================== -->
+
+<VBox
+    id="reconciliationFilterCard"
+    width="100%"
+    class="reconciliationFilterCard">
+
+    <!-- ================================================= -->
+    <!-- SECTION HEADER                                    -->
+    <!-- ================================================= -->
+
+    <HBox
+        id="reconciliationFilterHeader"
+        width="100%"
+        alignItems="Center"
+        class="reconciliationFilterHeader">
+
         <VBox
-            id="reconciliationFilterCard"
-            width="100%"
-            class="reconciliationFilterCard"
-        >
-            <HBox
-                id="reconciliationFilterHeader"
-                width="100%"
-                alignItems="Center"
-                class="reconciliationFilterHeader"
-            >
-                <VBox id="reconciliationFilterTitleBox">
-                    <Title
-                        id="reconciliationFilterTitle"
-                        text="Reconciliation Systems"
-                        level="H5"
-                    />
-
-                    <Text
-                        id="reconciliationFilterDescription"
-                        text="Select the source and target system for reconciliation"
-                        class="reconciliationFilterDescription"
-                    />
-                </VBox>
-            </HBox>
-
-            <HBox
-                id="reconciliationSystemFilterBar"
-                width="100%"
-                justifyContent="Start"
-                alignItems="End"
-                class="reconciliationFilterBar"
-            >
-                <!-- SYSTEM 1 -->
-
-                <VBox
-                    id="system1FilterContainer"
-                    width="200px"
-                    class="reconciliationFilterItem"
-                >
-                    <Label
-                        id="system1Label"
-                        text="Source System"
-                        labelFor="system1Select"
-                    />
-
-                    <Select
-                        id="system1Select"
-                        width="100%"
-                        selectedKey="{reconciliation>/filters/system1}"
-                        change=".onSystem1Change"
-                    >
-                        <core:Item
-                            id="system1EmptyItem"
-                            key=""
-                            text="Select System "
-                        />
-
-                        <core:Item
-                            id="system1PCItem"
-                            key="PC"
-                            text="PC"
-                        />
-
-                        <core:Item
-                            id="system1DMItem"
-                            key="DM"
-                            text="DM"
-                        />
-                    </Select>
-                </VBox>
-
-                <!-- SYSTEM 2 -->
-
-                <VBox
-                    id="system2FilterContainer"
-                    width="200px"
-                    class="reconciliationFilterItem"
-                >
-                    <Label
-                        id="system2Label"
-                        text="Target System"
-                        labelFor="system2Select"
-                    />
-
-                    <Select
-                        id="system2Select"
-                        width="100%"
-                        selectedKey="{reconciliation>/filters/system2}"
-                        change=".onSystem2Change"
-                    >
-                        <core:Item
-                            id="system2EmptyItem"
-                            key=""
-                            text="Select System"
-                        />
-
-                        <core:Item
-                            id="system2DMItem"
-                            key="DM"
-                            text="DM"
-                        />
-                    </Select>
-                </VBox>
-
-                <!-- RESET -->
-
-                <Button
-                    id="reconciliationFilterResetButton"
-                    text="Reset"
-                    icon="sap-icon://reset"
-                    type="Default"
-                    press=".onResetSystemFilters"
-                    class="reconciliationFilterReset"
-                />
-            </HBox>
+            id="reconciliationFilterAccent"
+            class="reconciliationFilterAccent">
         </VBox>
+
+        <VBox
+            id="reconciliationFilterTitleBox"
+            class="reconciliationFilterTitleBox">
+
+            <Title
+                id="reconciliationFilterTitle"
+                text="Reconciliation Systems"
+                level="H5"
+                class="reconciliationFilterTitle"/>
+
+            <Text
+                id="reconciliationFilterDescription"
+                text="Select the source and target system for reconciliation"
+                class="reconciliationFilterDescription"/>
+
+        </VBox>
+
+    </HBox>
+
+
+    <!-- ================================================= -->
+    <!-- SYSTEM SELECTION ROW                              -->
+    <!-- ================================================= -->
+
+    <HBox
+        id="reconciliationSystemFilterBar"
+        width="100%"
+        alignItems="End"
+        class="reconciliationSystemFilterBar">
+
+        <!-- ============================================= -->
+        <!-- SOURCE SYSTEM                                 -->
+        <!-- ============================================= -->
+
+        <VBox
+            id="system1FilterContainer"
+            width="280px"
+            class="reconciliationFilterItem">
+
+            <Label
+                id="system1Label"
+                text="Source System"
+                labelFor="system1Select"
+                class="reconciliationFilterLabel"/>
+
+            <Select
+                id="system1Select"
+                width="100%"
+                selectedKey="{reconciliation>/filters/system1}"
+                change=".onSystem1Change"
+                class="reconciliationSystemSelect">
+
+                <core:Item
+                    id="system1EmptyItem"
+                    key=""
+                    text="Select System"/>
+
+                <core:Item
+                    id="system1PCItem"
+                    key="PC"
+                    text="PC"/>
+
+                <core:Item
+                    id="system1DMItem"
+                    key="DM"
+                    text="DM"/>
+
+            </Select>
+
+            <Text
+                id="system1HelperText"
+                text="System sending the items"
+                class="reconciliationFilterHelper"/>
+
+        </VBox>
+
+
+        <!-- ============================================= -->
+        <!-- TARGET SYSTEM                                 -->
+        <!-- ============================================= -->
+
+        <VBox
+            id="system2FilterContainer"
+            width="280px"
+            class="reconciliationFilterItem">
+
+            <Label
+                id="system2Label"
+                text="Target System"
+                labelFor="system2Select"
+                class="reconciliationFilterLabel"/>
+
+            <Select
+                id="system2Select"
+                width="100%"
+                selectedKey="{reconciliation>/filters/system2}"
+                change=".onSystem2Change"
+                class="reconciliationSystemSelect">
+
+                <core:Item
+                    id="system2EmptyItem"
+                    key=""
+                    text="Select System"/>
+
+                <core:Item
+                    id="system2DMItem"
+                    key="DM"
+                    text="DM"/>
+
+            </Select>
+
+            <Text
+                id="system2HelperText"
+                text="System receiving the items"
+                class="reconciliationFilterHelper"/>
+
+        </VBox>
+
+
+        <!-- ============================================= -->
+        <!-- RESET                                          -->
+        <!-- ============================================= -->
+
+        <Button
+            id="reconciliationFilterResetButton"
+            text="Reset"
+            icon="sap-icon://reset"
+            type="Transparent"
+            press=".onResetSystemFilters"
+            class="reconciliationFilterReset"/>
+
+    </HBox>
+
+</VBox>
 
         <!-- ===================================================== -->
         <!-- RECONCILIATION CHART                                  -->
@@ -208,72 +251,289 @@
         <!-- RECONCILIATION DETAILS                                -->
         <!-- ===================================================== -->
 
-        <Panel
-            id="reconciliationDetailsPanel"
-            width="100%"
-            class="reconTableCard"
-            backgroundDesign="Transparent"
+        <!-- ===================================================== -->
+<!-- RECONCILIATION DETAILS                               -->
+<!-- ===================================================== -->
+
+<Panel
+    id="reconciliationDetailsPanel"
+    width="100%"
+    class="reconTableCard"
+    backgroundDesign="Transparent"
+>
+
+    <!-- ================================================= -->
+    <!-- HEADER                                            -->
+    <!-- ================================================= -->
+
+    <headerToolbar>
+
+        <OverflowToolbar
+            id="reconciliationDetailsToolbar"
+            class="reconciliationHeaderToolbar"
         >
-            <headerToolbar>
-                <OverflowToolbar id="reconciliationDetailsToolbar">
+
+            <HBox
+                id="reconciliationHeaderLeft"
+                alignItems="Center"
+                class="reconciliationHeaderLeft"
+            >
+
+                <VBox
+                    id="reconciliationHeaderIconBox"
+                    class="reconciliationHeaderIconBox"
+                >
+                    <core:Icon
+                        id="reconciliationHeaderIcon"
+                        src="sap-icon://document-text"
+                        size="1.4rem"
+                    />
+                </VBox>
+
+                <VBox
+                    id="reconciliationHeaderTextBox"
+                    class="reconciliationHeaderTextBox"
+                >
+
                     <Title
                         id="reconciliationDetailsTitle"
                         text="Reconciliation Details"
                         level="H4"
+                        class="reconciliationDetailsTitle"
                     />
 
-                    <ToolbarSpacer id="reconciliationDetailsSpacer" />
-
-                    <Button
-                        id="btnExportReconciliation"
-                        text="Export to Excel"
-                        icon="sap-icon://excel-attachment"
-                        type="Transparent"
-                        press=".onExportExcel"
+                    <Text
+                        id="reconciliationDetailsSubtitle"
+                        text="View and analyse transaction details "
+                        class="reconciliationDetailsSubtitle"
                     />
 
-                    <Button
-                        id="reconColumnSettingsButton"
-                        icon="sap-icon://action-settings"
-                        type="Transparent"
-                        tooltip="Select Columns"
-                        press=".onReconColumnSettingsPress"
-                        class="chartToolbarButton"
-                    />
+                </VBox>
 
-                    <!-- ✅ ADDED: maximize/restore, same pattern as
-                 trendExpandButton in Exceptions.view.xml -->
-                    <Button
-                        id="reconDetailsExpandButton"
-                        icon="sap-icon://full-screen"
-                        type="Default"
-                        tooltip="Maximize"
-                        press=".onToggleReconDetailsSize"
-                        class="chartToolbarButton"
-                    />
-                </OverflowToolbar>
-            </headerToolbar>
+            </HBox>
 
-            <content>
-                <!-- Scrollable details area -->
 
-                <ScrollContainer
-                    id="reconciliationDetailsScroll"
-                    width="100%"
-                    height="500px"
-                    vertical="true"
-                    horizontal="false"
+            <ToolbarSpacer
+                id="reconciliationDetailsSpacer"
+            />
+
+
+            <!-- Export -->
+
+            <Button
+                id="btnExportReconciliation"
+                text="Export to Excel"
+                icon="sap-icon://download"
+                type="Transparent"
+                press=".onExportExcel"
+                class="reconciliationExportButton"
+            />
+
+
+            <!-- Settings -->
+
+            <Button
+                id="reconColumnSettingsButton"
+                icon="sap-icon://action-settings"
+                type="Default"
+                tooltip="Select Columns"
+                press=".onReconColumnSettingsPress"
+                class="reconciliationHeaderIconButton"
+            />
+
+
+            <!-- Full screen -->
+
+            <Button
+                id="reconDetailsExpandButton"
+                icon="sap-icon://full-screen"
+                type="Default"
+                tooltip="Maximize"
+                press=".onToggleReconDetailsSize"
+                class="reconciliationHeaderIconButton"
+            />
+
+        </OverflowToolbar>
+
+    </headerToolbar>
+
+
+    <!-- ================================================= -->
+    <!-- CONTENT                                           -->
+    <!-- ================================================= -->
+
+    <content>
+
+        <!-- ============================================= -->
+        <!-- SEARCH CARD                                    -->
+        <!-- ============================================= -->
+
+        <VBox
+            id="reconciliationTableSearchBar"
+            width="100%"
+            class="reconciliationSearchCard"
+        >
+
+            <!-- Search heading -->
+
+            <HBox
+                id="reconciliationSearchHeading"
+                alignItems="Center"
+                class="reconciliationSearchHeading"
+            >
+
+                <core:Icon
+                    id="reconciliationSearchIcon"
+                    src="sap-icon://search"
+                    size="1.35rem"
+                    class="reconciliationSearchIcon"
+                />
+
+                <VBox
+                    id="reconciliationSearchHeadingText"
                 >
-                    <List
-                        id="reconciliationGroupList"
+
+                    <Title
+                        id="reconciliationTableSearchTitle"
+                        text="Search"
+                        level="H5"
+                        class="reconciliationSearchTitle"
+                    />
+
+                   
+
+                </VBox>
+
+            </HBox>
+
+
+            <!-- ========================================= -->
+            <!-- SEARCH FIELDS                              -->
+            <!-- ========================================= -->
+
+            <FlexBox
+                id="reconciliationTableSearchFields"
+                width="100%"
+                wrap="Wrap"
+                alignItems="End"
+                class="reconciliationSearchFields"
+            >
+
+                <!-- PI NUMBER -->
+
+                <VBox
+                    id="reconPiNoSearchContainer"
+                    class="reconciliationSearchField"
+                >
+
+                    <Label
+                        id="reconPiNoSearchLabel"
+                        text="PI Number"
+                        labelFor="reconPiNoSearch"
+                    />
+
+                    <Input
+                        id="reconPiNoSearch"
                         width="100%"
-                        items="{
-                            path: 'reconciliation>/groups',
-                            templateShareable: false
-                        }"
-                        showSeparators="None"
-                        class="reconGroupList"
-                    >
+                        placeholder="Search PI number..."
+                        liveChange=".onReconTableSearchLiveChange"
+                        class="reconciliationSearchInput"
+                    />
+
+                </VBox>
+
+
+                <!-- PI KIND -->
+
+                <VBox
+                    id="reconPiKindSearchContainer"
+                    class="reconciliationSearchField"
+                >
+
+                    <Label
+                        id="reconPiKindSearchLabel"
+                        text="PI Kind"
+                        labelFor="reconPiKindSearch"
+                    />
+
+                    <Input
+                        id="reconPiKindSearch"
+                        width="100%"
+                        placeholder="Search PI kind..."
+                        liveChange=".onReconTableSearchLiveChange"
+                        class="reconciliationSearchInput"
+                    />
+
+                </VBox>
+
+
+                <!-- REF ITEM TEXT -->
+
+                <VBox
+                    id="reconRefItemSearchContainer"
+                    class="reconciliationSearchField reconciliationSearchFieldLarge"
+                >
+
+                    <Label
+                        id="reconRefItemSearchLabel"
+                        text="Ref Item Text"
+                        labelFor="reconRefItemSearch"
+                    />
+
+                    <Input
+                        id="reconRefItemSearch"
+                        width="100%"
+                        placeholder="Search reference item text..."
+                        liveChange=".onReconTableSearchLiveChange"
+                        class="reconciliationSearchInput"
+                    />
+
+                </VBox>
+
+
+
+                <!-- RESET -->
+
+                <Button
+                    id="reconTableSearchResetButton"
+                    text="Reset"
+                    icon="sap-icon://reset"
+                    type="Transparent"
+                    press=".onResetReconTableSearch"
+                    class="reconciliationResetButton"
+                />
+
+            </FlexBox>
+
+        </VBox>
+
+
+        <!-- ============================================= -->
+        <!-- TABLE AREA                                    -->
+        <!-- ============================================= -->
+
+        <ScrollContainer
+            id="reconciliationDetailsScroll"
+            width="100%"
+            height="500px"
+            vertical="true"
+            horizontal="false"
+            class="reconciliationDetailsScroll"
+        >
+
+            <List
+                id="reconciliationGroupList"
+                width="100%"
+                items="{
+                    path: 'reconciliation>/groups',
+                    templateShareable: false
+                }"
+                showSeparators="None"
+                class="reconGroupList"
+            >
+
+             
+
                         <CustomListItem
                             id="reconciliationGroupItem"
                             type="Inactive"
@@ -383,4 +643,7 @@
             </content>
         </Panel>
     </VBox>
+
+ 
+
 </mvc:View>

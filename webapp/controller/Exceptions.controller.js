@@ -71,12 +71,17 @@ sap.ui.define([
             // filtered by ClearingArea + PaymentItemDate (same shared
             // filterModel the Overview tab's header filter bar writes to).
             // Empty until the first read completes; see loadRailKpi.
-            var oRailModel = new JSONModel({
-                data: [],
-                total: 0,
-                totalText: ""
-            });
-            this.getView().setModel(oRailModel, "railModel");
+     var oRailModel = new JSONModel({
+    total: 0,
+    totalText: "",
+    data: [],
+    selectedStatus: "",
+    selectedCount: 0
+});
+
+this.getView().setModel(oRailModel, "railModel");
+
+
 
             // ✅ "By Rail" chart-type toggle — pie vs. progress bar. Controls
             // which of the two visualizations (bound to the same railModel
@@ -3194,7 +3199,7 @@ sap.ui.define([
         formatOpenExceptionTrendText: function (oTrend) {
 
             if (!oTrend || !oTrend.hasData) {
-                return "";
+                return "Insufficient data to compare";
             }
 
             if (oTrend.direction === "flat") {
@@ -3204,20 +3209,16 @@ sap.ui.define([
             var sArrow = oTrend.direction === "up" ? "+" : "-";
 
             return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
-
         },
 
         formatOpenExceptionTrendClass: function (oTrend) {
-
             if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {
                 return "kpiCardSubtext";
             }
 
-            // Rising open exceptions = bad (warn), falling = good.
             return oTrend.direction === "up"
                 ? "kpiCardSubtext kpiCardSubtextWarn"
                 : "kpiCardSubtext kpiCardSubtextGood";
-
         },
 
         // ✅ Value at Risk: same "more is worse" semantics as Open Exceptions.
@@ -3225,7 +3226,7 @@ sap.ui.define([
         formatValueAtRiskTrendText: function (oTrend) {
 
             if (!oTrend || !oTrend.hasData) {
-                return "";
+                return "Insufficient data to compare";
             }
 
             if (oTrend.direction === "flat") {
@@ -3235,20 +3236,17 @@ sap.ui.define([
             var sArrow = oTrend.direction === "up" ? "+" : "-";
 
             return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
-
         },
 
-        formatValueAtRiskTrendClass: function (oTrend) {
+       formatValueAtRiskTrendClass: function (oTrend) {
+    if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {
+        return "kpiCardSubtext";
+    }
 
-            if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {
-                return "kpiCardSubtext";
-            }
-
-            return oTrend.direction === "up"
-                ? "kpiCardSubtext kpiCardSubtextWarn"
-                : "kpiCardSubtext kpiCardSubtextGood";
-
-        },
+    return oTrend.direction === "up"
+        ? "kpiCardSubtext kpiCardSubtextWarn"
+        : "kpiCardSubtext kpiCardSubtextGood";
+},
 
         _getContentAreaWidth: function () {
             var oViewDom = this.getView().getDomRef();
@@ -3256,7 +3254,51 @@ sap.ui.define([
                 return oViewDom.offsetWidth;
             }
             return window.innerWidth * 0.92;
-        }
+        },
+
+        onRailPieSelect: function (oEvent) {
+
+    var oData = oEvent.getParameter("data");
+
+    if (!oData || !oData.length) {
+        return;
+    }
+
+    var oPoint = oData[0];
+
+    var sStatus = "";
+    var iCount = 0;
+
+    if (oPoint.data) {
+        sStatus =
+            oPoint.data.Status ||
+            oPoint.data.status ||
+            "";
+
+        iCount =
+            Number(
+                oPoint.data.Count ||
+                oPoint.data.value ||
+                0
+            );
+    }
+
+    var oRailModel = this.getView().getModel("railModel");
+
+    oRailModel.setProperty(
+        "/selectedStatus",
+        sStatus
+    );
+
+    oRailModel.setProperty(
+        "/selectedCount",
+        iCount
+    );
+
+    // Keep your existing drill-down logic here.
+    // For example:
+    // this.loadRailPaymentItems(sStatus);
+},
 
 
     });

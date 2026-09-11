@@ -35,63 +35,193 @@
     class="kpiSummaryRow">
 
     <!-- OPEN EXCEPTIONS -->
-<VBox id="_IDGenKpiOpenExceptions" class="kpiCard" width="100%" height="100%">
-    <HBox id="_IDGenKpiOpenExceptionsTop" class="kpiCardTopRow">
-        <Text id="_IDGenKpiOpenExceptionsLabel" text="Open Exceptions" class="kpiCardLabel"/>
-        <HBox id="_IDGenKpiOpenExceptionsIconBox" class="kpiIconBox kpiIconRed">
-            <core:Icon id="_IDGenKpiOpenExceptionsIcon" src="sap-icon://alert"/>
+<!-- OPEN EXCEPTIONS -->
+<VBox
+    id="_IDGenKpiOpenExceptions"
+    class="kpiCard"
+    width="100%"
+    height="100%"
+>
+    <!-- KPI Label -->
+    <Text
+        id="_IDGenKpiOpenExceptionsLabel"
+        text="Open Exceptions"
+        class="kpiCardLabel"
+    />
+
+    <!-- KPI Value + Icon -->
+    <HBox
+        id="_IDGenKpiOpenExceptionsValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween"
+    >
+        <Text
+            id="_IDGenKpiOpenExceptionsValue"
+            text="{exceptionKpiModel>/OpenException}"
+            class="kpiCardValue kpiValueRed"
+        />
+
+        <HBox
+            id="_IDGenKpiOpenExceptionsIconBox"
+            class="kpiIconBox kpiIconRed"
+            alignItems="Center"
+            justifyContent="Center"
+        >
+            <core:Icon
+                id="_IDGenKpiOpenExceptionsIcon"
+                src="sap-icon://alert"
+            />
         </HBox>
     </HBox>
-    <Text id="_IDGenKpiOpenExceptionsValue" text="{exceptionKpiModel>/OpenException}" class="kpiCardValue kpiValueRed"/>
-    <Text 
-        id="_IDGenKpiOpenExceptionsSub" 
-        text="{ path: 'exceptionKpiModel>/openExceptionTrend', formatter: '.formatOpenExceptionTrendText' }" 
+
+    <!-- Comparison -->
+    <Text
+        id="_IDGenKpiOpenExceptionsSub"
+        text="{ path: 'exceptionKpiModel>/openExceptionTrend', formatter: '.formatOpenExceptionTrendText' }"
         class="{ path: 'exceptionKpiModel>/openExceptionTrend', formatter: '.formatOpenExceptionTrendClass' }"
     />
 </VBox>
 
 <!-- VALUE AT RISK -->
-<VBox id="_IDGenKpiValueAtRisk" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-    <HBox id="_IDGenKpiValueAtRiskTop" class="kpiCardTopRow">
-        <Text id="_IDGenKpiValueAtRiskLabel" text="Value at Risk" class="kpiCardLabel"/>
-        <HBox id="_IDGenKpiValueAtRiskIconBox" class="kpiIconBox kpiIconOrange">
-            <core:Icon id="_IDGenKpiValueAtRiskIcon" src="sap-icon://money-bills"/>
+<!-- VALUE AT RISK -->
+<VBox
+    id="_IDGenKpiValueAtRisk"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%"
+>
+    <!-- KPI Label -->
+    <Text
+        id="_IDGenKpiValueAtRiskLabel"
+        text="Value at Risk"
+        class="kpiCardLabel"
+    />
+
+    <!-- KPI Value + Icon -->
+    <HBox
+        id="_IDGenKpiValueAtRiskValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween"
+    >
+        <Text
+            id="_IDGenKpiValueAtRiskValue"
+            text="{ path: 'exceptionKpiModel>/ValueAtRisk', formatter: '.formatValueAtRisk' }"
+            class="kpiCardValue kpiValueOrange"
+        />
+
+        <HBox
+            id="_IDGenKpiValueAtRiskIconBox"
+            class="kpiIconBox kpiIconOrange"
+            alignItems="Center"
+            justifyContent="Center"
+        >
+            <core:Icon
+                id="_IDGenKpiValueAtRiskIcon"
+                src="sap-icon://money-bills"
+            />
         </HBox>
     </HBox>
-    <Text 
-        id="_IDGenKpiValueAtRiskValue" 
-        text="{ path: 'exceptionKpiModel>/ValueAtRisk', formatter: '.formatValueAtRisk' }" 
-        class="kpiCardValue kpiValueOrange"
-    />
-    <Text 
-        id="_IDGenKpiValueAtRiskSub" 
-        text="{ path: 'exceptionKpiModel>/valueAtRiskTrend', formatter: '.formatValueAtRiskTrendText' }" 
+
+    <!-- Comparison -->
+    <Text
+        id="_IDGenKpiValueAtRiskSub"
+        text="{ path: 'exceptionKpiModel>/valueAtRiskTrend', formatter: '.formatValueAtRiskTrendText' }"
         class="{ path: 'exceptionKpiModel>/valueAtRiskTrend', formatter: '.formatValueAtRiskTrendClass' }"
     />
 </VBox>
 
    <!-- AWAITING APPROVAL -->
-<VBox id="_IDGenKpiAwaitingApproval" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-    <HBox id="_IDGenKpiAwaitingApprovalTop" class="kpiCardTopRow">
-        <Text id="_IDGenKpiAwaitingApprovalLabel" text="Awaiting Approval" class="kpiCardLabel"/>
-        <HBox id="_IDGenKpiAwaitingApprovalIconBox" class="kpiIconBox kpiIconPurple">
-            <core:Icon id="_IDGenKpiAwaitingApprovalIcon" src="sap-icon://pending"/>
+<!-- AWAITING APPROVAL -->
+<VBox
+    id="_IDGenKpiAwaitingApproval"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%"
+>
+    <Text
+        id="_IDGenKpiAwaitingApprovalLabel"
+        text="Awaiting Approval"
+        class="kpiCardLabel"
+    />
+
+    <HBox
+        id="_IDGenKpiAwaitingApprovalValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween"
+    >
+        <Text
+            id="_IDGenKpiAwaitingApprovalValue"
+            text="147"
+            class="kpiCardValue kpiValuePurple"
+        />
+
+        <HBox
+            id="_IDGenKpiAwaitingApprovalIconBox"
+            class="kpiIconBox kpiIconPurple"
+            alignItems="Center"
+            justifyContent="Center"
+        >
+            <core:Icon
+                id="_IDGenKpiAwaitingApprovalIcon"
+                src="sap-icon://pending"
+            />
         </HBox>
     </HBox>
-    <Text id="_IDGenKpiAwaitingApprovalValue" text="147" class="kpiCardValue kpiValuePurple"/>
-    <Text id="_IDGenKpiAwaitingApprovalSub" text="" class="kpiCardSubtext"/>
+
+   <Text
+    id="_IDGenKpiAwaitingApprovalSub"
+    text="Insufficient data to compare"
+    class="kpiCardSubtext"
+/>
 </VBox>
 
 <!-- SANCTIONS HOLDS -->
-<VBox id="_IDGenKpiSanctionsHolds" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-    <HBox id="_IDGenKpiSanctionsHoldsTop" class="kpiCardTopRow">
-        <Text id="_IDGenKpiSanctionsHoldsLabel" text="Sanctions Holds" class="kpiCardLabel"/>
-        <HBox id="_IDGenKpiSanctionsHoldsIconBox" class="kpiIconBox kpiIconDarkRed">
-            <core:Icon id="_IDGenKpiSanctionsHoldsIcon" src="sap-icon://shield"/>
+<!-- SANCTIONS HOLDS -->
+<VBox
+    id="_IDGenKpiSanctionsHolds"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%"
+>
+    <Text
+        id="_IDGenKpiSanctionsHoldsLabel"
+        text="Sanctions Holds"
+        class="kpiCardLabel"
+    />
+
+    <HBox
+        id="_IDGenKpiSanctionsHoldsValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween"
+    >
+        <Text
+            id="_IDGenKpiSanctionsHoldsValue"
+            text="38"
+            class="kpiCardValue kpiValueDarkRed"
+        />
+
+        <HBox
+            id="_IDGenKpiSanctionsHoldsIconBox"
+            class="kpiIconBox kpiIconDarkRed"
+            alignItems="Center"
+            justifyContent="Center"
+        >
+            <core:Icon
+                id="_IDGenKpiSanctionsHoldsIcon"
+                src="sap-icon://shield"
+            />
         </HBox>
     </HBox>
-    <Text id="_IDGenKpiSanctionsHoldsValue" text="38" class="kpiCardValue kpiValueDarkRed"/>
-    <Text id="_IDGenKpiSanctionsHoldsSub" text="" class="kpiCardSubtext"/>
+
+   <Text
+    id="_IDGenKpiSanctionsHoldsSub"
+    text="Insufficient data to compare"
+    class="kpiCardSubtext"
+/>
 </VBox>
 
 </FlexBox>
@@ -109,34 +239,82 @@
         >
             <!-- Trend -->
     
-           <VBox
+          <!-- ========================================================= -->
+<!-- EXCEPTION TREND                                           -->
+<!-- ========================================================= -->
+
+<VBox
     id="_IDGenVBox37"
     width="40%"
-    class="chartCard chartResizable sapUiSmallPadding"
     height="420px"
+    class="chartCard exceptionTrendCard"
 >
+
+    <!-- ===================================================== -->
+    <!-- HEADER                                                -->
+    <!-- ===================================================== -->
+
     <HBox
         id="_IDGenTrendHeaderRow"
+        width="100%"
         justifyContent="SpaceBetween"
         alignItems="Center"
-        width="100%"
+        class="exceptionChartHeader"
     >
-        <VBox id="_IDGenTrendTitleBox">
-            <Title
-                id="_IDGenTitle5"
-                text="Exception Trend (Last 7 Days)"
-            />
-            <Text
-                id="_IDGenText84"
-                text="Opened vs Resolved · Daily Volume"
-                class="kpiSubText"
-            />
-        </VBox>
+
+        <!-- LEFT -->
+
+        <HBox
+            id="trendHeaderLeft"
+            alignItems="Center"
+            class="exceptionChartHeaderLeft"
+        >
+
+            <HBox
+                id="trendHeaderIconBox"
+                alignItems="Center"
+                justifyContent="Center"
+                class="exceptionChartHeaderIcon"
+            >
+
+                <core:Icon
+                    id="trendHeaderIcon"
+                    src="sap-icon://bar-chart"
+                />
+
+            </HBox>
+
+
+            <VBox
+                id="_IDGenTrendTitleBox"
+                class="exceptionChartTitleBox"
+            >
+
+                <Title
+                    id="_IDGenTitle5"
+                    text="Exception Trend (Last 7 Days)"
+                    class="exceptionChartTitle"
+                />
+
+                <Text
+                    id="_IDGenText84"
+                    text="Opened vs Resolved · Daily Volume"
+                    class="exceptionChartSubtitle"
+                />
+
+            </VBox>
+
+        </HBox>
+
+
+        <!-- RIGHT CONTROLS -->
 
         <HBox
             id="_IDGenTrendControlsGroup"
             alignItems="Center"
+            class="exceptionChartControls"
         >
+
             <Button
                 id="trendChartTypeButton"
                 icon="sap-icon://vertical-bar-chart-2"
@@ -152,91 +330,148 @@
                 type="Default"
                 tooltip="Maximize"
                 press="onToggleTrendChartSize"
-                class="chartToolbarButton sapUiTinyMarginBegin"
+                class="sapUiTinyMarginBegin"
             />
+
         </HBox>
+
     </HBox>
 
 
-               <MessageStrip
-    id="trendWarning"
-    text="{trendModel>/warning/message}"
-    type="{trendModel>/warning/type}"
-    showIcon="true"
-    showCloseButton="false"
-    visible="{= !!${trendModel>/warning/message} }"
-    class="sapUiTinyMarginBottom sapUiTinyMarginBegin"
-/>
+    <!-- ===================================================== -->
+    <!-- WARNING                                               -->
+    <!-- ===================================================== -->
 
-                <viz:VizFrame
-                    id="_IDGenVizFrame"
-                    vizType="column"
-                    height="260px"
-                    width="100%"
-                    xmlns:viz="sap.viz.ui5.controls"
-                    xmlns:viz.data="sap.viz.ui5.data"
-                    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
-                    renderComplete="onTrendChartRenderComplete"
-                    vizProperties='{
-            "title": {        "visible": false     },
-           "legend": {        "visible": true,        "position": "bottom"  ,"alignment": "center"  },
-           "layout": {        "padding": 0    },
-    "plotArea": {
-    "colorPalette": ["#c17b74", "#7a9e6f"]   
-},
-    "categoryAxis": {
-        "title": { "visible": false }
-    },
-    "valueAxis": {
-        "title": { "visible": false }
-    }
-}'
+    <MessageStrip
+        id="trendWarning"
+        text="{trendModel>/warning/message}"
+        type="{trendModel>/warning/type}"
+        showIcon="true"
+        showCloseButton="false"
+        visible="{= !!${trendModel>/warning/message} }"
+        class="exceptionTrendWarning"
+    />
+
+
+    <!-- ===================================================== -->
+    <!-- CHART                                                 -->
+    <!-- ===================================================== -->
+
+    <VBox
+        id="trendChartContainer"
+        width="100%"
+        class="exceptionTrendChartContainer"
+    >
+
+        <viz:VizFrame
+            id="_IDGenVizFrame"
+            vizType="column"
+            height="250px"
+            width="100%"
+            xmlns:viz="sap.viz.ui5.controls"
+            xmlns:viz.data="sap.viz.ui5.data"
+            xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+            renderComplete="onTrendChartRenderComplete"
+            vizProperties='{
+                "title": {
+                    "visible": false
+                },
+                "legend": {
+                    "visible": true,
+                    "position": "bottom",
+                    "alignment": "center"
+                },
+                "layout": {
+                    "padding": 0
+                },
+                "plotArea": {
+                    "colorPalette": [
+                        "#c17b74",
+                        "#7a9e6f"
+                    ]
+                },
+                "categoryAxis": {
+                    "title": {
+                        "visible": false
+                    }
+                },
+                "valueAxis": {
+                    "title": {
+                        "visible": false
+                    }
+                }
+            }'
+        >
+
+            <viz:dataset>
+
+                <viz.data:FlattenedDataset
+                    id="_IDGenFlattenedDataset3"
+                    data="{trendModel>/data}"
                 >
-                    <viz:dataset>
-                        <viz.data:FlattenedDataset
-                            id="_IDGenFlattenedDataset3"
-                            data="{trendModel>/data}"
-                        >
-                            <viz.data:dimensions>
-                              <viz.data:DimensionDefinition
-    id="_IDGenDimensionDefinition3"
-    name="Date"
-    value="{trendModel>dateLabel}"
-/>
-                            </viz.data:dimensions>
-                            <viz.data:measures>
-                                <viz.data:MeasureDefinition
-                                    id="_IDGenMeasureDefinition3"
-                                    name="Opened"
-                                     value="{trendModel>opened}"
-                                />
-                                <viz.data:MeasureDefinition
-                                    id="_IDGenMeasureDefinition4"
-                                    name="Resolved"
-                                    value="{trendModel>resolved}"
-                                />
-                            </viz.data:measures>
-                        </viz.data:FlattenedDataset>
-                    </viz:dataset>
 
-                    <viz:feeds>
-                        <viz.feeds:FeedItem
-                            id="_IDGenFeedItem7"
-                            uid="valueAxis"
-                            type="Measure"
-                            values="Opened,Resolved"
+                    <viz.data:dimensions>
+
+                        <viz.data:DimensionDefinition
+                            id="_IDGenDimensionDefinition3"
+                            name="Date"
+                            value="{trendModel>dateLabel}"
                         />
-                        <viz.feeds:FeedItem
-    id="_IDGenFeedItem8"
-    uid="categoryAxis"
-    type="Dimension"
-    values="Date"
-/>
-                    </viz:feeds>
-                </viz:VizFrame>
-            </VBox>
 
-            <!-- By Rail -->
+                    </viz.data:dimensions>
+
+
+                    <viz.data:measures>
+
+                        <viz.data:MeasureDefinition
+                            id="_IDGenMeasureDefinition3"
+                            name="Opened"
+                            value="{trendModel>opened}"
+                        />
+
+                        <viz.data:MeasureDefinition
+                            id="_IDGenMeasureDefinition4"
+                            name="Resolved"
+                            value="{trendModel>resolved}"
+                        />
+
+                    </viz.data:measures>
+
+                </viz.data:FlattenedDataset>
+
+            </viz:dataset>
+
+
+            <viz:feeds>
+
+                <viz.feeds:FeedItem
+                    id="_IDGenFeedItem7"
+                    uid="valueAxis"
+                    type="Measure"
+                    values="Opened,Resolved"
+                />
+
+                <viz.feeds:FeedItem
+                    id="_IDGenFeedItem8"
+                    uid="categoryAxis"
+                    type="Dimension"
+                    values="Date"
+                />
+
+            </viz:feeds>
+
+        </viz:VizFrame>
+
+    </VBox>
+
+
+
+
+    
+
+</VBox>
+
+         
         <!-- =========================
      BY RAIL
      ========================= -->
@@ -251,25 +486,41 @@
 >
 
     <!-- HEADER -->
-    <HBox
-        id="_IDGenRailHeader"
-        justifyContent="SpaceBetween"
-        alignItems="Center"
-        width="100%"
-    >
+   <HBox
+    id="_IDGenRailHeader"
+    alignItems="Center"
+    class="exceptionChartHeaderLeft"
+>
+
+<HBox
+            id="railHeaderIconBox"
+            alignItems="Center"
+            justifyContent="Center"
+            class="exceptionChartHeaderIcon"
+        >
+
+            <core:Icon
+                id="railHeaderIcon"
+                src="sap-icon://shipping-status"
+            />
+
+        </HBox>
 
         <VBox
             id="_IDGenRailTitleBox"
+             
         >
             <Title
                 id="_IDGenTitle14"
                 text="By Rail"
+                class="exceptionChartTitle"
             />
 
             <Text
                 id="_IDGenText85"
                 text="{railModel>/totalText}"
-                class="kpiSubText"
+            
+                class="kpiSubText exceptionChartSubtitle"
             />
         </VBox>
 
@@ -339,7 +590,7 @@
                     "visible": false
                 },
                 "tooltip": {
-                    "visible": true
+                    "visible": false
                 }
             }'
         >
@@ -382,6 +633,10 @@
             </viz:feeds>
 
         </viz:VizFrame>
+
+       
+
+
 
         <!-- CENTER TOTAL — sits on top of the donut hole -->
         <VBox
@@ -575,298 +830,634 @@
         </HBox>
 
         <!-- ✅ Manager Card -->
-        <VBox
-            id="_IDGenVBox64"
-            class="chartCard sapUiSmallPadding sapUiMediumMarginTop"
+       
+                
+          
+        <!-- ========================================================= -->
+<!-- OPEN EXCEPTIONS WORKSPACE                                -->
+<!-- ========================================================= -->
+
+<VBox
+    id="_IDGenVBox64"
+    class="exceptionWorkspaceCard sapUiMediumMarginTop"
+    width="100%"
+>
+
+    <!-- ===================================================== -->
+    <!-- CARD HEADER                                           -->
+    <!-- ===================================================== -->
+
+    <HBox
+        id="exceptionWorkspaceHeader"
+        width="100%"
+        alignItems="Center"
+        justifyContent="SpaceBetween"
+        class="exceptionWorkspaceHeader"
+    >
+
+        <!-- LEFT -->
+
+        <HBox
+            id="exceptionWorkspaceHeaderLeft"
+            alignItems="Center"
+            class="exceptionWorkspaceHeaderLeft"
         >
-            <!-- ✅ TOP TEXT -->
-            <VBox
-                id="_IDGenVBox72"
-                class="sapUiSmallMarginBottom"
+
+            <HBox
+                id="exceptionWorkspaceIconBox"
+                alignItems="Center"
+                justifyContent="Center"
+                class="exceptionWorkspaceIconBox"
             >
+
+                <core:Icon
+                    id="exceptionWorkspaceIcon"
+                    src="sap-icon://task"
+                />
+
+            </HBox>
+
+
+            <VBox
+                id="exceptionWorkspaceTitleBox"
+                class="exceptionWorkspaceTitleBox"
+            >
+
                 <Title
                     id="_IDGenTitle15"
                     text="Open Exceptions by Reason"
-                    level="H6"
+                    level="H5"
+                    class="exceptionWorkspaceTitle"
                 />
 
-         
+                <Text
+                    id="exceptionWorkspaceSubtitle"
+                    text="Review and resolve open payment exceptions"
+                    class="exceptionWorkspaceSubtitle"
+                />
 
-                <!-- ✅ RIGHT (ALL INLINE ✅) -->
-                    <HBox
-                        id="_IDGenHBox40"
-                        class="kpiGroup"
-                    >
-                        <!-- OPEN -->
-                        <VBox
-                            id="_IDGenVBox66"
-                            class="kpiBlock kpiOpenShift "
-                        >
-                            <Text
-                                id="_IDGenText115"
-                                text="Open"
-                                class="kpiSubText"
-                            />
-                            <Text
-                                id="_IDGenText102"
-                               text="{openExceptionModel>/total}"
-                                class="kpiBigText"
-                            />
-                        </VBox>
+            </VBox>
 
-                        <!-- AT RISK -->
-                        <VBox
-                            id="_IDGenVBox67"
-                            class="kpiBlock sapUiTinyMarginEnd"
-                        >
-                            <Text
-    id="_IDGenText122"
-    text="At Risk"
-    class="kpiSubText"
-/>
+        </HBox>
 
-<Text
-    id="_IDGenText123"
-    text="{openExceptionModel>/maxAmount}"
-    class="kpiBigText"
-/>
-                        </VBox>
 
-                        <!-- DIVIDER -->
-                        <VBox
-                            id="_IDGenVBox76"
-                            class="verticalDivider sapUiTinyMarginBegin sapUiTinyMarginEnd"
-                        />
+        <!-- RIGHT KPI SUMMARY -->
 
-                        <!-- MAX -->
-                        <Button
-                            id="_IDGenButton3"
-                          text="{= 'Max ' + ${openExceptionModel>/maxAge}}"
-                            type="Transparent"
-                            class="maxAgeButton sapUiTinyMarginEnd"
-                        />
+        <HBox
+            id="_IDGenHBox40"
+            class="exceptionWorkspaceKpiGroup"
+            alignItems="Center"
+        >
 
-                       
-                    </HBox>
+            <!-- OPEN -->
+
+            <VBox
+                id="_IDGenVBox66"
+                class="exceptionMiniKpi"
+            >
+
+                <Text
+                    id="_IDGenText115"
+                    text="Open"
+                    class="exceptionMiniKpiLabel"
+                />
+
+                <Text
+                    id="_IDGenText102"
+                    text="{openExceptionModel>/total}"
+                    class="exceptionMiniKpiValue"
+                />
 
             </VBox>
 
 
+            <!-- DIVIDER -->
 
-            <!-- ✅ CLICKABLE HEADER -->
-            <Button
-                type="Transparent"
-                press="onToggleManager"
-                icon="sap-icon://slim-arrow-down"
-                text="Manager - Daily Startup"
-                iconFirst="true"
-                id="managerHeader"
-                class="managerHeader"
+            <VBox
+                id="exceptionKpiDivider1"
+                class="exceptionMiniKpiDivider"
             />
 
-            <!-- ✅ WRAP EVERYTHING BELOW (CRITICAL ✅) -->
-            <VBox id="managerContent">
-                <!-- ✅ FILTER ROW -->
-                <HBox
-                    id="_IDGenHBox38"
-                    wrap="Wrap"
-                    class="sapUiSmallMarginTop"
-                    justifyContent="SpaceBetween"
-                >
-                    <!-- SEARCH -->
-                    <VBox id="_IDGenVBox73">
-                        <Text
-                            id="_IDGenText98"
-                            text="Search"
-                        />
-                        <SearchField
-                            id="_IDGenSearchField1"
-                            width="260px"
-                            placeholder="Search for Customer, Ref., IBAN, BIC..."
-                            liveChange="onGlobalSearch"
-                        />
-                    </VBox>
 
-                    <!-- RAIL -->
-                    <VBox id="_IDGenVBox74">
-                        <Text
-                            id="_IDGenText118"
-                            text="Rail"
-                        />
-                        <Select
-                            id="filterRail"
-                            change="onFilterChange"
-                        >
-                            <core:Item
-                                id="_IDGenItem2"
-                                key="ALL"
-                                text="All"
-                            />
-                           
-                        </Select>
-                    </VBox>
+            <!-- AT RISK -->
 
-                    <!-- STATUS -->
-                    <VBox id="_IDGenVBox68">
-                        <Text
-                            id="_IDGenText119"
-                            text="Status"
-                        />
-                        <Select
-                            id="filterStatus"
-                            change="onFilterChange"
-                        >
-                            <core:Item
-                                id="_IDGenItem6"
-                                key="ALL"
-                                text="All"
-                            />
-                            <core:Item
-                                id="_IDGenItem7"
-                                key="OPEN"
-                                text="Open"
-                            />
-                            <core:Item
-                                id="_IDGenItem8"
-                                key="PROCESSING"
-                                text="Processing"
-                            />
-                            <core:Item
-                                id="_IDGenItem9"
-                                key="REJECTED"
-                                text="Rejected"
-                            />
-                        </Select>
-                    </VBox>
+            <VBox
+                id="_IDGenVBox67"
+                class="exceptionMiniKpi"
+            >
 
-                    <!-- AGING -->
-                    <VBox id="_IDGenVBox69">
-                        <Text
-                            id="_IDGenText101"
-                            text="Aging"
-                        />
-                        <Select
-                            id="filterAging"
-                            selectedKey="ALL_AGE"
-                            change="onFilterChange"
-                        >
-                            <core:Item
-                                id="_IDGenItem"
-                                key="ALL_AGE"
-                                text="All Age"
-                            />
-                        </Select>
-                    </VBox>
-
-                    <!-- SEGMENT -->
-                   <VBox id="_IDGenVBox70">
-    <Text
-        id="_IDGenText120"
-        text="Object Category"
-    />
-
-    <Select
-        id="filterObjectCategory"
-        width="160px"
-        selectedKey="ALL_OBJECT_CATEGORY"
-        change="onFilterChange"
-    >
-        <core:Item id="_IDGenItem1"
-            key="ALL_OBJECT_CATEGORY"
-            text="All"
-        />
-    </Select>
-</VBox>
-
-                    <!-- REASON -->
-                    <VBox id="_IDGenVBox71">
-                        <Text
-                            id="_IDGenText104"
-                            text="Reason Contains"
-                        />
-                        <Input
-                            id="_IDGenInput"
-                            width="220px"
-                            placeholder="E.g: Sanctions, IBAN"
-                            liveChange="onFilterChange"
-                        />
-                    </VBox>
-                </HBox>
-
-                <!-- ✅ DIVIDER -->
-                <HBox
-                    id="_IDGenHBox41"
-                    class="horizontalDivider sapUiTinyMarginTop sapUiTinyMarginBottom"
+                <Text
+                    id="_IDGenText122"
+                    text="At Risk"
+                    class="exceptionMiniKpiLabel"
                 />
 
-               
+                <Text
+                    id="_IDGenText123"
+                    text="{openExceptionModel>/maxAmount}"
+                    class="exceptionMiniKpiValue"
+                />
 
-                <!-- SANCTIONS TABLE -->
+            </VBox>
 
- <VBox
-    id="_IDGenVBox80"
-    width="100%"
-    class="sapUiMediumMarginTop excTableOuter"
->
-    <ScrollContainer
-        id="exceptionTableScroll"
-        width="100%"
-        height="440px"
-        vertical="true"
-        horizontal="true"
-        class="excTableScrollContainer"
+
+            <!-- DIVIDER -->
+
+            <VBox
+                id="_IDGenVBox76"
+                class="exceptionMiniKpiDivider"
+            />
+
+
+            <!-- MAX AGE -->
+
+            <Button
+                id="_IDGenButton3"
+                text="{= 'Max ' + ${openExceptionModel>/maxAge}}"
+                type="Transparent"
+                class="exceptionMaxAgeButton"
+            />
+
+        </HBox>
+
+    </HBox>
+
+
+
+
+
+    <!-- ===================================================== -->
+    <!-- MANAGER CONTENT                                       -->
+    <!-- ===================================================== -->
+
+    <VBox
+        id="managerContent"
+        class="managerQueueContent"
     >
-        <Table
-            id="_IDGenTable3"
-            items="{openExceptionModel>/data}"
-            mode="MultiSelect"
-            includeItemInSelection="true"
-            showNoData="false"
-            fixedLayout="true"
+
+        <!-- ================================================ -->
+        <!-- FILTER AREA                                      -->
+        <!-- ================================================ -->
+
+        <VBox
+            id="exceptionFilterPanel"
+            class="exceptionFilterPanel"
             width="100%"
         >
-            <columns>
-                <Column id="colClearingArea" width="110px"><Text id="_IDGenText55" text="Clearing Area"/></Column>
-                <Column id="colPaymentItemDate" width="130px"><Text id="_IDGenText56" text="Payment Item Date"/></Column>
-                <Column id="colObjectCategory" width="120px"><Text id="_IDGenText58" text="Object Category"/></Column>
-                <Column id="_IDGenColumn17" width="100px"><Text id="_IDGenText6" text="PO type"/></Column>
-                <Column id="_IDGenColumn18" width="120px"><Text id="_IDGenText27" text="Po Type Status"/></Column>
-                <Column id="colTechStat" width="140px"><Text id="_IDGenText59" text="Technical Status"/></Column>
-                <Column id="colPaymentItemNumber" width="150px"><Text id="_IDGenText86" text="Payment Item Number"/></Column>
-                <Column id="colReference" width="120px"><Text id="_IDGenText87" text="Reference"/></Column>
-                <Column id="colReasonDetail" width="180px"><Text id="_IDGenText88" text="Reason Detail"/></Column>
-                <Column id="colAmount" width="110px" hAlign="End"><Text id="_IDGenText89" text="Amount"/></Column>
-                <Column id="colCurrency" width="90px"><Text id="_IDGenText90" text="Currency"/></Column>
-                <Column id="colAged" width="90px"><Text id="_IDGenText91" text="Aged"/></Column>
-                <Column id="colCounterParty" width="150px"><Text id="_IDGenText92" text="Counterparty"/></Column>
-            </columns>
 
-            <items>
-                <ColumnListItem id="openExceptionRow">
-                    <cells>
-                        <Text id="_IDGenText93" text="{openExceptionModel>ClearingArea}"/>
-                        <Text id="_IDGenText94" text="{openExceptionModel>PaymentItemDate}"/>
-                        <Text id="_IDGenText96" text="{openExceptionModel>ObjectCategory}"/>
-                        <Text id="_IDGenText54" text="{openExceptionModel>po_type}"/>
-                        <Text id="_IDGenText57" text="{openExceptionModel>po_typet_s}"/>
-                        <Text id="_IDGenText105" text="{openExceptionModel>Status}"/>
-                        <Text id="_IDGenText106" text="{openExceptionModel>PaymentItemNumber}"/>
-                        <Text id="_IDGenText107" text="{openExceptionModel>Reference}"/>
-                        <Text id="_IDGenText108" text="{openExceptionModel>ReasonDetail}"/>
-                        <Text id="_IDGenText109" text="{openExceptionModel>Amount}"/>
-                        <Text id="_IDGenText110" text="{openExceptionModel>CURRENCY}"/>
-                        <Text id="_IDGenText111" text="{openExceptionModel>Aged}"/>
-                        <Text id="_IDGenText112" text="{openExceptionModel>CounterParty}"/>
-                    </cells>
-                </ColumnListItem>
-            </items>
-        </Table>
-    </ScrollContainer>
-</VBox>
-                
+            <Text
+                id="exceptionFilterTitle"
+                text="Search exceptions"
+                class="exceptionFilterTitle"
+            />
+
+
             
-            </VBox>
+
+
+            <!-- DROPDOWN ROW -->
+
+            <FlexBox
+                id="exceptionDropdownFilterRow"
+                width="100%"
+                wrap="Wrap"
+                alignItems="End"
+                class="exceptionDropdownFilterRow"
+            >
+
+                <!-- RAIL -->
+
+                <VBox
+                    id="_IDGenVBox74"
+                    class="exceptionFilterItem"
+                >
+
+                    <Label
+                        id="_IDGenText118"
+                        text="Rail"
+                        class="exceptionFilterLabel"
+                    />
+
+                    <Select
+                        id="filterRail"
+                        width="100%"
+                        change="onFilterChange"
+                        class="exceptionFilterSelect"
+                    >
+
+                        <core:Item
+                            id="_IDGenItem2"
+                            key="ALL"
+                            text="All"
+                        />
+
+                    </Select>
+
+                </VBox>
+
+
+                <!-- STATUS -->
+
+                <VBox
+                    id="_IDGenVBox68"
+                    class="exceptionFilterItem"
+                >
+
+                    <Label
+                        id="_IDGenText119"
+                        text="Status"
+                        class="exceptionFilterLabel"
+                    />
+
+                    <Select
+                        id="filterStatus"
+                        width="100%"
+                        change="onFilterChange"
+                        class="exceptionFilterSelect"
+                    >
+
+                        <core:Item
+                            id="_IDGenItem6"
+                            key="ALL"
+                            text="All"
+                        />
+
+                        <core:Item
+                            id="_IDGenItem7"
+                            key="OPEN"
+                            text="Open"
+                        />
+
+                        <core:Item
+                            id="_IDGenItem8"
+                            key="PROCESSING"
+                            text="Processing"
+                        />
+
+                        <core:Item
+                            id="_IDGenItem9"
+                            key="REJECTED"
+                            text="Rejected"
+                        />
+
+                    </Select>
+
+                </VBox>
+
+
+                <!-- AGING -->
+
+                <VBox
+                    id="_IDGenVBox69"
+                    class="exceptionFilterItem"
+                >
+
+                    <Label
+                        id="_IDGenText101"
+                        text="Aging"
+                        class="exceptionFilterLabel"
+                    />
+
+                    <Select
+                        id="filterAging"
+                        width="100%"
+                        selectedKey="ALL_AGE"
+                        change="onFilterChange"
+                        class="exceptionFilterSelect"
+                    >
+
+                        <core:Item
+                            id="_IDGenItem"
+                            key="ALL_AGE"
+                            text="All Age"
+                        />
+
+                    </Select>
+
+                </VBox>
+
+
+                <!-- OBJECT CATEGORY -->
+
+                <VBox
+                    id="_IDGenVBox70"
+                    class="exceptionFilterItem exceptionFilterItemWide"
+                >
+
+                    <Label
+                        id="_IDGenText120"
+                        text="Object Category"
+                        class="exceptionFilterLabel"
+                    />
+
+                    <Select
+                        id="filterObjectCategory"
+                        width="100%"
+                        selectedKey="ALL_OBJECT_CATEGORY"
+                        change="onFilterChange"
+                        class="exceptionFilterSelect"
+                    >
+
+                        <core:Item
+                            id="_IDGenItem1"
+                            key="ALL_OBJECT_CATEGORY"
+                            text="All"
+                        />
+
+                    </Select>
+
+                </VBox>
+
+
+                <!-- REASON -->
+
+                <VBox
+                    id="_IDGenVBox71"
+                    class="exceptionFilterItem exceptionReasonFilter"
+                >
+
+                    <Label
+                        id="_IDGenText104"
+                        text="Reason Contains"
+                        class="exceptionFilterLabel"
+                    />
+
+                    <Input
+                        id="_IDGenInput"
+                        width="100%"
+                        placeholder="E.g. Sanctions, IBAN..."
+                        liveChange="onFilterChange"
+                        class="exceptionFilterInput"
+                    />
+
+                </VBox>
+
+            </FlexBox>
+
         </VBox>
+
+
+        <!-- ================================================ -->
+        <!-- TABLE                                            -->
+        <!-- ================================================ -->
+
+        <VBox
+            id="_IDGenVBox80"
+            width="100%"
+            class="exceptionTableContainer"
+        >
+
+            <ScrollContainer
+                id="exceptionTableScroll"
+                width="100%"
+                height="440px"
+                vertical="true"
+                horizontal="true"
+                class="exceptionTableScroll"
+            >
+
+                <Table
+                    id="_IDGenTable3"
+                    items="{openExceptionModel>/data}"
+                    mode="MultiSelect"
+                    includeItemInSelection="true"
+                    showNoData="true"
+                    fixedLayout="true"
+                    width="100%"
+                    class="exceptionTable"
+                >
+
+                    <columns>
+
+                        <Column
+                            id="colClearingArea"
+                            width="110px"
+                        >
+                            <Text
+                                id="_IDGenText55"
+                                text="Clearing Area"
+                            />
+                        </Column>
+
+                        <Column
+                            id="colPaymentItemDate"
+                            width="130px"
+                        >
+                            <Text
+                                id="_IDGenText56"
+                                text="Payment Item Date"
+                            />
+                        </Column>
+
+                        <Column
+                            id="colObjectCategory"
+                            width="120px"
+                        >
+                            <Text
+                                id="_IDGenText58"
+                                text="Object Category"
+                            />
+                        </Column>
+
+                        <Column
+                            id="_IDGenColumn17"
+                            width="100px"
+                        >
+                            <Text
+                                id="_IDGenText6"
+                                text="PO Type"
+                            />
+                        </Column>
+
+                        <Column
+                            id="_IDGenColumn18"
+                            width="120px"
+                        >
+                            <Text
+                                id="_IDGenText27"
+                                text="PO Type Status"
+                            />
+                        </Column>
+
+                        <Column
+                            id="colTechStat"
+                            width="140px"
+                        >
+                            <Text
+                                id="_IDGenText59"
+                                text="Technical Status"
+                            />
+                        </Column>
+
+                        <Column
+                            id="colPaymentItemNumber"
+                            width="150px"
+                        >
+                            <Text
+                                id="_IDGenText86"
+                                text="Payment Item Number"
+                            />
+                        </Column>
+
+                        <Column
+                            id="colReference"
+                            width="120px"
+                        >
+                            <Text
+                                id="_IDGenText87"
+                                text="Reference"
+                            />
+                        </Column>
+
+                        <Column
+                            id="colReasonDetail"
+                            width="180px"
+                        >
+                            <Text
+                                id="_IDGenText88"
+                                text="Reason Detail"
+                            />
+                        </Column>
+
+                        <Column
+                            id="colAmount"
+                            width="110px"
+                            hAlign="End"
+                        >
+                            <Text
+                                id="_IDGenText89"
+                                text="Amount"
+                            />
+                        </Column>
+
+                        <Column
+                            id="colCurrency"
+                            width="90px"
+                        >
+                            <Text
+                                id="_IDGenText90"
+                                text="Currency"
+                            />
+                        </Column>
+
+                        <Column
+                            id="colAged"
+                            width="90px"
+                        >
+                            <Text
+                                id="_IDGenText91"
+                                text="Aged"
+                            />
+                        </Column>
+
+                        <Column
+                            id="colCounterParty"
+                            width="150px"
+                        >
+                            <Text
+                                id="_IDGenText92"
+                                text="Counterparty"
+                            />
+                        </Column>
+
+                    </columns>
+
+
+                    <items>
+
+                        <ColumnListItem
+                            id="openExceptionRow"
+                            class="exceptionTableRow"
+                        >
+
+                            <cells>
+
+                                <Text
+                                    id="_IDGenText93"
+                                    text="{openExceptionModel>ClearingArea}"
+                                />
+
+                                <Text
+                                    id="_IDGenText94"
+                                    text="{openExceptionModel>PaymentItemDate}"
+                                />
+
+                                <Text
+                                    id="_IDGenText96"
+                                    text="{openExceptionModel>ObjectCategory}"
+                                />
+
+                                <Text
+                                    id="_IDGenText54"
+                                    text="{openExceptionModel>po_type}"
+                                />
+
+                                <Text
+                                    id="_IDGenText57"
+                                    text="{openExceptionModel>po_typet_s}"
+                                />
+
+                                <ObjectStatus
+                                    id="_IDGenText105"
+                                    text="{openExceptionModel>Status}"
+                                    state="{path: 'openExceptionModel>Status', formatter: '.formatExceptionStatus'}"
+                                />
+
+                                <Text
+                                    id="_IDGenText106"
+                                    text="{openExceptionModel>PaymentItemNumber}"
+                                />
+
+                                <Text
+                                    id="_IDGenText107"
+                                    text="{openExceptionModel>Reference}"
+                                />
+
+                                <Text
+                                    id="_IDGenText108"
+                                    text="{openExceptionModel>ReasonDetail}"
+                                />
+
+                                <Text
+                                    id="_IDGenText109"
+                                    text="{openExceptionModel>Amount}"
+                                />
+
+                                <Text
+                                    id="_IDGenText110"
+                                    text="{openExceptionModel>CURRENCY}"
+                                />
+
+                                <ObjectStatus
+                                    id="_IDGenText111"
+                                    text="{openExceptionModel>Aged}"
+                                />
+
+                                <Text
+                                    id="_IDGenText112"
+                                    text="{openExceptionModel>CounterParty}"
+                                />
+
+                            </cells>
+
+                        </ColumnListItem>
+
+                    </items>
+
+                </Table>
+
+            </ScrollContainer>
+
+        </VBox>
+
+    </VBox>
+
+</VBox>
+
+
+
+
+
     </VBox>
 
     

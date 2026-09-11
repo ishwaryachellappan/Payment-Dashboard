@@ -71,135 +71,285 @@ sap.ui.define([
     /* ============================================================
        RECONCILIATION DETAIL COLUMN CONFIGURATION
        ============================================================ */
-
-    var RECON_DETAIL_COLUMNS = [
-        {
-            key: "ClearingArea",
-            label: "Clearing Area",
-            type: "text",
-            defaultVisible: true
-        },
-        {
-            key: "PiDate",
-            label: "PI Date",
-            type: "date",
-            defaultVisible: true
-        },
-        {
-            key: "PiNo",
-            label: "PI No.",
-            type: "text",
-            defaultVisible: true
-        },
-        {
-            key: "TechStat",
-            label: "Technical Status",
-            type: "text",
-            defaultVisible: false
-        },
-        {
-            key: "PiKind",
-            label: "PI Kind",
-            type: "text",
-            defaultVisible: true
-        },
-        {
-            key: "TrCurr",
-            label: "Currency",
-            type: "text",
-            defaultVisible: true
-        },
-        {
-            key: "TrAmount",
-            label: "Transaction Amount",
-            type: "amount",
-            defaultVisible: true
-        },
-        {
-            key: "Holder",
-            label: "Holder",
-            type: "text",
-            defaultVisible: true
-        },
-        {
-            key: "RefRoute",
-            label: "Reference Route",
-            type: "text",
-            defaultVisible: true
-        },
-        {
-            key: "RefItemExt",
-            label: "Reference Item",
-            type: "text",
-            defaultVisible: false
-        },
-        {
-            key: "RefCustagr",
-            label: "Customer Agreement",
-            type: "text",
-            defaultVisible: false
-        },
-        {
-            key: "Country",
-            label: "Country",
-            type: "text",
-            defaultVisible: false
-        },
-        {
-            key: "Bic",
-            label: "BIC",
-            type: "text",
-            defaultVisible: false
-        },
-        {
-            key: "Iban",
-            label: "IBAN",
-            type: "text",
-            defaultVisible: false
-        },
-        {
-            key: "AcctNo",
-            label: "Account No.",
-            type: "text",
-            defaultVisible: false
-        },
-        {
-            key: "ValDate",
-            label: "Value Date",
-            type: "date",
-            defaultVisible: false
-        },
-        {
-            key: "PiPostDate",
-            label: "PI Post Date",
-            type: "date",
-            defaultVisible: true
-        },
-        {
-            key: "TransType",
-            label: "Transaction Type",
-            type: "text",
-            defaultVisible: false
-        },
-        {
-            key: "RiskScore",
-            label: "Risk Score",
-            type: "number",
-            defaultVisible: false
-        },
-        {
-            key: "EndToEndId",
-            label: "End-to-End ID",
-            type: "text",
-            defaultVisible: false
-        },
-        {
-            key: "SettlementBic",
-            label: "Settlement BIC",
-            type: "text",
-            defaultVisible: false
-        }
+    var RECON_ODATA_FIELDS = [
+        "ClearingArea",
+        "PiDate",
+        "PiNo",
+        "TechStat",
+        "PiKind",
+        "Crusr",
+        "Chusr",
+        "Rlusr",
+        "TrCurr",
+        "TrAmount",
+        "Holder",
+        "RefRoute",
+        "RefCustagr",
+        "RefAmArea",
+        "RefReservArea",
+        "CheckAltCa",
+        "PredetermRoute",
+        "RpToDetermine",
+        "RefAcctLocSrv",
+        "RefItemExt",
+        "RefPiAmArea",
+        "RefPiAmArea2",
+        "RefRevPiDate",
+        "RefRevPiNo",
+        "RefExtPoOrig",
+        "RefExtPo",
+        "RefInpPoDate",
+        "RefInpPoNo",
+        "RefOutpPoDate",
+        "RefOutpPoNo",
+        "RefOutInfDate",
+        "RefOutInfNo",
+        "RefCollDate",
+        "RefCustomer",
+        "RefCustSgm",
+        "FlgReservedQc",
+        "RefItemExtOut",
+        "RefCustGrp",
+        "Country",
+        "Bankkey",
+        "Bic",
+        "Iban",
+        "AcctNo",
+        "AcctCur",
+        "Clrsysidcd",
+        "OrigCountry",
+        "OrigBankkey",
+        "OrigBic",
+        "OrigIban",
+        "OrigAcctNo",
+        "OrigAcctCur",
+        "OrigHolder",
+        "RefCountry",
+        "RefBankkey",
+        "RefBic",
+        "RefIban",
+        "RefAcctNo",
+        "RefAcctCur",
+        "RefHolder",
+        "NotifForOrp",
+        "RefClrsysidcd",
+        "RefOrigCountry",
+        "RefOrigBankkey",
+        "RefOrigBic",
+        "RefOrigIban",
+        "RefOrigAcctNo",
+        "RefOrigAccCur",
+        "RefOrigHolder",
+        "OrigValDate",
+        "OrigValTime",
+        "ValDate",
+        "ValTime",
+        "RefValutaId",
+        "RefRulesetId",
+        "ValueDateStat",
+        "FlgHldValDate",
+        "ActValDate",
+        "PiPostDate",
+        "PiPostTime",
+        "BalSpfDate",
+        "BalSpfTime",
+        "PlClrDate",
+        "PlClrTime",
+        "PiProcessDate",
+        "PiProcessTime",
+        "PlProcDate",
+        "PlProcTime",
+        "OrigPostDate",
+        "ActPostDate",
+        "TransDate",
+        "TransTime",
+        "OrigExecDate",
+        "TrFee",
+        "FeeDebCred",
+        "ACurr",
+        "AAmount",
+        "AFee",
+        "Exchngrate",
+        "FeeInfo",
+        "NumItems",
+        "OriginalCurr",
+        "OriginalAmount",
+        "NomAmountChng",
+        "AAmountFee",
+        "AAmountCurr",
+        "TransType",
+        "ChequeNo",
+        "OrigTranstype",
+        "ReleaseActivity",
+        "ReleaseStatus",
+        "TransferAccSym",
+        "EvId",
+        "ContinueEv",
+        "FlgInternal",
+        "CheckSumMethod",
+        "SplitIndi",
+        "ItemGroup",
+        "FlgItemAuth",
+        "FlgEvStatusOpo",
+        "EvIdOpo",
+        "ContinueEvOpo",
+        "PeAccountType",
+        "AccountHolderId",
+        "AccountGeneralLedgerGroup",
+        "FlgCorrAddr",
+        "RiskScore",
+        "RefRecallDate",
+        "RefRecallNo",
+        "PiRange",
+        "PiKind003",
+        "PiRange003",
+        "PiKind004",
+        "PiRange004",
+        "PiKindAcq",
+        "PiRangeAcq",
+        "FstInvBankkey",
+        "ChkDepBankkey",
+        "ChkConBankkey",
+        "FstInvCountry",
+        "ChkDepCountry",
+        "ChkConCountry",
+        "PostareaBuf",
+        "ActionBuf",
+        "PiKindBuf",
+        "TechPriorityBuf",
+        "AsyncStatusBuf",
+        "PollErrUnidBuf",
+        "AcctHashBuf",
+        "AsyncReason",
+        "FlgPostCancel",
+        "ForeignCtrMrk",
+        "SuspenseAccount",
+        "FlgSapClient",
+        "RcpIntCnt",
+        "ComAmount",
+        "ComCurr",
+        "RefUndCon",
+        "DueDate",
+        "MandateId",
+        "Uci",
+        "OrigDueDate",
+        "EndToEndId",
+        "RefUeTr",
+        "FbackDate",
+        "DirectDebType",
+        "SettlMethod",
+        "ClrSysId",
+        "SettlementBic"
     ];
+
+    var RECON_DATE_FIELDS = [
+        "PiDate",
+        "RefRevPiDate",
+        "RefInpPoDate",
+        "RefOutpPoDate",
+        "RefOutInfDate",
+        "RefCollDate",
+        "OrigValDate",
+        "ValDate",
+        "ActValDate",
+        "PiPostDate",
+        "BalSpfDate",
+        "PlClrDate",
+        "PiProcessDate",
+        "PlProcDate",
+        "OrigPostDate",
+        "ActPostDate",
+        "TransDate",
+        "OrigExecDate",
+        "RefRecallDate",
+        "DueDate",
+        "OrigDueDate",
+        "FbackDate"
+    ];
+
+    var RECON_NUMBER_FIELDS = [
+        "TrAmount",
+        "TrFee",
+        "AAmount",
+        "AFee",
+        "Exchngrate",
+        "OriginalAmount",
+        "NomAmountChng",
+        "AAmountFee",
+        "RiskScore",
+        "PiRange",
+        "PiRange003",
+        "PiRange004",
+        "PiRangeAcq",
+        "ComAmount",
+        "NumItems",
+        "PollErrUnidBuf"
+    ];
+
+    var RECON_AMOUNT_FIELDS = [
+        "TrAmount",
+        "TrFee",
+        "AAmount",
+        "AFee",
+        "OriginalAmount",
+        "NomAmountChng",
+        "AAmountFee",
+        "ComAmount"
+    ];
+
+    var RECON_DEFAULT_VISIBLE = [
+        "ClearingArea",
+        "PiDate",
+        "PiNo",
+        "TechStat",
+        "PiKind",
+        "TrCurr",
+        "TrAmount",
+        "Holder",
+        "RefRoute",
+        "RefItemExt",
+        "Country",
+        "Bic",
+        "Iban",
+        "AcctNo",
+        "ValDate",
+        "PiPostDate",
+        "TransType",
+        "RiskScore",
+        "EndToEndId",
+        "SettlementBic"
+    ];
+
+    function formatReconFieldLabel(sField) {
+        return sField
+            .replace(/([a-z])([A-Z])/g, "$1 $2")
+            .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+            .replace(/^./, function (s) {
+                return s.toUpperCase();
+            });
+    }
+
+    var RECON_DETAIL_COLUMNS = RECON_ODATA_FIELDS.map(function (sField) {
+
+        var sType = "text";
+
+        if (RECON_DATE_FIELDS.indexOf(sField) !== -1) {
+            sType = "date";
+        } else if (RECON_NUMBER_FIELDS.indexOf(sField) !== -1) {
+            sType = "number";
+        }
+
+        if (RECON_AMOUNT_FIELDS.indexOf(sField) !== -1) {
+            sType = "amount";
+        }
+
+        return {
+            key: sField,
+            label: formatReconFieldLabel(sField),
+            type: sType,
+            defaultVisible: RECON_DEFAULT_VISIBLE.indexOf(sField) !== -1
+        };
+    });
 
 
     return Controller.extend(
@@ -229,6 +379,12 @@ sap.ui.define([
                     filters: {
                         system1: "PC",
                         system2: "DM"
+                    },
+
+                    tableSearch: {
+                        piNo: "",
+                        piKind: "",
+                        refItemText: ""
                     },
 
                     groups: [],
@@ -280,180 +436,170 @@ sap.ui.define([
             },
 
 
-           loadReconciliationData: async function () {
+            loadReconciliationData: async function () {
 
-    var oFilterModel = this.getView().getModel("filterModel");
-    var oReconModel = this.getView().getModel("reconciliation");
+                var oFilterModel = this.getView().getModel("filterModel");
+                var oReconModel = this.getView().getModel("reconciliation");
 
-    if (!oReconModel) {
-        console.error("[Reconciliation] 'reconciliation' model not found.");
-        return;
-    }
+                if (!oReconModel) {
+                    console.error("[Reconciliation] 'reconciliation' model not found.");
+                    return;
+                }
 
-    var sClearingArea = oFilterModel
-        ? oFilterModel.getProperty("/clearingArea")
-        : "DEBNKC";
+                var sClearingArea = oFilterModel
+                    ? oFilterModel.getProperty("/clearingArea")
+                    : "DEBNKC";
 
-    var sSelectedDate = oFilterModel
-        ? oFilterModel.getProperty("/kpiDate")
-        : new Date().toISOString().slice(0, 10);
+                var sSelectedDate = oFilterModel
+                    ? oFilterModel.getProperty("/kpiDate")
+                    : new Date().toISOString().slice(0, 10);
 
-    // Normalize Date objects to yyyy-MM-dd.
-    if (sSelectedDate instanceof Date) {
-        sSelectedDate =
-            sSelectedDate.getFullYear() + "-" +
-            String(sSelectedDate.getMonth() + 1).padStart(2, "0") + "-" +
-            String(sSelectedDate.getDate()).padStart(2, "0");
-    } else {
-        sSelectedDate = String(sSelectedDate).slice(0, 10);
-    }
+                // Normalize Date objects to yyyy-MM-dd.
+                if (sSelectedDate instanceof Date) {
+                    sSelectedDate =
+                        sSelectedDate.getFullYear() + "-" +
+                        String(sSelectedDate.getMonth() + 1).padStart(2, "0") + "-" +
+                        String(sSelectedDate.getDate()).padStart(2, "0");
+                } else {
+                    sSelectedDate = String(sSelectedDate).slice(0, 10);
+                }
 
-    if (!sClearingArea || !sSelectedDate) {
-        console.warn(
-            "[Reconciliation] Missing clearing area or date."
-        );
-        return;
-    }
+                if (!sClearingArea || !sSelectedDate) {
+                    console.warn(
+                        "[Reconciliation] Missing clearing area or date."
+                    );
+                    return;
+                }
 
-    oReconModel.setProperty("/busy", true);
+                oReconModel.setProperty("/busy", true);
 
-    try {
+                try {
 
-        /*
-         * Use the manifest service URL directly.
-         *
-         * This avoids OData V4 list-binding key handling and also
-         * prevents sap-client from being accidentally appended inside
-         * the $filter expression.
-         */
-        var sServiceUrl =
-            this.getOwnerComponent()
-                .getManifestEntry(
-                    "/sap.app/dataSources/mainService/uri"
-                );
+                    /*
+                     * Use the manifest service URL directly.
+                     *
+                     * This avoids OData V4 list-binding key handling and also
+                     * prevents sap-client from being accidentally appended inside
+                     * the $filter expression.
+                     */
+                    var sServiceUrl =
+                        this.getOwnerComponent()
+                            .getManifestEntry(
+                                "/sap.app/dataSources/mainService/uri"
+                            );
 
-        /*
-         * Remove an existing query string from the service URL.
-         * sap-client must be added as a separate query parameter,
-         * never as part of the $filter expression.
-         */
-        var sBaseUrl = sServiceUrl.split("?")[0];
+                    /*
+                     * Remove an existing query string from the service URL.
+                     * sap-client must be added as a separate query parameter,
+                     * never as part of the $filter expression.
+                     */
+                    var sBaseUrl = sServiceUrl.split("?")[0];
 
-        var sSelect = [
-            "ClearingArea",
-            "PiDate",
-            "PiNo",
-            "TechStat",
-            "PiKind",
-            "Crusr",
-            "Chusr",
-            "Rlusr",
-            "TrCurr",
-            "TrAmount",
-            "Holder",
-            "RefRoute",
-            "RefCustagr",
-            "RefAmArea",
-            "CheckAltCa",
-            "PredetermRoute",
-            "RpToDetermine",
-            "RefAcctLocSrv",
-            "RefItemExt",
-            "Country",
-            "Bic",
-            "Iban",
-            "AcctNo",
-            "ValDate",
-            "PiPostDate",
-            "TransType",
-            "RiskScore",
-            "EndToEndId",
-            "SettlementBic"
-        ].join(",");
+                    // All fields exposed by the Reconcilation OData entity.
+                    // Keep this list in one place so the Settings dialog and OData request
+                    // stay aligned.
+                    // Request the same master field list used by the table Settings.
+                    var sSelect = RECON_ODATA_FIELDS.join(",");
 
-        var sFilter =
-            "ClearingArea eq '" +
-            String(sClearingArea).replace(/'/g, "''") +
-            "' and PiPostDate eq " +
-            sSelectedDate;
+                    /* ============================================================
+                       RECONCILIATION FIELD CATALOG
+                       ============================================================
+                       Every field returned by Reconcilation is available through
+                       the Settings icon.
+                    
+                       defaultVisible = true
+                           -> shown when the table first loads
+                    
+                       defaultVisible = false
+                           -> available through Settings, but hidden initially
+                       ============================================================ */
 
-        /*
-         * Build every query parameter separately.
-         */
-        var oParams = new URLSearchParams();
 
-        oParams.set("$select", sSelect);
-        oParams.set("$filter", sFilter);
-        oParams.set("sap-client", "500");
 
-        var sUrl =
-            sBaseUrl +
-            "Reconcilation?" +
-            oParams.toString();
 
-        console.log(
-            "[Reconciliation] Fetch URL:",
-            sUrl
-        );
+                    var sFilter =
+                        "ClearingArea eq '" +
+                        String(sClearingArea).replace(/'/g, "''") +
+                        "' and PiPostDate eq " +
+                        sSelectedDate;
 
-        var oResponse = await fetch(sUrl, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
+                    /*
+                     * Build every query parameter separately.
+                     */
+                    var oParams = new URLSearchParams();
+
+                    oParams.set("$select", sSelect);
+                    oParams.set("$filter", sFilter);
+                    oParams.set("sap-client", "500");
+
+                    var sUrl =
+                        sBaseUrl +
+                        "Reconcilation?" +
+                        oParams.toString();
+
+                    console.log(
+                        "[Reconciliation] Fetch URL:",
+                        sUrl
+                    );
+
+                    var oResponse = await fetch(sUrl, {
+                        method: "GET",
+                        headers: {
+                            "Accept": "application/json"
+                        },
+                        credentials: "same-origin"
+                    });
+
+                    if (!oResponse.ok) {
+                        throw new Error(
+                            "HTTP " +
+                            oResponse.status +
+                            " - " +
+                            oResponse.statusText
+                        );
+                    }
+
+                    var oJson = await oResponse.json();
+
+                    var aRawData = [];
+
+                    if (oJson && Array.isArray(oJson.value)) {
+                        aRawData = oJson.value;
+                    }
+
+                    console.log(
+                        "[Reconciliation] Rows received:",
+                        aRawData.length
+                    );
+
+                    console.log(
+                        "[Reconciliation] Raw data sample:",
+                        aRawData.slice(0, 3)
+                    );
+
+                    this._processReconciliationData(aRawData);
+
+                } catch (oError) {
+
+                    console.error(
+                        "[Reconciliation] OData load failed:",
+                        oError
+                    );
+
+                    MessageToast.show(
+                        "Error loading reconciliation data."
+                    );
+
+                    this._processReconciliationData([]);
+
+                } finally {
+
+                    oReconModel.setProperty(
+                        "/busy",
+                        false
+                    );
+                }
             },
-            credentials: "same-origin"
-        });
-
-        if (!oResponse.ok) {
-            throw new Error(
-                "HTTP " +
-                oResponse.status +
-                " - " +
-                oResponse.statusText
-            );
-        }
-
-        var oJson = await oResponse.json();
-
-        var aRawData = [];
-
-        if (oJson && Array.isArray(oJson.value)) {
-            aRawData = oJson.value;
-        }
-
-        console.log(
-            "[Reconciliation] Rows received:",
-            aRawData.length
-        );
-
-        console.log(
-            "[Reconciliation] Raw data sample:",
-            aRawData.slice(0, 3)
-        );
-
-        this._processReconciliationData(aRawData);
-
-    } catch (oError) {
-
-        console.error(
-            "[Reconciliation] OData load failed:",
-            oError
-        );
-
-        MessageToast.show(
-            "Error loading reconciliation data."
-        );
-
-        this._processReconciliationData([]);
-
-    } finally {
-
-        oReconModel.setProperty(
-            "/busy",
-            false
-        );
-    }
-},
 
             reload: function () {
 
@@ -1354,6 +1500,22 @@ sap.ui.define([
                     sMessage
                 );
 
+                /*
+ * If text search is active, re-apply it on top of
+ * the selected chart category.
+ */
+                var oTableSearch =
+                    oReconModel.getProperty("/tableSearch") || {};
+
+                if (
+                    String(oTableSearch.piNo || "").trim() ||
+                    String(oTableSearch.piKind || "").trim() ||
+                    String(oTableSearch.refItemText || "").trim()
+                ) {
+
+                    this._applyReconTableSearch();
+                }
+
 
                 console.log(
                     "[Reconciliation] Selected graph category:",
@@ -1375,6 +1537,591 @@ sap.ui.define([
                 oReconModel.setProperty("/groups", oResult.groups);
                 oReconModel.setProperty("/selectedCategory", "");
                 oReconModel.setProperty("/filterMessage", "");
+
+            },
+
+            /* ============================================================
+   RECONCILIATION TABLE SEARCH
+   ============================================================ */
+
+            /**
+             * Live search for:
+             *  - PI Number
+             *  - PI Kind
+             *  - Reference Item Text
+             *
+             * Search is client-side against the raw OData data already
+             * loaded for the current Clearing Area / Posting Date.
+             *
+             * The chart itself is NOT changed.
+             * Only the reconciliation detail table is filtered.
+             */
+            /* ============================================================
+   RECONCILIATION TABLE SEARCH
+   ============================================================ */
+
+            /**
+             * Returns the currently selected chart category rows.
+             *
+             * This keeps the chart selection independent from the
+             * text search.
+             */
+            _getReconCategoryRows: function (aRows) {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                var sCategory =
+                    oModel
+                        ? oModel.getProperty("/selectedCategory")
+                        : "";
+
+                if (!sCategory) {
+                    return aRows || [];
+                }
+
+
+                if (
+                    sCategory === "PC Received" ||
+                    sCategory === "PC received"
+                ) {
+
+                    return (aRows || []).filter(function (oRow) {
+
+                        return this._getTransactionCategory(oRow) === "PC";
+
+                    }.bind(this));
+                }
+
+
+                if (
+                    sCategory === "DM Received" ||
+                    sCategory === "DM received" ||
+                    sCategory === "DM Posted" ||
+                    sCategory === "DM posted"
+                ) {
+
+                    return (aRows || []).filter(function (oRow) {
+
+                        return this._getTransactionCategory(oRow) === "DM";
+
+                    }.bind(this));
+                }
+
+
+                /*
+                 * Reconciliation Gap is a calculated value.
+                 * It does not represent a transaction subset.
+                 */
+                return aRows || [];
+            },
+
+
+            /**
+             * Applies PI Number, PI Kind and Ref Item Text
+             * to the currently loaded reconciliation rows.
+             */
+            _applyReconTableSearch: function () {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel) {
+                    return;
+                }
+
+
+                var oSearch =
+                    oModel.getProperty("/tableSearch") || {};
+
+
+                /*
+                 * Normalize search values.
+                 *
+                 * Remove spaces from the beginning/end.
+                 * Search is case-insensitive.
+                 */
+                var sPiNo =
+                    String(oSearch.piNo || "")
+                        .trim()
+                        .toLowerCase();
+
+                var sPiKind =
+                    String(oSearch.piKind || "")
+                        .trim()
+                        .toLowerCase();
+
+                var sRefItemText =
+                    String(oSearch.refItemText || "")
+                        .trim()
+                        .toLowerCase();
+
+
+                /*
+                 * Start from the FULL raw OData dataset.
+                 *
+                 * Never start from /groups because /groups is already
+                 * transformed/grouped data.
+                 */
+                var aRows =
+                    this._aReconciliationRawData || [];
+
+
+                /*
+                 * First apply the chart category, if one is selected.
+                 */
+                aRows =
+                    this._getReconCategoryRows(aRows);
+
+
+                /*
+                 * Now apply the three text searches.
+                 *
+                 * All three fields work together as AND conditions.
+                 */
+                var aFilteredRows =
+                    aRows.filter(function (oRow) {
+
+                        if (!oRow) {
+                            return false;
+                        }
+
+
+                        /* ------------------------------------------------
+                           PI NUMBER
+                           ------------------------------------------------ */
+
+                        if (sPiNo) {
+
+                            var sRowPiNo =
+                                String(oRow.PiNo || "")
+                                    .trim()
+                                    .toLowerCase();
+
+                            if (
+                                sRowPiNo.indexOf(sPiNo) === -1
+                            ) {
+                                return false;
+                            }
+                        }
+
+
+                        /* ------------------------------------------------
+                           PI KIND
+                           ------------------------------------------------ */
+
+                        if (sPiKind) {
+
+                            var sRowPiKind =
+                                String(oRow.PiKind || "")
+                                    .trim()
+                                    .toLowerCase();
+
+                            if (
+                                sRowPiKind.indexOf(sPiKind) === -1
+                            ) {
+                                return false;
+                            }
+                        }
+
+
+                        /* ------------------------------------------------
+                           REF ITEM TEXT
+                           ------------------------------------------------ */
+
+                        if (sRefItemText) {
+
+                            var sRowRefItemText =
+                                String(oRow.RefItemExt || "")
+                                    .trim()
+                                    .toLowerCase();
+
+                            if (
+                                sRowRefItemText.indexOf(
+                                    sRefItemText
+                                ) === -1
+                            ) {
+                                return false;
+                            }
+                        }
+
+
+                        return true;
+
+                    });
+
+
+                /*
+                 * Rebuild ONLY the table groups.
+                 *
+                 * We deliberately do NOT update:
+                 *  - KPI
+                 *  - chartData
+                 *  - PC received
+                 *  - DM received
+                 *  - reconciliation gap
+                 */
+                var oResult =
+                    this._buildGroupsAndKpi(
+                        aFilteredRows
+                    );
+
+
+                /*
+                 * Restore the original KPI.
+                 *
+                 * _buildGroupsAndKpi calculates KPI values, but
+                 * the text search is supposed to affect the table only.
+                 */
+                var oOriginalKpi =
+                    oModel.getProperty("/_originalKpi");
+
+
+                if (oOriginalKpi) {
+
+                    oModel.setProperty(
+                        "/kpi",
+                        oOriginalKpi
+                    );
+                }
+
+
+                /*
+                 * Restore the original chart data.
+                 */
+                var aOriginalChartData =
+                    oModel.getProperty("/_originalChartData");
+
+
+                if (aOriginalChartData) {
+
+                    oModel.setProperty(
+                        "/chartData",
+                        aOriginalChartData
+                    );
+                }
+
+
+                /*
+                 * Update ONLY groups.
+                 */
+                oModel.setProperty(
+                    "/groups",
+                    oResult.groups
+                );
+
+
+                /*
+                 * Search result message.
+                 */
+                var bSearching =
+                    !!(
+                        sPiNo ||
+                        sPiKind ||
+                        sRefItemText
+                    );
+
+
+                if (bSearching) {
+
+                    oModel.setProperty(
+                        "/filterMessage",
+                        "Showing " +
+                        aFilteredRows.length +
+                        " matching transaction(s)."
+                    );
+
+                } else {
+
+                    oModel.setProperty(
+                        "/filterMessage",
+                        ""
+                    );
+                }
+
+
+                console.log(
+                    "[Reconciliation] Table search result:",
+                    {
+                        piNo: sPiNo,
+                        piKind: sPiKind,
+                        refItemText: sRefItemText,
+                        rows: aFilteredRows.length
+                    }
+                );
+            },
+
+
+            /**
+             * Triggered whenever any of the three search fields changes.
+             */
+            onReconTableSearchLiveChange: function (oEvent) {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel) {
+                    return;
+                }
+
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * Read the values directly from the controls.
+                 * This avoids depending on the timing of JSONModel
+                 * TwoWay binding during liveChange.
+                 */
+
+                var oPiNo =
+                    this.byId("reconPiNoSearch");
+
+                var oPiKind =
+                    this.byId("reconPiKindSearch");
+
+                var oRefItemText =
+                    this.byId("reconRefItemSearch");
+
+
+                oModel.setProperty(
+                    "/tableSearch/piNo",
+                    oPiNo ? oPiNo.getValue() : ""
+                );
+
+                oModel.setProperty(
+                    "/tableSearch/piKind",
+                    oPiKind ? oPiKind.getValue() : ""
+                );
+
+                oModel.setProperty(
+                    "/tableSearch/refItemText",
+                    oRefItemText
+                        ? oRefItemText.getValue()
+                        : ""
+                );
+
+
+                this._applyReconTableSearch();
+            },
+
+
+            /**
+             * Reset all three table search fields.
+             */
+            onResetReconTableSearch: function () {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel) {
+                    return;
+                }
+
+
+                var oPiNo =
+                    this.byId("reconPiNoSearch");
+
+                var oPiKind =
+                    this.byId("reconPiKindSearch");
+
+                var oRefItemText =
+                    this.byId("reconRefItemSearch");
+
+
+                if (oPiNo) {
+                    oPiNo.setValue("");
+                }
+
+                if (oPiKind) {
+                    oPiKind.setValue("");
+                }
+
+                if (oRefItemText) {
+                    oRefItemText.setValue("");
+                }
+
+
+                oModel.setProperty(
+                    "/tableSearch/piNo",
+                    ""
+                );
+
+                oModel.setProperty(
+                    "/tableSearch/piKind",
+                    ""
+                );
+
+                oModel.setProperty(
+                    "/tableSearch/refItemText",
+                    ""
+                );
+
+
+                this._applyReconTableSearch();
+            },
+
+            /**
+             * Reset the three table search fields.
+             */
+            onResetReconTableSearch: function () {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel) {
+                    return;
+                }
+
+
+                oModel.setProperty(
+                    "/tableSearch/piNo",
+                    ""
+                );
+
+                oModel.setProperty(
+                    "/tableSearch/piKind",
+                    ""
+                );
+
+                oModel.setProperty(
+                    "/tableSearch/refItemText",
+                    ""
+                );
+
+
+                this._restoreReconTableAfterSearch();
+            },
+
+
+            /**
+             * Restore the table after search is cleared.
+             *
+             * If a chart category is selected, keep that category.
+             * Otherwise show all loaded rows.
+             */
+            _restoreReconTableAfterSearch: function () {
+
+                var oModel =
+                    this.getView().getModel("reconciliation");
+
+                if (!oModel) {
+                    return;
+                }
+
+
+                var aRawData =
+                    this._aReconciliationRawData || [];
+
+
+                var sSelectedCategory =
+                    oModel.getProperty("/selectedCategory");
+
+
+                /*
+                 * No chart filter.
+                 * Restore everything.
+                 */
+                if (!sSelectedCategory) {
+
+                    var oResult =
+                        this._buildGroupsAndKpi(
+                            aRawData
+                        );
+
+                    oModel.setProperty(
+                        "/groups",
+                        oResult.groups
+                    );
+
+                    oModel.setProperty(
+                        "/filterMessage",
+                        ""
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * PC
+                 */
+                if (
+                    sSelectedCategory === "PC Received" ||
+                    sSelectedCategory === "PC received"
+                ) {
+
+                    var aPcRows =
+                        aRawData.filter(function (oRow) {
+
+                            return this._getTransactionCategory(oRow)
+                                === "PC";
+
+                        }.bind(this));
+
+
+                    var oPcResult =
+                        this._buildGroupsAndKpi(
+                            aPcRows
+                        );
+
+
+                    oModel.setProperty(
+                        "/groups",
+                        oPcResult.groups
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * DM
+                 */
+                if (
+                    sSelectedCategory === "DM Received" ||
+                    sSelectedCategory === "DM received" ||
+                    sSelectedCategory === "DM Posted" ||
+                    sSelectedCategory === "DM posted"
+                ) {
+
+                    var aDmRows =
+                        aRawData.filter(function (oRow) {
+
+                            return this._getTransactionCategory(oRow)
+                                === "DM";
+
+                        }.bind(this));
+
+
+                    var oDmResult =
+                        this._buildGroupsAndKpi(
+                            aDmRows
+                        );
+
+
+                    oModel.setProperty(
+                        "/groups",
+                        oDmResult.groups
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * Reconciliation Gap:
+                 * it is not a transaction subset, so restore all rows.
+                 */
+                var oAllResult =
+                    this._buildGroupsAndKpi(
+                        aRawData
+                    );
+
+
+                oModel.setProperty(
+                    "/groups",
+                    oAllResult.groups
+                );
 
             },
 
@@ -1757,13 +2504,31 @@ sap.ui.define([
 
                 var oReconModel = this.getView().getModel("reconciliation");
                 if (!oReconModel) { return; }
-
                 if (this._isValidSystemCombo()) {
 
                     var oResult =
                         this._buildGroupsAndKpi(
                             this._aReconciliationRawData || []
                         );
+
+
+                    /*
+                     * Keep the original KPI and chart values.
+                     *
+                     * Table search must NOT modify these.
+                     */
+                    oReconModel.setProperty(
+                        "/_originalKpi",
+                        Object.assign({}, oResult.kpi)
+                    );
+
+                    oReconModel.setProperty(
+                        "/_originalChartData",
+                        (oResult.chartData || []).map(function (oItem) {
+                            return Object.assign({}, oItem);
+                        })
+                    );
+
 
                     oReconModel.setProperty(
                         "/groups",
@@ -1778,26 +2543,6 @@ sap.ui.define([
                     oReconModel.setProperty(
                         "/chartData",
                         oResult.chartData
-                    );
-
-                    oReconModel.setProperty(
-                        "/selectedCategory",
-                        ""
-                    );
-
-                    oReconModel.setProperty(
-                        "/filterMessage",
-                        ""
-                    );
-
-                    oReconModel.setProperty(
-                        "/systemsBlocked",
-                        false
-                    );
-
-                    oReconModel.setProperty(
-                        "/systemsBlockedMessage",
-                        ""
                     );
                 }
 
