@@ -19,8 +19,8 @@ builder:
           client: '500'
         app:
           name: ZPAYMENTDB
-          package: TEST_PE_DEMO
-          transport: ''
+          package: Z_PAYMENT_DASHBOARD
+          transport: 'IFSK000033'
         exclude:
           - /test/
           - /localService/
