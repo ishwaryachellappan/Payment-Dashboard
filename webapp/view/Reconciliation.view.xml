@@ -322,7 +322,7 @@
 
             <Button
                 id="btnExportReconciliation"
-                text="Export to Excel"
+               
                 icon="sap-icon://download"
                 type="Transparent"
                 press=".onExportExcel"
