@@ -155,6 +155,24 @@
                         change="onKpiDateChange"
                         width="180px"
                     />
+
+                   <Label
+    id="createdOnLabel"
+    text="Created On:"
+    class="sapUiTinyMarginEnd sapUiTinyMarginBegin"
+/>
+
+<DatePicker
+    id="createdOnFilter"
+    width="180px"
+    value="{filterModel>/createdOn}"
+    valueFormat="yyyy-MM-dd"
+    displayFormat="medium"
+    placeholder="Created On"
+    change="onCreatedOnFilterChange"
+    class="sapUiTinyMarginEnd"
+/>
+
                 </f:actions>
             </f:DynamicPageTitle>
         </f:title>

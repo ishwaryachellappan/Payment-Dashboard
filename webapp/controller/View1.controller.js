@@ -170,7 +170,9 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 var oFilterModel = new JSONModel({
                     kpiDate: sTodayStr,
                     clearingArea: "DEBNKC",   // default selection
-                    flowGranularity: "Day"
+                    flowGranularity: "Day",
+
+                    createdOnTo: ""
                 });
                 this.getView().setModel(oFilterModel, "filterModel");
 
@@ -311,6 +313,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
 
                 this._refreshReconciliation();
+                this.loadTransactionsByStatus([]);
 
             } catch (oError) {
                 console.error("❌ View1 onInit FAILED:", oError);
@@ -671,6 +674,23 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 new Filter("PaymentOrderDate", FilterOperator.EQ, sKpiDate)
             );
 
+            // Created On filter
+            var sCreatedOn = this.getView()
+                .getModel("filterModel")
+                .getProperty("/createdOn");
+
+            if (sCreatedOn) {
+
+                aFilters.push(
+                    new Filter(
+                        "CreatedOn",
+                        FilterOperator.EQ,
+                        sCreatedOn
+                    )
+                );
+
+            }
+
             // Technical Status filter
             if (aStatuses.length === 1) {
 
@@ -1011,6 +1031,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this._loadFlowChart();
             this._refreshExceptionKpis();
             this._refreshReconciliation();
+            this.loadTransactionsByStatus([]);
 
             this.getView().getModel("donutViewModel").setProperty("/selectedStatus", "");
             this.getView().getModel("donutItemsModel").setProperty("/items", []);
@@ -1698,6 +1719,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this._refreshExceptionKpis();
             this._refreshReconciliation();
             this._loadFlowChart();
+            this.loadTransactionsByStatus([]);
             this._oOriginalChartParent = null;
             this._iOriginalChartIndex = 0;
             this._bChartExpanded = false;
@@ -3128,6 +3150,9 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 name: sName,
                 clearingArea: this.getView().getModel("filterModel").getProperty("/clearingArea"),
                 kpiDate: this.getView().getModel("filterModel").getProperty("/kpiDate"),
+                createdOn: this.getView()
+                    .getModel("filterModel")
+                    .getProperty("/createdOn"),
                 transactionColumns: this.getView().getModel("tableColumnsModel").getProperty("/visibleFields"),
                 itemColumns: this.getView().getModel("itemColumnsModel").getProperty("/visibleFields")
             };
@@ -3194,6 +3219,10 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             var oFilter = this.getView().getModel("filterModel");
             oFilter.setProperty("/clearingArea", oVariant.clearingArea);
             oFilter.setProperty("/kpiDate", oVariant.kpiDate);
+            oFilter.setProperty(
+                "/createdOn",
+                oVariant.createdOn || ""
+            );
 
             this.getView().getModel("tableColumnsModel").setProperty("/visibleFields", oVariant.transactionColumns);
             this.getView().getModel("itemColumnsModel").setProperty("/visibleFields", oVariant.itemColumns);
@@ -3208,6 +3237,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this._loadFlowChart();
             this._refreshExceptionKpis();
             this._refreshReconciliation();
+            this.loadTransactionsByStatus([]);
             console.log("Loaded Variant", oVariant);
         },
         _attachKpiCardClicks: function () {
@@ -3317,6 +3347,25 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             console.log("================================");
 
         },
+
+        onCreatedOnFilterChange: function (oEvent) {
+
+            var oDatePicker = oEvent.getSource();
+
+            if (!oEvent.getParameter("valid")) {
+                return;
+            }
+
+            var sCreatedOn = oDatePicker.getValue();
+
+            this.getView()
+                .getModel("filterModel")
+                .setProperty("/createdOn", sCreatedOn);
+
+            this.loadTransactionsByStatus([]);
+        },
+
+
 
     });
 
