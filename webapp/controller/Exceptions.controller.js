@@ -71,15 +71,15 @@ sap.ui.define([
             // filtered by ClearingArea + PaymentItemDate (same shared
             // filterModel the Overview tab's header filter bar writes to).
             // Empty until the first read completes; see loadRailKpi.
-     var oRailModel = new JSONModel({
-    total: 0,
-    totalText: "",
-    data: [],
-    selectedStatus: "",
-    selectedCount: 0
-});
+            var oRailModel = new JSONModel({
+                total: 0,
+                totalText: "",
+                data: [],
+                selectedStatus: "",
+                selectedCount: 0
+            });
 
-this.getView().setModel(oRailModel, "railModel");
+            this.getView().setModel(oRailModel, "railModel");
 
 
 
@@ -537,6 +537,18 @@ this.getView().setModel(oRailModel, "railModel");
 
         },
 
+        formatObjectCategory: function (sObjectCategory) {
+            if (sObjectCategory === "05") {
+                return "05 Ordering party";
+            }
+
+            if (sObjectCategory === "06") {
+                return "06 Recipient Item";
+            }
+
+            return sObjectCategory || "";
+        },
+
         formatExceptionStatus: function (sStatus) {
 
             if (!sStatus) {
@@ -705,12 +717,25 @@ this.getView().setModel(oRailModel, "railModel");
                     .getSelectedKey();
 
             /*
+             * CURRENCY
+             */
+            var sCurrency =
+                this.byId("filterCurrency")
+                    ? this.byId("filterCurrency").getSelectedKey()
+                    : "ALL_CURRENCY";
+
+            /*
              * REASON
              */
+            /*
+ * REASON
+ */
+            var oReasonSelect = this.byId("filterReason");
+
             var sReason =
-                this.byId("_IDGenInput")
-                    ? this.byId("_IDGenInput").getValue()
-                    : "";
+                oReasonSelect
+                    ? oReasonSelect.getSelectedKey()
+                    : "ALL_REASON";
 
             /*
              * GLOBAL SEARCH
@@ -780,18 +805,40 @@ this.getView().setModel(oRailModel, "railModel");
                 );
             }
 
+            /*
+             * CURRENCY
+             * Actual field:
+             * CURRENCY
+             */
+            if (
+                sCurrency &&
+                sCurrency !== "ALL_CURRENCY"
+            ) {
+
+                aFilters.push(
+                    new sap.ui.model.Filter(
+                        "CURRENCY",
+                        sap.ui.model.FilterOperator.EQ,
+                        sCurrency
+                    )
+                );
+            }
+
 
             /*
-             * REASON
-             * Actual field:
-             * ReasonDetail
-             */
-            if (sReason) {
+   * REASON
+   * Exact match because Reason is selected
+   * from the dropdown.
+   */
+            if (
+                sReason &&
+                sReason !== "ALL_REASON"
+            ) {
 
                 aFilters.push(
                     new sap.ui.model.Filter(
                         "ReasonDetail",
-                        sap.ui.model.FilterOperator.Contains,
+                        sap.ui.model.FilterOperator.EQ,
                         sReason
                     )
                 );
@@ -888,9 +935,11 @@ this.getView().setModel(oRailModel, "railModel");
             oBinding.filter(aFilters);
 
             /*
-             * Update total visible rows
+             * Update KPI values based on the filtered rows
              */
-            this._updateOpenExceptionCount(oBinding);
+            setTimeout(function () {
+                this._updateOpenExceptionCount(oBinding);
+            }.bind(this), 0);
         },
 
         onToggleManager: function () {
@@ -920,7 +969,27 @@ this.getView().setModel(oRailModel, "railModel");
             var aData =
                 oModel.getProperty("/data") || [];
 
-
+            /*
+             * REASON
+             * Get all unique ReasonDetail values
+             * from the Open Exceptions table.
+             */
+            var aReason = [
+                ...new Set(
+                    aData
+                        .map(function (oRow) {
+                            return oRow.ReasonDetail;
+                        })
+                        .filter(function (sValue) {
+                            return sValue !== null &&
+                                sValue !== undefined &&
+                                String(sValue).trim() !== "";
+                        })
+                        .map(function (sValue) {
+                            return String(sValue).trim();
+                        })
+                )
+            ];
             /*
              * OBJECT CATEGORY
              */
@@ -966,6 +1035,19 @@ this.getView().setModel(oRailModel, "railModel");
                 )
             ];
 
+            /*
+             * CURRENCY
+             */
+            var aCurrency = [
+                ...new Set(
+                    aData
+                        .map(function (oRow) {
+                            return oRow.CURRENCY;
+                        })
+                        .filter(Boolean)
+                )
+            ];
+
 
             var oObjectCategory =
                 this.byId("filterObjectCategory");
@@ -976,6 +1058,12 @@ this.getView().setModel(oRailModel, "railModel");
             var oAging =
                 this.byId("filterAging");
 
+            var oCurrency =
+                this.byId("filterCurrency");
+
+            var oReason =
+                this.byId("filterReason");
+
 
             /*
              * Clear old/static values
@@ -983,6 +1071,14 @@ this.getView().setModel(oRailModel, "railModel");
             oObjectCategory.removeAllItems();
             oStatus.removeAllItems();
             oAging.removeAllItems();
+
+            if (oCurrency) {
+                oCurrency.removeAllItems();
+            }
+
+            if (oReason) {
+                oReason.removeAllItems();
+            }
 
 
             /*
@@ -1049,6 +1145,51 @@ this.getView().setModel(oRailModel, "railModel");
                 );
 
             });
+
+            /*
+             * CURRENCY
+             */
+            if (oCurrency) {
+                oCurrency.addItem(
+                    new sap.ui.core.Item({
+                        key: "ALL_CURRENCY",
+                        text: "All"
+                    })
+                );
+
+                aCurrency.forEach(function (sValue) {
+                    oCurrency.addItem(
+                        new sap.ui.core.Item({
+                            key: sValue,
+                            text: sValue
+                        })
+                    );
+                });
+
+                /*
+ * REASON
+ */
+                if (oReason) {
+
+                    oReason.addItem(
+                        new sap.ui.core.Item({
+                            key: "ALL_REASON",
+                            text: "All"
+                        })
+                    );
+
+                    aReason.forEach(function (sValue) {
+
+                        oReason.addItem(
+                            new sap.ui.core.Item({
+                                key: sValue,
+                                text: sValue
+                            })
+                        );
+
+                    });
+                }
+            }
         },
 
         _calculateStartupInfo: function () {
@@ -2970,8 +3111,10 @@ this.getView().setModel(oRailModel, "railModel");
             });
 
             var iTotal = aRows.length;
-
+            var iMaxAmount = -Infinity;
+            var sMaxCurrency = "";
             var sMaxAge = "";
+            var iMaxMinutes = -1;
 
             var ageToMinutes = function (sAge) {
 
@@ -2983,45 +3126,88 @@ this.getView().setModel(oRailModel, "railModel");
 
                 var iMinutes = 0;
 
-                var oHourMatch =
-                    sAge.match(/(\d+)\s*h/i);
-
-                var oMinuteMatch =
-                    sAge.match(/(\d+)\s*m/i);
+                var oHourMatch = sAge.match(/(\d+)\s*h/i);
+                var oMinuteMatch = sAge.match(/(\d+)\s*m/i);
 
                 if (oHourMatch) {
-                    iMinutes +=
-                        parseInt(oHourMatch[1], 10) * 60;
+                    iMinutes += parseInt(oHourMatch[1], 10) * 60;
                 }
 
                 if (oMinuteMatch) {
-                    iMinutes +=
-                        parseInt(oMinuteMatch[1], 10);
+                    iMinutes += parseInt(oMinuteMatch[1], 10);
                 }
 
                 return iMinutes;
             };
 
-            var iMaxMinutes = -1;
+            var amountToNumber = function (vAmount) {
+
+                if (
+                    vAmount === null ||
+                    vAmount === undefined ||
+                    vAmount === ""
+                ) {
+                    return 0;
+                }
+
+                /*
+                 * Handles:
+                 * 48000
+                 * 48,000
+                 * EUR 48000
+                 * USD 48000
+                 */
+                var sValue = String(vAmount)
+                    .replace(/[^0-9.-]/g, "");
+
+                return parseFloat(sValue) || 0;
+            };
 
             aRows.forEach(function (oRow) {
 
-                var sAge = oRow.Aged;
+                /*
+                 * MAX AGE
+                 */
+                var sAge = oRow.Aged || "";
 
-                var iMinutes =
-                    ageToMinutes(sAge);
+                var iMinutes = ageToMinutes(sAge);
 
                 if (iMinutes > iMaxMinutes) {
 
                     iMaxMinutes = iMinutes;
-
                     sMaxAge = sAge;
+                }
+
+                /*
+                 * HIGHEST VALUE AT RISK
+                 */
+                var iAmount = amountToNumber(oRow.Amount);
+
+                if (iAmount > iMaxAmount) {
+
+                    iMaxAmount = iAmount;
+
+                    /*
+                     * IMPORTANT:
+                     * Take currency from the SAME row
+                     * that contains the highest amount.
+                     */
+                    sMaxCurrency = String(
+                        oRow.CURRENCY || ""
+                    ).trim().toUpperCase();
                 }
             });
 
-            var oModel =
-                this.getView()
-                    .getModel("openExceptionModel");
+            /*
+             * No rows after filtering
+             */
+            if (iMaxAmount === -Infinity) {
+                iMaxAmount = 0;
+                sMaxCurrency = "";
+            }
+
+            var oModel = this.getView()
+                .getModel("openExceptionModel");
 
             if (!oModel) {
                 return;
@@ -3037,12 +3223,39 @@ this.getView().setModel(oRailModel, "railModel");
                 sMaxAge
             );
 
-            console.log(
-                "Filtered Open Exceptions:",
-                iTotal,
-                "Max Age:",
-                sMaxAge
+            /*
+             * Set currency + amount together
+             */
+            oModel.setProperty(
+                "/maxAmount",
+                this._formatCurrencyAmount(
+                    iMaxAmount,
+                    sMaxCurrency
+                )
             );
+
+            oModel.refresh(true);
+
+            console.log(
+                "Highest Value At Risk:",
+                iMaxAmount,
+                sMaxCurrency
+            );
+        },
+        _formatCurrencyAmount: function (iAmount, sCurrency) {
+
+            var mSymbols = {
+                EUR: "€",
+                USD: "$",
+                GBP: "£",
+                INR: "₹",
+                SAR: "﷼"
+            };
+
+            var sCode = String(sCurrency || "").trim().toUpperCase();
+            var sSymbol = mSymbols[sCode] || (sCode ? sCode + " " : "");
+
+            return sSymbol + Number(iAmount || 0).toLocaleString();
         },
 
         _calculateOpenExceptionStats: function (aRows) {
@@ -3050,6 +3263,7 @@ this.getView().setModel(oRailModel, "railModel");
             var iTotal = aRows.length;
             var sMaxAge = "";
             var iMaxAmount = 0;
+            var sMaxCurrency = "";
 
             var ageToMinutes = function (sAge) {
 
@@ -3125,6 +3339,7 @@ this.getView().setModel(oRailModel, "railModel");
                 if (iAmount > iMaxAmount) {
 
                     iMaxAmount = iAmount;
+                    sMaxCurrency = String(oRow.CURRENCY || "").trim().toUpperCase();
                 }
 
             });
@@ -3147,7 +3362,7 @@ this.getView().setModel(oRailModel, "railModel");
 
             oModel.setProperty(
                 "/maxAmount",
-                iMaxAmount.toLocaleString()
+                this._formatCurrencyAmount(iMaxAmount, sMaxCurrency)
             );
 
             oModel.refresh(true);
@@ -3238,15 +3453,15 @@ this.getView().setModel(oRailModel, "railModel");
             return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
         },
 
-       formatValueAtRiskTrendClass: function (oTrend) {
-    if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {
-        return "kpiCardSubtext";
-    }
+        formatValueAtRiskTrendClass: function (oTrend) {
+            if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {
+                return "kpiCardSubtext";
+            }
 
-    return oTrend.direction === "up"
-        ? "kpiCardSubtext kpiCardSubtextWarn"
-        : "kpiCardSubtext kpiCardSubtextGood";
-},
+            return oTrend.direction === "up"
+                ? "kpiCardSubtext kpiCardSubtextWarn"
+                : "kpiCardSubtext kpiCardSubtextGood";
+        },
 
         _getContentAreaWidth: function () {
             var oViewDom = this.getView().getDomRef();
@@ -3258,47 +3473,47 @@ this.getView().setModel(oRailModel, "railModel");
 
         onRailPieSelect: function (oEvent) {
 
-    var oData = oEvent.getParameter("data");
+            var oData = oEvent.getParameter("data");
 
-    if (!oData || !oData.length) {
-        return;
-    }
+            if (!oData || !oData.length) {
+                return;
+            }
 
-    var oPoint = oData[0];
+            var oPoint = oData[0];
 
-    var sStatus = "";
-    var iCount = 0;
+            var sStatus = "";
+            var iCount = 0;
 
-    if (oPoint.data) {
-        sStatus =
-            oPoint.data.Status ||
-            oPoint.data.status ||
-            "";
+            if (oPoint.data) {
+                sStatus =
+                    oPoint.data.Status ||
+                    oPoint.data.status ||
+                    "";
 
-        iCount =
-            Number(
-                oPoint.data.Count ||
-                oPoint.data.value ||
-                0
+                iCount =
+                    Number(
+                        oPoint.data.Count ||
+                        oPoint.data.value ||
+                        0
+                    );
+            }
+
+            var oRailModel = this.getView().getModel("railModel");
+
+            oRailModel.setProperty(
+                "/selectedStatus",
+                sStatus
             );
-    }
 
-    var oRailModel = this.getView().getModel("railModel");
+            oRailModel.setProperty(
+                "/selectedCount",
+                iCount
+            );
 
-    oRailModel.setProperty(
-        "/selectedStatus",
-        sStatus
-    );
-
-    oRailModel.setProperty(
-        "/selectedCount",
-        iCount
-    );
-
-    // Keep your existing drill-down logic here.
-    // For example:
-    // this.loadRailPaymentItems(sStatus);
-},
+            // Keep your existing drill-down logic here.
+            // For example:
+            // this.loadRailPaymentItems(sStatus);
+        },
 
 
     });

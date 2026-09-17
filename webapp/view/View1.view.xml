@@ -613,24 +613,24 @@
                                         >
                                             <viz:dataset>
                                                 <viz.data:FlattenedDataset
-                                                    id="_IDGenFlattenedDataset"
+                                                   
                                                     data="{flowModel>/data}"
                                                 >
                                                     <viz.data:dimensions>
                                                         <viz.data:DimensionDefinition
-                                                            id="_IDGenDimensionDefinition"
+                                                   
                                                             name="Day"
                                                             value="{flowModel>Day}"
                                                         />
                                                         <viz.data:DimensionDefinition
-                                                            id="_IDGenDimensionDefinition10"
+                                                            
                                                             name="Channel"
                                                             value="{flowModel>Channel}"
                                                         />
                                                     </viz.data:dimensions>
                                                     <viz.data:measures>
                                                         <viz.data:MeasureDefinition
-                                                            id="_IDGenMeasureDefinition"
+                                                          
                                                             name="Payments"
                                                             value="{flowModel>Payments}"
                                                         />
@@ -640,19 +640,19 @@
 
                                             <viz:feeds>
                                                 <viz.feeds:FeedItem
-                                                    id="_IDGenFeedItem"
+                                                   
                                                     uid="valueAxis"
                                                     type="Measure"
                                                     values="Payments"
                                                 />
                                                 <viz.feeds:FeedItem
-                                                    id="_IDGenFeedItem1"
+                                                    
                                                     uid="categoryAxis"
                                                     type="Dimension"
                                                     values="Day"
                                                 />
                                                 <viz.feeds:FeedItem
-                                                    id="_IDGenFeedItem9"
+                                                    
                                                     uid="color"
                                                     type="Dimension"
                                                     values="Channel"
@@ -733,20 +733,20 @@
                                                 >
                                                     <viz:dataset>
                                                         <viz.data:FlattenedDataset
-                                                            id="_IDGenFlattenedDataset2"
+                                                          
                                                             data="{statusModel>/data}"
                                                         >
                                                             <viz.data:dimensions
                                                             >
                                                                 <viz.data:DimensionDefinition
-                                                                    id="_IDGenDimensionDefinition1"
+                                                                    
                                                                     name="Status"
                                                                     value="{statusModel>status}"
                                                                 />
                                                             </viz.data:dimensions>
                                                             <viz.data:measures>
                                                                 <viz.data:MeasureDefinition
-                                                                    id="_IDGenMeasureDefinition1"
+                                                                   
                                                                     name="Count"
                                                                     value="{statusModel>value}"
                                                                 />

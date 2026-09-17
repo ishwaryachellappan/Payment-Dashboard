@@ -4,8 +4,10 @@ sap.ui.define([
     "use strict";
 
     return Controller.extend("payment.dashboard.controller.App", {
+
         onInit: function () {
-            // nothing needed for now
+           // this.getOwnerComponent().getRouter().initialize();
         }
+
     });
 });

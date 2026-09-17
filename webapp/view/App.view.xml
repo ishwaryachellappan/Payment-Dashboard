@@ -1,12 +1,10 @@
 <mvc:View
     controllerName="payment.dashboard.controller.App"
-    xmlns="sap.m"
-    xmlns:mvc="sap.ui.core.mvc">
+    displayBlock="true"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
 
     <App id="app">
-        <pages>
-            <mvc:XMLView id="_IDGenXMLView" viewName="payment.dashboard.view.View1"/>
-        </pages>
     </App>
 
 </mvc:View>

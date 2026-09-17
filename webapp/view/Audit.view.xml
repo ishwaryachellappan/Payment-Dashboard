@@ -185,13 +185,13 @@
 
                         <viz.data:measures>
                             <viz.data:MeasureDefinition
-                                id="_IDGenMeasureDefinition7"
+                               
                                 name="Success"
                                 value="{auditTrend>success}"
                             />
 
                             <viz.data:MeasureDefinition
-                                id="_IDGenMeasureDefinition9"
+                              
                                 name="Failed"
                                 value="{auditTrend>failed}"
                             />
@@ -267,7 +267,7 @@
 
                         <viz.data:measures>
                             <viz.data:MeasureDefinition
-                                id="_IDGenMeasureDefinition10"
+                                
                                 name="Count"
                                 value="{auditSeverity>count}"
                             />

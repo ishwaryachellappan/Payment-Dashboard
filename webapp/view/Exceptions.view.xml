@@ -406,14 +406,14 @@
             <viz:dataset>
 
                 <viz.data:FlattenedDataset
-                    id="_IDGenFlattenedDataset3"
+                   
                     data="{trendModel>/data}"
                 >
 
                     <viz.data:dimensions>
 
                         <viz.data:DimensionDefinition
-                            id="_IDGenDimensionDefinition3"
+                           
                             name="Date"
                             value="{trendModel>dateLabel}"
                         />
@@ -424,13 +424,13 @@
                     <viz.data:measures>
 
                         <viz.data:MeasureDefinition
-                            id="_IDGenMeasureDefinition3"
+                           
                             name="Opened"
                             value="{trendModel>opened}"
                         />
 
                         <viz.data:MeasureDefinition
-                            id="_IDGenMeasureDefinition4"
+                          
                             name="Resolved"
                             value="{trendModel>resolved}"
                         />
@@ -445,14 +445,14 @@
             <viz:feeds>
 
                 <viz.feeds:FeedItem
-                    id="_IDGenFeedItem7"
+                  
                     uid="valueAxis"
                     type="Measure"
                     values="Opened,Resolved"
                 />
 
                 <viz.feeds:FeedItem
-                    id="_IDGenFeedItem8"
+                   
                     uid="categoryAxis"
                     type="Dimension"
                     values="Date"
@@ -609,7 +609,7 @@
                     </viz.data:dimensions>
                     <viz.data:measures>
                         <viz.data:MeasureDefinition
-                            id="_IDGenRailMeasureDefinition"
+                         
                             name="Count"
                             value="{railModel>value}"
                         />
@@ -948,7 +948,7 @@
 
                 <Text
                     id="_IDGenText122"
-                    text="At Risk"
+                    text="Highest Value At Risk"
                     class="exceptionMiniKpiLabel"
                 />
 
@@ -969,14 +969,7 @@
             />
 
 
-            <!-- MAX AGE -->
-
-            <Button
-                id="_IDGenButton3"
-                text="{= 'Max ' + ${openExceptionModel>/maxAge}}"
-                type="Transparent"
-                class="exceptionMaxAgeButton"
-            />
+            
 
         </HBox>
 
@@ -1077,25 +1070,25 @@
                     >
 
                         <core:Item
-                            id="_IDGenItem6"
+                           
                             key="ALL"
                             text="All"
                         />
 
                         <core:Item
-                            id="_IDGenItem7"
+                            
                             key="OPEN"
                             text="Open"
                         />
 
                         <core:Item
-                            id="_IDGenItem8"
+                            
                             key="PROCESSING"
                             text="Processing"
                         />
 
                         <core:Item
-                            id="_IDGenItem9"
+                            
                             key="REJECTED"
                             text="Rejected"
                         />
@@ -1127,9 +1120,40 @@
                     >
 
                         <core:Item
-                            id="_IDGenItem"
+                          
                             key="ALL_AGE"
                             text="All Age"
+                        />
+
+                    </Select>
+
+                </VBox>
+
+                <!-- CURRENCY -->
+
+                <VBox
+                    id="_IDGenVBox72"
+                    class="exceptionFilterItem"
+                >
+
+                    <Label
+                        id="_IDGenText121"
+                        text="Currency"
+                        class="exceptionFilterLabel"
+                    />
+
+                    <Select
+                        id="filterCurrency"
+                        width="100%"
+                        selectedKey="ALL_CURRENCY"
+                        change="onFilterChange"
+                        class="exceptionFilterSelect"
+                    >
+
+                        <core:Item
+                            id="_IDGenItemCurrency"
+                            key="ALL_CURRENCY"
+                            text="All"
                         />
 
                     </Select>
@@ -1171,26 +1195,36 @@
 
                 <!-- REASON -->
 
-                <VBox
-                    id="_IDGenVBox71"
-                    class="exceptionFilterItem exceptionReasonFilter"
-                >
+               <!-- REASON -->
 
-                    <Label
-                        id="_IDGenText104"
-                        text="Reason Contains"
-                        class="exceptionFilterLabel"
-                    />
+<VBox
+    id="_IDGenVBox71"
+    class="exceptionFilterItem exceptionReasonFilter"
+>
 
-                    <Input
-                        id="_IDGenInput"
-                        width="100%"
-                        placeholder="E.g. Sanctions, IBAN..."
-                        liveChange="onFilterChange"
-                        class="exceptionFilterInput"
-                    />
+    <Label
+        id="_IDGenText104"
+        text="Reason"
+        class="exceptionFilterLabel"
+    />
 
-                </VBox>
+    <Select
+        id="filterReason"
+        width="100%"
+        selectedKey="ALL_REASON"
+        change="onFilterChange"
+        class="exceptionFilterSelect"
+    >
+
+        <core:Item
+            id="_IDGenItemReason"
+            key="ALL_REASON"
+            text="All"
+        />
+
+    </Select>
+
+</VBox>
 
             </FlexBox>
 
@@ -1384,7 +1418,7 @@
 
                                 <Text
                                     id="_IDGenText96"
-                                    text="{openExceptionModel>ObjectCategory}"
+                                    text="{path: 'openExceptionModel>ObjectCategory', formatter: '.formatObjectCategory'}"
                                 />
 
                                 <Text

@@ -109,7 +109,7 @@
         "type": "View",
         "viewType": "XML",
         "path": "payment.dashboard.view",
-        "async": true,
+    "async": true,
         "viewPath": "payment.dashboard.view"
       },
       "routes": [

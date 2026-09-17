@@ -123,184 +123,199 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
         onInit: function () {
 
+            try {
 
-            //KPI tiles
+                console.log("================================");
+                console.log("VIEW1 ONINIT");
+                console.log("VIEW1 ID:", this.getView().getId());
+                console.log("================================");
 
-            var oKpiSummaryModel = new JSONModel({
-                TotalProcessed: 0,
-                SuccessfulPayments: 0,
-                FailedPayments: 0,
-                RejectedPayments: 0,
-                PendingPayments: 0,
-                IncomingPayments: 0,
-                OutgoingPayments: 0,
+                //KPI tiles
 
-                totalProcessedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "neutral" },
-                successfulTrend: { percent: 0, direction: "flat", hasData: false, semantic: "goodUp" },
-                pendingTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" },
-                failedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" },
-                rejectedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" }
-            });
-            this.getView().setModel(oKpiSummaryModel, "kpiSummaryModel");
+                var oKpiSummaryModel = new JSONModel({
+                    TotalProcessed: 0,
+                    SuccessfulPayments: 0,
+                    FailedPayments: 0,
+                    RejectedPayments: 0,
+                    PendingPayments: 0,
+                    IncomingPayments: 0,
+                    OutgoingPayments: 0,
 
-            console.log("Before Save", this._mVariants);
-            this._mVariants = JSON.parse(
+                    totalProcessedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "neutral" },
+                    successfulTrend: { percent: 0, direction: "flat", hasData: false, semantic: "goodUp" },
+                    pendingTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" },
+                    failedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" },
+                    rejectedTrend: { percent: 0, direction: "flat", hasData: false, semantic: "badUp" }
+                });
+                this.getView().setModel(oKpiSummaryModel, "kpiSummaryModel");
 
-                localStorage.getItem("PaymentDashboardVariants") || "{}"
+                console.log("Before Save", this._mVariants);
+                this._mVariants = JSON.parse(
 
-            );
+                    localStorage.getItem("PaymentDashboardVariants") || "{}"
 
-            console.log(
-                "Storage",
-                JSON.parse(localStorage.getItem("PaymentDashboardVariants"))
-            );
+                );
 
-            // ‚úÖ KPI date filter ‚Äî defaults to today's system date (sy-datum equivalent)
-            var oToday = new Date();
-            var sTodayStr = oToday.getFullYear() + "-" +
-                String(oToday.getMonth() + 1).padStart(2, "0") + "-" +
-                String(oToday.getDate()).padStart(2, "0");
+                console.log(
+                    "Storage",
+                    JSON.parse(localStorage.getItem("PaymentDashboardVariants"))
+                );
 
-            var oFilterModel = new JSONModel({
-                kpiDate: sTodayStr,
-                clearingArea: "DEBNKC",   // default selection
-                flowGranularity: "Day"
-            });
-            this.getView().setModel(oFilterModel, "filterModel");
+                // ‚úÖ KPI date filter ‚Äî defaults to today's system date (sy-datum equivalent)
+                var oToday = new Date();
+                var sTodayStr = oToday.getFullYear() + "-" +
+                    String(oToday.getMonth() + 1).padStart(2, "0") + "-" +
+                    String(oToday.getDate()).padStart(2, "0");
 
-
-
-            var oHeaderModel = new JSONModel({ currentTab: "Overview" });
-            this.getView().setModel(oHeaderModel, "headerModel");
-
-            //
-            var oExceptionModel = new JSONModel({
-
-            });
-
-            this.getView().setModel(oExceptionModel, "exceptionModel");
-
-            //down chart
-            var oGosiModel = new JSONModel({
-
-            });
-
-            this.getView().setModel(oGosiModel, "gosiModel");
-
-            //down bar graph
-            var oWpsModel = new JSONModel({
-
-            });
-
-            this.getView().setModel(oWpsModel, "wpsModel");
-
-            // table header 
-            var oTableInfoModel = new JSONModel({
-                total: 0,
-                visible: 0
-            });
-            this.getView().setModel(oTableInfoModel, "tableInfoModel");
-
-            // ‚úÖ Donut center model
-            var oModel = new sap.ui.model.json.JSONModel({
-
-            });
-            this.getView().setModel(oModel, "donutModel");
-
-            // ‚úÖ Info model for peak hour   
-            var oInfoModel = new JSONModel({
-                peakHour: "",
-                flowChartTitle: "Payments (Value Flow by Day)",
-                spikeMessage: "",
-                showSpike: false
-            });
-            this.getView().setModel(oInfoModel, "infoModel");
-
-            // ‚úÖ Date formatting
-            var oDate = new Date();
-            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            var sFormattedDate = oDate.toLocaleDateString(undefined, options);
-
-            this.getView().byId("_IDGenText24")
-                .setText("Today, " + sFormattedDate + " ‚Payments for All Branches ");
-
-            // ‚úÖ MAIN DATA MODEL
-            var oData = {
-
-
-            };
-
-            // var oModel = this.getOwnerComponent().getModel();
-
-            var oPaymentTableModel = new JSONModel({
-                PaymentInfo: []
-            });
-
-            this.getView().setModel(oPaymentTableModel, "paymentTable");
+                var oFilterModel = new JSONModel({
+                    kpiDate: sTodayStr,
+                    clearingArea: "DEBNKC",   // default selection
+                    flowGranularity: "Day"
+                });
+                this.getView().setModel(oFilterModel, "filterModel");
 
 
 
-            // ‚úÖ Column picker state ‚Äî starts with just the fields the table already
-            // showed (the "default: true" ones). Settings dialog adds/removes from this.
-            var aDefaultPaymentFields = PAYMENT_INFO_FIELD_CATALOG
-                .filter(function (oField) { return oField.default; })
-                .map(function (oField) { return oField.key; });
+                var oHeaderModel = new JSONModel({ currentTab: "Overview" });
+                this.getView().setModel(oHeaderModel, "headerModel");
 
-            var oTableColumnsModel = new JSONModel({
-                visibleFields: aDefaultPaymentFields
-            });
-            this.getView().setModel(oTableColumnsModel, "tableColumnsModel");
+                //
+                var oExceptionModel = new JSONModel({
 
-            this.getView().setModel(
-                new JSONModel({ visibleFields: aDefaultPaymentFields.slice() }),
-                "detailHeaderColumnsModel"
-            );
-
-            this.getView().setModel(
-                new JSONModel({ expanded: false, selectedStatus: "" }),
-                "donutViewModel"
-            );
-
-            this.getView().setModel(
-                new JSONModel({
-                    // Matches the reference image's default column set ‚Äî user can add
-                    // any other ITEM_DETAILS_FIELD_CATALOG field via the Settings gear.
-                    visibleFields: ["ItemNumber", "PICreatedDate", "ItemProcessingStatus", "PITransactionAmount", "PIReleaseStatus"]
-                }),
-                "donutItemsColumnsModel"
-            );
-
-            this.getView().setModel(new JSONModel({ items: [] }), "donutItemsModel");
-
-            var aDefaultItemFields = ITEM_DETAILS_FIELD_CATALOG
-                .filter(function (oField) {
-                    return oField.default;
-                })
-                .map(function (oField) {
-                    return oField.key;
                 });
 
-            this.getView().setModel(
-                new JSONModel({
-                    visibleFields: aDefaultItemFields
-                }),
-                "itemColumnsModel"
-            );
+                this.getView().setModel(oExceptionModel, "exceptionModel");
 
-            var oModel = new JSONModel(oData);
-            this.getView().setModel(oModel);
+                //down chart
+                var oGosiModel = new JSONModel({
+
+                });
+
+                this.getView().setModel(oGosiModel, "gosiModel");
+
+                //down bar graph
+                var oWpsModel = new JSONModel({
+
+                });
+
+                this.getView().setModel(oWpsModel, "wpsModel");
+
+                // table header 
+                var oTableInfoModel = new JSONModel({
+                    total: 0,
+                    visible: 0
+                });
+                this.getView().setModel(oTableInfoModel, "tableInfoModel");
+
+                // ‚úÖ Donut center model
+                var oModel = new sap.ui.model.json.JSONModel({
+
+                });
+                this.getView().setModel(oModel, "donutModel");
+
+                // ‚úÖ Info model for peak hour   
+                var oInfoModel = new JSONModel({
+                    peakHour: "",
+                    flowChartTitle: "Payments (Value Flow by Day)",
+                    spikeMessage: "",
+                    showSpike: false
+                });
+                this.getView().setModel(oInfoModel, "infoModel");
+
+                // ‚úÖ Date formatting
+                var oDate = new Date();
+                var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                var sFormattedDate = oDate.toLocaleDateString(undefined, options);
+
+                var oGreetingText = this.getView().byId("_IDGenText24");
+                if (oGreetingText) {
+                    oGreetingText.setText("Today, " + sFormattedDate + " – Payments for All Branches ");
+                } else {
+                    console.warn("_IDGenText24 not found at onInit time");
+                }
 
 
-            this._loadFlowChart();
-
-            this._loadKpiSummary();
-
-            this._refreshExceptionKpis();
-
-            this._rebuildPaymentTable();
+                var oData = {
 
 
-            this._refreshReconciliation();
+                };
+
+                // var oModel = this.getOwnerComponent().getModel();
+
+                var oPaymentTableModel = new JSONModel({
+                    PaymentInfo: []
+                });
+
+                this.getView().setModel(oPaymentTableModel, "paymentTable");
+
+
+
+                // ‚úÖ Column picker state ‚Äî starts with just the fields the table already
+                // showed (the "default: true" ones). Settings dialog adds/removes from this.
+                var aDefaultPaymentFields = PAYMENT_INFO_FIELD_CATALOG
+                    .filter(function (oField) { return oField.default; })
+                    .map(function (oField) { return oField.key; });
+
+                var oTableColumnsModel = new JSONModel({
+                    visibleFields: aDefaultPaymentFields
+                });
+                this.getView().setModel(oTableColumnsModel, "tableColumnsModel");
+
+                this.getView().setModel(
+                    new JSONModel({ visibleFields: aDefaultPaymentFields.slice() }),
+                    "detailHeaderColumnsModel"
+                );
+
+                this.getView().setModel(
+                    new JSONModel({ expanded: false, selectedStatus: "" }),
+                    "donutViewModel"
+                );
+
+                this.getView().setModel(
+                    new JSONModel({
+                        // Matches the reference image's default column set ‚Äî user can add
+                        // any other ITEM_DETAILS_FIELD_CATALOG field via the Settings gear.
+                        visibleFields: ["ItemNumber", "PICreatedDate", "ItemProcessingStatus", "PITransactionAmount", "PIReleaseStatus"]
+                    }),
+                    "donutItemsColumnsModel"
+                );
+
+                this.getView().setModel(new JSONModel({ items: [] }), "donutItemsModel");
+
+                var aDefaultItemFields = ITEM_DETAILS_FIELD_CATALOG
+                    .filter(function (oField) {
+                        return oField.default;
+                    })
+                    .map(function (oField) {
+                        return oField.key;
+                    });
+
+                this.getView().setModel(
+                    new JSONModel({
+                        visibleFields: aDefaultItemFields
+                    }),
+                    "itemColumnsModel"
+                );
+
+                var oModel = new JSONModel(oData);
+                this.getView().setModel(oModel);
+
+
+                this._loadFlowChart();
+
+                this._loadKpiSummary();
+
+                this._refreshExceptionKpis();
+
+                this._rebuildPaymentTable();
+
+
+                this._refreshReconciliation();
+
+            } catch (oError) {
+                console.error("❌ View1 onInit FAILED:", oError);
+                console.error("Stack trace:", oError.stack);
+            }
         },
 
         // ‚úÖ Looks up a field's catalog entry (label / type) by its technical key.
@@ -338,51 +353,51 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
             aVisibleFields.forEach(function (sKey) {
                 var oFieldDef = that._getPaymentFieldDef(sKey);
-               
+
                 var iColumnWidth = "9rem";
 
-switch (sKey) {
+                switch (sKey) {
 
-    case "OrderKey":
-        iColumnWidth = "13rem";
-        break;
+                    case "OrderKey":
+                        iColumnWidth = "13rem";
+                        break;
 
-    case "ProcessingStatus":
-        iColumnWidth = "9rem";
-        break;
+                    case "ProcessingStatus":
+                        iColumnWidth = "9rem";
+                        break;
 
-    case "TechnicalStatus":
-        iColumnWidth = "10rem";
-        break;
+                    case "TechnicalStatus":
+                        iColumnWidth = "10rem";
+                        break;
 
-    case "CreatedOn":
-        iColumnWidth = "9rem";
-        break;
+                    case "CreatedOn":
+                        iColumnWidth = "9rem";
+                        break;
 
-    case "LastChangedBy":
-        iColumnWidth = "10rem";
-        break;
+                    case "LastChangedBy":
+                        iColumnWidth = "10rem";
+                        break;
 
-    case "CreatedBy":
-        iColumnWidth = "9rem";
-        break;
+                    case "CreatedBy":
+                        iColumnWidth = "9rem";
+                        break;
 
-    case "ReleasedBy":
-        iColumnWidth = "9rem";
-        break;
+                    case "ReleasedBy":
+                        iColumnWidth = "9rem";
+                        break;
 
-    default:
-        iColumnWidth = "10rem";
-}
+                    default:
+                        iColumnWidth = "10rem";
+                }
 
-oTable.addColumn(
-    new sap.m.Column({
-        width: iColumnWidth,
-        header: new sap.m.Text({
-            text: oFieldDef ? oFieldDef.label : sKey
-        })
-    })
-);
+                oTable.addColumn(
+                    new sap.m.Column({
+                        width: iColumnWidth,
+                        header: new sap.m.Text({
+                            text: oFieldDef ? oFieldDef.label : sKey
+                        })
+                    })
+                );
             });
 
 
@@ -3225,20 +3240,20 @@ oTable.addColumn(
         // when there's no prior-day data (tile shows nothing, per your requirement).
         formatKpiTrendText: function (oTrend) {
 
-    // No previous-day data available
-    if (!oTrend || !oTrend.hasData) {
-        return "Insufficient data to compare";
-    }
+            // No previous-day data available
+            if (!oTrend || !oTrend.hasData) {
+                return "Insufficient data to compare";
+            }
 
-    // Current and previous values are the same
-    if (oTrend.direction === "flat") {
-        return "No change vs yesterday";
-    }
+            // Current and previous values are the same
+            if (oTrend.direction === "flat") {
+                return "No change vs yesterday";
+            }
 
-    var sArrow = oTrend.direction === "up" ? "+" : "-";
+            var sArrow = oTrend.direction === "up" ? "+" : "-";
 
-    return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
-},
+            return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
+        },
 
         // ✅ Shared class formatter — colors the subtext based on whether the
         // direction is "good" or "bad" for that specific KPI's semantic.
@@ -3294,6 +3309,17 @@ oTable.addColumn(
 
 
 
+        onExit: function () {
+
+            console.log("================================");
+            console.log("VIEW1 ONEXIT");
+            console.log("VIEW1 ID:", this.getView().getId());
+            console.log("================================");
+
+        },
+
     });
+
+
 
 });
