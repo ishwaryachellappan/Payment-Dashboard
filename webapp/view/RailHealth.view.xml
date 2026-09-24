@@ -17,10 +17,12 @@
         height="auto"
     >
 
-        <VBox
+       <VBox
     id="_IDGenRailKpiSection"
-    class="kpiSectionContainer"
->
+    width="100%"
+    class="kpiSectionContainer">
+
+    
     <FlexBox
         id="_IDGenRailKpiRow"
         wrap="Wrap"
@@ -31,100 +33,348 @@
     >
 
         <!-- OVERALL HEALTH -->
-        <VBox id="_IDGenKpiOverallHealth" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-            <HBox id="_IDGenKpiOverallHealthTop" class="kpiCardTopRow">
-                <Text id="_IDGenKpiOverallHealthLabel" text="Overall Health" class="kpiCardLabel"/>
-                <HBox id="_IDGenKpiOverallHealthIconBox" class="kpiIconBox kpiIconGreen">
-                    <core:Icon id="_IDGenKpiOverallHealthIcon" src="sap-icon://heart-2"/>
-                </HBox>
-            </HBox>
-            <Text id="_IDGenKpiOverallHealthValue" text="{railHealth>/kpis/overallHealth}" class="kpiCardValue kpiValueGreen"/>
-            <Text id="_IDGenKpiOverallHealthSub" text="" class="kpiCardSubtext"/>
-        </VBox>
+        <VBox
+    id="_IDGenKpiOverallHealth"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%">
+
+    <!-- KPI TITLE -->
+    <Text
+        id="_IDGenKpiOverallHealthLabel"
+        text="Overall Health"
+        class="kpiCardLabel"/>
+
+    <!-- KPI VALUE + ICON -->
+    <HBox
+        id="_IDGenKpiOverallHealthValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween">
+
+        <Text
+            id="_IDGenKpiOverallHealthValue"
+            text="{railHealth>/kpis/overallHealth}"
+            class="kpiCardValue kpiValueGreen"/>
+
+        <HBox
+            id="_IDGenKpiOverallHealthIconBox"
+            class="kpiIconBox kpiIconGreen">
+
+            <core:Icon
+                id="_IDGenKpiOverallHealthIcon"
+                src="sap-icon://heart-2"/>
+
+        </HBox>
+
+    </HBox>
+
+    <!-- KPI SUBTEXT -->
+    <Text
+        id="_IDGenKpiOverallHealthSub"
+        text="{railHealth>/kpis/overallHealthSub}"
+        class="kpiCardSubtext"/>
+
+</VBox>
 
         <!-- ACTIVE RAILS -->
-        <VBox id="_IDGenKpiActiveRails" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-            <HBox id="_IDGenKpiActiveRailsTop" class="kpiCardTopRow">
-                <Text id="_IDGenKpiActiveRailsLabel" text="Active Rails" class="kpiCardLabel"/>
-                <HBox id="_IDGenKpiActiveRailsIconBox" class="kpiIconBox kpiIconBlue">
-                    <core:Icon id="_IDGenKpiActiveRailsIcon" src="sap-icon://share-2"/>
-                </HBox>
-            </HBox>
-            <Text id="_IDGenKpiActiveRailsValue" text="{railHealth>/kpis/activeRails}" class="kpiCardValue kpiValueBlue"/>
-            <Text id="_IDGenKpiActiveRailsSub" text="" class="kpiCardSubtext"/>
-        </VBox>
+       <VBox
+    id="_IDGenKpiActiveRails"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%">
+
+    <Text
+        id="_IDGenKpiActiveRailsLabel"
+        text="Active Rails"
+        class="kpiCardLabel"/>
+
+    <HBox
+        id="_IDGenKpiActiveRailsValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween">
+
+        <Text
+            id="_IDGenKpiActiveRailsValue"
+            text="{railHealth>/kpis/activeRails}"
+            class="kpiCardValue kpiValueBlue"/>
+
+        <HBox
+            id="_IDGenKpiActiveRailsIconBox"
+            class="kpiIconBox kpiIconBlue">
+
+            <core:Icon
+                id="_IDGenKpiActiveRailsIcon"
+                src="sap-icon://share-2"/>
+
+        </HBox>
+
+    </HBox>
+
+    <Text
+        id="_IDGenKpiActiveRailsSub"
+        text="{railHealth>/kpis/activeRailsSub}"
+        class="kpiCardSubtext"/>
+
+</VBox>
 
         <!-- TRANSACTIONS -->
-        <VBox id="_IDGenKpiTransactions" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-            <HBox id="_IDGenKpiTransactionsTop" class="kpiCardTopRow">
-                <Text id="_IDGenKpiTransactionsLabel" text="Transactions" class="kpiCardLabel"/>
-                <HBox id="_IDGenKpiTransactionsIconBox" class="kpiIconBox kpiIconPurple">
-                    <core:Icon id="_IDGenKpiTransactionsIcon" src="sap-icon://business-objects-experience"/>
-                </HBox>
-            </HBox>
-            <Text id="_IDGenKpiTransactionsValue" text="{railHealth>/kpis/transactions}" class="kpiCardValue kpiValuePurple"/>
-            <Text id="_IDGenKpiTransactionsSub" text="" class="kpiCardSubtext"/>
-        </VBox>
+       <VBox
+    id="_IDGenKpiTransactions"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%">
+
+    <Text
+        id="_IDGenKpiTransactionsLabel"
+        text="Transactions"
+        class="kpiCardLabel"/>
+
+    <HBox
+        id="_IDGenKpiTransactionsValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween">
+
+        <Text
+            id="_IDGenKpiTransactionsValue"
+            text="{railHealth>/kpis/transactions}"
+            class="kpiCardValue kpiValuePurple"/>
+
+        <HBox
+            id="_IDGenKpiTransactionsIconBox"
+            class="kpiIconBox kpiIconPurple">
+
+            <core:Icon
+                id="_IDGenKpiTransactionsIcon"
+                src="sap-icon://business-objects-experience"/>
+
+        </HBox>
+
+    </HBox>
+
+    <Text
+        id="_IDGenKpiTransactionsSub"
+        text="{railHealth>/kpis/transactionsSub}"
+        class="kpiCardSubtext"/>
+
+</VBox>
 
         <!-- SUCCESS RATE -->
-        <VBox id="_IDGenKpiSuccessRate" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-            <HBox id="_IDGenKpiSuccessRateTop" class="kpiCardTopRow">
-                <Text id="_IDGenKpiSuccessRateLabel" text="Success Rate" class="kpiCardLabel"/>
-                <HBox id="_IDGenKpiSuccessRateIconBox" class="kpiIconBox kpiIconGreen">
-                    <core:Icon id="_IDGenKpiSuccessRateIcon" src="sap-icon://accept"/>
-                </HBox>
-            </HBox>
-            <Text id="_IDGenKpiSuccessRateValue" text="{railHealth>/kpis/successRate}" class="kpiCardValue kpiValueGreen"/>
-            <Text id="_IDGenKpiSuccessRateSub" text="" class="kpiCardSubtext"/>
-        </VBox>
+        <!-- SUCCESS RATE -->
+<VBox
+    id="_IDGenKpiSuccessRate"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%">
+
+    <Text
+        id="_IDGenKpiSuccessRateLabel"
+        text="Success Rate"
+        class="kpiCardLabel"/>
+
+    <HBox
+        id="_IDGenKpiSuccessRateValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween">
+
+        <Text
+            id="_IDGenKpiSuccessRateValue"
+            text="{railHealth>/kpis/successRate}"
+            class="kpiCardValue kpiValueGreen"/>
+
+        <HBox
+            id="_IDGenKpiSuccessRateIconBox"
+            class="kpiIconBox kpiIconGreen">
+
+            <core:Icon
+                id="_IDGenKpiSuccessRateIcon"
+                src="sap-icon://accept"/>
+
+        </HBox>
+
+    </HBox>
+
+    <Text
+        id="_IDGenKpiSuccessRateSub"
+        text="{railHealth>/kpis/successRateSub}"
+        class="kpiCardSubtext"/>
+
+</VBox>
 
         <!-- FAILED PAYMENTS -->
-        <VBox id="_IDGenKpiFailedPayments" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-            <HBox id="_IDGenKpiFailedPaymentsTop" class="kpiCardTopRow">
-                <Text id="_IDGenKpiFailedPaymentsLabel" text="Failed Payments" class="kpiCardLabel"/>
-                <HBox id="_IDGenKpiFailedPaymentsIconBox" class="kpiIconBox kpiIconDarkRed">
-                    <core:Icon id="_IDGenKpiFailedPaymentsIcon" src="sap-icon://error"/>
-                </HBox>
-            </HBox>
-            <Text id="_IDGenKpiFailedPaymentsValue" text="{railHealth>/kpis/failedPayments}" class="kpiCardValue kpiValueDarkRed"/>
-            <Text id="_IDGenKpiFailedPaymentsSub" text="" class="kpiCardSubtext"/>
-        </VBox>
+       <!-- FAILED PAYMENTS -->
+<VBox
+    id="_IDGenKpiFailedPayments"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%">
+
+    <Text
+        id="_IDGenKpiFailedPaymentsLabel"
+        text="Failed Payments"
+        class="kpiCardLabel"/>
+
+    <HBox
+        id="_IDGenKpiFailedPaymentsValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween">
+
+        <Text
+            id="_IDGenKpiFailedPaymentsValue"
+            text="{railHealth>/kpis/failedPayments}"
+            class="kpiCardValue kpiValueDarkRed"/>
+
+        <HBox
+            id="_IDGenKpiFailedPaymentsIconBox"
+            class="kpiIconBox kpiIconDarkRed">
+
+            <core:Icon
+                id="_IDGenKpiFailedPaymentsIcon"
+                src="sap-icon://error"/>
+
+        </HBox>
+
+    </HBox>
+
+    <Text
+        id="_IDGenKpiFailedPaymentsSub"
+        text="{railHealth>/kpis/failedPaymentsSub}"
+        class="kpiCardSubtext"/>
+
+</VBox>
 
         <!-- RESPONSE TIME -->
-        <VBox id="_IDGenKpiResponseTime" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-            <HBox id="_IDGenKpiResponseTimeTop" class="kpiCardTopRow">
-                <Text id="_IDGenKpiResponseTimeLabel" text="Response Time" class="kpiCardLabel"/>
-                <HBox id="_IDGenKpiResponseTimeIconBox" class="kpiIconBox kpiIconBlue">
-                    <core:Icon id="_IDGenKpiResponseTimeIcon" src="sap-icon://history"/>
-                </HBox>
-            </HBox>
-            <Text id="_IDGenKpiResponseTimeValue" text="{railHealth>/kpis/responseTime}" class="kpiCardValue kpiValueBlue"/>
-            <Text id="_IDGenKpiResponseTimeSub" text="" class="kpiCardSubtext"/>
-        </VBox>
+       <!-- RESPONSE TIME -->
+<VBox
+    id="_IDGenKpiResponseTime"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%">
+
+    <Text
+        id="_IDGenKpiResponseTimeLabel"
+        text="Response Time"
+        class="kpiCardLabel"/>
+
+    <HBox
+        id="_IDGenKpiResponseTimeValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween">
+
+        <Text
+            id="_IDGenKpiResponseTimeValue"
+            text="{railHealth>/kpis/responseTime}"
+            class="kpiCardValue kpiValueBlue"/>
+
+        <HBox
+            id="_IDGenKpiResponseTimeIconBox"
+            class="kpiIconBox kpiIconBlue">
+
+            <core:Icon
+                id="_IDGenKpiResponseTimeIcon"
+                src="sap-icon://history"/>
+
+        </HBox>
+
+    </HBox>
+
+    <Text
+        id="_IDGenKpiResponseTimeSub"
+        text="{railHealth>/kpis/responseTimeSub}"
+        class="kpiCardSubtext"/>
+
+</VBox>
 
         <!-- QUEUE DEPTH -->
-        <VBox id="_IDGenKpiQueueDepth" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-            <HBox id="_IDGenKpiQueueDepthTop" class="kpiCardTopRow">
-                <Text id="_IDGenKpiQueueDepthLabel" text="Queue Depth" class="kpiCardLabel"/>
-                <HBox id="_IDGenKpiQueueDepthIconBox" class="kpiIconBox kpiIconOrange">
-                    <core:Icon id="_IDGenKpiQueueDepthIcon" src="sap-icon://list"/>
-                </HBox>
-            </HBox>
-            <Text id="_IDGenKpiQueueDepthValue" text="{railHealth>/kpis/queueDepth}" class="kpiCardValue kpiValueOrange"/>
-            <Text id="_IDGenKpiQueueDepthSub" text="" class="kpiCardSubtext"/>
-        </VBox>
+       <!-- QUEUE DEPTH -->
+<VBox
+    id="_IDGenKpiQueueDepth"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%">
+
+    <Text
+        id="_IDGenKpiQueueDepthLabel"
+        text="Queue Depth"
+        class="kpiCardLabel"/>
+
+    <HBox
+        id="_IDGenKpiQueueDepthValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween">
+
+        <Text
+            id="_IDGenKpiQueueDepthValue"
+            text="{railHealth>/kpis/queueDepth}"
+            class="kpiCardValue kpiValueOrange"/>
+
+        <HBox
+            id="_IDGenKpiQueueDepthIconBox"
+            class="kpiIconBox kpiIconOrange">
+
+            <core:Icon
+                id="_IDGenKpiQueueDepthIcon"
+                src="sap-icon://list"/>
+
+        </HBox>
+
+    </HBox>
+
+    <Text
+        id="_IDGenKpiQueueDepthSub"
+        text="{railHealth>/kpis/queueDepthSub}"
+        class="kpiCardSubtext"/>
+
+</VBox>
 
         <!-- CRITICAL ALERTS -->
-        <VBox id="_IDGenKpiCriticalAlerts" class="kpiCard kpiCardNoClick" width="100%" height="100%">
-            <HBox id="_IDGenKpiCriticalAlertsTop" class="kpiCardTopRow">
-                <Text id="_IDGenKpiCriticalAlertsLabel" text="Critical Alerts" class="kpiCardLabel"/>
-                <HBox id="_IDGenKpiCriticalAlertsIconBox" class="kpiIconBox kpiIconDarkRed">
-                    <core:Icon id="_IDGenKpiCriticalAlertsIcon" src="sap-icon://bell"/>
-                </HBox>
-            </HBox>
-            <Text id="_IDGenKpiCriticalAlertsValue" text="{railHealth>/kpis/alerts}" class="kpiCardValue kpiValueDarkRed"/>
-            <Text id="_IDGenKpiCriticalAlertsSub" text="" class="kpiCardSubtext"/>
-        </VBox>
+       <!-- CRITICAL ALERTS -->
+<VBox
+    id="_IDGenKpiCriticalAlerts"
+    class="kpiCard kpiCardNoClick"
+    width="100%"
+    height="100%">
+
+    <Text
+        id="_IDGenKpiCriticalAlertsLabel"
+        text="Critical Alerts"
+        class="kpiCardLabel"/>
+
+    <HBox
+        id="_IDGenKpiCriticalAlertsValueRow"
+        class="kpiValueRow"
+        alignItems="Center"
+        justifyContent="SpaceBetween">
+
+        <Text
+            id="_IDGenKpiCriticalAlertsValue"
+            text="{railHealth>/kpis/alerts}"
+            class="kpiCardValue kpiValueDarkRed"/>
+
+        <HBox
+            id="_IDGenKpiCriticalAlertsIconBox"
+            class="kpiIconBox kpiIconDarkRed">
+
+            <core:Icon
+                id="_IDGenKpiCriticalAlertsIcon"
+                src="sap-icon://bell"/>
+
+        </HBox>
+
+    </HBox>
+
+    <Text
+        id="_IDGenKpiCriticalAlertsSub"
+        text="{railHealth>/kpis/alertsSub}"
+        class="kpiCardSubtext"/>
+
+</VBox>
 
     </FlexBox>
 </VBox>
@@ -136,360 +386,132 @@
 
 
 <!-- ========================================================= -->
-<!-- Rail Health Overview + Integration + Exception Summary -->
+<!-- Rail Health Overview -->
 <!-- ========================================================= -->
 
-<HBox id="_IDGenHBox94"
+<VBox
+    id="_IDGenRailOverviewSection"
     width="100%"
-    justifyContent="SpaceBetween"
-    alignItems="Stretch"
-    fitContainer="true">
+    class="railSection sapUiSmallMarginTop">
 
+    <!-- Section Header -->
+    <HBox
+        id="_IDGenRailOverviewHeader"
+        justifyContent="SpaceBetween"
+        alignItems="Center"
+        class="sectionHeader">
 
+        <Title
+            id="_IDGenRailOverviewTitle"
+            text="Rail Health Overview"
+            level="H5"/>
 
-        <HBox id="_IDGenHBox85"
-            width="100%"
-            justifyContent="SpaceBetween"
-            alignItems="Start">
-
-            <!-- ===================================================== -->
-            <!-- LEFT : 60% -->
-            <!-- ===================================================== -->
-
-            <VBox id="_IDGenVBox115"
-                width="60%"
-                 height="100%"
-    class="railSection">
-
-               
-<HBox id="_IDGenHBox96"
-    justifyContent="SpaceBetween"
-    alignItems="Center"
-    class="sectionHeader">
-
-    <Title id="_IDGenTitle9"
-        text="Rail Health Overview"
-        level="H5"/>
-
-    <Link id="_IDGenLink"
-        text="View All Rails"/>
-
-</HBox>
-
-                 
-
-                    <Table id="_IDGenTable1"
-                        width="100%"
-                        inset="false"
-                        items="{railHealth>/railOverview}">
-
-                        <columns>
-
-                            <Column id="_IDGenColumn" width="11rem">
-                                <Text id="_IDGenText51" text="Payment Rail"/>
-                            </Column>
-
-                            <Column id="_IDGenColumn1" width="8rem">
-                                <Text id="_IDGenText52" text="Status"/>
-                            </Column>
-
-                            <Column id="_IDGenColumn2" width="8rem">
-                                <Text id="_IDGenText53" text="Success Rate"/>
-                            </Column>
-
-                            <Column id="_IDGenColumn3" width="9rem">
-                                <Text id="_IDGenText60" text="Avg Response"/>
-                            </Column>
-
-                            <Column id="_IDGenColumn4" width="8rem">
-                                <Text id="_IDGenText61" text="Volume"/>
-                            </Column>
-
-                        </columns>
-
-                        <items>
-
-                            <ColumnListItem id="_IDGenColumnListItem">
-
-                                <cells>
-
-                                    <Text id="_IDGenText62" text="{railHealth>rail}"/>
-
-                                    <ObjectStatus id="_IDGenObjectStatus"
-                                        text="{railHealth>status}"
-                                        state="{
-                                            = ${railHealth>status} === 'Healthy'
-                                            ? 'Success'
-                                            : ${railHealth>status} === 'Warning'
-                                            ? 'Warning'
-                                            : 'Error'
-                                        }"/>
-
-                                    <Text id="_IDGenText63" text="{railHealth>successRate}"/>
-
-                                    <Text id="_IDGenText64" text="{railHealth>responseTime}"/>
-
-                                    <Text id="_IDGenText65" text="{railHealth>volume}"/>
-
-                                </cells>
-
-                            </ColumnListItem>
-
-                        </items>
-
-                    </Table>
-
-              
-
-            </VBox>
-
-
-
-            <!-- ===================================================== -->
-            <!-- MIDDLE : 20% -->
-            <!-- ===================================================== -->
-
-            <VBox id="_IDGenVBox116"
-                width="19%"
-              height="100%"
-    class="railSection sapUiTinyMarginBegin">
-
-                <HBox id="_IDGenHBox97" class="sectionHeader">
-
-    <Title id="_IDGenTitle25"
-        text="Integration Health"
-        level="H5"/>
-
-</HBox>
-
-                    <List id="_IDGenList"
-                        width="100%"
-                        showSeparators="Inner">
-
-                       <CustomListItem id="_IDGenCustomListItem2">
-
-    <HBox id="_IDGenHBox95"
-        justifyContent="SpaceBetween">
-
-        <Text id="_IDGenText66" text="SAP PI/PO"/>
-
-        <ObjectStatus id="_IDGenObjectStatus1"
-            text="Healthy"
-            state="Success"/>
+        <Link
+            id="_IDGenRailOverviewLink"
+            text="View All Rails"/>
 
     </HBox>
 
-</CustomListItem>
 
-                    <CustomListItem id="_IDGenCustomListItem1">
+    <!-- Rail Health Table -->
+    <Table
+        id="_IDGenRailOverviewTable"
+        width="100%"
+        inset="false"
+        items="{railHealth>/railOverview}">
 
-    <HBox id="_IDGenHBox99"
-        justifyContent="SpaceBetween">
+        <columns>
 
-        <Text id="_IDGenText67" text="SAP PI/PO"/>
+            <Column
+                id="_IDGenRailColumn"
+                width="20%">
+                <Text
+                    id="_IDGenRailColumnText"
+                    text="Payment Rail"/>
+            </Column>
 
-        <ObjectStatus id="_IDGenObjectStatus17"
-            text="Healthy"
-            state="Success"/>
+            <Column
+                id="_IDGenStatusColumn"
+                width="20%">
+                <Text
+                    id="_IDGenStatusColumnText"
+                    text="Status"/>
+            </Column>
 
-    </HBox>
+            <Column
+                id="_IDGenSuccessColumn"
+                width="20%">
+                <Text
+                    id="_IDGenSuccessColumnText"
+                    text="Success Rate"/>
+            </Column>
 
-</CustomListItem>
+            <Column
+                id="_IDGenResponseColumn"
+                width="20%">
+                <Text
+                    id="_IDGenResponseColumnText"
+                    text="Avg Response"/>
+            </Column>
 
-                      <CustomListItem id="_IDGenCustomListItem3">
+            <Column
+                id="_IDGenVolumeColumn"
+                width="20%">
+                <Text
+                    id="_IDGenVolumeColumnText"
+                    text="Volume"/>
+            </Column>
 
-    <HBox id="_IDGenHBox100"
-        justifyContent="SpaceBetween">
+        </columns>
 
-        <Text id="_IDGenText68" text="SAP PI/PO"/>
 
-        <ObjectStatus id="_IDGenObjectStatus18"
-            text="Healthy"
-            state="Success"/>
+        <items>
 
-    </HBox>
+            <ColumnListItem
+                id="_IDGenRailColumnListItem">
 
-</CustomListItem>
+                <cells>
 
-                      <CustomListItem id="_IDGenCustomListItem4">
+                    <Text
+                        id="_IDGenRailText"
+                        text="{railHealth>rail}"/>
 
-    <HBox id="_IDGenHBox101"
-        justifyContent="SpaceBetween">
 
-        <Text id="_IDGenText69" text="SAP PI/PO"/>
+                    <ObjectStatus
+                        id="_IDGenRailStatus"
+                        text="{railHealth>status}"
+                        state="{
+                            = ${railHealth>status} === 'Healthy'
+                            ? 'Success'
+                            : ${railHealth>status} === 'Warning'
+                            ? 'Warning'
+                            : 'Error'
+                        }"/>
 
-        <ObjectStatus id="_IDGenObjectStatus19"
-            text="Healthy"
-            state="Success"/>
 
-    </HBox>
+                    <Text
+                        id="_IDGenRailSuccessText"
+                        text="{railHealth>successRate}"/>
 
-</CustomListItem>
 
-                     <CustomListItem id="_IDGenCustomListItem5">
+                    <Text
+                        id="_IDGenRailResponseText"
+                        text="{railHealth>responseTime}"/>
 
-    <HBox id="_IDGenHBox102"
-        justifyContent="SpaceBetween">
 
-        <Text id="_IDGenText71" text="SAP PI/PO"/>
+                    <Text
+                        id="_IDGenRailVolumeText"
+                        text="{railHealth>volume}"/>
 
-        <ObjectStatus id="_IDGenObjectStatus20"
-            text="Healthy"
-            state="Success"/>
+                </cells>
 
-    </HBox>
+            </ColumnListItem>
 
-</CustomListItem>
+        </items>
 
-                       <CustomListItem id="_IDGenCustomListItem6">
+    </Table>
 
-    <HBox id="_IDGenHBox103"
-        justifyContent="SpaceBetween">
-
-        <Text id="_IDGenText75" text="SAP PI/PO"/>
-
-        <ObjectStatus id="_IDGenObjectStatus21"
-            text="Healthy"
-            state="Success"/>
-
-    </HBox>
-
-</CustomListItem>
-
-
-                    </List>
-
-            
-
-            </VBox>
-
-
-
-            <!-- ===================================================== -->
-            <!-- RIGHT : 20% -->
-            <!-- ===================================================== -->
-
-            <VBox id="_IDGenVBox117"
-                width="19%"
-                 height="100%"
-    class="railSection sapUiTinyMarginBegin">
-
-                <HBox id="_IDGenHBox98"
-    justifyContent="SpaceBetween"
-    class="sectionHeader">
-
-    <Title id="_IDGenTitle28"
-        text="Exception Summary "
-        level="H5"/>
-
-    <Link id="_IDGenLink1" text="View All"/>
-
-</HBox>
-
-                    <List id="_IDGenList2"
-                        width="100%"
-                        showSeparators="Inner">
-
-                      <CustomListItem id="_IDGenCustomListItem7">
-
-    <HBox id="_IDGenHBox104"
-        justifyContent="SpaceBetween">
-
-        <Text id="_IDGenText76" text="Validation Errors"/>
-
-        <ObjectNumber id="_IDGenObjectNumber2"
-            number="18"
-            state="Error"/>
-
-    </HBox>
-
-</CustomListItem>
-
-                    <CustomListItem id="_IDGenCustomListItem8">
-
-    <HBox id="_IDGenHBox105"
-        justifyContent="SpaceBetween">
-
-        <Text id="_IDGenText77" text="Validation Errors"/>
-
-        <ObjectNumber id="_IDGenObjectNumber3"
-            number="18"
-            state="Error"/>
-
-    </HBox>
-
-</CustomListItem>
-
-                      <CustomListItem id="_IDGenCustomListItem9">
-
-    <HBox id="_IDGenHBox106"
-        justifyContent="SpaceBetween">
-
-        <Text id="_IDGenText78" text="Validation Errors"/>
-
-        <ObjectNumber id="_IDGenObjectNumber4"
-            number="18"
-            state="Error"/>
-
-    </HBox>
-
-</CustomListItem>
-
-                       <CustomListItem id="_IDGenCustomListItem10">
-
-    <HBox id="_IDGenHBox107"
-        justifyContent="SpaceBetween">
-
-        <Text id="_IDGenText79" text="Validation Errors"/>
-
-        <ObjectNumber id="_IDGenObjectNumber5"
-            number="18"
-            state="Error"/>
-
-    </HBox>
-
-</CustomListItem>
-<CustomListItem id="_IDGenCustomListItem11">
-
-    <HBox id="_IDGenHBox108"
-        justifyContent="SpaceBetween">
-
-        <Text id="_IDGenText80" text="Validation Errors"/>
-
-        <ObjectNumber id="_IDGenObjectNumber6"
-            number="18"
-            state="Error"/>
-
-    </HBox>
-
-</CustomListItem>
-
-                       <CustomListItem id="_IDGenCustomListItem12">
-
-    <HBox id="_IDGenHBox109"
-        justifyContent="SpaceBetween">
-
-        <Text id="_IDGenText81" text="Validation Errors"/>
-
-        <ObjectNumber id="_IDGenObjectNumber7"
-            number="18"
-            state="Error"/>
-
-    </HBox>
-
-</CustomListItem>
-
-                    </List>
-
-                
-
-            </VBox>
-
-        </HBox>
-
-
-
-</HBox>
+</VBox>
 
 
 

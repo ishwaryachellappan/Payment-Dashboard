@@ -5973,3 +5973,142 @@ body {
     border-radius: 50%;
     background: #0a6ed1;
 }
+
+/* =========================================================
+   OVERVIEW HEADER FILTERS
+   ========================================================= */
+
+.overviewFilterContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 68px;
+    min-height: 68px;
+
+    padding: 6px 12px;
+    margin: 0 8px 0 12px;
+
+    background: #f7f9fb;
+    border: 1px solid #edf1f5;
+    border-radius: 14px;
+
+    box-sizing: border-box;
+}
+
+
+/* Individual filter */
+.overviewFilterItem {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+
+    height: 54px;
+    min-width: 145px;
+
+    box-sizing: border-box;
+}
+
+
+/* Label */
+.overviewFilterLabel {
+    display: block;
+
+    font-size: 0.72rem !important;
+    font-weight: 500 !important;
+
+    color: #52606d !important;
+
+    line-height: 16px !important;
+
+    margin: 0 0 3px 0 !important;
+    padding: 0 !important;
+}
+
+
+/* Select / DatePicker */
+.overviewFilterControl {
+    margin: 0 !important;
+}
+
+
+/* Vertical separator */
+.overviewFilterSeparator {
+    width: 1px;
+    height: 38px;
+
+    background: #cfd7df;
+
+    margin: 0 14px;
+
+    flex-shrink: 0;
+}
+
+.sapFDynamicPageTitleActionsBar {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+}
+
+.sapFDynamicPageTitleActions {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+}
+
+.kpiValueRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.kpiSectionContainer,
+.railOverviewSection {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.kpiSectionContainer {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.railOverviewSection {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.kpiSectionContainer,
+.railOverviewSection {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.kpiSectionContainer,
+.railOverviewSection {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.railKpiRow {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.kpiValueRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.kpiValueRow .kpiCardValue {
+    margin: 0;
+}
+
+.kpiSectionContainer {
+    width: 100%;
+    box-sizing: border-box;
+}

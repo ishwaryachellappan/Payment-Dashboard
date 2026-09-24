@@ -60,7 +60,7 @@
                         >
                             <Title
                                 id="_IDGenTitle10"
-                                text="Payment Overview - Department Manager"
+                               text="{i18n>pageTitle}"
                             />
                         </HBox>
                         <Text
@@ -71,109 +71,153 @@
                     </VBox>
                 </f:heading>
                 <f:actions>
-                    <Label
-                        id="_IDGenLabel"
-                        text="Clearing Area:"
-                        class="sapUiTinyMarginBegin"
-                    />
 
-                    <Select
-                        id="clearingAreaSelect"
-                        width="120px"
-                        selectedKey="{filterModel>/clearingArea}"
-                        change="onClearingAreaChange"
-                        class="sapUiTinyMarginEnd sapUiTinyMarginBegin"
-                    >
-                        <core:Item
-                            id="_IDGenItem10"
-                            key="BOI"
-                            text="BOI"
-                        />
-                        <core:Item
-                            id="_IDGenItem11"
-                            key="CRDMGM"
-                            text="CRDMGM"
-                        />
-                        <core:Item
-                            id="_IDGenItem12"
-                            key="DEBNK1"
-                            text="DEBNK1"
-                        />
-                        <core:Item
-                            id="_IDGenItem13"
-                            key="DEBNKC"
-                            text="DEBNKC"
-                        />
-                        <core:Item
-                            id="_IDGenItem14"
-                            key="DEBNKM"
-                            text="DEBNKM"
-                        />
-                        <core:Item
-                            id="_IDGenItem15"
-                            key="DZBSCL"
-                            text="DZBSCL"
-                        />
-                        <core:Item
-                            id="_IDGenItem16"
-                            key="EBATST"
-                            text="EBATST"
-                        />
-                        <core:Item
-                            id="_IDGenItem17"
-                            key="FRBNFR"
-                            text="FRBNFR"
-                        />
-                        <core:Item
-                            id="_IDGenItem18"
-                            key="FRBNKC"
-                            text="FRBNKC"
-                        />
-                        <core:Item
-                            id="_IDGenItem19"
-                            key="FRBNKM"
-                            text="FRBNKM"
-                        />
-                        <core:Item
-                            id="_IDGenItem20"
-                            key="MASTER"
-                            text="MASTER"
-                        />
-                    </Select>
+    <HBox
+        id="overviewFilterContainer"
+        alignItems="Center"
+        class="overviewFilterContainer"
+    >
 
-                    <Label
-                        id="_IDGenLabel1"
-                        text="Date:"
-                        class="sapUiTinyMarginEnd sapUiTinyMarginBegin"
-                    />
+        <!-- Clearing Area -->
+        <VBox
+            id="clearingAreaFilter"
+            class="overviewFilterItem"
+        >
+            <Label
+                id="_IDGenLabel"
+                text="{i18n>clearingArea}"
+                class="overviewFilterLabel"
+            />
 
-                    <DatePicker
-                        id="kpiDatePicker"
-                        value="{filterModel>/kpiDate}"
-                        valueFormat="yyyy-MM-dd"
-                        displayFormat="medium"
-                        change="onKpiDateChange"
-                        width="180px"
-                    />
+            <Select
+                id="clearingAreaSelect"
+                width="145px"
+                selectedKey="{filterModel>/clearingArea}"
+                change="onClearingAreaChange"
+                class="overviewFilterControl"
+            >
+                <core:Item
+                    id="_IDGenItem10"
+                    key="BOI"
+                    text="BOI"
+                />
+                <core:Item
+                    id="_IDGenItem11"
+                    key="CRDMGM"
+                    text="CRDMGM"
+                />
+                <core:Item
+                    id="_IDGenItem12"
+                    key="DEBNK1"
+                    text="DEBNK1"
+                />
+                <core:Item
+                    id="_IDGenItem13"
+                    key="DEBNKC"
+                    text="DEBNKC"
+                />
+                <core:Item
+                    id="_IDGenItem14"
+                    key="DEBNKM"
+                    text="DEBNKM"
+                />
+                <core:Item
+                    id="_IDGenItem15"
+                    key="DZBSCL"
+                    text="DZBSCL"
+                />
+                <core:Item
+                    id="_IDGenItem16"
+                    key="EBATST"
+                    text="EBATST"
+                />
+                <core:Item
+                    id="_IDGenItem17"
+                    key="FRBNFR"
+                    text="FRBNFR"
+                />
+                <core:Item
+                    id="_IDGenItem18"
+                    key="FRBNKC"
+                    text="FRBNKC"
+                />
+                <core:Item
+                    id="_IDGenItem19"
+                    key="FRBNKM"
+                    text="FRBNKM"
+                />
+                <core:Item
+                    id="_IDGenItem20"
+                    key="MASTER"
+                    text="MASTER"
+                />
+            </Select>
+        </VBox>
 
-                   <Label
-    id="createdOnLabel"
-    text="Created On:"
-    class="sapUiTinyMarginEnd sapUiTinyMarginBegin"
-/>
 
-<DatePicker
-    id="createdOnFilter"
-    width="180px"
-    value="{filterModel>/createdOn}"
-    valueFormat="yyyy-MM-dd"
-    displayFormat="medium"
-    placeholder="Created On"
-    change="onCreatedOnFilterChange"
-    class="sapUiTinyMarginEnd"
-/>
+        <!-- Separator -->
+        <VBox
+            id="filterSeparator1"
+            class="overviewFilterSeparator"
+        />
 
-                </f:actions>
+
+        <!-- Date -->
+        <VBox
+            id="kpiDateFilter"
+            class="overviewFilterItem"
+        >
+            <Label
+                id="_IDGenLabel1"
+                text="{i18n>postingdate}"
+                class="overviewFilterLabel"
+            />
+
+            <DatePicker
+                id="kpiDatePicker"
+                value="{filterModel>/kpiDate}"
+                valueFormat="yyyy-MM-dd"
+                displayFormat="medium"
+                change="onKpiDateChange"
+                width="180px"
+                class="overviewFilterControl"
+            />
+        </VBox>
+
+
+        <!-- Separator -->
+        <VBox
+            id="filterSeparator2"
+            class="overviewFilterSeparator"
+        />
+
+
+        <!-- Created On -->
+        <VBox
+            id="createdOnDateFilter"
+            class="overviewFilterItem"
+        >
+            <Label
+                id="createdOnLabel"
+                text="{i18n>createdOn}"
+                class="overviewFilterLabel"
+            />
+
+            <DatePicker
+                id="createdOnFilter"
+                width="180px"
+                value="{filterModel>/createdOn}"
+                valueFormat="yyyy-MM-dd"
+                displayFormat="medium"
+                placeholder="Created On"
+                change="onCreatedOnFilterChange"
+                class="overviewFilterControl"
+            />
+        </VBox>
+
+    </HBox>
+
+</f:actions>
             </f:DynamicPageTitle>
         </f:title>
 
@@ -191,7 +235,7 @@
                         <!-- Overview tab -->
                         <IconTabFilter
                             id="_IDGenIconTabFilter"
-                            text="Overview"
+                           text="{i18n>overview}"
                             key="overview"
                         >
                             <VBox
@@ -1596,7 +1640,7 @@
                         <!-- Exceptions tab -->
                         <IconTabFilter
                             id="_IDGenIconTabFilter1"
-                            text="Exceptions"
+                             text="{i18n>exceptions}"
                         >
                             <mvc:XMLView
                                 id="ExceptionsView"
@@ -1607,7 +1651,7 @@
                         <!-- Reconciliation tab -->
                         <IconTabFilter
                             id="_IDGenIconTabFilter3"
-                            text="Reconcillations"
+                            text="{i18n>reconciliations}"
                         >
                             <mvc:XMLView
                                 id="ReconciliationView"
@@ -1618,7 +1662,7 @@
                         <!-- Rail Health tab -->
                         <IconTabFilter
                             id="railHealthTab"
-                            text="Rail Health"
+                             text="{i18n>railHealth}"
                         >
                             <mvc:XMLView
                                 id="railHealthView"
@@ -1629,7 +1673,7 @@
                         <!-- Audit tab -->
                         <IconTabFilter
                             id="_IDGenIconTabFilter4"
-                            text="Audit"
+                             text="{i18n>audit}"
                         >
                             <mvc:XMLView
                                 id="AuditView"
