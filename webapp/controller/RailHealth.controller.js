@@ -21,7 +21,7 @@ sap.ui.define([
                     overallHealth: "98.7%",
                     overallHealthSub: "Overall rail health",
 
-                    activeRails: "12 / 12",
+                    activeRails: "0 / 0",
                     activeRailsSub: "Active and monitored",
 
                     transactions: "0",
@@ -57,9 +57,38 @@ sap.ui.define([
 
             this.getView().setModel(oRailHealthModel, "railHealth");
 
-            // First call will likely no-op — parent View1's filterModel isn't
-            // created yet at this point in the lifecycle. Real load happens
-            // via onFilterChange(), called from View1._refreshRailHealth().
+            // ❌ Do NOT try to load here. This nested view's onInit runs
+            // eagerly as part of View1's own control-tree construction —
+            // BEFORE View1.onInit() has run — so filterModel is guaranteed
+            // not to exist yet at this point, no matter what.
+        },
+
+        // ✅ FIX: onAfterRendering fires once the view is actually painted
+        // to the DOM, which happens only after the whole component tree —
+        // including View1.onInit() — has finished. filterModel reliably
+        // exists by now. Guarded with _bInitialLoadDone so it only fires
+        // the first time, since onAfterRendering can fire again later
+        // (e.g. re-render after data binding changes).
+        onAfterRendering: function () {
+
+            if (this._bInitialLoadDone) {
+                return;
+            }
+
+            var oFilterModel = this.getView().getModel("filterModel");
+
+            if (!oFilterModel) {
+                // Still not ready — extremely unlikely at this point, but
+                // don't set the guard flag so a later render can retry.
+                console.warn("Rail Health: filterModel still not found at onAfterRendering");
+                return;
+            }
+
+            this._bInitialLoadDone = true;
+
+            console.log("Rail Health: initial load via onAfterRendering");
+
+            this.onFilterChange();
         },
 
         onFilterChange: function () {
@@ -67,7 +96,7 @@ sap.ui.define([
             var oFilterModel = this.getView().getModel("filterModel");
 
             if (!oFilterModel) {
-                console.error("Rail Health: filterModel not found");
+                console.warn("Rail Health: filterModel not found yet — will load on next refresh");
                 return;
             }
 
@@ -77,10 +106,11 @@ sap.ui.define([
             console.log("Rail Health filter changed:", sClearingArea, sDate);
 
             this._loadRailHealthKpis(sClearingArea, sDate);
+            this._loadActiveRailKpi(sClearingArea, sDate);
         },
 
         // ============================================================
-        // LOAD KPI DATA
+        // LOAD KPI DATA — Transactions / Response Time / Critical Alerts
         // ============================================================
 
         _loadRailHealthKpis: function (sClearingArea, sDate) {
@@ -88,21 +118,9 @@ sap.ui.define([
             var oODataModel = this.getOwnerComponent().getModel("odataModel");
             var oRailModel = this.getView().getModel("railHealth");
 
-            if (!oODataModel) {
-                console.error("Rail Health: OData model not found");
+            if (!oODataModel || !oRailModel) {
                 return;
             }
-
-            if (!oRailModel) {
-                console.error("Rail Health: railHealth model not found");
-                return;
-            }
-
-            console.log("=================================");
-            console.log("Rail Health OData load");
-            console.log("Clearing Area:", sClearingArea);
-            console.log("Date:", sDate);
-            console.log("=================================");
 
             if (!sClearingArea || !sDate) {
                 console.warn("Rail Health: missing filter values");
@@ -112,22 +130,12 @@ sap.ui.define([
 
             var sFormattedDate = this._formatDateForOData(sDate);
 
-            // ✅ CORRECTED: this is the entity that actually carries
-            // Transactions / ResponseTime / CriticalAlerts — confirmed
-            // against a direct fetch of /RailItemKpi. /RailKpi (used
-            // elsewhere in this app for the rail-status donut) does NOT
-            // have these fields and was the wrong entity to point at.
             var aFilters = [
                 new Filter("clearing_area", FilterOperator.EQ, sClearingArea),
                 new Filter("crdat", FilterOperator.EQ, sFormattedDate)
             ];
 
-            var oListBinding = oODataModel.bindList(
-                "/RailItemKpi",
-                null,
-                null,
-                aFilters
-            );
+            var oListBinding = oODataModel.bindList("/RailItemKpi", null, null, aFilters);
 
             oListBinding
                 .requestContexts(0, 1000)
@@ -137,16 +145,12 @@ sap.ui.define([
                         return oContext.getObject();
                     });
 
-                    console.log("Rail Health OData records:", aData);
-
                     if (!aData.length) {
                         console.warn("No RailItemKpi data found for:", sClearingArea, sFormattedDate);
                         this._setEmptyRailKpis();
                         return;
                     }
 
-                    // Confirm exact match defensively — the OData filter
-                    // should already narrow this, but be explicit.
                     var oData = aData.find(function (oItem) {
                         return (
                             String(oItem.clearing_area) === String(sClearingArea) &&
@@ -154,17 +158,69 @@ sap.ui.define([
                         );
                     }.bind(this)) || aData[0];
 
-                    console.log("Rail Health selected OData record:", oData);
-
                     this._updateRailKpis(oData);
 
                 }.bind(this))
                 .catch(function (oError) {
-                    console.error(
-                        "Rail Health OData load failed:",
-                        oError && (oError.message || oError)
-                    );
+                    console.error("Rail Health RailItemKpi load failed:", oError && (oError.message || oError));
                     this._setEmptyRailKpis();
+                }.bind(this));
+        },
+
+        // ============================================================
+        // LOAD KPI DATA — Active Rails / Total Rails
+        // ============================================================
+
+        _loadActiveRailKpi: function (sClearingArea, sDate) {
+
+            var oODataModel = this.getOwnerComponent().getModel("odataModel");
+            var oRailModel = this.getView().getModel("railHealth");
+
+            if (!oODataModel || !oRailModel) {
+                return;
+            }
+
+            if (!sClearingArea || !sDate) {
+                this._setEmptyActiveRailsKpi();
+                return;
+            }
+
+            var sFormattedDate = this._formatDateForOData(sDate);
+
+            var aFilters = [
+                new Filter("ClearingArea", FilterOperator.EQ, sClearingArea),
+                new Filter("CreatedOn", FilterOperator.EQ, sFormattedDate)
+            ];
+
+            var oListBinding = oODataModel.bindList("/ActiveRailKpi", null, null, aFilters);
+
+            oListBinding
+                .requestContexts(0, 1000)
+                .then(function (aContexts) {
+
+                    var aData = aContexts.map(function (oContext) {
+                        return oContext.getObject();
+                    });
+
+                    if (!aData.length) {
+                        console.warn("No ActiveRailKpi data found for:", sClearingArea, sFormattedDate);
+                        this._setEmptyActiveRailsKpi();
+                        return;
+                    }
+
+                    var oData = aData.find(function (oItem) {
+                        return (
+                            String(oItem.ClearingArea) === String(sClearingArea) &&
+                            this._normaliseDate(oItem.CreatedOn) === sFormattedDate
+                        );
+                    }.bind(this)) || aData[0];
+
+                    this._updateActiveRailsKpi(oData);
+
+                }.bind(this))
+                .catch(function (oError) {
+                    console.error("Rail Health ActiveRailKpi load failed:", oError && (oError.message || oError));
+                    this._setEmptyActiveRailsKpi();
                 }.bind(this));
         },
 
@@ -180,11 +236,6 @@ sap.ui.define([
                 return;
             }
 
-            console.log("RAIL KPI RAW JSON >>> " + JSON.stringify(oItem));
-
-            // ✅ These field names are now confirmed correct against the
-            // real /RailItemKpi payload (document 8): Transactions,
-            // ResponseTime, CriticalAlerts — all present, all PascalCase.
             var iTransactions = Number(oItem.Transactions || 0);
             var fResponseTime = Number(oItem.ResponseTime || 0);
             var iCriticalAlerts = Number(oItem.CriticalAlerts || 0);
@@ -201,26 +252,49 @@ sap.ui.define([
             );
         },
 
+        _updateActiveRailsKpi: function (oItem) {
+
+            var oModel = this.getView().getModel("railHealth");
+
+            if (!oModel || !oItem) {
+                return;
+            }
+
+            var iActive = Number(oItem.ActiveRailCount || 0);
+            var iTotal = Number(oItem.TotalRailCount || 0);
+
+            oModel.setProperty("/kpis/activeRails", iActive + " / " + iTotal);
+
+            oModel.setProperty(
+                "/kpis/activeRailsSub",
+                iTotal > 0 && iActive < iTotal ? "Some rails inactive" : "Active and monitored"
+            );
+        },
+
         // ============================================================
-        // EMPTY STATE
+        // EMPTY STATES
         // ============================================================
 
         _setEmptyRailKpis: function () {
 
             var oModel = this.getView().getModel("railHealth");
-
-            if (!oModel) {
-                return;
-            }
+            if (!oModel) { return; }
 
             oModel.setProperty("/kpis/transactions", "0");
             oModel.setProperty("/kpis/transactionsSub", "No data for this filter");
-
             oModel.setProperty("/kpis/responseTime", "0 ms");
             oModel.setProperty("/kpis/responseTimeSub", "No data for this filter");
-
             oModel.setProperty("/kpis/alerts", "0");
             oModel.setProperty("/kpis/alertsSub", "No data for this filter");
+        },
+
+        _setEmptyActiveRailsKpi: function () {
+
+            var oModel = this.getView().getModel("railHealth");
+            if (!oModel) { return; }
+
+            oModel.setProperty("/kpis/activeRails", "0 / 0");
+            oModel.setProperty("/kpis/activeRailsSub", "No data for this filter");
         },
 
         // ============================================================
@@ -229,25 +303,18 @@ sap.ui.define([
 
         _formatDateForOData: function (vDate) {
 
-            if (!vDate) {
-                return null;
-            }
+            if (!vDate) { return null; }
 
             if (typeof vDate === "string") {
                 return vDate.substring(0, 10);
             }
 
             if (vDate instanceof Date) {
-
                 var iYear = vDate.getFullYear();
                 var iMonth = vDate.getMonth() + 1;
                 var iDay = vDate.getDate();
 
-                return (
-                    iYear + "-" +
-                    String(iMonth).padStart(2, "0") + "-" +
-                    String(iDay).padStart(2, "0")
-                );
+                return iYear + "-" + String(iMonth).padStart(2, "0") + "-" + String(iDay).padStart(2, "0");
             }
 
             return null;
@@ -255,9 +322,7 @@ sap.ui.define([
 
         _normaliseDate: function (vDate) {
 
-            if (!vDate) {
-                return null;
-            }
+            if (!vDate) { return null; }
 
             if (vDate instanceof Date) {
                 return this._formatDateForOData(vDate);
@@ -282,10 +347,6 @@ sap.ui.define([
 
             return String(iValue);
         },
-
-        // ============================================================
-        // RESPONSE TIME FORMAT
-        // ============================================================
 
         _formatResponseTime: function (fValue) {
             return Number(fValue).toFixed(2) + " ms";
