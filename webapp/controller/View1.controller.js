@@ -1027,18 +1027,56 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
 
 
-        onClearingAreaChange: function () {
+       onClearingAreaChange: function () {
 
-            this._loadKpiSummary();
-            this._loadFlowChart();
-            this._refreshExceptionKpis();
-            this._refreshReconciliation();
-            this.loadTransactionsByStatus([]);
+    this._loadKpiSummary();
 
-            this.getView().getModel("donutViewModel").setProperty("/selectedStatus", "");
-            this.getView().getModel("donutItemsModel").setProperty("/items", []);
+    this._loadFlowChart();
 
-        },
+    this._refreshExceptionKpis();
+
+    this._refreshReconciliation();
+
+    this._refreshRailHealth();
+    this._refreshRailHealth(); 
+
+    this.loadTransactionsByStatus([]);
+
+    this.getView()
+        .getModel("donutViewModel")
+        .setProperty(
+            "/selectedStatus",
+            ""
+        );
+
+    this.getView()
+        .getModel("donutItemsModel")
+        .setProperty(
+            "/items",
+            []
+        );
+},
+
+_refreshRailHealth: function () {
+
+    var oRailHealthView = this.byId("railHealthView");
+
+    if (!oRailHealthView) {
+        console.warn("railHealthView not found");
+        return;
+    }
+
+    var oController = oRailHealthView.getController();
+
+    if (!oController) {
+        console.warn("RailHealth controller not found");
+        return;
+    }
+
+    console.log("Refreshing Rail Health");
+
+    oController.onFilterChange();
+},
 
         // ‚úÖ DONUT CLICK INTERACTION
         onDonutSelect: async function (oEvent) {
@@ -2050,6 +2088,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
     this.loadTransactionsByStatus([]);
 
+    this._refreshRailHealth();
 
     this.getView()
         .getModel("donutViewModel")
@@ -4435,7 +4474,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
     // 5. Reconciliation
     this._refreshReconciliation();
-
+this._refreshRailHealth(); 
 
     /*
      * Clear donut selection
