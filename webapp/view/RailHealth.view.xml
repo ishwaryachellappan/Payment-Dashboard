@@ -417,11 +417,10 @@
         <!-- RAIL HEALTH OVERVIEW -->
         <!-- ========================================================= -->
 
-        <VBox
-            id="_IDGenRailOverviewSection"
-            width="100%"
-            class="railSection sapUiSmallMarginTop">
-
+     <VBox
+    id="_IDGenRailOverviewSection"
+    width="100%"
+    class="railSection railHealthOverviewSection sapUiSmallMarginTop">
 
             <!-- ===================================================== -->
             <!-- SECTION HEADER -->

@@ -6474,3 +6474,8 @@ body {
 .railOverviewTable .sapMLIBHoverable:hover {
     background: #f8fafc;
 }
+
+.railSection.railHealthOverviewSection {
+    height: auto !important;
+    overflow: visible !important;
+}
