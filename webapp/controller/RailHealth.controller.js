@@ -33,6 +33,16 @@ sap.ui.define([
                 },
 
                 // ====================================================
+                // RAIL FILTER DROPDOWN OPTIONS (populated from real
+                // OData PaymentRail values once data loads — see
+                // _updateRailKpis)
+                // ====================================================
+
+                availableRails: [
+                    { key: "All", text: "All" }
+                ],
+
+                // ====================================================
                 // KPI DATA
                 // ====================================================
 
@@ -206,20 +216,18 @@ sap.ui.define([
         // OData Entity:
         // /RailHealthKpi
         //
+        // NOTE: this entity returns ONE ROW PER PaymentRail for a
+        // given ClearingArea + CreatedOn (e.g. BOI / 2025-12-16 has
+        // separate rows for /SWIFTMX and /BOFFICE). So the result of
+        // this load must stay an ARRAY all the way through — never
+        // collapsed to a single record — otherwise every rail but one
+        // silently disappears from the table.
+        //
         // Fields used:
-        // ClearingArea
-        // CreatedOn
-        // ActiveRailPercentage
-        // SuccessRate
-        // FailedRate
-        // QueueDepth
-        // CriticalAlertRate
-        // ActiveRailCount
-        // TotalRailCount
-        // Transactions
-        // ResponseTime
-        // CriticalAlerts
-        // OverallHealth
+        // ClearingArea, CreatedOn, PaymentRail, ActiveRailPercentage,
+        // SuccessRate, FailedRate, QueueDepth, CriticalAlertRate,
+        // ActiveRailCount, TotalRailCount, Transactions, ResponseTime,
+        // CriticalAlerts, OverallHealth
         // ============================================================
 
         _loadRailHealthKpis: function (
@@ -331,7 +339,11 @@ sap.ui.define([
                     );
 
                     // =================================================
-                    // NO DATA
+                    // NO DATA AT ALL FOR THIS CLEARING AREA / DATE
+                    // (the server-side filter already restricted to
+                    // ClearingArea + the CreatedOn day, so an empty
+                    // array here means the backend has nothing for
+                    // that combination)
                     // =================================================
 
                     if (!aData.length) {
@@ -348,11 +360,14 @@ sap.ui.define([
                     }
 
                     // =================================================
-                    // FIND EXACT RECORD
+                    // KEEP EVERY RECORD THAT MATCHES CLEARING AREA +
+                    // EXACT DATE — this stays an ARRAY. Do not
+                    // collapse to a single record; one row per
+                    // PaymentRail is expected and required.
                     // =================================================
 
-                    var oData =
-                        aData.find(function (oItem) {
+                    var aMatchingRecords =
+                        aData.filter(function (oItem) {
 
                             return (
 
@@ -372,29 +387,33 @@ sap.ui.define([
 
                         }.bind(this));
 
-                    // =================================================
-                    // FALLBACK
-                    // =================================================
-
-                    if (!oData) {
+                    if (!aMatchingRecords.length) {
 
                         console.warn(
-                            "Rail Health: exact date not found, using first record"
+                            "Rail Health: OData returned rows, but none match",
+                            sClearingArea,
+                            sFormattedDate,
+                            "exactly — showing empty state instead of a wrong-date fallback"
                         );
 
-                        oData = aData[0];
+                        this._setEmptyRailKpis();
+
+                        return;
                     }
 
                     console.log(
-                        "Rail Health: selected KPI record:",
-                        oData
+                        "Rail Health: matching PaymentRail records for",
+                        sClearingArea,
+                        sFormattedDate,
+                        ":",
+                        aMatchingRecords
                     );
 
                     // =================================================
-                    // UPDATE EVERYTHING FROM SAME ODATA RECORD
+                    // UPDATE EVERYTHING FROM THE FULL SET OF RECORDS
                     // =================================================
 
-                    this._updateRailKpis(oData);
+                    this._updateRailKpis(aMatchingRecords);
 
                 }.bind(this))
 
@@ -416,284 +435,192 @@ sap.ui.define([
 
 
         // ============================================================
-        // UPDATE ALL KPI TILES
+        // UPDATE ALL KPI TILES + TABLE
+        //
+        // aRecords = every /RailHealthKpi row matching the selected
+        // ClearingArea + date (one per PaymentRail). KPI tiles show a
+        // transaction-weighted aggregate across all of them; the
+        // table shows one real row per PaymentRail.
         // ============================================================
 
-        _updateRailKpis: function (oItem) {
+        _updateRailKpis: function (aRecords) {
 
             var oModel =
                 this.getView().getModel("railHealth");
 
-            if (!oModel || !oItem) {
+            if (!oModel || !aRecords || !aRecords.length) {
                 return;
             }
 
             // ========================================================
-            // READ ODATA VALUES
+            // AGGREGATE ACROSS ALL PAYMENT RAILS FOR THIS DATE
             // ========================================================
 
-            var iTransactions =
-                Number(
-                    oItem.Transactions || 0
-                );
+            var iTotalTransactions = 0;
+            var iTotalCriticalAlerts = 0;
+            var fResponseTimeWeighted = 0;
+            var fSuccessRateWeighted = 0;
+            var fFailedRateWeighted = 0;
+            var fQueueDepthWeighted = 0;
+            var fOverallHealthWeighted = 0;
+            var aDistinctRails = [];
 
-            var fResponseTime =
-                Number(
-                    oItem.ResponseTime || 0
-                );
+            aRecords.forEach(function (oItem) {
 
-            var iCriticalAlerts =
-                Number(
-                    oItem.CriticalAlerts || 0
-                );
+                var iTx = Number(oItem.Transactions || 0);
 
-            var fSuccessRate =
-                Number(
-                    oItem.SuccessRate || 0
-                );
+                iTotalTransactions += iTx;
+                iTotalCriticalAlerts += Number(oItem.CriticalAlerts || 0);
 
-            var fFailedRate =
-                Number(
-                    oItem.FailedRate || 0
-                );
+                fResponseTimeWeighted += Number(oItem.ResponseTime || 0) * iTx;
+                fSuccessRateWeighted += Number(oItem.SuccessRate || 0) * iTx;
+                fFailedRateWeighted += Number(oItem.FailedRate || 0) * iTx;
+                fQueueDepthWeighted += Number(oItem.QueueDepth || 0) * iTx;
+                fOverallHealthWeighted += Number(oItem.OverallHealth || 0) * iTx;
 
-            var fQueueDepth =
-                Number(
-                    oItem.QueueDepth || 0
-                );
+                var sRail = oItem.PaymentRail || "Unspecified";
 
-            var fOverallHealth =
-                Number(
-                    oItem.OverallHealth || 0
-                );
+                if (aDistinctRails.indexOf(sRail) === -1) {
+                    aDistinctRails.push(sRail);
+                }
+            });
 
-            var iActiveRailCount =
-                Number(
-                    oItem.ActiveRailCount || 0
-                );
+            var fResponseTime = iTotalTransactions > 0
+                ? fResponseTimeWeighted / iTotalTransactions
+                : 0;
 
-            var iTotalRailCount =
-                Number(
-                    oItem.TotalRailCount || 0
-                );
+            var fSuccessRate = iTotalTransactions > 0
+                ? fSuccessRateWeighted / iTotalTransactions
+                : 0;
 
-            // ========================================================
-            // STATUS
-            //
-            // Based on OverallHealth, which now comes straight from
-            // RailHealthKpi instead of being derived from FailedRate.
-            // ========================================================
+            var fFailedRate = iTotalTransactions > 0
+                ? fFailedRateWeighted / iTotalTransactions
+                : 0;
 
-            var sStatus = "Healthy";
+            var fQueueDepth = iTotalTransactions > 0
+                ? fQueueDepthWeighted / iTotalTransactions
+                : 0;
 
-            if (fOverallHealth < 20) {
+            var fOverallHealth = iTotalTransactions > 0
+                ? fOverallHealthWeighted / iTotalTransactions
+                : 0;
 
-                sStatus = "Critical";
-
-            } else if (fOverallHealth < 35) {
-
-                sStatus = "Warning";
-            }
+            var iActiveRailCount = aDistinctRails.length;
+            var iTotalRailCount = Number(aRecords[0].TotalRailCount || 0);
 
             // ========================================================
-            // ACTIVE RAILS
-            // ========================================================
-
-            var sActiveRails =
-                iActiveRailCount +
-                " / " +
-                iTotalRailCount;
-
-            // ========================================================
-            // TRANSACTIONS
+            // KPI TILES
             // ========================================================
 
             oModel.setProperty(
                 "/kpis/transactions",
-                this._formatNumber(
-                    iTransactions
-                )
+                this._formatNumber(iTotalTransactions)
             );
-
-            oModel.setProperty(
-                "/kpis/transactionsSub",
-                "Total transactions"
-            );
-
-            // ========================================================
-            // SUCCESS RATE
-            // ========================================================
+            oModel.setProperty("/kpis/transactionsSub", "Total transactions");
 
             oModel.setProperty(
                 "/kpis/successRate",
-                this._formatPercent(
-                    fSuccessRate
-                )
+                this._formatPercent(fSuccessRate)
             );
-
-            oModel.setProperty(
-                "/kpis/successRateSub",
-                "Across selected payment rail"
-            );
-
-            // ========================================================
-            // FAILED PAYMENTS
-            // ========================================================
+            oModel.setProperty("/kpis/successRateSub", "Across selected payment rail");
 
             oModel.setProperty(
                 "/kpis/failedPayments",
-                this._formatPercent(
-                    fFailedRate
-                )
+                this._formatPercent(fFailedRate)
             );
-
-            oModel.setProperty(
-                "/kpis/failedPaymentsSub",
-                "Of total transactions"
-            );
-
-            // ========================================================
-            // RESPONSE TIME
-            // ========================================================
+            oModel.setProperty("/kpis/failedPaymentsSub", "Of total transactions");
 
             oModel.setProperty(
                 "/kpis/responseTime",
-                this._formatResponseTime(
-                    fResponseTime
-                )
+                this._formatResponseTime(fResponseTime)
             );
-
-            oModel.setProperty(
-                "/kpis/responseTimeSub",
-                "Average response time"
-            );
-
-            // ========================================================
-            // QUEUE DEPTH
-            // ========================================================
+            oModel.setProperty("/kpis/responseTimeSub", "Average response time");
 
             oModel.setProperty(
                 "/kpis/queueDepth",
-                this._formatNumber(
-                    fQueueDepth
-                )
+                this._formatNumber(fQueueDepth)
             );
+            oModel.setProperty("/kpis/queueDepthSub", "Transactions in queue");
 
-            oModel.setProperty(
-                "/kpis/queueDepthSub",
-                "Transactions in queue"
-            );
-
-            // ========================================================
-            // CRITICAL ALERTS
-            // ========================================================
-
-            oModel.setProperty(
-                "/kpis/alerts",
-                String(
-                    iCriticalAlerts
-                )
-            );
-
+            oModel.setProperty("/kpis/alerts", String(iTotalCriticalAlerts));
             oModel.setProperty(
                 "/kpis/alertsSub",
-
-                iCriticalAlerts > 0
-                    ? "Require attention"
-                    : "No critical alerts"
+                iTotalCriticalAlerts > 0 ? "Require attention" : "No critical alerts"
             );
-
-            // ========================================================
-            // OVERALL HEALTH
-            // ========================================================
 
             oModel.setProperty(
                 "/kpis/overallHealth",
-                this._formatPercent(
-                    fOverallHealth
-                )
+                this._formatPercent(fOverallHealth)
             );
-
-            oModel.setProperty(
-                "/kpis/overallHealthSub",
-                "From RailHealthKpi"
-            );
-
-            // ========================================================
-            // ACTIVE RAILS
-            // ========================================================
+            oModel.setProperty("/kpis/overallHealthSub", "From RailHealthKpi");
 
             oModel.setProperty(
                 "/kpis/activeRails",
-                sActiveRails
+                iActiveRailCount + " / " + iTotalRailCount
             );
-
-            oModel.setProperty(
-                "/kpis/activeRailsSub",
-                "Active for selected filter"
-            );
+            oModel.setProperty("/kpis/activeRailsSub", "Active for selected filter");
 
             // ========================================================
-            // RAIL TABLE
+            // TABLE — ONE ROW PER PAYMENT RAIL (real data)
             // ========================================================
 
-            var oRailRow = {
+            var aRailRows = aRecords.map(function (oItem) {
 
-                rail:
-                    oItem.ClearingArea,
+                var fHealth = Number(oItem.OverallHealth || 0);
 
-                status:
-                    sStatus,
+                var sStatus = "Healthy";
 
-                successRate:
-                    this._formatPercent(
-                        fSuccessRate
-                    ),
+                if (fHealth < 20) {
+                    sStatus = "Critical";
+                } else if (fHealth < 35) {
+                    sStatus = "Warning";
+                }
 
-                responseTime:
-                    this._formatResponseTime(
-                        fResponseTime
-                    ),
+                var sRailName = oItem.PaymentRail
+                    ? oItem.PaymentRail.replace(/^\//, "")
+                    : "Unspecified";
 
-                volume:
-                    this._formatNumber(
-                        iTransactions
-                    ),
+                return {
+                    rail: sRailName,
+                    status: sStatus,
+                    successRate: this._formatPercent(Number(oItem.SuccessRate || 0)),
+                    responseTime: this._formatResponseTime(Number(oItem.ResponseTime || 0)),
+                    volume: this._formatNumber(Number(oItem.Transactions || 0)),
+                    selected: false
+                };
 
-                selected: false
-            };
+            }.bind(this));
 
-            console.log(
-                "RAIL TABLE ROW CREATED:",
-                oRailRow
-            );
+            console.log("RAIL TABLE ROWS CREATED:", aRailRows);
 
-            var aRailRows = [
-                oRailRow
-            ];
+            oModel.setProperty("/railOverview", aRailRows);
+            oModel.setProperty("/filteredRailOverview", aRailRows);
+            oModel.setProperty("/allRailsSelected", false);
 
-            oModel.setProperty(
-                "/railOverview",
+            // ========================================================
+            // RAIL FILTER DROPDOWN — populate from real rails present
+            // ========================================================
+
+            var aAvailableRails = [
+                { key: "All", text: "All" }
+            ].concat(
                 aRailRows
+                    .map(function (oRow) { return oRow.rail; })
+                    .filter(function (sRail, iIndex, aArr) {
+                        return aArr.indexOf(sRail) === iIndex;
+                    })
+                    .map(function (sRail) {
+                        return { key: sRail, text: sRail };
+                    })
             );
 
-            oModel.setProperty(
-                "/filteredRailOverview",
-                aRailRows
-            );
-
-            oModel.setProperty(
-                "/allRailsSelected",
-                false
-            );
+            oModel.setProperty("/availableRails", aAvailableRails);
 
             oModel.refresh(true);
 
             console.log(
                 "FINAL RAIL TABLE DATA:",
-                JSON.stringify(
-                    aRailRows
-                )
+                JSON.stringify(aRailRows)
             );
 
             // ========================================================
@@ -703,23 +630,15 @@ sap.ui.define([
             setTimeout(function () {
 
                 var oTable =
-                    this.byId(
-                        "_IDGenRailOverviewTable"
-                    );
+                    this.byId("_IDGenRailOverviewTable");
 
                 if (!oTable) {
-
-                    console.error(
-                        "RAIL TABLE NOT FOUND"
-                    );
-
+                    console.error("RAIL TABLE NOT FOUND");
                     return;
                 }
 
                 var oBinding =
-                    oTable.getBinding(
-                        "items"
-                    );
+                    oTable.getBinding("items");
 
                 console.log(
                     "RAIL TABLE ITEMS:",
@@ -728,20 +647,13 @@ sap.ui.define([
 
                 console.log(
                     "RAIL TABLE BINDING LENGTH:",
-                    oBinding
-                        ? oBinding.getLength()
-                        : "NO BINDING"
+                    oBinding ? oBinding.getLength() : "NO BINDING"
                 );
 
                 console.log(
                     "RAIL TABLE MODEL DATA:",
-                    oTable
-                        .getModel("railHealth")
-                        ? oTable
-                            .getModel("railHealth")
-                            .getProperty(
-                                "/filteredRailOverview"
-                            )
+                    oTable.getModel("railHealth")
+                        ? oTable.getModel("railHealth").getProperty("/filteredRailOverview")
                         : "NO railHealth MODEL"
                 );
 
@@ -756,40 +668,24 @@ sap.ui.define([
         onRailSelectAll: function (oEvent) {
 
             var oModel =
-                this.getView().getModel(
-                    "railHealth"
-                );
+                this.getView().getModel("railHealth");
 
             if (!oModel) {
                 return;
             }
 
             var bSelected =
-                oEvent.getParameter(
-                    "selected"
-                );
+                oEvent.getParameter("selected");
 
             var aRails =
-                oModel.getProperty(
-                    "/filteredRailOverview"
-                ) || [];
+                oModel.getProperty("/filteredRailOverview") || [];
 
             aRails.forEach(function (oRail) {
-
-                oRail.selected =
-                    bSelected;
-
+                oRail.selected = bSelected;
             });
 
-            oModel.setProperty(
-                "/filteredRailOverview",
-                aRails
-            );
-
-            oModel.setProperty(
-                "/allRailsSelected",
-                bSelected
-            );
+            oModel.setProperty("/filteredRailOverview", aRails);
+            oModel.setProperty("/allRailsSelected", bSelected);
         },
 
 
@@ -800,59 +696,37 @@ sap.ui.define([
         onRailRowSelect: function (oEvent) {
 
             var oModel =
-                this.getView().getModel(
-                    "railHealth"
-                );
+                this.getView().getModel("railHealth");
 
             if (!oModel) {
                 return;
             }
 
             var oContext =
-                oEvent
-                    .getSource()
-                    .getBindingContext(
-                        "railHealth"
-                    );
+                oEvent.getSource().getBindingContext("railHealth");
 
             if (!oContext) {
                 return;
             }
 
             var bSelected =
-                oEvent.getParameter(
-                    "selected"
-                );
+                oEvent.getParameter("selected");
 
-            oContext
-                .getModel()
-                .setProperty(
-                    oContext.getPath() +
-                    "/selected",
-                    bSelected
-                );
+            oContext.getModel().setProperty(
+                oContext.getPath() + "/selected",
+                bSelected
+            );
 
             var aRails =
-                oModel.getProperty(
-                    "/filteredRailOverview"
-                ) || [];
+                oModel.getProperty("/filteredRailOverview") || [];
 
             var bAllSelected =
                 aRails.length > 0 &&
-                aRails.every(
-                    function (oRail) {
+                aRails.every(function (oRail) {
+                    return oRail.selected === true;
+                });
 
-                        return (
-                            oRail.selected === true
-                        );
-
-                    }
-                );
-
-            oModel.setProperty(
-                "/allRailsSelected",
-                bAllSelected
-            );
+            oModel.setProperty("/allRailsSelected", bAllSelected);
         },
 
 
@@ -863,67 +737,41 @@ sap.ui.define([
         onRailFilterChange: function () {
 
             var oModel =
-                this.getView().getModel(
-                    "railHealth"
-                );
+                this.getView().getModel("railHealth");
 
             if (!oModel) {
                 return;
             }
 
             var sRail =
-                oModel.getProperty(
-                    "/railFilters/rail"
-                );
+                oModel.getProperty("/railFilters/rail");
 
             var sStatus =
-                oModel.getProperty(
-                    "/railFilters/status"
-                );
+                oModel.getProperty("/railFilters/status");
 
             var aAllRails =
-                oModel.getProperty(
-                    "/railOverview"
-                ) || [];
+                oModel.getProperty("/railOverview") || [];
 
             var aFilteredRails =
-                aAllRails.filter(
-                    function (oRail) {
+                aAllRails.filter(function (oRail) {
 
-                        var bRailMatch =
-                            sRail === "All" ||
-                            oRail.rail === sRail;
+                    var bRailMatch =
+                        sRail === "All" || oRail.rail === sRail;
 
-                        var bStatusMatch =
-                            sStatus === "All" ||
-                            oRail.status === sStatus;
+                    var bStatusMatch =
+                        sStatus === "All" || oRail.status === sStatus;
 
-                        return (
-                            bRailMatch &&
-                            bStatusMatch
-                        );
-                    }
-                );
+                    return bRailMatch && bStatusMatch;
+                });
 
-            oModel.setProperty(
-                "/filteredRailOverview",
-                aFilteredRails
-            );
+            oModel.setProperty("/filteredRailOverview", aFilteredRails);
 
             oModel.setProperty(
                 "/allRailsSelected",
-
                 aFilteredRails.length > 0 &&
-
-                aFilteredRails.every(
-                    function (oRail) {
-
-                        return (
-                            oRail.selected === true
-                        );
-
-                    }
-                )
+                aFilteredRails.every(function (oRail) {
+                    return oRail.selected === true;
+                })
             );
         },
 
@@ -935,11 +783,7 @@ sap.ui.define([
         onRailRowPress: function (oEvent) {
 
             var oContext =
-                oEvent
-                    .getSource()
-                    .getBindingContext(
-                        "railHealth"
-                    );
+                oEvent.getSource().getBindingContext("railHealth");
 
             if (!oContext) {
                 return;
@@ -949,28 +793,14 @@ sap.ui.define([
                 oContext.getObject();
 
             var oModel =
-                this.getView().getModel(
-                    "railHealth"
-                );
+                this.getView().getModel("railHealth");
 
-            oModel.setProperty(
-                "/selectedRail",
-                oSelectedRail
-            );
+            oModel.setProperty("/selectedRail", oSelectedRail);
+            oModel.setProperty("/railDetailsDirection", "Incoming");
 
-            oModel.setProperty(
-                "/railDetailsDirection",
-                "Incoming"
-            );
+            this._loadRailDetails(oSelectedRail.rail, "Incoming");
 
-            this._loadRailDetails(
-                oSelectedRail.rail,
-                "Incoming"
-            );
-
-            this.byId(
-                "_IDGenRailDetailsDialog"
-            ).open();
+            this.byId("_IDGenRailDetailsDialog").open();
         },
 
 
@@ -978,151 +808,63 @@ sap.ui.define([
         // DETAILS DIRECTION
         // ============================================================
 
-        onRailDetailsDirectionChange:
-            function (oEvent) {
+        onRailDetailsDirectionChange: function (oEvent) {
 
-                var sDirection =
-                    oEvent
-                        .getParameter(
-                            "item"
-                        )
-                        .getKey();
+            var sDirection =
+                oEvent.getParameter("item").getKey();
 
-                var oModel =
-                    this.getView().getModel(
-                        "railHealth"
-                    );
+            var oModel =
+                this.getView().getModel("railHealth");
 
-                var oSelectedRail =
-                    oModel.getProperty(
-                        "/selectedRail"
-                    );
+            var oSelectedRail =
+                oModel.getProperty("/selectedRail");
 
-                oModel.setProperty(
-                    "/railDetailsDirection",
-                    sDirection
-                );
+            oModel.setProperty("/railDetailsDirection", sDirection);
 
-                if (
-                    !oSelectedRail ||
-                    !oSelectedRail.rail
-                ) {
-                    return;
-                }
+            if (!oSelectedRail || !oSelectedRail.rail) {
+                return;
+            }
 
-                this._loadRailDetails(
-                    oSelectedRail.rail,
-                    sDirection
-                );
-            },
+            this._loadRailDetails(oSelectedRail.rail, sDirection);
+        },
 
 
         // ============================================================
         // RAIL DETAILS
         //
-        // No detail OData entity was supplied.
-        // Keep this method for the dialog.
+        // No detail OData entity was supplied. Keep this method for
+        // the dialog (still uses placeholder data).
         // ============================================================
 
-        _loadRailDetails: function (
-            sRail,
-            sDirection
-        ) {
+        _loadRailDetails: function (sRail, sDirection) {
 
             var oModel =
-                this.getView().getModel(
-                    "railHealth"
-                );
+                this.getView().getModel("railHealth");
 
             if (!oModel) {
                 return;
             }
 
-            console.log(
-                "Loading rail details:",
-                sRail,
-                sDirection
-            );
+            console.log("Loading rail details:", sRail, sDirection);
 
             var aIncomingDetails = [
-
-                {
-                    date: "29-Sep-2026",
-                    status: "Healthy",
-                    successRate: "99.98%",
-                    responseTime: "2.1 sec",
-                    volume: "120K"
-                },
-
-                {
-                    date: "28-Sep-2026",
-                    status: "Healthy",
-                    successRate: "99.95%",
-                    responseTime: "2.4 sec",
-                    volume: "105K"
-                },
-
-                {
-                    date: "27-Sep-2026",
-                    status: "Healthy",
-                    successRate: "99.97%",
-                    responseTime: "2.2 sec",
-                    volume: "98K"
-                },
-
-                {
-                    date: "26-Sep-2026",
-                    status: "Warning",
-                    successRate: "98.91%",
-                    responseTime: "3.8 sec",
-                    volume: "87K"
-                }
+                { date: "29-Sep-2026", status: "Healthy", successRate: "99.98%", responseTime: "2.1 sec", volume: "120K" },
+                { date: "28-Sep-2026", status: "Healthy", successRate: "99.95%", responseTime: "2.4 sec", volume: "105K" },
+                { date: "27-Sep-2026", status: "Healthy", successRate: "99.97%", responseTime: "2.2 sec", volume: "98K" },
+                { date: "26-Sep-2026", status: "Warning", successRate: "98.91%", responseTime: "3.8 sec", volume: "87K" }
             ];
 
             var aOutgoingDetails = [
-
-                {
-                    date: "29-Sep-2026",
-                    status: "Healthy",
-                    successRate: "99.94%",
-                    responseTime: "2.3 sec",
-                    volume: "115K"
-                },
-
-                {
-                    date: "28-Sep-2026",
-                    status: "Healthy",
-                    successRate: "99.92%",
-                    responseTime: "2.5 sec",
-                    volume: "101K"
-                },
-
-                {
-                    date: "27-Sep-2026",
-                    status: "Healthy",
-                    successRate: "99.96%",
-                    responseTime: "2.1 sec",
-                    volume: "96K"
-                },
-
-                {
-                    date: "26-Sep-2026",
-                    status: "Warning",
-                    successRate: "98.88%",
-                    responseTime: "3.6 sec",
-                    volume: "82K"
-                }
+                { date: "29-Sep-2026", status: "Healthy", successRate: "99.94%", responseTime: "2.3 sec", volume: "115K" },
+                { date: "28-Sep-2026", status: "Healthy", successRate: "99.92%", responseTime: "2.5 sec", volume: "101K" },
+                { date: "27-Sep-2026", status: "Healthy", successRate: "99.96%", responseTime: "2.1 sec", volume: "96K" },
+                { date: "26-Sep-2026", status: "Warning", successRate: "98.88%", responseTime: "3.6 sec", volume: "82K" }
             ];
 
             var aDetails =
-                sDirection === "Outgoing"
-                    ? aOutgoingDetails
-                    : aIncomingDetails;
+                sDirection === "Outgoing" ? aOutgoingDetails : aIncomingDetails;
 
-            oModel.setProperty(
-                "/railDetails",
-                aDetails
-            );
+            oModel.setProperty("/railDetails", aDetails);
         },
 
 
@@ -1131,10 +873,7 @@ sap.ui.define([
         // ============================================================
 
         onCloseRailDetails: function () {
-
-            this.byId(
-                "_IDGenRailDetailsDialog"
-            ).close();
+            this.byId("_IDGenRailDetailsDialog").close();
         },
 
 
@@ -1145,108 +884,41 @@ sap.ui.define([
         _setEmptyRailKpis: function () {
 
             var oModel =
-                this.getView().getModel(
-                    "railHealth"
-                );
+                this.getView().getModel("railHealth");
 
             if (!oModel) {
                 return;
             }
 
-            oModel.setProperty(
-                "/kpis/overallHealth",
-                "0%"
-            );
+            oModel.setProperty("/kpis/overallHealth", "0%");
+            oModel.setProperty("/kpis/overallHealthSub", "No data for this filter");
 
-            oModel.setProperty(
-                "/kpis/overallHealthSub",
-                "No data for this filter"
-            );
+            oModel.setProperty("/kpis/activeRails", "0 / 0");
+            oModel.setProperty("/kpis/activeRailsSub", "No data for this filter");
 
-            oModel.setProperty(
-                "/kpis/activeRails",
-                "0 / 0"
-            );
+            oModel.setProperty("/kpis/transactions", "0");
+            oModel.setProperty("/kpis/transactionsSub", "No data for this filter");
 
-            oModel.setProperty(
-                "/kpis/activeRailsSub",
-                "No data for this filter"
-            );
+            oModel.setProperty("/kpis/successRate", "0%");
+            oModel.setProperty("/kpis/successRateSub", "No data for this filter");
 
-            oModel.setProperty(
-                "/kpis/transactions",
-                "0"
-            );
+            oModel.setProperty("/kpis/failedPayments", "0%");
+            oModel.setProperty("/kpis/failedPaymentsSub", "No data for this filter");
 
-            oModel.setProperty(
-                "/kpis/transactionsSub",
-                "No data for this filter"
-            );
+            oModel.setProperty("/kpis/responseTime", "0 ms");
+            oModel.setProperty("/kpis/responseTimeSub", "No data for this filter");
 
-            oModel.setProperty(
-                "/kpis/successRate",
-                "0%"
-            );
+            oModel.setProperty("/kpis/queueDepth", "0");
+            oModel.setProperty("/kpis/queueDepthSub", "No data for this filter");
 
-            oModel.setProperty(
-                "/kpis/successRateSub",
-                "No data for this filter"
-            );
+            oModel.setProperty("/kpis/alerts", "0");
+            oModel.setProperty("/kpis/alertsSub", "No data for this filter");
 
-            oModel.setProperty(
-                "/kpis/failedPayments",
-                "0%"
-            );
+            oModel.setProperty("/railOverview", []);
+            oModel.setProperty("/filteredRailOverview", []);
+            oModel.setProperty("/allRailsSelected", false);
 
-            oModel.setProperty(
-                "/kpis/failedPaymentsSub",
-                "No data for this filter"
-            );
-
-            oModel.setProperty(
-                "/kpis/responseTime",
-                "0 ms"
-            );
-
-            oModel.setProperty(
-                "/kpis/responseTimeSub",
-                "No data for this filter"
-            );
-
-            oModel.setProperty(
-                "/kpis/queueDepth",
-                "0"
-            );
-
-            oModel.setProperty(
-                "/kpis/queueDepthSub",
-                "No data for this filter"
-            );
-
-            oModel.setProperty(
-                "/kpis/alerts",
-                "0"
-            );
-
-            oModel.setProperty(
-                "/kpis/alertsSub",
-                "No data for this filter"
-            );
-
-            oModel.setProperty(
-                "/railOverview",
-                []
-            );
-
-            oModel.setProperty(
-                "/filteredRailOverview",
-                []
-            );
-
-            oModel.setProperty(
-                "/allRailsSelected",
-                false
-            );
+            oModel.setProperty("/availableRails", [{ key: "All", text: "All" }]);
         },
 
 
@@ -1254,42 +926,26 @@ sap.ui.define([
         // DATE FORMAT
         // ============================================================
 
-        _formatDateForOData: function (
-            vDate
-        ) {
+        _formatDateForOData: function (vDate) {
 
             if (!vDate) {
                 return null;
             }
 
             if (typeof vDate === "string") {
-
-                return vDate.substring(
-                    0,
-                    10
-                );
+                return vDate.substring(0, 10);
             }
 
             if (vDate instanceof Date) {
 
-                var iYear =
-                    vDate.getFullYear();
-
-                var iMonth =
-                    vDate.getMonth() + 1;
-
-                var iDay =
-                    vDate.getDate();
+                var iYear = vDate.getFullYear();
+                var iMonth = vDate.getMonth() + 1;
+                var iDay = vDate.getDate();
 
                 return (
-
-                    iYear +
-                    "-" +
-                    String(iMonth)
-                        .padStart(2, "0") +
-                    "-" +
-                    String(iDay)
-                        .padStart(2, "0")
+                    iYear + "-" +
+                    String(iMonth).padStart(2, "0") + "-" +
+                    String(iDay).padStart(2, "0")
                 );
             }
 
@@ -1301,27 +957,17 @@ sap.ui.define([
         // NORMALISE DATE
         // ============================================================
 
-        _normaliseDate: function (
-            vDate
-        ) {
+        _normaliseDate: function (vDate) {
 
             if (!vDate) {
                 return null;
             }
 
             if (vDate instanceof Date) {
-
-                return this._formatDateForOData(
-                    vDate
-                );
+                return this._formatDateForOData(vDate);
             }
 
-            return String(
-                vDate
-            ).substring(
-                0,
-                10
-            );
+            return String(vDate).substring(0, 10);
         },
 
 
@@ -1329,41 +975,24 @@ sap.ui.define([
         // ADD ONE DAY
         // ============================================================
 
-        _addOneDay: function (
-            sIsoDate
-        ) {
+        _addOneDay: function (sIsoDate) {
 
             if (!sIsoDate) {
                 return null;
             }
 
-            var oDate =
-                new Date(
-                    sIsoDate +
-                    "T00:00:00"
-                );
+            var oDate = new Date(sIsoDate + "T00:00:00");
 
-            oDate.setDate(
-                oDate.getDate() + 1
-            );
+            oDate.setDate(oDate.getDate() + 1);
 
-            var iYear =
-                oDate.getFullYear();
-
-            var iMonth =
-                oDate.getMonth() + 1;
-
-            var iDay =
-                oDate.getDate();
+            var iYear = oDate.getFullYear();
+            var iMonth = oDate.getMonth() + 1;
+            var iDay = oDate.getDate();
 
             return (
-                iYear +
-                "-" +
-                String(iMonth)
-                    .padStart(2, "0") +
-                "-" +
-                String(iDay)
-                    .padStart(2, "0")
+                iYear + "-" +
+                String(iMonth).padStart(2, "0") + "-" +
+                String(iDay).padStart(2, "0")
             );
         },
 
@@ -1372,14 +1001,8 @@ sap.ui.define([
         // PERCENT FORMAT
         // ============================================================
 
-        _formatPercent: function (
-            fValue
-        ) {
-
-            return (
-                Number(fValue).toFixed(2) +
-                "%"
-            );
+        _formatPercent: function (fValue) {
+            return Number(fValue).toFixed(2) + "%";
         },
 
 
@@ -1387,34 +1010,19 @@ sap.ui.define([
         // NUMBER FORMAT
         // ============================================================
 
-        _formatNumber: function (
-            iValue
-        ) {
+        _formatNumber: function (iValue) {
 
-            var fNumber =
-                Number(iValue || 0);
+            var fNumber = Number(iValue || 0);
 
             if (fNumber >= 1000000) {
-
-                return (
-                    (fNumber / 1000000)
-                        .toFixed(2) +
-                    "M"
-                );
+                return (fNumber / 1000000).toFixed(2) + "M";
             }
 
             if (fNumber >= 1000) {
-
-                return (
-                    (fNumber / 1000)
-                        .toFixed(1) +
-                    "K"
-                );
+                return (fNumber / 1000).toFixed(1) + "K";
             }
 
-            return String(
-                fNumber
-            );
+            return String(fNumber);
         },
 
 
@@ -1422,14 +1030,8 @@ sap.ui.define([
         // RESPONSE TIME FORMAT
         // ============================================================
 
-        _formatResponseTime: function (
-            fValue
-        ) {
-
-            return (
-                Number(fValue).toFixed(2) +
-                " ms"
-            );
+        _formatResponseTime: function (fValue) {
+            return Number(fValue).toFixed(2) + " ms";
         }
 
     });

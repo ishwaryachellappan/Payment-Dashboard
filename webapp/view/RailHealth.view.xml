@@ -477,52 +477,17 @@
                             text="Rail"/>
 
                         <Select
-                            id="_IDGenRailFilterSelect"
-                            width="100%"
-                            selectedKey="{railHealth>/railFilters/rail}"
-                            change=".onRailFilterChange">
+    id="_IDGenRailFilterSelect"
+    width="100%"
+    selectedKey="{railHealth>/railFilters/rail}"
+    change=".onRailFilterChange"
+    items="{railHealth>/availableRails}">
 
-                            <core:Item
-                                id="_IDGenRailItemAll"
-                                key="All"
-                                text="All"/>
+    <core:Item id="_IDGenItem"
+        key="{railHealth>key}"
+        text="{railHealth>text}"/>
 
-                            <core:Item
-                                id="_IDGenRailItemSWIFT"
-                                key="SWIFT"
-                                text="SWIFT"/>
-
-                            <core:Item
-                                id="_IDGenRailItemSEPA"
-                                key="SEPA"
-                                text="SEPA"/>
-
-                            <core:Item
-                                id="_IDGenRailItemSEPAInstant"
-                                key="SEPA Instant"
-                                text="SEPA Instant"/>
-
-                            <core:Item
-                                id="_IDGenRailItemRTP"
-                                key="RTP"
-                                text="RTP"/>
-
-                            <core:Item
-                                id="_IDGenRailItemACH"
-                                key="ACH"
-                                text="ACH"/>
-
-                            <core:Item
-                                id="_IDGenRailItemRTGS"
-                                key="RTGS"
-                                text="RTGS"/>
-
-                            <core:Item
-                                id="_IDGenRailItemUPI"
-                                key="UPI"
-                                text="UPI"/>
-
-                        </Select>
+</Select>
 
                     </VBox>
 
