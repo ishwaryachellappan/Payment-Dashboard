@@ -6112,3 +6112,365 @@ body {
     width: 100%;
     box-sizing: border-box;
 }
+
+
+/* ============================================================
+   RAIL HEALTH SEARCH SECTION
+   ============================================================ */
+
+.railSearchSection {
+    width: 100%;
+    box-sizing: border-box;
+    background: #f7f9fc;
+    border: 1px solid #d9e2ef;
+    border-radius: 12px;
+    padding: 20px 24px;
+}
+
+.railSearchTitle {
+    color: #172b4d;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+
+/* ============================================================
+   SEARCH FILTERS
+   ============================================================ */
+
+.railSearchFilters {
+    width: 100%;
+    gap: 20px;
+    align-items: flex-end;
+}
+
+.railFilterItem {
+    width: 260px;
+    min-width: 220px;
+}
+
+.railFilterItem .sapMLabel {
+    display: block;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 7px;
+}
+
+
+/* ============================================================
+   SELECT BOX
+   ============================================================ */
+
+.railFilterItem .sapMSlt {
+    width: 100% !important;
+    height: 44px;
+    border: 1px solid #b8c6d8;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.railFilterItem .sapMSltLabel {
+    line-height: 42px;
+    font-size: 15px;
+    color: #1f2937;
+}
+
+.railFilterItem .sapMSltArrow {
+    line-height: 42px;
+}
+
+
+/* ============================================================
+   RAIL HEALTH TABLE
+   ============================================================ */
+
+#_IDGenRailOverviewTable {
+    width: 100%;
+}
+
+#_IDGenRailOverviewTable .sapMListTbl {
+    width: 100%;
+}
+
+#_IDGenRailOverviewTable .sapMListTblHeaderCell {
+    background: #f5f7fa;
+    border-bottom: 1px solid #d9dee7;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+#_IDGenRailOverviewTable .sapMListTblHeaderCell .sapMText {
+    color: #243b53;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#_IDGenRailOverviewTable .sapMListTblCell {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#_IDGenRailOverviewTable .sapMListTblRow {
+    cursor: pointer;
+}
+
+#_IDGenRailOverviewTable .sapMListTblRow:hover {
+    background: #f5f9ff;
+}
+
+
+/* ============================================================
+   RAIL NAME
+   ============================================================ */
+
+#_IDGenRailOverviewTable .sapMListTblCell:first-child .sapMText {
+    font-weight: 600;
+    color: #172b4d;
+}
+
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+
+#_IDGenRailOverviewTable .sapMObjStatus {
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   RAIL DETAILS DIALOG
+   ============================================================ */
+
+.railDetailsDialog .sapMDialogScrollCont {
+    padding: 0;
+}
+
+.railDetailsDialog .sapMDialogTitle {
+    color: #172b4d;
+    font-weight: 700;
+}
+
+.railDetailsDialog .sapMDialogSection {
+    border-radius: 12px;
+}
+
+
+/* ============================================================
+   INCOMING / OUTGOING SEGMENTED BUTTON
+   ============================================================ */
+
+.railDirectionSegment {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.railDirectionSegment .sapMSegB {
+    min-width: 300px;
+}
+
+.railDirectionSegment .sapMSegBBtn {
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   DETAILS TABLE
+   ============================================================ */
+
+#_IDGenRailDetailsTable .sapMListTblHeaderCell {
+    background: #f5f7fa;
+    border-bottom: 1px solid #d9dee7;
+}
+
+#_IDGenRailDetailsTable .sapMListTblHeaderCell .sapMText {
+    color: #243b53;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#_IDGenRailDetailsTable .sapMListTblCell {
+    padding-top: 13px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* ============================================================
+   DIALOG CLOSE BUTTON
+   ============================================================ */
+
+.railDetailsDialog .sapMDialogFooter {
+    border-top: 1px solid #e5e7eb;
+}
+
+.railDetailsDialog .sapMDialogFooter .sapMBtn {
+    min-width: 90px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .railSearchFilters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .railFilterItem {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .railDetailsDialog .sapMDialog {
+        width: 95% !important;
+    }
+}
+
+.railTableContainer {
+    width: 100%;
+    border: 1px solid #d9e2ec;
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.railOverviewTable {
+    width: 100%;
+    background: #ffffff;
+}
+
+.railOverviewTable .sapMListTblHeader {
+    background: #f8fafc;
+}
+
+.railOverviewTable .sapMListTblHeaderCell {
+    font-weight: 600;
+    color: #1f334d;
+}
+
+.railOverviewTable .sapMListTblCell {
+    vertical-align: middle;
+}
+
+
+/* ========================================================= */
+/* RAIL HEALTH TABLE CONTAINER */
+/* ========================================================= */
+
+.railTableContainer {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #d9e2ec;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+
+/* ========================================================= */
+/* TABLE */
+/* ========================================================= */
+
+.railOverviewTable {
+    width: 100%;
+    background: #ffffff;
+}
+
+
+/* ========================================================= */
+/* TABLE HEADER */
+/* ========================================================= */
+
+.railOverviewTable .sapMListTblHeader {
+    background: #f8fafc;
+}
+
+
+.railOverviewTable .sapMListTblHeaderCell {
+    height: 52px;
+    vertical-align: middle;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+
+.railOverviewTable .sapMListTblHeaderCell .sapMText {
+    font-weight: 600;
+    color: #1f334d;
+    white-space: nowrap;
+}
+
+
+/* ========================================================= */
+/* TABLE ROW */
+/* ========================================================= */
+
+.railOverviewTable .sapMListTblCell {
+    height: 56px;
+    vertical-align: middle;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+
+.railOverviewTable .sapMListTblRow {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* ========================================================= */
+/* CHECKBOX COLUMN */
+/* ========================================================= */
+
+.railOverviewTable .sapMListTblHeaderCell:first-child,
+.railOverviewTable .sapMListTblCell:first-child {
+    text-align: center;
+    vertical-align: middle;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+
+/* ========================================================= */
+/* TEXT ALIGNMENT */
+/* ========================================================= */
+
+.railOverviewTable .sapMListTblCell .sapMText {
+    display: block;
+    line-height: 56px;
+}
+
+
+/* ========================================================= */
+/* STATUS */
+/* ========================================================= */
+
+.railOverviewTable .sapMListTblCell .sapMObjStatus {
+    display: inline-flex;
+    align-items: center;
+}
+
+
+/* ========================================================= */
+/* NAVIGATION ARROW */
+/* ========================================================= */
+
+.railOverviewTable .sapMLIBType {
+    vertical-align: middle;
+}
+
+
+/* ========================================================= */
+/* ROW HOVER */
+/* ========================================================= */
+
+.railOverviewTable .sapMLIBHoverable:hover {
+    background: #f8fafc;
+}
