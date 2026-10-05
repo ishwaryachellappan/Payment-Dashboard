@@ -29,7 +29,8 @@ sap.ui.define([
 
                 globalFilter: {
                     clearingArea: "",
-                    date: ""
+                    date: "",
+                    createdOn: ""
                 },
 
                 // ====================================================
@@ -155,60 +156,118 @@ sap.ui.define([
         // MAIN DASHBOARD FILTER CHANGE
         // ============================================================
 
-        onFilterChange: function () {
+       onFilterChange: function () {
 
-            var oFilterModel =
-                this.getView().getModel("filterModel");
+    var oFilterModel =
+        this.getView().getModel("filterModel");
 
-            if (!oFilterModel) {
+    if (!oFilterModel) {
+        console.warn(
+            "Rail Health: filterModel not found"
+        );
+        return;
+    }
 
-                console.warn(
-                    "Rail Health: filterModel not found"
-                );
+    var sClearingArea =
+        oFilterModel.getProperty("/clearingArea");
 
-                return;
-            }
+    var sPostingDate =
+        oFilterModel.getProperty("/kpiDate");
 
-            var sClearingArea =
-                oFilterModel.getProperty("/clearingArea");
+    var sCreatedOn =
+        oFilterModel.getProperty("/createdOn");
 
-            var sDate =
-                oFilterModel.getProperty("/kpiDate");
+    /*
+     * Normalize dates
+     */
+    if (sPostingDate instanceof Date) {
 
-            console.log(
-                "Rail Health global filter:",
-                {
-                    clearingArea: sClearingArea,
-                    date: sDate
-                }
-            );
+        sPostingDate =
+            sPostingDate.getFullYear() +
+            "-" +
+            String(
+                sPostingDate.getMonth() + 1
+            ).padStart(2, "0") +
+            "-" +
+            String(
+                sPostingDate.getDate()
+            ).padStart(2, "0");
 
-            var oRailModel =
-                this.getView().getModel("railHealth");
+    } else if (sPostingDate) {
 
-            if (oRailModel) {
+        sPostingDate =
+            String(sPostingDate).slice(0, 10);
 
-                oRailModel.setProperty(
-                    "/globalFilter/clearingArea",
-                    sClearingArea
-                );
+    }
 
-                oRailModel.setProperty(
-                    "/globalFilter/date",
-                    sDate
-                );
-            }
+    if (sCreatedOn instanceof Date) {
 
-            // ========================================================
-            // ONE ODATA CALL FOR ALL KPI TILES
-            // ========================================================
+        sCreatedOn =
+            sCreatedOn.getFullYear() +
+            "-" +
+            String(
+                sCreatedOn.getMonth() + 1
+            ).padStart(2, "0") +
+            "-" +
+            String(
+                sCreatedOn.getDate()
+            ).padStart(2, "0");
 
-            this._loadRailHealthKpis(
-                sClearingArea,
-                sDate
-            );
-        },
+    } else if (sCreatedOn) {
 
+        sCreatedOn =
+            String(sCreatedOn).slice(0, 10);
+
+    }
+
+    console.log(
+        "======================================"
+    );
+
+    console.log(
+        "Rail Health global filter:",
+        {
+            clearingArea: sClearingArea,
+            postingDate: sPostingDate,
+            createdOn: sCreatedOn
+        }
+    );
+
+    console.log(
+        "======================================"
+    );
+
+    var oRailModel =
+        this.getView().getModel("railHealth");
+
+    if (oRailModel) {
+
+        oRailModel.setProperty(
+            "/globalFilter/clearingArea",
+            sClearingArea
+        );
+
+        oRailModel.setProperty(
+            "/globalFilter/date",
+            sPostingDate
+        );
+
+        oRailModel.setProperty(
+            "/globalFilter/createdOn",
+            sCreatedOn
+        );
+    }
+
+    /*
+     * Load Rail Health using ALL THREE
+     * global filter values.
+     */
+    this._loadRailHealthKpis(
+        sClearingArea,
+        sPostingDate,
+        sCreatedOn
+    );
+},
 
         // ============================================================
         // LOAD ALL KPI DATA
@@ -230,208 +289,354 @@ sap.ui.define([
         // CriticalAlerts, OverallHealth
         // ============================================================
 
-        _loadRailHealthKpis: function (
-            sClearingArea,
-            sDate
-        ) {
+      _loadRailHealthKpis: function (
+    sClearingArea,
+    sPostingDate,
+    sCreatedOn
+) {
 
-            var oODataModel =
-                this.getOwnerComponent().getModel("odataModel");
+    var oRailModel =
+        this.getView().getModel("railHealth");
 
-            var oRailModel =
-                this.getView().getModel("railHealth");
+    if (!oRailModel) {
+        console.error("Rail Health: railHealth model missing");
+        return;
+    }
 
-            if (!oODataModel || !oRailModel) {
+    if (!sClearingArea) {
+        console.warn("Rail Health: Clearing Area missing");
+        this._setEmptyRailKpis();
+        return;
+    }
 
-                console.error(
-                    "Rail Health: OData model or Rail Health model missing"
+    /*
+     * =========================================================
+     * NORMALIZE DATE VALUES
+     * =========================================================
+     */
+
+    var fnNormalizeDate = function (vDate) {
+
+        if (!vDate) {
+            return "";
+        }
+
+        if (vDate instanceof Date) {
+
+            return (
+                vDate.getFullYear() +
+                "-" +
+                String(vDate.getMonth() + 1).padStart(2, "0") +
+                "-" +
+                String(vDate.getDate()).padStart(2, "0")
+            );
+        }
+
+        return String(vDate).substring(0, 10);
+    };
+
+    sPostingDate = fnNormalizeDate(sPostingDate);
+    sCreatedOn = fnNormalizeDate(sCreatedOn);
+
+
+    console.log("======================================");
+    console.log("RAIL HEALTH FILTER");
+    console.log("Clearing Area :", sClearingArea);
+    console.log("Posting Date  :", sPostingDate);
+    console.log("Created On    :", sCreatedOn);
+    console.log("======================================");
+
+
+    /*
+     * =========================================================
+     * IMPORTANT
+     * =========================================================
+     *
+     * RailHealthKpi contains:
+     *
+     * ClearingArea
+     * CreatedOn
+     * PaymentRail
+     * KPI fields
+     *
+     * It does NOT expose PostingDate / PaymentOrderDate.
+     *
+     * Therefore:
+     *
+     * Clearing Area -> applied here
+     * Created On    -> applied here
+     *
+     * Posting Date  -> retained as global context
+     *
+     * We must NOT compare Posting Date to CreatedOn.
+     */
+
+
+    var sServiceUrl =
+        "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/";
+
+    var sEntityUrl =
+        sServiceUrl + "RailHealthKpi";
+
+
+    /*
+     * =========================================================
+     * BUILD SERVER FILTER
+     * =========================================================
+     */
+
+    var aUrlFilters = [];
+
+    if (sClearingArea) {
+
+        aUrlFilters.push(
+            "ClearingArea eq '" +
+            encodeURIComponent(sClearingArea).replace(/%20/g, " ") +
+            "'"
+        );
+    }
+
+    if (sCreatedOn) {
+
+        aUrlFilters.push(
+            "CreatedOn eq " + sCreatedOn
+        );
+    }
+
+
+    var sUrl = sEntityUrl;
+
+    if (aUrlFilters.length) {
+
+        sUrl +=
+            "?$filter=" +
+            encodeURIComponent(
+                aUrlFilters.join(" and ")
+            );
+    }
+
+
+    console.log(
+        "Rail Health OData URL:",
+        sUrl
+    );
+
+
+    /*
+     * =========================================================
+     * READ ALL ODATA PAGES
+     * =========================================================
+     *
+     * Do not stop at the first 100 rows.
+     */
+
+    var fnReadPage = function (
+        sPageUrl,
+        aAllRows
+    ) {
+
+        return fetch(sPageUrl, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        })
+
+        .then(function (oResponse) {
+
+            if (!oResponse.ok) {
+
+                throw new Error(
+                    "HTTP " +
+                    oResponse.status +
+                    " while loading RailHealthKpi"
                 );
-
-                return;
             }
 
-            if (!sClearingArea || !sDate) {
+            return oResponse.json();
+        })
 
-                console.warn(
-                    "Rail Health: missing filter values"
-                );
+        .then(function (oPayload) {
 
-                this._setEmptyRailKpis();
-
-                return;
-            }
-
-            var sFormattedDate =
-                this._formatDateForOData(sDate);
-
-            var sNextDay =
-                this._addOneDay(sFormattedDate);
+            var aRows =
+                oPayload &&
+                Array.isArray(oPayload.value)
+                    ? oPayload.value
+                    : [];
 
             console.log(
-                "Rail Health: loading RailHealthKpi",
-                {
-                    clearingArea: sClearingArea,
-                    date: sFormattedDate
-                }
+                "Rail Health: page rows:",
+                aRows.length
             );
 
-            // ========================================================
-            // ODATA FILTER
-            // ========================================================
+            aAllRows.push.apply(
+                aAllRows,
+                aRows
+            );
 
-            var aFilters = [
 
-                new Filter(
-                    "ClearingArea",
-                    FilterOperator.EQ,
-                    sClearingArea
-                ),
+            /*
+             * OData V4 next page
+             */
 
-                new Filter({
+            var sNextLink =
+                oPayload["@odata.nextLink"];
 
-                    filters: [
 
-                        new Filter(
-                            "CreatedOn",
-                            FilterOperator.GE,
-                            sFormattedDate
-                        ),
+            if (sNextLink) {
 
-                        new Filter(
-                            "CreatedOn",
-                            FilterOperator.LT,
-                            sNextDay
-                        )
-
-                    ],
-
-                    and: true
-                })
-            ];
-
-            // ========================================================
-            // SINGLE ODATA ENTITY
-            // ========================================================
-
-            var oListBinding =
-                oODataModel.bindList(
-                    "/RailHealthKpi",
-                    null,
-                    null,
-                    aFilters
+                console.log(
+                    "Rail Health: loading next OData page"
                 );
 
-            oListBinding
-                .requestContexts(0, 1000)
+                return fnReadPage(
+                    sNextLink,
+                    aAllRows
+                );
+            }
 
-                .then(function (aContexts) {
 
-                    var aData =
-                        aContexts.map(function (oContext) {
+            return aAllRows;
+        });
+    };
 
-                            return oContext.getObject();
 
-                        });
+    /*
+     * =========================================================
+     * LOAD DATA
+     * =========================================================
+     */
 
-                    console.log(
-                        "Rail Health: RailHealthKpi records:",
-                        aData
-                    );
+    fnReadPage(sUrl, [])
 
-                    // =================================================
-                    // NO DATA AT ALL FOR THIS CLEARING AREA / DATE
-                    // (the server-side filter already restricted to
-                    // ClearingArea + the CreatedOn day, so an empty
-                    // array here means the backend has nothing for
-                    // that combination)
-                    // =================================================
+    .then(function (aData) {
 
-                    if (!aData.length) {
+        console.log(
+            "======================================"
+        );
 
-                        console.warn(
-                            "Rail Health: No RailHealthKpi data found for:",
-                            sClearingArea,
-                            sFormattedDate
+        console.log(
+            "Rail Health: TOTAL rows loaded:",
+            aData.length
+        );
+
+        console.log(
+            "Rail Health: first rows:",
+            aData.slice(0, 5)
+        );
+
+        console.log(
+            "======================================"
+        );
+
+
+        /*
+         * =====================================================
+         * SAFETY FILTER — CLEARING AREA
+         * =====================================================
+         */
+
+        var aMatchingRecords =
+            aData.filter(function (oItem) {
+
+                return String(
+                    oItem.ClearingArea || ""
+                ) === String(
+                    sClearingArea
+                );
+            });
+
+
+        /*
+         * =====================================================
+         * SAFETY FILTER — CREATED ON
+         * =====================================================
+         */
+
+        if (sCreatedOn) {
+
+            aMatchingRecords =
+                aMatchingRecords.filter(
+                    function (oItem) {
+
+                        return (
+                            fnNormalizeDate(
+                                oItem.CreatedOn
+                            ) === sCreatedOn
                         );
-
-                        this._setEmptyRailKpis();
-
-                        return;
                     }
+                );
+        }
 
-                    // =================================================
-                    // KEEP EVERY RECORD THAT MATCHES CLEARING AREA +
-                    // EXACT DATE — this stays an ARRAY. Do not
-                    // collapse to a single record; one row per
-                    // PaymentRail is expected and required.
-                    // =================================================
 
-                    var aMatchingRecords =
-                        aData.filter(function (oItem) {
+        console.log(
+            "Rail Health: records after filters:",
+            aMatchingRecords.length
+        );
 
-                            return (
 
-                                String(
-                                    oItem.ClearingArea
-                                ) === String(
-                                    sClearingArea
-                                )
+        /*
+         * =====================================================
+         * DEBUG MATCHING RECORDS
+         * =====================================================
+         */
 
-                                &&
+        if (aMatchingRecords.length) {
 
-                                this._normaliseDate(
-                                    oItem.CreatedOn
-                                ) === sFormattedDate
+            console.log(
+                "Rail Health: matching records:",
+                aMatchingRecords
+            );
 
-                            );
+        } else {
 
-                        }.bind(this));
+            console.warn(
+                "Rail Health: NO matching records",
+                {
+                    clearingArea: sClearingArea,
+                    postingDate: sPostingDate,
+                    createdOn: sCreatedOn
+                }
+            );
+        }
 
-                    if (!aMatchingRecords.length) {
 
-                        console.warn(
-                            "Rail Health: OData returned rows, but none match",
-                            sClearingArea,
-                            sFormattedDate,
-                            "exactly — showing empty state instead of a wrong-date fallback"
-                        );
+        /*
+         * =====================================================
+         * NO DATA
+         * =====================================================
+         */
 
-                        this._setEmptyRailKpis();
+        if (!aMatchingRecords.length) {
 
-                        return;
-                    }
+            this._setEmptyRailKpis();
+            return;
+        }
 
-                    console.log(
-                        "Rail Health: matching PaymentRail records for",
-                        sClearingArea,
-                        sFormattedDate,
-                        ":",
-                        aMatchingRecords
-                    );
 
-                    // =================================================
-                    // UPDATE EVERYTHING FROM THE FULL SET OF RECORDS
-                    // =================================================
+        /*
+         * =====================================================
+         * UPDATE KPI TILES
+         * =====================================================
+         */
 
-                    this._updateRailKpis(aMatchingRecords);
+        this._updateRailKpis(
+            aMatchingRecords
+        );
 
-                }.bind(this))
+    }.bind(this))
 
-                .catch(function (oError) {
+    .catch(function (oError) {
 
-                    console.error(
-                        "Rail Health RailHealthKpi load failed:",
-                        oError &&
-                        (
-                            oError.message ||
-                            oError
-                        )
-                    );
+        console.error(
+            "Rail Health RailHealthKpi load failed:",
+            oError
+        );
 
-                    this._setEmptyRailKpis();
+        this._setEmptyRailKpis();
 
-                }.bind(this));
-        },
+    }.bind(this));
+},
 
 
         // ============================================================
@@ -536,10 +741,10 @@ sap.ui.define([
             );
             oModel.setProperty("/kpis/responseTimeSub", "Average response time");
 
-            oModel.setProperty(
-                "/kpis/queueDepth",
-                this._formatNumber(fQueueDepth)
-            );
+           oModel.setProperty(
+    "/kpis/queueDepth",
+    Number(fQueueDepth).toFixed(3)
+);
             oModel.setProperty("/kpis/queueDepthSub", "Transactions in queue");
 
             oModel.setProperty("/kpis/alerts", String(iTotalCriticalAlerts));
