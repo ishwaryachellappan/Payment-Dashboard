@@ -1358,77 +1358,307 @@ sap.ui.define([
         // KPI tiles. Falls back to today's date / DEBNKC if the shared
         // filterModel isn't available yet (defensive — nested view init order
         // isn't guaranteed relative to the parent's).
-        loadExceptionKpis: function () {
+ loadExceptionKpis: function () {
 
-            var oODataModel = this.getOwnerComponent().getModel("odataModel");
-            var oFilterModel = this.getView().getModel("filterModel");
+    var oODataModel =
+        this.getOwnerComponent().getModel("odataModel");
 
-            var sClearingArea = oFilterModel
-                ? oFilterModel.getProperty("/clearingArea")
-                : "DEBNKC";
+    var oFilterModel =
+        this.getView().getModel("filterModel");
 
-            var sDate = oFilterModel
-                ? oFilterModel.getProperty("/kpiDate")
-                : new Date().toISOString().slice(0, 10);
+    var oExceptionKpiModel =
+        this.getView().getModel("exceptionKpiModel");
 
-            var oExceptionKpiModel = this.getView().getModel("exceptionKpiModel");
+    var sClearingArea = oFilterModel
+        ? oFilterModel.getProperty("/clearingArea")
+        : "DEBNKC";
 
-            if (!oODataModel || !sClearingArea || !sDate) {
-                return;
-            }
+    var sPostingDate = oFilterModel
+        ? oFilterModel.getProperty("/kpiDate")
+        : "";
 
-            var sPreviousDate = this._getPreviousDateStr(sDate);
+    var sCreatedOn = oFilterModel
+        ? oFilterModel.getProperty("/createdOn")
+        : "";
 
-            var fnReadKpiForDate = function (sTargetDate) {
+    /*
+     * Normalize date to YYYY-MM-DD
+     */
+    var fnNormalizeDate = function (vDate) {
 
-                var aFilters = [
-                    new Filter("clearingarea", FilterOperator.EQ, sClearingArea),
-                    new Filter("paymentorderdate", FilterOperator.EQ, sTargetDate)
-                ];
+        if (!vDate) {
+            return "";
+        }
 
-                var oListBinding = oODataModel.bindList("/ExceptionKPI", undefined, undefined, aFilters, {
-                    $select: "clearingarea,paymentorderdate,OpenException,ValueAtRisk"
-                });
+        if (vDate instanceof Date) {
 
-                return oListBinding.requestContexts(0, 1).then(function (aContexts) {
+            return vDate.getFullYear() +
+                "-" +
+                String(vDate.getMonth() + 1).padStart(2, "0") +
+                "-" +
+                String(vDate.getDate()).padStart(2, "0");
+        }
 
-                    if (!aContexts.length) {
-                        return { OpenException: 0, ValueAtRisk: 0 };
-                    }
+        return String(vDate).substring(0, 10);
+    };
 
-                    var oRow = aContexts[0].getObject();
+    sPostingDate = fnNormalizeDate(sPostingDate);
+    sCreatedOn = fnNormalizeDate(sCreatedOn);
 
-                    return {
-                        OpenException: oRow.OpenException || 0,
-                        ValueAtRisk: oRow.ValueAtRisk || 0
-                    };
+    console.log("======================================");
+    console.log("EXCEPTION KPI FILTER");
+    console.log("Clearing Area :", sClearingArea);
+    console.log("Posting Date  :", sPostingDate);
+    console.log("Created On    :", sCreatedOn);
+    console.log("======================================");
 
-                }).catch(function (oError) {
-                    console.error("Exception KPI load failed for", sTargetDate, oError);
-                    return { OpenException: 0, ValueAtRisk: 0 };
-                });
+    if (!oODataModel || !oExceptionKpiModel) {
 
-            };
+        console.error(
+            "Exception KPI: OData model or KPI model missing"
+        );
 
-            Promise.all([
-                fnReadKpiForDate(sDate),
-                fnReadKpiForDate(sPreviousDate)
-            ]).then(function (aResults) {
+        return;
+    }
 
-                var oToday = aResults[0];
-                var oYesterday = aResults[1];
+    /*
+     * ---------------------------------------------------------
+     * IMPORTANT FIELD MAPPING
+     *
+     * Posting Date  -> paymentorderdate
+     * Created On    -> createdate
+     * Clearing Area -> clearingarea
+     * ---------------------------------------------------------
+     */
 
-                oExceptionKpiModel.setData({
-                    OpenException: oToday.OpenException,
-                    ValueAtRisk: oToday.ValueAtRisk,
-                    openExceptionTrend: this._computeTrend(oToday.OpenException, oYesterday.OpenException),
-                    valueAtRiskTrend: this._computeTrend(oToday.ValueAtRisk, oYesterday.ValueAtRisk)
-                });
+   var aFilters = [
 
-            }.bind(this));
+    /*
+     * Clearing Area is always applied
+     */
+    new Filter(
+        "clearingarea",
+        FilterOperator.EQ,
+        sClearingArea
+    )
 
-        },
+];
 
+/*
+ * =========================================================
+ * CREATED ON HAS PRIORITY
+ * =========================================================
+ *
+ * If Created On is selected:
+ *
+ *     Clearing Area + Created On
+ *
+ * Posting Date is NOT applied.
+ *
+ * Example:
+ *
+ * Clearing Area = DEBNKC
+ * Created On    = 2026-10-05
+ *
+ * OData filter:
+ *
+ * clearingarea eq 'DEBNKC'
+ * AND createdate eq '2026-10-05'
+ *
+ * =========================================================
+ */
+
+if (sCreatedOn) {
+
+    console.log(
+        "Exception KPI: Using CREATED ON as the date filter:",
+        sCreatedOn
+    );
+
+    aFilters.push(
+        new Filter(
+            "createdate",
+            FilterOperator.EQ,
+            sCreatedOn
+        )
+    );
+
+}
+
+/*
+ * =========================================================
+ * OTHERWISE USE POSTING DATE
+ * =========================================================
+ *
+ * If Created On is empty, existing Posting Date behavior
+ * remains unchanged.
+ *
+ * =========================================================
+ */
+
+else if (sPostingDate) {
+
+    console.log(
+        "Exception KPI: Using POSTING DATE as the date filter:",
+        sPostingDate
+    );
+
+    aFilters.push(
+        new Filter(
+            "paymentorderdate",
+            FilterOperator.EQ,
+            sPostingDate
+        )
+    );
+
+}
+
+console.log(
+    "Exception KPI final filters:",
+    aFilters
+);
+
+    console.log(
+        "Exception KPI OData filters:",
+        aFilters
+    );
+
+    var oListBinding;
+
+    try {
+
+        oListBinding =
+            oODataModel.bindList(
+                "/ExceptionKPI",
+                undefined,
+                undefined,
+                aFilters,
+                {
+                    $select:
+                        "clearingarea,paymentorderdate,createdate,OpenException,ValueAtRisk"
+                }
+            );
+
+    } catch (oError) {
+
+        console.error(
+            "Exception KPI bindList failed:",
+            oError
+        );
+
+        return;
+    }
+
+    oListBinding
+        .requestContexts(0, 5000)
+
+        .then(function (aContexts) {
+
+            console.log(
+                "Exception KPI rows returned:",
+                aContexts.length
+            );
+
+            var iOpenException = 0;
+            var fValueAtRisk = 0;
+
+            aContexts.forEach(function (oContext) {
+
+                var oRow =
+                    oContext.getObject();
+
+                console.log(
+                    "Exception KPI row:",
+                    oRow
+                );
+
+                iOpenException +=
+                    Number(oRow.OpenException) || 0;
+
+                fValueAtRisk +=
+                    Number(oRow.ValueAtRisk) || 0;
+
+            });
+
+            console.log(
+                "======================================"
+            );
+
+            console.log(
+                "FINAL EXCEPTION KPI"
+            );
+
+            console.log(
+                "Open Exceptions:",
+                iOpenException
+            );
+
+            console.log(
+                "Value at Risk:",
+                fValueAtRisk
+            );
+
+            console.log(
+                "======================================"
+            );
+
+            oExceptionKpiModel.setProperty(
+                "/OpenException",
+                iOpenException
+            );
+
+            oExceptionKpiModel.setProperty(
+                "/ValueAtRisk",
+                fValueAtRisk
+            );
+
+            /*
+             * Keep trend indicators stable for now.
+             * We are fixing the current KPI filter first.
+             */
+            oExceptionKpiModel.setProperty(
+                "/openExceptionTrend",
+                {
+                    percent: 0,
+                    direction: "flat",
+                    hasData: false
+                }
+            );
+
+            oExceptionKpiModel.setProperty(
+                "/valueAtRiskTrend",
+                {
+                    percent: 0,
+                    direction: "flat",
+                    hasData: false
+                }
+            );
+
+            oExceptionKpiModel.refresh(true);
+
+        })
+
+        .catch(function (oError) {
+
+            console.error(
+                "Exception KPI OData read failed:",
+                oError
+            );
+
+            oExceptionKpiModel.setProperty(
+                "/OpenException",
+                0
+            );
+
+            oExceptionKpiModel.setProperty(
+                "/ValueAtRisk",
+                0
+            );
+
+            oExceptionKpiModel.refresh(true);
+
+        });
+},
         // ✅ Returns "YYYY-MM-DD" for the day before sDate, using local date math
         // (not toISOString()) to avoid the UTC-shift issues already flagged
         // elsewhere in this controller (loadOpenExceptionDetails, loadExceptionTrend).
@@ -1585,11 +1815,100 @@ sap.ui.define([
             var sServiceUrl =
                 "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/";
 
-            var sFilter =
-                "ClearingArea eq '" +
-                encodeURIComponent(sClearingArea).replace(/'/g, "%27") +
-                "' and PaymentItemDate eq " +
-                sDate;
+           /*
+ * =========================================================
+ * CREATED ON
+ * =========================================================
+ */
+
+var sCreatedOn = oFilterModel
+    ? oFilterModel.getProperty("/createdOn")
+    : null;
+
+/*
+ * Normalize Created On to YYYY-MM-DD
+ */
+if (sCreatedOn instanceof Date) {
+
+    sCreatedOn =
+        sCreatedOn.getFullYear() +
+        "-" +
+        String(
+            sCreatedOn.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            sCreatedOn.getDate()
+        ).padStart(2, "0");
+
+} else if (sCreatedOn) {
+
+    sCreatedOn = String(sCreatedOn).slice(0, 10);
+
+}
+
+/*
+ * =========================================================
+ * EXCEPTION TABLE FILTER
+ * =========================================================
+ *
+ * Clearing Area
+ * + Payment Item Date
+ * + Created On
+ *
+ * Created On maps to backend field: crdat
+ *
+ * =========================================================
+ */
+
+var sFilter =
+    "ClearingArea eq '" +
+    encodeURIComponent(sClearingArea).replace(/'/g, "%27") +
+    "' and PaymentItemDate eq " +
+    sDate;
+
+/*
+ * Add Created On only when selected
+ */
+if (sCreatedOn) {
+
+    sFilter +=
+        " and crdat eq " +
+        sCreatedOn;
+
+}
+
+console.log(
+    "======================================"
+);
+
+console.log(
+    "EXCEPTION TABLE FILTER"
+);
+
+console.log(
+    "Clearing Area :",
+    sClearingArea
+);
+
+console.log(
+    "Payment Date  :",
+    sDate
+);
+
+console.log(
+    "Created On    :",
+    sCreatedOn
+);
+
+console.log(
+    "OData Filter  :",
+    sFilter
+);
+
+console.log(
+    "======================================"
+);
 
             var sUrl =
                 sServiceUrl +
@@ -2068,7 +2387,9 @@ sap.ui.define([
                     "PaymentOrderDate",
                     FilterOperator.LE,
                     sEndDate
-                )
+                ),
+
+                
 
             ];
 
