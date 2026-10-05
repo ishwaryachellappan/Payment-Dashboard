@@ -169,7 +169,7 @@
         >
             <Label
                 id="_IDGenLabel1"
-                text="{i18n>postingdate}"
+                text="{i18n>postingDate}"
                 class="overviewFilterLabel"
             />
 

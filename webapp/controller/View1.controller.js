@@ -64,7 +64,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
     // entries here any time to expose additional PaymentInfo fields in the picker.
     var PAYMENT_INFO_FIELD_CATALOG = [
         { key: "OrderKey", label: "Order Key", default: true },
-        { key: "ProcessingStatus", label: "Processing Status", default: true },
+       
         { key: "TechnicalStatus", label: "Technical Status", default: true },
         { key: "CreatedOn", label: "Created On", default: true, type: "date" },
         { key: "LastChangedBy", label: "Last Changed By", default: true },
