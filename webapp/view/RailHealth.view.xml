@@ -561,136 +561,170 @@
 
         <columns>
 
+    <!-- CHECKBOX -->
+    <Column
+        id="_IDGenRailSelectColumn"
+        width="3rem"
+        hAlign="Center">
+
+        <header>
+            <CheckBox
+                id="_IDGenRailSelectAll"
+                selected="{railHealth>/allRailsSelected}"
+                select=".onRailSelectAll"/>
+        </header>
+
+    </Column>
+
+
+    <!-- CHANNEL -->
+    <Column
+        id="_IDGenRailChannelColumn"
+        width="15%">
+
+        <Text
+            id="_IDGenRailChannelColumnText"
+            text="Channel"/>
+
+    </Column>
+
+
+    <!-- STATUS -->
+    <Column
+        id="_IDGenStatusColumn"
+        width="15%">
+
+        <Text
+            id="_IDGenStatusColumnText"
+            text="Status"/>
+
+    </Column>
+
+
+    <!-- SUCCESS RATE -->
+    <Column
+        id="_IDGenSuccessColumn"
+        width="15%">
+
+        <Text
+            id="_IDGenSuccessColumnText"
+            text="Success Rate"/>
+
+    </Column>
+
+
+    <!-- AVG RESPONSE -->
+    <Column
+        id="_IDGenResponseColumn"
+        width="15%">
+
+        <Text
+            id="_IDGenResponseColumnText"
+            text="Avg Response"/>
+
+    </Column>
+
+
+    <!-- MEDIUM -->
+    <Column
+        id="_IDGenRailMediumColumn"
+        width="15%">
+
+        <Text
+            id="_IDGenRailMediumColumnText"
+            text="Medium"/>
+
+    </Column>
+
+
+    <!-- QUEUE DEPTH -->
+    <Column
+        id="_IDGenQueueDepthColumn"
+        width="15%">
+
+        <Text
+            id="_IDGenQueueDepthColumnText"
+            text="Queue Depth"/>
+
+    </Column>
+
+
+    <!-- CREATED ON -->
+    <Column
+        id="_IDGenCreatedOnColumn"
+        width="15%">
+
+        <Text
+            id="_IDGenCreatedOnColumnText"
+            text="Created On"/>
+
+    </Column>
+
+</columns>
+
+
+<items>
+
+    <ColumnListItem
+        id="_IDGenRailColumnListItem"
+        type="Navigation"
+        press=".onRailRowPress">
+
+        <cells>
+
             <!-- CHECKBOX -->
-            <Column
-                id="_IDGenRailSelectColumn"
-                width="3rem"
-                hAlign="Center">
-
-                <header>
-
-                    <CheckBox
-                        id="_IDGenRailSelectAll"
-                        selected="{railHealth>/allRailsSelected}"
-                        select=".onRailSelectAll"/>
-
-                </header>
-
-            </Column>
+            <CheckBox
+                id="_IDGenRailRowCheckBox"
+                selected="{railHealth>selected}"
+                select=".onRailRowSelect"/>
 
 
-            <!-- PAYMENT RAIL -->
-            <Column
-                id="_IDGenRailColumn"
-                width="20%">
-
-                <Text
-                    id="_IDGenRailColumnText"
-                    text="Payment Rail"/>
-
-            </Column>
+            <!-- 1. CHANNEL -->
+            <Text
+                id="_IDGenRailChannelText"
+                text="{railHealth>channel}"/>
 
 
-            <!-- STATUS -->
-            <Column
-                id="_IDGenStatusColumn"
-                width="20%">
-
-                <Text
-                    id="_IDGenStatusColumnText"
-                    text="Status"/>
-
-            </Column>
+            <!-- 2. STATUS -->
+            <Text
+                id="_IDGenRailStatus"
+                text="{railHealth>status}"/>
 
 
-            <!-- SUCCESS RATE -->
-            <Column
-                id="_IDGenSuccessColumn"
-                width="20%">
-
-                <Text
-                    id="_IDGenSuccessColumnText"
-                    text="Success Rate"/>
-
-            </Column>
+            <!-- 3. SUCCESS RATE -->
+            <Text
+                id="_IDGenRailSuccessText"
+                text="{railHealth>successRate}"/>
 
 
-            <!-- RESPONSE -->
-            <Column
-                id="_IDGenResponseColumn"
-                width="20%">
-
-                <Text
-                    id="_IDGenResponseColumnText"
-                    text="Avg Response"/>
-
-            </Column>
+            <!-- 4. AVG RESPONSE -->
+            <Text
+                id="_IDGenRailResponseText"
+                text="{railHealth>responseTime}"/>
 
 
-            <!-- VOLUME -->
-            <Column
-                id="_IDGenVolumeColumn"
-                width="20%">
-
-                <Text
-                    id="_IDGenVolumeColumnText"
-                    text="Volume"/>
-
-            </Column>
-
-        </columns>
+            <!-- 5. MEDIUM -->
+            <Text
+                id="_IDGenRailMediumText"
+                text="{railHealth>medium}"/>
 
 
-        <items>
-
-            <ColumnListItem
-                id="_IDGenRailColumnListItem"
-                type="Navigation"
-                press=".onRailRowPress">
-
-                <cells>
-
-                    <!-- ROW CHECKBOX -->
-                    <CheckBox
-                        id="_IDGenRailRowCheckBox"
-                        selected="{railHealth>selected}"
-                        select=".onRailRowSelect"/>
+            <!-- 6. QUEUE DEPTH -->
+            <Text
+                id="_IDGenRailQueueDepthText"
+                text="{railHealth>queueDepth}"/>
 
 
-                    <!-- PAYMENT RAIL -->
-                    <Text
-                        id="_IDGenRailText"
-                        text="{railHealth>rail}"/>
+            <!-- 7. CREATED ON -->
+            <Text
+                id="_IDGenCreatedOnText"
+                text="{railHealth>createdOn}"/>
 
+        </cells>
 
-                    <!-- STATUS -->
-                    <Text
-                        id="_IDGenRailStatus"
-                        text="{railHealth>status}"/>
+    </ColumnListItem>
 
-
-                    <!-- SUCCESS RATE -->
-                    <Text
-                        id="_IDGenRailSuccessText"
-                        text="{railHealth>successRate}"/>
-
-
-                    <!-- RESPONSE -->
-                    <Text
-                        id="_IDGenRailResponseText"
-                        text="{railHealth>responseTime}"/>
-
-
-                    <!-- VOLUME -->
-                    <Text
-                        id="_IDGenRailVolumeText"
-                        text="{railHealth>volume}"/>
-
-                </cells>
-
-            </ColumnListItem>
-
-        </items>
+</items>
 
     </Table>
 
@@ -756,113 +790,100 @@
                         <!-- DETAILS TABLE -->
                         <!-- ========================================= -->
 
-                        <Table
-                            id="_IDGenRailDetailsTable"
-                            width="100%"
-                            inset="false"
-                            class="sapUiSmallMarginTop"
-                            items="{railHealth>/railDetails}">
+                       <Table
+    id="_IDGenRailDetailsTable"
+    width="100%"
+    inset="false"
+    class="sapUiSmallMarginTop"
+    items="{railHealth>/railDetails}">
 
+    <columns>
 
-                            <columns>
+        <Column id="_IDGenDetailsItemNumberColumn">
+            <Text
+                id="_IDGenDetailsItemNumberText"
+                text="Item Number"/>
+        </Column>
 
-                                <Column
-                                    id="_IDGenDetailsDateColumn">
+        <Column id="_IDGenDetailsProcessingStatusColumn">
+            <Text
+                id="_IDGenDetailsProcessingStatusText"
+                text="Item Processing Status"/>
+        </Column>
 
-                                    <Text
-                                        id="_IDGenDetailsDateText"
-                                        text="Date"/>
+        <Column id="_IDGenDetailsIncomingOrderColumn">
+            <Text
+                id="_IDGenDetailsIncomingOrderText"
+                text="Incoming Payment Order"/>
+        </Column>
 
-                                </Column>
+        <Column id="_IDGenDetailsOutgoingOrderColumn">
+            <Text
+                id="_IDGenDetailsOutgoingOrderText"
+                text="Outgoing Payment Order"/>
+        </Column>
 
+        <Column id="_IDGenDetailsTechnicalStatusColumn">
+            <Text
+                id="_IDGenDetailsTechnicalStatusText"
+                text="Technical Status"/>
+        </Column>
 
-                                <Column
-                                    id="_IDGenDetailsStatusColumn">
+        <Column id="_IDGenDetailsPreviousTechnicalStatusColumn">
+            <Text
+                id="_IDGenDetailsPreviousTechnicalStatusText"
+                text="Previous Technical Status"/>
+        </Column>
 
-                                    <Text
-                                        id="_IDGenDetailsStatusText"
-                                        text="Status"/>
+        <Column id="_IDGenDetailsTransactionTypeColumn">
+            <Text
+                id="_IDGenDetailsTransactionTypeText"
+                text="Transaction Type"/>
+        </Column>
 
-                                </Column>
+    </columns>
 
+    <items>
 
-                                <Column
-                                    id="_IDGenDetailsSuccessColumn">
+        <ColumnListItem id="_IDGenRailDetailsItem">
 
-                                    <Text
-                                        id="_IDGenDetailsSuccessText"
-                                        text="Success Rate"/>
+            <cells>
 
-                                </Column>
+                <Text
+                    id="_IDGenDetailsItemNumberValue"
+                    text="{railHealth>itemNumber}"/>
 
+                <Text
+                    id="_IDGenDetailsProcessingStatusValue"
+                    text="{railHealth>itemProcessingStatus}"/>
 
-                                <Column
-                                    id="_IDGenDetailsResponseColumn">
+                <Text
+                    id="_IDGenDetailsIncomingOrderValue"
+                    text="{railHealth>incomingPaymentOrder}"/>
 
-                                    <Text
-                                        id="_IDGenDetailsResponseText"
-                                        text="Avg Response"/>
+                <Text
+                    id="_IDGenDetailsOutgoingOrderValue"
+                    text="{railHealth>outgoingPaymentOrder}"/>
 
-                                </Column>
+                <Text
+                    id="_IDGenDetailsTechnicalStatusValue"
+                    text="{railHealth>technicalStatus}"/>
 
+                <Text
+                    id="_IDGenDetailsPreviousTechnicalStatusValue"
+                    text="{railHealth>previousTechnicalStatus}"/>
 
-                                <Column
-                                    id="_IDGenDetailsVolumeColumn">
+                <Text
+                    id="_IDGenDetailsTransactionTypeValue"
+                    text="{railHealth>transactionType}"/>
 
-                                    <Text
-                                        id="_IDGenDetailsVolumeText"
-                                        text="Volume"/>
+            </cells>
 
-                                </Column>
+        </ColumnListItem>
 
-                            </columns>
+    </items>
 
-
-                            <items>
-
-                                <ColumnListItem
-                                    id="_IDGenRailDetailsItem">
-
-                                    <cells>
-
-                                        <Text
-                                            id="_IDGenDetailsDateValue"
-                                            text="{railHealth>date}"/>
-
-
-                                        <ObjectStatus
-                                            id="_IDGenDetailsStatusValue"
-                                            text="{railHealth>status}"
-                                            state="{
-                                                = ${railHealth>status} === 'Healthy'
-                                                ? 'Success'
-                                                : ${railHealth>status} === 'Warning'
-                                                ? 'Warning'
-                                                : 'Error'
-                                            }"/>
-
-
-                                        <Text
-                                            id="_IDGenDetailsSuccessValue"
-                                            text="{railHealth>successRate}"/>
-
-
-                                        <Text
-                                            id="_IDGenDetailsResponseValue"
-                                            text="{railHealth>responseTime}"/>
-
-
-                                        <Text
-                                            id="_IDGenDetailsVolumeValue"
-                                            text="{railHealth>volume}"/>
-
-                                    </cells>
-
-                                </ColumnListItem>
-
-                            </items>
-
-                        </Table>
+</Table>
 
                     </VBox>
 

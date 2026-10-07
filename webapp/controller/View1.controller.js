@@ -71,6 +71,11 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
         { key: "CreatedBy", label: "Created By", default: true },
         { key: "ReleasedBy", label: "Released By", default: true },
 
+        // NEW FIELDS
+    { key: "OrderFormat", label: "Order Format", default: true },
+    { key: "Medium", label: "Medium", default: true },
+    { key: "Channel", label: "Channel", default: true },
+
         { key: "ClearingArea", label: "Clearing Area" },
         { key: "PaymentOrderNumber", label: "Payment Order Number" },
         { key: "PaymentOrderDate", label: "Payment Order Date", type: "date" },
