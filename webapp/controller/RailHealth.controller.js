@@ -1,16 +1,29 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
-    "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"
+    "sap/ui/core/library"
 ], function (
     Controller,
     JSONModel,
-    Filter,
-    FilterOperator
+    coreLibrary
 ) {
 
     "use strict";
+
+    var ValueState = coreLibrary.ValueState;
+
+    // ================================================================
+    // PAYMENT ORDER TECHNICAL STATUS GROUPS
+    // Same groupings as the Overview tab (View1.controller.js)
+    // ================================================================
+
+    var ORDER_STATUS_SUCCESS = ["128", "130", "230", "270"];
+    var ORDER_STATUS_FAILED = ["114", "170"];
+    var ORDER_STATUS_REJECTED = ["172", "173"];
+    var ORDER_STATUS_PENDING = [
+        "39", "35", "37", "110", "115", "117", "118", "119", "120",
+        "176", "177", "178", "179", "180", "101", "103", "105"
+    ];
 
     return Controller.extend("payment.dashboard.controller.RailHealth", {
 
@@ -24,78 +37,42 @@ sap.ui.define([
 
                 allRailsSelected: false,
 
-                // ====================================================
-                // GLOBAL FILTER
-                // ====================================================
-
                 globalFilter: {
                     clearingArea: "",
                     date: "",
                     createdOn: ""
                 },
 
-                // ====================================================
-                // AVAILABLE CHANNELS
-                // ====================================================
-
                 availableRails: [
-                    {
-                        key: "All",
-                        text: "All"
-                    }
+                    { key: "All", text: "All" }
                 ],
 
-                // ====================================================
-                // KPI DATA
-                // ====================================================
-
                 kpis: {
-
                     overallHealth: "0%",
                     overallHealthSub: "No data for this filter",
-
                     activeRails: "0 / 0",
                     activeRailsSub: "No data for this filter",
-
                     transactions: "0",
                     transactionsSub: "No data for this filter",
-
                     successRate: "0%",
                     successRateSub: "No data for this filter",
-
                     failedPayments: "0%",
                     failedPaymentsSub: "No data for this filter",
-
                     responseTime: "0 ms",
                     responseTimeSub: "No data for this filter",
-
                     queueDepth: "0",
                     queueDepthSub: "No data for this filter",
-
                     alerts: "0",
                     alertsSub: "No data for this filter"
                 },
 
-                // ====================================================
-                // RAIL OVERVIEW
-                // ====================================================
-
                 railOverview: [],
-
                 filteredRailOverview: [],
-
-                // ====================================================
-                // TABLE FILTERS
-                // ====================================================
 
                 railFilters: {
                     rail: "All",
                     status: "All"
                 },
-
-                // ====================================================
-                // SELECTED RAIL / CHANNEL
-                // ====================================================
 
                 selectedRail: {
                     channel: "",
@@ -103,22 +80,21 @@ sap.ui.define([
                     status: "",
                     successRate: "",
                     responseTime: "",
-                    queueDepth: ""
+                    queueDepth: "",
+                    createdOn: ""
                 },
 
                 // ====================================================
-                // DETAILS
+                // ✅ NEW — PAYMENT ORDERS FOR SELECTED CHANNEL
                 // ====================================================
 
-                railDetailsDirection: "Incoming",
-
-                railDetails: []
+                railOrders: [],
+                railOrdersBusy: false,
+                railOrdersTitle: "",
+                railOrdersInfo: ""
             });
 
-            this.getView().setModel(
-                oRailHealthModel,
-                "railHealth"
-            );
+            this.getView().setModel(oRailHealthModel, "railHealth");
         },
 
 
@@ -132,23 +108,16 @@ sap.ui.define([
                 return;
             }
 
-            var oFilterModel =
-                this.getView().getModel("filterModel");
+            var oFilterModel = this.getView().getModel("filterModel");
 
             if (!oFilterModel) {
-
-                console.warn(
-                    "Rail Health: filterModel still not found at onAfterRendering"
-                );
-
+                console.warn("Rail Health: filterModel still not found at onAfterRendering");
                 return;
             }
 
             this._bInitialLoadDone = true;
 
-            console.log(
-                "Rail Health: initial load via onAfterRendering"
-            );
+            console.log("Rail Health: initial load via onAfterRendering");
 
             this.onFilterChange();
         },
@@ -160,472 +129,105 @@ sap.ui.define([
 
         onFilterChange: function () {
 
-            var oFilterModel =
-                this.getView().getModel("filterModel");
+            var oFilterModel = this.getView().getModel("filterModel");
 
             if (!oFilterModel) {
-
-                console.warn(
-                    "Rail Health: filterModel not found"
-                );
-
+                console.warn("Rail Health: filterModel not found");
                 return;
             }
 
-            var sClearingArea =
-                oFilterModel.getProperty("/clearingArea");
+            var sClearingArea = oFilterModel.getProperty("/clearingArea");
+            var sPostingDate = this._normaliseDate(oFilterModel.getProperty("/kpiDate")) || "";
+            var sCreatedOn = this._normaliseDate(oFilterModel.getProperty("/createdOn")) || "";
 
-            var sPostingDate =
-                oFilterModel.getProperty("/kpiDate");
+            console.log("Rail Health global filter:", {
+                clearingArea: sClearingArea,
+                postingDate: sPostingDate,
+                createdOn: sCreatedOn
+            });
 
-            var sCreatedOn =
-                oFilterModel.getProperty("/createdOn");
-
-
-            // ========================================================
-            // NORMALIZE POSTING DATE
-            // ========================================================
-
-            if (sPostingDate instanceof Date) {
-
-                sPostingDate =
-                    sPostingDate.getFullYear() +
-                    "-" +
-                    String(
-                        sPostingDate.getMonth() + 1
-                    ).padStart(2, "0") +
-                    "-" +
-                    String(
-                        sPostingDate.getDate()
-                    ).padStart(2, "0");
-
-            } else if (sPostingDate) {
-
-                sPostingDate =
-                    String(sPostingDate).slice(0, 10);
-            }
-
-
-            // ========================================================
-            // NORMALIZE CREATED ON
-            // ========================================================
-
-            if (sCreatedOn instanceof Date) {
-
-                sCreatedOn =
-                    sCreatedOn.getFullYear() +
-                    "-" +
-                    String(
-                        sCreatedOn.getMonth() + 1
-                    ).padStart(2, "0") +
-                    "-" +
-                    String(
-                        sCreatedOn.getDate()
-                    ).padStart(2, "0");
-
-            } else if (sCreatedOn) {
-
-                sCreatedOn =
-                    String(sCreatedOn).slice(0, 10);
-            }
-
-
-            console.log(
-                "======================================"
-            );
-
-            console.log(
-                "Rail Health global filter:",
-                {
-                    clearingArea: sClearingArea,
-                    postingDate: sPostingDate,
-                    createdOn: sCreatedOn
-                }
-            );
-
-            console.log(
-                "======================================"
-            );
-
-
-            var oRailModel =
-                this.getView().getModel("railHealth");
+            var oRailModel = this.getView().getModel("railHealth");
 
             if (oRailModel) {
-
-                oRailModel.setProperty(
-                    "/globalFilter/clearingArea",
-                    sClearingArea
-                );
-
-                oRailModel.setProperty(
-                    "/globalFilter/date",
-                    sPostingDate
-                );
-
-                oRailModel.setProperty(
-                    "/globalFilter/createdOn",
-                    sCreatedOn
-                );
+                oRailModel.setProperty("/globalFilter/clearingArea", sClearingArea);
+                oRailModel.setProperty("/globalFilter/date", sPostingDate);
+                oRailModel.setProperty("/globalFilter/createdOn", sCreatedOn);
             }
 
-
-            this._loadRailHealthKpis(
-                sClearingArea,
-                sPostingDate,
-                sCreatedOn
-            );
+            this._loadRailHealthKpis(sClearingArea, sPostingDate, sCreatedOn);
         },
 
 
         // ============================================================
-        // LOAD RAIL HEALTH KPI DATA
+        // LOAD RAIL HEALTH KPI DATA  (/RailHealthKpi)
         //
-        // OData Entity:
-        // /RailHealthKpi
-        //
-        // One row per PaymentRail / Medium / ioFormat combination.
+        // Server-side: ClearingArea only.
+        // CreatedOn is applied locally after ALL pages are loaded.
         // ============================================================
 
-        _loadRailHealthKpis: function (
-            sClearingArea,
-            sPostingDate,
-            sCreatedOn
-        ) {
+        _loadRailHealthKpis: function (sClearingArea, sPostingDate, sCreatedOn) {
 
-            var oRailModel =
-                this.getView().getModel("railHealth");
+            var oRailModel = this.getView().getModel("railHealth");
 
             if (!oRailModel) {
-
-                console.error(
-                    "Rail Health: railHealth model missing"
-                );
-
+                console.error("Rail Health: railHealth model missing");
                 return;
             }
 
             if (!sClearingArea) {
-
-                console.warn(
-                    "Rail Health: Clearing Area missing"
-                );
-
+                console.warn("Rail Health: Clearing Area missing");
                 this._setEmptyRailKpis();
-
                 return;
             }
 
-
-            // ========================================================
-            // NORMALIZE DATE
-            // ========================================================
-
-            var fnNormalizeDate = function (vDate) {
-
-                if (!vDate) {
-                    return "";
-                }
-
-                if (vDate instanceof Date) {
-
-                    return (
-                        vDate.getFullYear() +
-                        "-" +
-                        String(
-                            vDate.getMonth() + 1
-                        ).padStart(2, "0") +
-                        "-" +
-                        String(
-                            vDate.getDate()
-                        ).padStart(2, "0")
-                    );
-                }
-
-                return String(vDate).substring(0, 10);
-            };
-
-
-            sPostingDate =
-                fnNormalizeDate(sPostingDate);
-
-            sCreatedOn =
-                fnNormalizeDate(sCreatedOn);
-
-
-            console.log(
-                "======================================"
-            );
-
-            console.log(
-                "RAIL HEALTH FILTER"
-            );
-
-            console.log(
-                "Clearing Area :",
-                sClearingArea
-            );
-
-            console.log(
-                "Posting Date  :",
-                sPostingDate
-            );
-
-            console.log(
-                "Created On    :",
-                sCreatedOn
-            );
-
-            console.log(
-                "======================================"
-            );
-
-
-            // ========================================================
-            // SERVICE URL
-            // ========================================================
-
-            var sServiceUrl =
-                "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/";
-
-            var sEntityUrl =
-                sServiceUrl + "RailHealthKpi";
-
-
-            // ========================================================
-            // BUILD ODATA FILTER
-            // ========================================================
-
-            var aUrlFilters = [];
-
-            if (sClearingArea) {
-
-                aUrlFilters.push(
-                    "ClearingArea eq '" +
-                    String(sClearingArea)
-                        .replace(/'/g, "''") +
-                    "'"
+            var sUrl =
+                this._getServiceUrl() +
+                "RailHealthKpi?$filter=" +
+                encodeURIComponent(
+                    "ClearingArea eq '" + String(sClearingArea).replace(/'/g, "''") + "'"
                 );
-            }
 
-            if (sCreatedOn) {
+            console.log("Rail Health OData URL:", sUrl);
 
-                aUrlFilters.push(
-                    "CreatedOn eq " +
-                    sCreatedOn
-                );
-            }
-
-
-            var sUrl = sEntityUrl;
-
-            if (aUrlFilters.length) {
-
-                sUrl +=
-                    "?$filter=" +
-                    encodeURIComponent(
-                        aUrlFilters.join(" and ")
-                    );
-            }
-
-
-            console.log(
-                "Rail Health OData URL:",
-                sUrl
-            );
-
-
-            // ========================================================
-            // READ ALL ODATA PAGES
-            // ========================================================
-
-            var fnReadPage = function (
-                sPageUrl,
-                aAllRows
-            ) {
-
-                return fetch(sPageUrl, {
-
-                    method: "GET",
-
-                    headers: {
-                        "Accept": "application/json"
-                    }
-                })
-
-                    .then(function (oResponse) {
-
-                        if (!oResponse.ok) {
-
-                            throw new Error(
-                                "HTTP " +
-                                oResponse.status +
-                                " while loading RailHealthKpi"
-                            );
-                        }
-
-                        return oResponse.json();
-                    })
-
-                    .then(function (oPayload) {
-
-                        var aRows =
-                            oPayload &&
-                            Array.isArray(oPayload.value)
-                                ? oPayload.value
-                                : [];
-
-                        console.log(
-                            "Rail Health: page rows:",
-                            aRows.length
-                        );
-
-                        aAllRows.push.apply(
-                            aAllRows,
-                            aRows
-                        );
-
-
-                        var sNextLink =
-                            oPayload["@odata.nextLink"];
-
-
-                        if (sNextLink) {
-
-                            console.log(
-                                "Rail Health: loading next OData page"
-                            );
-
-                            return fnReadPage(
-                                sNextLink,
-                                aAllRows
-                            );
-                        }
-
-                        return aAllRows;
-                    });
-            };
-
-
-            // ========================================================
-            // LOAD DATA
-            // ========================================================
-
-            fnReadPage(sUrl, [])
+            this._fetchAllPages(sUrl)
 
                 .then(function (aData) {
 
-                    console.log(
-                        "======================================"
-                    );
+                    console.log("Rail Health: TOTAL rows loaded:", aData.length);
+                    console.log("Rail Health: first rows:", aData.slice(0, 5));
 
-                    console.log(
-                        "Rail Health: TOTAL rows loaded:",
-                        aData.length
-                    );
+                    var aMatchingRecords = aData.filter(function (oItem) {
 
-                    console.log(
-                        "Rail Health: first rows:",
-                        aData.slice(0, 5)
-                    );
+                        if (String(oItem.ClearingArea || "") !== String(sClearingArea)) {
+                            return false;
+                        }
 
-                    console.log(
-                        "======================================"
-                    );
+                        if (sCreatedOn && this._normaliseDate(oItem.CreatedOn) !== sCreatedOn) {
+                            return false;
+                        }
 
+                        return true;
 
-                    // ====================================================
-                    // SAFETY FILTER — CLEARING AREA
-                    // ====================================================
+                    }.bind(this));
 
-                    var aMatchingRecords =
-                        aData.filter(function (oItem) {
-
-                            return String(
-                                oItem.ClearingArea || ""
-                            ) === String(
-                                sClearingArea
-                            );
-                        });
-
-
-                    // ====================================================
-                    // SAFETY FILTER — CREATED ON
-                    // ====================================================
-
-                    if (sCreatedOn) {
-
-                        aMatchingRecords =
-                            aMatchingRecords.filter(
-                                function (oItem) {
-
-                                    return (
-                                        fnNormalizeDate(
-                                            oItem.CreatedOn
-                                        ) === sCreatedOn
-                                    );
-                                }
-                            );
-                    }
-
-
-                    console.log(
-                        "Rail Health: records after filters:",
-                        aMatchingRecords.length
-                    );
-
-
-                    if (aMatchingRecords.length) {
-
-                        console.log(
-                            "Rail Health: matching records:",
-                            aMatchingRecords
-                        );
-
-                    } else {
-
-                        console.warn(
-                            "Rail Health: NO matching records",
-                            {
-                                clearingArea: sClearingArea,
-                                postingDate: sPostingDate,
-                                createdOn: sCreatedOn
-                            }
-                        );
-                    }
-
-
-                    // ====================================================
-                    // NO DATA
-                    // ====================================================
+                    console.log("Rail Health: records after filters:", aMatchingRecords.length);
 
                     if (!aMatchingRecords.length) {
-
+                        console.warn("Rail Health: NO matching records", {
+                            clearingArea: sClearingArea,
+                            createdOn: sCreatedOn
+                        });
                         this._setEmptyRailKpis();
-
                         return;
                     }
 
-
-                    // ====================================================
-                    // UPDATE KPI + TABLE
-                    // ====================================================
-
-                    this._updateRailKpis(
-                        aMatchingRecords
-                    );
+                    this._updateRailKpis(aMatchingRecords);
 
                 }.bind(this))
 
                 .catch(function (oError) {
-
-                    console.error(
-                        "Rail Health RailHealthKpi load failed:",
-                        oError
-                    );
-
+                    console.error("Rail Health RailHealthKpi load failed:", oError);
                     this._setEmptyRailKpis();
-
                 }.bind(this));
         },
 
@@ -636,474 +238,133 @@ sap.ui.define([
 
         _updateRailKpis: function (aRecords) {
 
-            var oModel =
-                this.getView().getModel("railHealth");
+            var oModel = this.getView().getModel("railHealth");
 
-            if (
-                !oModel ||
-                !aRecords ||
-                !aRecords.length
-            ) {
+            if (!oModel || !aRecords || !aRecords.length) {
                 return;
             }
 
-
-            // ========================================================
-            // AGGREGATE KPI VALUES
-            // ========================================================
-
             var iTotalTransactions = 0;
             var iTotalCriticalAlerts = 0;
-
             var fResponseTimeWeighted = 0;
             var fSuccessRateWeighted = 0;
             var fFailedRateWeighted = 0;
             var fQueueDepthWeighted = 0;
             var fOverallHealthWeighted = 0;
-
             var aDistinctRails = [];
-
 
             aRecords.forEach(function (oItem) {
 
-                var iTx =
-                    Number(oItem.Transactions || 0);
+                var iTx = Number(oItem.Transactions || 0);
 
                 iTotalTransactions += iTx;
+                iTotalCriticalAlerts += Number(oItem.CriticalAlerts || 0);
 
-                iTotalCriticalAlerts +=
-                    Number(
-                        oItem.CriticalAlerts || 0
-                    );
+                fResponseTimeWeighted += Number(oItem.ResponseTime || 0) * iTx;
+                fSuccessRateWeighted += Number(oItem.SuccessRate || 0) * iTx;
+                fFailedRateWeighted += Number(oItem.FailedRate || 0) * iTx;
+                fQueueDepthWeighted += Number(oItem.QueueDepth || 0) * iTx;
+                fOverallHealthWeighted += Number(oItem.OverallHealth || 0) * iTx;
 
-                fResponseTimeWeighted +=
-                    Number(
-                        oItem.ResponseTime || 0
-                    ) * iTx;
+                var sRail = oItem.PaymentRail || "";
 
-                fSuccessRateWeighted +=
-                    Number(
-                        oItem.SuccessRate || 0
-                    ) * iTx;
-
-                fFailedRateWeighted +=
-                    Number(
-                        oItem.FailedRate || 0
-                    ) * iTx;
-
-                fQueueDepthWeighted +=
-                    Number(
-                        oItem.QueueDepth || 0
-                    ) * iTx;
-
-                fOverallHealthWeighted +=
-                    Number(
-                        oItem.OverallHealth || 0
-                    ) * iTx;
-
-
-                var sRail =
-                    oItem.PaymentRail || "";
-
-                if (
-                    sRail &&
-                    aDistinctRails.indexOf(sRail) === -1
-                ) {
+                if (sRail && aDistinctRails.indexOf(sRail) === -1) {
                     aDistinctRails.push(sRail);
                 }
             });
 
+            var fnAvg = function (fWeighted) {
+                return iTotalTransactions > 0 ? fWeighted / iTotalTransactions : 0;
+            };
 
-            var fResponseTime =
-                iTotalTransactions > 0
-                    ? fResponseTimeWeighted /
-                      iTotalTransactions
-                    : 0;
+            var iTotalRailCount = Number(aRecords[0].TotalRailCount || 0);
 
-            var fSuccessRate =
-                iTotalTransactions > 0
-                    ? fSuccessRateWeighted /
-                      iTotalTransactions
-                    : 0;
+            // ---------------- KPI TILES ----------------
 
-            var fFailedRate =
-                iTotalTransactions > 0
-                    ? fFailedRateWeighted /
-                      iTotalTransactions
-                    : 0;
+            oModel.setProperty("/kpis/transactions", this._formatNumber(iTotalTransactions));
+            oModel.setProperty("/kpis/transactionsSub", "Total transactions");
 
-            var fQueueDepth =
-                iTotalTransactions > 0
-                    ? fQueueDepthWeighted /
-                      iTotalTransactions
-                    : 0;
+            oModel.setProperty("/kpis/successRate", this._formatPercent(fnAvg(fSuccessRateWeighted)));
+            oModel.setProperty("/kpis/successRateSub", "Across selected payment rail");
 
-            var fOverallHealth =
-                iTotalTransactions > 0
-                    ? fOverallHealthWeighted /
-                      iTotalTransactions
-                    : 0;
+            oModel.setProperty("/kpis/failedPayments", this._formatPercent(fnAvg(fFailedRateWeighted)));
+            oModel.setProperty("/kpis/failedPaymentsSub", "Of total transactions");
 
+            oModel.setProperty("/kpis/responseTime", this._formatResponseTime(fnAvg(fResponseTimeWeighted)));
+            oModel.setProperty("/kpis/responseTimeSub", "Average response time");
 
-            var iActiveRailCount =
-                aDistinctRails.length;
+            oModel.setProperty("/kpis/queueDepth", Number(fnAvg(fQueueDepthWeighted)).toFixed(3));
+            oModel.setProperty("/kpis/queueDepthSub", "Transactions in queue");
 
-            var iTotalRailCount =
-                Number(
-                    aRecords[0].TotalRailCount || 0
-                );
-
-
-            // ========================================================
-            // KPI TILES
-            // ========================================================
-
-            oModel.setProperty(
-                "/kpis/transactions",
-                this._formatNumber(
-                    iTotalTransactions
-                )
-            );
-
-            oModel.setProperty(
-                "/kpis/transactionsSub",
-                "Total transactions"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/successRate",
-                this._formatPercent(
-                    fSuccessRate
-                )
-            );
-
-            oModel.setProperty(
-                "/kpis/successRateSub",
-                "Across selected payment rail"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/failedPayments",
-                this._formatPercent(
-                    fFailedRate
-                )
-            );
-
-            oModel.setProperty(
-                "/kpis/failedPaymentsSub",
-                "Of total transactions"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/responseTime",
-                this._formatResponseTime(
-                    fResponseTime
-                )
-            );
-
-            oModel.setProperty(
-                "/kpis/responseTimeSub",
-                "Average response time"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/queueDepth",
-                Number(fQueueDepth).toFixed(3)
-            );
-
-            oModel.setProperty(
-                "/kpis/queueDepthSub",
-                "Transactions in queue"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/alerts",
-                String(iTotalCriticalAlerts)
-            );
-
+            oModel.setProperty("/kpis/alerts", String(iTotalCriticalAlerts));
             oModel.setProperty(
                 "/kpis/alertsSub",
-                iTotalCriticalAlerts > 0
-                    ? "Require attention"
-                    : "No critical alerts"
+                iTotalCriticalAlerts > 0 ? "Require attention" : "No critical alerts"
             );
 
+            oModel.setProperty("/kpis/overallHealth", this._formatPercent(fnAvg(fOverallHealthWeighted)));
+            oModel.setProperty("/kpis/overallHealthSub", "From RailHealthKpi");
 
-            oModel.setProperty(
-                "/kpis/overallHealth",
-                this._formatPercent(
-                    fOverallHealth
-                )
-            );
+            oModel.setProperty("/kpis/activeRails", aDistinctRails.length + " / " + iTotalRailCount);
+            oModel.setProperty("/kpis/activeRailsSub", "Active for selected filter");
 
-            oModel.setProperty(
-                "/kpis/overallHealthSub",
-                "From RailHealthKpi"
-            );
+            // ---------------- TABLE ROWS ----------------
 
+            var aRailRows = aRecords.map(function (oItem) {
 
-            oModel.setProperty(
-                "/kpis/activeRails",
-                iActiveRailCount +
-                " / " +
-                iTotalRailCount
-            );
+                return {
+                    channel: oItem.PaymentRail
+                        ? String(oItem.PaymentRail).replace(/^\/+/, "")
+                        : "",
 
-            oModel.setProperty(
-                "/kpis/activeRailsSub",
-                "Active for selected filter"
-            );
+                    medium: oItem.Medium
+                        ? String(oItem.Medium).replace(/^\/+/, "")
+                        : "",
 
+                    status: oItem.HealthStatus || "",
 
-            // ========================================================
-            // TABLE
-            //
-            // DIRECTLY FROM ODATA
-            //
-            // PaymentRail  -> channel
-            // Medium       -> medium
-            // HealthStatus -> status
-            // SuccessRate  -> successRate
-            // ResponseTime -> responseTime
-            // QueueDepth   -> queueDepth
-            // ========================================================
+                    successRate: this._formatPercent(Number(oItem.SuccessRate || 0)),
 
-            var aRailRows =
-                aRecords.map(function (oItem) {
+                    responseTime: this._formatResponseTime(Number(oItem.ResponseTime || 0)),
 
-                    return {
+                    queueDepth: Number(oItem.QueueDepth || 0).toFixed(2),
 
-                        // --------------------------------------------
-                        // CHANNEL
-                        // OData: PaymentRail
-                        // --------------------------------------------
+                    createdOn: this._formatDisplayDate(oItem.CreatedOn),
 
-                        channel:
-                            oItem.PaymentRail
-                                ? String(
-                                    oItem.PaymentRail
-                                ).replace(/^\/+/, "")
-                                : "",
+                    createdOnRaw: this._normaliseDate(oItem.CreatedOn) || "",
 
+                    oData: oItem,
 
-                        // --------------------------------------------
-                        // MEDIUM
-                        // OData: Medium
-                        // --------------------------------------------
+                    selected: false
+                };
 
-                        medium:
-                            oItem.Medium
-                                ? String(
-                                    oItem.Medium
-                                ).replace(/^\/+/, "")
-                                : "",
+            }.bind(this));
 
+            oModel.setProperty("/railOverview", aRailRows);
 
-                        // --------------------------------------------
-                        // STATUS
-                        // OData: HealthStatus
-                        // --------------------------------------------
+            // Re-apply Rail / Status / Created On table filters
+            this.onRailFilterChange();
 
-                        status:
-                            oItem.HealthStatus || "",
+            // ---------------- CHANNEL DROPDOWN ----------------
 
+            var aChannels = [];
 
-                        // --------------------------------------------
-                        // SUCCESS RATE
-                        // OData: SuccessRate
-                        // --------------------------------------------
-
-                        successRate:
-                            this._formatPercent(
-                                Number(
-                                    oItem.SuccessRate || 0
-                                )
-                            ),
-
-
-                        // --------------------------------------------
-                        // AVG RESPONSE
-                        // OData: ResponseTime
-                        // --------------------------------------------
-
-                        responseTime:
-                            this._formatResponseTime(
-                                Number(
-                                    oItem.ResponseTime || 0
-                                )
-                            ),
-
-
-                        // --------------------------------------------
-                        // QUEUE DEPTH
-                        // OData: QueueDepth
-                        // --------------------------------------------
-
-                        queueDepth:
-                            Number(
-                                oItem.QueueDepth || 0
-                            ).toFixed(2),
-
-
-                        // --------------------------------------------
-                        // KEEP ORIGINAL ODATA ROW
-                        //
-                        // This will be useful when we implement
-                        // row-click details.
-                        // --------------------------------------------
-
-                        oData:
-                            oItem,
-
-                        selected: false
-                    };
-
-                }.bind(this));
-
-
-            console.log(
-                "======================================"
-            );
-
-            console.log(
-                "RAIL TABLE ROWS CREATED:",
-                aRailRows
-            );
-
-            console.log(
-                "======================================"
-            );
-
-
-            oModel.setProperty(
-                "/railOverview",
-                aRailRows
-            );
-
-            oModel.setProperty(
-                "/filteredRailOverview",
-                aRailRows
-            );
-
-            oModel.setProperty(
-                "/allRailsSelected",
-                false
-            );
-
-
-            // ========================================================
-            // CHANNEL FILTER DROPDOWN
-            // ========================================================
-
-            var aAvailableRails = [
-                {
-                    key: "All",
-                    text: "All"
+            aRailRows.forEach(function (oRow) {
+                if (oRow.channel && aChannels.indexOf(oRow.channel) === -1) {
+                    aChannels.push(oRow.channel);
                 }
-            ].concat(
-
-                aRailRows
-
-                    .map(function (oRow) {
-                        return oRow.channel;
-                    })
-
-                    .filter(function (
-                        sChannel,
-                        iIndex,
-                        aArray
-                    ) {
-
-                        return (
-                            sChannel &&
-                            aArray.indexOf(
-                                sChannel
-                            ) === iIndex
-                        );
-                    })
-
-                    .map(function (sChannel) {
-
-                        return {
-                            key: sChannel,
-                            text: sChannel
-                        };
-
-                    })
-            );
-
+            });
 
             oModel.setProperty(
                 "/availableRails",
-                aAvailableRails
-            );
-
-
-            oModel.refresh(true);
-
-
-            console.log(
-                "FINAL RAIL TABLE DATA:",
-                JSON.stringify(
-                    aRailRows
+                [{ key: "All", text: "All" }].concat(
+                    aChannels.map(function (sChannel) {
+                        return { key: sChannel, text: sChannel };
+                    })
                 )
             );
 
-
-            // ========================================================
-            // TABLE DEBUG
-            // ========================================================
-
-            setTimeout(function () {
-
-                var oTable =
-                    this.byId(
-                        "_IDGenRailOverviewTable"
-                    );
-
-                if (!oTable) {
-
-                    console.error(
-                        "RAIL TABLE NOT FOUND"
-                    );
-
-                    return;
-                }
-
-
-                var oBinding =
-                    oTable.getBinding("items");
-
-
-                console.log(
-                    "RAIL TABLE ITEMS:",
-                    oTable.getItems().length
-                );
-
-                console.log(
-                    "RAIL TABLE BINDING LENGTH:",
-                    oBinding
-                        ? oBinding.getLength()
-                        : "NO BINDING"
-                );
-
-                console.log(
-                    "RAIL TABLE MODEL DATA:",
-                    oTable.getModel("railHealth")
-                        ? oTable
-                            .getModel("railHealth")
-                            .getProperty(
-                                "/filteredRailOverview"
-                            )
-                        : "NO railHealth MODEL"
-                );
-
-            }.bind(this), 500);
+            oModel.refresh(true);
         },
 
 
@@ -1113,36 +374,21 @@ sap.ui.define([
 
         onRailSelectAll: function (oEvent) {
 
-            var oModel =
-                this.getView().getModel("railHealth");
+            var oModel = this.getView().getModel("railHealth");
 
             if (!oModel) {
                 return;
             }
 
-            var bSelected =
-                oEvent.getParameter("selected");
-
-            var aRails =
-                oModel.getProperty(
-                    "/filteredRailOverview"
-                ) || [];
-
+            var bSelected = oEvent.getParameter("selected");
+            var aRails = oModel.getProperty("/filteredRailOverview") || [];
 
             aRails.forEach(function (oRail) {
                 oRail.selected = bSelected;
             });
 
-
-            oModel.setProperty(
-                "/filteredRailOverview",
-                aRails
-            );
-
-            oModel.setProperty(
-                "/allRailsSelected",
-                bSelected
-            );
+            oModel.setProperty("/filteredRailOverview", aRails);
+            oModel.setProperty("/allRailsSelected", bSelected);
         },
 
 
@@ -1152,688 +398,220 @@ sap.ui.define([
 
         onRailRowSelect: function (oEvent) {
 
-            var oModel =
-                this.getView().getModel("railHealth");
+            var oModel = this.getView().getModel("railHealth");
 
             if (!oModel) {
                 return;
             }
 
-            var oContext =
-                oEvent
-                    .getSource()
-                    .getBindingContext("railHealth");
+            var oContext = oEvent.getSource().getBindingContext("railHealth");
 
             if (!oContext) {
                 return;
             }
 
-            var bSelected =
-                oEvent.getParameter("selected");
+            oModel.setProperty(
+                oContext.getPath() + "/selected",
+                oEvent.getParameter("selected")
+            );
 
-
-            oContext
-                .getModel()
-                .setProperty(
-                    oContext.getPath() +
-                    "/selected",
-                    bSelected
-                );
-
-
-            var aRails =
-                oModel.getProperty(
-                    "/filteredRailOverview"
-                ) || [];
-
-
-            var bAllSelected =
-                aRails.length > 0 &&
-                aRails.every(function (oRail) {
-                    return oRail.selected === true;
-                });
-
+            var aRails = oModel.getProperty("/filteredRailOverview") || [];
 
             oModel.setProperty(
                 "/allRailsSelected",
-                bAllSelected
+                aRails.length > 0 && aRails.every(function (oRail) {
+                    return oRail.selected === true;
+                })
             );
         },
 
 
         // ============================================================
-        // TABLE FILTER
+        // TABLE FILTER (Rail / Status / global Created On)
         // ============================================================
 
         onRailFilterChange: function () {
 
-            var oModel =
-                this.getView().getModel("railHealth");
+            var oModel = this.getView().getModel("railHealth");
 
             if (!oModel) {
                 return;
             }
 
+            var sRail = oModel.getProperty("/railFilters/rail");
+            var sStatus = oModel.getProperty("/railFilters/status");
+            var sCreatedOn = oModel.getProperty("/globalFilter/createdOn") || "";
+            var aAllRails = oModel.getProperty("/railOverview") || [];
 
-            var sRail =
-                oModel.getProperty(
-                    "/railFilters/rail"
-                );
+            var aFilteredRails = aAllRails.filter(function (oRail) {
 
-            var sStatus =
-                oModel.getProperty(
-                    "/railFilters/status"
-                );
+                var bRailMatch = sRail === "All" || oRail.channel === sRail;
+                var bStatusMatch = sStatus === "All" || oRail.status === sStatus;
+                var bCreatedOnMatch = !sCreatedOn || oRail.createdOnRaw === sCreatedOn;
 
+                return bRailMatch && bStatusMatch && bCreatedOnMatch;
+            });
 
-            var aAllRails =
-                oModel.getProperty(
-                    "/railOverview"
-                ) || [];
-
-
-            var aFilteredRails =
-                aAllRails.filter(function (oRail) {
-
-                    // =================================================
-                    // IMPORTANT:
-                    //
-                    // Filter is now against "channel",
-                    // which comes directly from PaymentRail.
-                    // =================================================
-
-                    var bRailMatch =
-                        sRail === "All" ||
-                        oRail.channel === sRail;
-
-
-                    var bStatusMatch =
-                        sStatus === "All" ||
-                        oRail.status === sStatus;
-
-
-                    return (
-                        bRailMatch &&
-                        bStatusMatch
-                    );
-                });
-
-
-            oModel.setProperty(
-                "/filteredRailOverview",
-                aFilteredRails
-            );
-
+            oModel.setProperty("/filteredRailOverview", aFilteredRails);
 
             oModel.setProperty(
                 "/allRailsSelected",
-                aFilteredRails.length > 0 &&
-                aFilteredRails.every(
-                    function (oRail) {
-                        return (
-                            oRail.selected === true
-                        );
-                    }
-                )
+                aFilteredRails.length > 0 && aFilteredRails.every(function (oRail) {
+                    return oRail.selected === true;
+                })
             );
         },
 
 
         // ============================================================
-        // ROW PRESS
+        // ✅ ROW PRESS — open dialog with PaymentInfo orders for
+        // the clicked row's channel
         // ============================================================
 
         onRailRowPress: function (oEvent) {
 
-            var oContext =
-                oEvent
-                    .getSource()
-                    .getBindingContext("railHealth");
+            var oContext = oEvent.getSource().getBindingContext("railHealth");
 
             if (!oContext) {
                 return;
             }
 
+            var oSelectedRail = oContext.getObject();
+            var oModel = this.getView().getModel("railHealth");
 
-            var oSelectedRail =
-                oContext.getObject();
+            oModel.setProperty("/selectedRail", oSelectedRail);
 
+            console.log("SELECTED RAIL ROW:", oSelectedRail);
 
-            var oModel =
-                this.getView().getModel("railHealth");
-
-
-            // Store complete selected row
-
-            oModel.setProperty(
-                "/selectedRail",
-                oSelectedRail
-            );
-
-
-            oModel.setProperty(
-                "/railDetailsDirection",
-                "Incoming"
-            );
-
-
-            console.log(
-                "======================================"
-            );
-
-            console.log(
-                "SELECTED RAIL ROW:",
-                oSelectedRail
-            );
-
-            console.log(
-                "Channel:",
-                oSelectedRail.channel
-            );
-
-            console.log(
-                "Medium:",
-                oSelectedRail.medium
-            );
-
-            console.log(
-                "Status:",
-                oSelectedRail.status
-            );
-
-            console.log(
-                "Success Rate:",
-                oSelectedRail.successRate
-            );
-
-            console.log(
-                "Avg Response:",
-                oSelectedRail.responseTime
-            );
-
-            console.log(
-                "Queue Depth:",
-                oSelectedRail.queueDepth
-            );
-
-            console.log(
-                "======================================"
-            );
-
-
-            // Keep existing detail loading for now.
-            // We will redesign this after the table is confirmed.
-
-            this._loadRailDetails(
-                oSelectedRail.channel,
-                "Incoming"
-            );
-
-
-            var oDialog =
-                this.byId(
-                    "_IDGenRailDetailsDialog"
-                );
+            var oDialog = this.byId("_IDGenRailDetailsDialog");
 
             if (oDialog) {
                 oDialog.open();
             }
+
+            this._loadRailOrders(oSelectedRail.channel);
         },
 
 
         // ============================================================
-        // DETAILS DIRECTION
-        // ============================================================
-
-        onRailDetailsDirectionChange: function (oEvent) {
-
-            var sDirection =
-                oEvent
-                    .getParameter("item")
-                    .getKey();
-
-
-            var oModel =
-                this.getView().getModel("railHealth");
-
-
-            var oSelectedRail =
-                oModel.getProperty(
-                    "/selectedRail"
-                );
-
-
-            oModel.setProperty(
-                "/railDetailsDirection",
-                sDirection
-            );
-
-
-            if (
-                !oSelectedRail ||
-                !oSelectedRail.channel
-            ) {
-                return;
-            }
-
-
-            this._loadRailDetails(
-                oSelectedRail.channel,
-                sDirection
-            );
-        },
-
-
-        // ============================================================
-        // RAIL DETAILS
+        // ✅ NEW — LOAD PAYMENT ORDERS (PaymentInfo) FOR A CHANNEL
         //
-        // Existing ItemDetails logic is retained for now.
-        // We will redesign this after the table is working.
+        // Server-side : ClearingArea (+ CreatedOn when set)
+        // Client-side : Channel match (normalised) + CreatedOn safety
         // ============================================================
 
-        _loadRailDetails: function (
-            sRail,
-            sDirection
-        ) {
+        _loadRailOrders: function (sChannel) {
 
-            var oModel =
-                this.getView().getModel("railHealth");
-
+            var oModel = this.getView().getModel("railHealth");
 
             if (!oModel) {
-
-                console.error(
-                    "Rail Health: railHealth model missing"
-                );
-
                 return;
             }
 
+            var oGlobalFilter = oModel.getProperty("/globalFilter") || {};
+            var sClearingArea = oGlobalFilter.clearingArea || "";
+            var sCreatedOn = oGlobalFilter.createdOn || "";
+            var sTargetChannel = this._normaliseChannel(sChannel);
 
-            var oGlobalFilter =
-                oModel.getProperty(
-                    "/globalFilter"
-                ) || {};
-
-
-            var sClearingArea =
-                oGlobalFilter.clearingArea || "";
-
-
-            // IMPORTANT:
-            // Use CreatedOn, not Posting Date.
-
-            var sDate =
-                oGlobalFilter.createdOn || "";
-
-
-            console.log(
-                "======================================"
+            oModel.setProperty("/railOrders", []);
+            oModel.setProperty("/railOrdersBusy", true);
+            oModel.setProperty("/railOrdersTitle", sChannel + " – Payment Orders");
+            oModel.setProperty(
+                "/railOrdersInfo",
+                "Clearing Area: " + (sClearingArea || "–") +
+                "   |   Created On: " + (sCreatedOn ? this._formatDisplayDate(sCreatedOn) : "All dates")
             );
 
-            console.log(
-                "RAIL DETAILS"
-            );
-
-            console.log(
-                "Channel      :",
-                sRail
-            );
-
-            console.log(
-                "Direction    :",
-                sDirection
-            );
-
-            console.log(
-                "ClearingArea :",
-                sClearingArea
-            );
-
-            console.log(
-                "Created On   :",
-                sDate
-            );
-
-            console.log(
-                "======================================"
-            );
-
-
-            // ========================================================
-            // SERVICE URL
-            // ========================================================
-
-            var sServiceUrl =
-                this.getOwnerComponent()
-                    .getManifestEntry(
-                        "/sap.app/dataSources/mainService/uri"
-                    );
-
-
-            var sEntityUrl =
-                sServiceUrl +
-                "ItemDetails";
-
-
-            // ========================================================
-            // BUILD FILTERS
-            // ========================================================
-
-            var aFilters = [];
-
-
-            if (sClearingArea) {
-
-                aFilters.push(
-                    "ClearingArea eq '" +
-                    sClearingArea
-                        .replace(/'/g, "''") +
-                    "'"
-                );
+            if (!sClearingArea) {
+                console.warn("Rail orders: Clearing Area missing");
+                oModel.setProperty("/railOrdersBusy", false);
+                return;
             }
 
+            // ---------------- SERVER FILTER ----------------
 
-            if (sDate) {
+            var aFilters = [
+                "ClearingArea eq '" + String(sClearingArea).replace(/'/g, "''") + "'"
+            ];
 
-                var sNormalizedDate =
-                    String(sDate).substring(
-                        0,
-                        10
-                    );
-
-
-                aFilters.push(
-                    "PaymentOrderDate eq " +
-                    sNormalizedDate
-                );
+            if (sCreatedOn) {
+                aFilters.push("CreatedOn eq " + sCreatedOn);
             }
-
 
             var sUrl =
-                sEntityUrl;
+                this._getServiceUrl() +
+                "PaymentInfo?$filter=" +
+                encodeURIComponent(aFilters.join(" and "));
 
+            console.log("Rail orders PaymentInfo URL:", sUrl);
 
-            if (aFilters.length > 0) {
+            this._fetchAllPages(sUrl)
 
-                sUrl +=
-                    "?$filter=" +
-                    encodeURIComponent(
-                        aFilters.join(" and ")
-                    );
-            }
+                .then(function (aData) {
 
+                    console.log("Rail orders: rows loaded:", aData.length);
 
-            console.log(
-                "Rail details ItemDetails URL:",
-                sUrl
-            );
+                    // ---------------- CLIENT FILTER ----------------
 
+                    var aOrders = aData.filter(function (oItem) {
 
-            // ========================================================
-            // FETCH ITEM DETAILS
-            // ========================================================
+                        if (this._normaliseChannel(oItem.Channel) !== sTargetChannel) {
+                            return false;
+                        }
 
-            fetch(sUrl, {
+                        if (sCreatedOn && this._normaliseDate(oItem.CreatedOn) !== sCreatedOn) {
+                            return false;
+                        }
 
-                method: "GET",
+                        return true;
 
-                headers: {
-                    "Accept": "application/json"
-                },
+                    }.bind(this));
 
-                credentials: "same-origin"
+                    // ---------------- MAP TO DIALOG ROWS ----------------
 
-            })
+                    var aRows = aOrders.map(function (oItem) {
 
-                .then(function (oResponse) {
+                        var sStatus = String(oItem.TechnicalStatus || "");
 
-                    if (!oResponse.ok) {
+                        return {
+                            orderKey: oItem.OrderKey || "",
+                            paymentOrderNumber: oItem.PaymentOrderNumber || "",
+                            paymentOrderDate: this._formatDisplayDate(oItem.PaymentOrderDate),
+                            technicalStatus: sStatus,
+                            technicalStatusText: this._formatOrderStatusText(sStatus),
+                            technicalStatusState: this._formatOrderStatusState(sStatus),
+                            createdOn: this._formatDisplayDate(oItem.CreatedOn),
+                            createdBy: oItem.CreatedBy || "",
+                            releasedBy: oItem.ReleasedBy || "",
+                            lastChangedBy: oItem.LastChangedBy || "",
+                            orderFormat: oItem.OrderFormat || "",
+                            medium: oItem.Medium || "",
+                            channel: oItem.Channel || "",
+                            oData: oItem
+                        };
 
-                        throw new Error(
-                            "HTTP " +
-                            oResponse.status +
-                            " while loading ItemDetails"
-                        );
-                    }
+                    }.bind(this));
 
-                    return oResponse.json();
-                })
+                    console.log("Rail orders: rows for channel", sChannel, ":", aRows.length);
 
-
-                .then(function (oPayload) {
-
-                    var aItems =
-                        oPayload &&
-                        Array.isArray(
-                            oPayload.value
-                        )
-                            ? oPayload.value
-                            : [];
-
-
-                    console.log(
-                        "Rail details ItemDetails count:",
-                        aItems.length
-                    );
-
-
-                    console.log(
-                        "Rail details raw data:",
-                        aItems
-                    );
-
-
-                    // ====================================================
-                    // FILTER BY RAIL IF FIELD EXISTS
-                    // ====================================================
-
-                    var aRailItems =
-                        aItems.filter(function (oItem) {
-
-                            var sItemRail =
-                                String(
-                                    oItem.PaymentRail ||
-                                    oItem.Rail ||
-                                    oItem.PaymentRailName ||
-                                    ""
-                                ).trim();
-
-
-                            if (sItemRail) {
-
-                                return (
-                                    sItemRail ===
-                                    String(sRail).trim()
-                                );
-                            }
-
-
-                            // Keep rows until the actual
-                            // rail relationship is confirmed.
-
-                            return true;
-                        });
-
-
-                    console.log(
-                        "Rail details after rail filter:",
-                        aRailItems.length
-                    );
-
-
-                    // ====================================================
-                    // INCOMING / OUTGOING
-                    //
-                    // 119010 = OUTGOING
-                    // Everything else = INCOMING
-                    // ====================================================
-
-                    var aFilteredItems =
-                        aRailItems.filter(
-                            function (oItem) {
-
-                                var sTransactionType =
-                                    String(
-                                        oItem.TransactionType ||
-                                        ""
-                                    ).trim();
-
-
-                                if (
-                                    sDirection ===
-                                    "Outgoing"
-                                ) {
-
-                                    return (
-                                        sTransactionType ===
-                                        "119010"
-                                    );
-                                }
-
-
-                                return (
-                                    sTransactionType !==
-                                    "119010"
-                                );
-                            }
-                        );
-
-
-                    console.log(
-                        "Rail details direction:",
-                        sDirection
-                    );
-
-
-                    console.log(
-                        "Rail details final count:",
-                        aFilteredItems.length
-                    );
-
-
-                    // ====================================================
-                    // MAP TO DIALOG MODEL
-                    // ====================================================
-
-                    var aDetails =
-                        aFilteredItems.map(
-                            function (oItem) {
-
-                                return {
-
-                                    itemNumber:
-                                        oItem.ItemNumber ||
-                                        "",
-
-                                    itemProcessingStatus:
-                                        oItem.ItemProcessingStatus ||
-                                        "",
-
-                                    incomingPaymentOrder:
-                                        oItem.IncomingPaymentOrder ||
-                                        "0",
-
-                                    outgoingPaymentOrder:
-                                        oItem.OutgoingPaymentOrder ||
-                                        "0",
-
-                                    technicalStatus:
-                                        oItem.TechnicalStatus ||
-                                        "",
-
-                                    previousTechnicalStatus:
-                                        oItem.PreviousTechnicalStatus ||
-                                        "",
-
-                                    transactionType:
-                                        oItem.TransactionType ||
-                                        ""
-                                };
-                            }
-                        );
-
-
-                    // ====================================================
-                    // REMOVE DUPLICATES
-                    // ====================================================
-
-                    var oSeen = {};
-
-
-                    aDetails =
-                        aDetails.filter(
-                            function (oItem) {
-
-                                var sKey = [
-                                    oItem.itemNumber,
-                                    oItem.incomingPaymentOrder,
-                                    oItem.outgoingPaymentOrder
-                                ].join("|");
-
-
-                                if (oSeen[sKey]) {
-                                    return false;
-                                }
-
-
-                                oSeen[sKey] = true;
-
-                                return true;
-                            }
-                        );
-
-
-                    // ====================================================
-                    // UPDATE MODEL
-                    // ====================================================
-
+                    oModel.setProperty("/railOrders", aRows);
                     oModel.setProperty(
-                        "/railDetails",
-                        aDetails
-                    );
-
-
-                    oModel.refresh(true);
-
-
-                    console.log(
-                        "======================================"
-                    );
-
-                    console.log(
-                        "FINAL RAIL DETAILS:",
-                        aDetails
-                    );
-
-                    console.log(
-                        "FINAL RAIL DETAILS COUNT:",
-                        aDetails.length
-                    );
-
-                    console.log(
-                        "======================================"
+                        "/railOrdersTitle",
+                        sChannel + " – Payment Orders (" + aRows.length + ")"
                     );
 
                 }.bind(this))
 
-
                 .catch(function (oError) {
 
-                    console.error(
-                        "Rail details ItemDetails load failed:",
-                        oError
-                    );
+                    console.error("Rail orders PaymentInfo load failed:", oError);
+                    oModel.setProperty("/railOrders", []);
 
+                })
 
-                    oModel.setProperty(
-                        "/railDetails",
-                        []
-                    );
-
-                    oModel.refresh(true);
-
-                }.bind(this));
+                .finally(function () {
+                    oModel.setProperty("/railOrdersBusy", false);
+                });
         },
 
 
@@ -1843,10 +621,7 @@ sap.ui.define([
 
         onCloseRailDetails: function () {
 
-            var oDialog =
-                this.byId(
-                    "_IDGenRailDetailsDialog"
-                );
+            var oDialog = this.byId("_IDGenRailDetailsDialog");
 
             if (oDialog) {
                 oDialog.close();
@@ -1860,185 +635,108 @@ sap.ui.define([
 
         _setEmptyRailKpis: function () {
 
-            var oModel =
-                this.getView().getModel("railHealth");
+            var oModel = this.getView().getModel("railHealth");
 
             if (!oModel) {
                 return;
             }
 
+            var sNoData = "No data for this filter";
 
-            oModel.setProperty(
-                "/kpis/overallHealth",
-                "0%"
-            );
+            oModel.setProperty("/kpis", {
+                overallHealth: "0%",
+                overallHealthSub: sNoData,
+                activeRails: "0 / 0",
+                activeRailsSub: sNoData,
+                transactions: "0",
+                transactionsSub: sNoData,
+                successRate: "0%",
+                successRateSub: sNoData,
+                failedPayments: "0%",
+                failedPaymentsSub: sNoData,
+                responseTime: "0 ms",
+                responseTimeSub: sNoData,
+                queueDepth: "0",
+                queueDepthSub: sNoData,
+                alerts: "0",
+                alertsSub: sNoData
+            });
 
-            oModel.setProperty(
-                "/kpis/overallHealthSub",
-                "No data for this filter"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/activeRails",
-                "0 / 0"
-            );
-
-            oModel.setProperty(
-                "/kpis/activeRailsSub",
-                "No data for this filter"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/transactions",
-                "0"
-            );
-
-            oModel.setProperty(
-                "/kpis/transactionsSub",
-                "No data for this filter"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/successRate",
-                "0%"
-            );
-
-            oModel.setProperty(
-                "/kpis/successRateSub",
-                "No data for this filter"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/failedPayments",
-                "0%"
-            );
-
-            oModel.setProperty(
-                "/kpis/failedPaymentsSub",
-                "No data for this filter"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/responseTime",
-                "0 ms"
-            );
-
-            oModel.setProperty(
-                "/kpis/responseTimeSub",
-                "No data for this filter"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/queueDepth",
-                "0"
-            );
-
-            oModel.setProperty(
-                "/kpis/queueDepthSub",
-                "No data for this filter"
-            );
-
-
-            oModel.setProperty(
-                "/kpis/alerts",
-                "0"
-            );
-
-            oModel.setProperty(
-                "/kpis/alertsSub",
-                "No data for this filter"
-            );
-
-
-            oModel.setProperty(
-                "/railOverview",
-                []
-            );
-
-            oModel.setProperty(
-                "/filteredRailOverview",
-                []
-            );
-
-            oModel.setProperty(
-                "/allRailsSelected",
-                false
-            );
-
-
-            oModel.setProperty(
-                "/availableRails",
-                [
-                    {
-                        key: "All",
-                        text: "All"
-                    }
-                ]
-            );
+            oModel.setProperty("/railOverview", []);
+            oModel.setProperty("/filteredRailOverview", []);
+            oModel.setProperty("/allRailsSelected", false);
+            oModel.setProperty("/availableRails", [{ key: "All", text: "All" }]);
         },
 
 
         // ============================================================
-        // DATE FORMAT
+        // HELPERS — SERVICE / PAGING
         // ============================================================
 
-        _formatDateForOData: function (vDate) {
+        _getServiceUrl: function () {
 
-            if (!vDate) {
-                return null;
-            }
+            var sUri = this.getOwnerComponent().getManifestEntry(
+                "/sap.app/dataSources/mainService/uri"
+            ) || "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/";
 
+            sUri = sUri.split("?")[0];
 
-            if (typeof vDate === "string") {
+            return sUri.charAt(sUri.length - 1) === "/" ? sUri : sUri + "/";
+        },
 
-                return vDate.substring(
-                    0,
-                    10
-                );
-            }
+        // Reads every OData page by following @odata.nextLink
+        _fetchAllPages: function (sUrl) {
 
+            var fnReadPage = function (sPageUrl, aAllRows) {
 
-            if (vDate instanceof Date) {
+                return fetch(sPageUrl, {
+                    method: "GET",
+                    headers: { "Accept": "application/json" },
+                    credentials: "same-origin"
+                })
 
-                var iYear =
-                    vDate.getFullYear();
+                    .then(function (oResponse) {
 
-                var iMonth =
-                    vDate.getMonth() + 1;
+                        if (!oResponse.ok) {
+                            return oResponse.text().then(function (sBody) {
+                                throw new Error("HTTP " + oResponse.status + " | " + sBody);
+                            });
+                        }
 
-                var iDay =
-                    vDate.getDate();
+                        return oResponse.json();
+                    })
 
+                    .then(function (oPayload) {
 
-                return (
-                    iYear +
-                    "-" +
-                    String(iMonth).padStart(
-                        2,
-                        "0"
-                    ) +
-                    "-" +
-                    String(iDay).padStart(
-                        2,
-                        "0"
-                    )
-                );
-            }
+                        var aRows = oPayload && Array.isArray(oPayload.value)
+                            ? oPayload.value
+                            : [];
 
+                        aAllRows.push.apply(aAllRows, aRows);
 
-            return null;
+                        var sNextLink = oPayload["@odata.nextLink"];
+
+                        return sNextLink
+                            ? fnReadPage(sNextLink, aAllRows)
+                            : aAllRows;
+                    });
+            };
+
+            return fnReadPage(sUrl, []);
         },
 
 
         // ============================================================
-        // NORMALISE DATE
+        // HELPERS — NORMALISATION
         // ============================================================
+
+        _normaliseChannel: function (vChannel) {
+
+            return String(vChannel || "")
+                .trim()
+                .replace(/^\/+/, "")
+                .toUpperCase();
+        },
 
         _normaliseDate: function (vDate) {
 
@@ -2046,124 +744,92 @@ sap.ui.define([
                 return null;
             }
 
-
             if (vDate instanceof Date) {
-
-                return this._formatDateForOData(
-                    vDate
-                );
+                return vDate.getFullYear() + "-" +
+                    String(vDate.getMonth() + 1).padStart(2, "0") + "-" +
+                    String(vDate.getDate()).padStart(2, "0");
             }
 
-
-            return String(vDate).substring(
-                0,
-                10
-            );
+            return String(vDate).substring(0, 10);
         },
 
 
         // ============================================================
-        // ADD ONE DAY
+        // HELPERS — FORMATTING
         // ============================================================
 
-        _addOneDay: function (sIsoDate) {
+        _formatDisplayDate: function (vDate) {
 
-            if (!sIsoDate) {
-                return null;
+            var sIso = this._normaliseDate(vDate);
+
+            if (!sIso) {
+                return "";
             }
 
+            var aParts = sIso.split("-");
 
-            var oDate =
-                new Date(
-                    sIsoDate +
-                    "T00:00:00"
-                );
-
-
-            oDate.setDate(
-                oDate.getDate() + 1
-            );
-
-
-            var iYear =
-                oDate.getFullYear();
-
-            var iMonth =
-                oDate.getMonth() + 1;
-
-            var iDay =
-                oDate.getDate();
-
-
-            return (
-                iYear +
-                "-" +
-                String(iMonth).padStart(
-                    2,
-                    "0"
-                ) +
-                "-" +
-                String(iDay).padStart(
-                    2,
-                    "0"
-                )
-            );
+            return aParts.length === 3
+                ? aParts[2] + "." + aParts[1] + "." + aParts[0]
+                : sIso;
         },
 
+        _formatOrderStatusText: function (sStatus) {
 
-        // ============================================================
-        // PERCENT FORMAT
-        // ============================================================
+            if (ORDER_STATUS_SUCCESS.indexOf(sStatus) !== -1) {
+                return sStatus + " - Successful";
+            }
+            if (ORDER_STATUS_FAILED.indexOf(sStatus) !== -1) {
+                return sStatus + " - Failed";
+            }
+            if (ORDER_STATUS_REJECTED.indexOf(sStatus) !== -1) {
+                return sStatus + " - Rejected";
+            }
+            if (ORDER_STATUS_PENDING.indexOf(sStatus) !== -1) {
+                return sStatus + " - Pending";
+            }
+
+            return sStatus;
+        },
+
+        _formatOrderStatusState: function (sStatus) {
+
+            if (ORDER_STATUS_SUCCESS.indexOf(sStatus) !== -1) {
+                return ValueState.Success;
+            }
+            if (ORDER_STATUS_FAILED.indexOf(sStatus) !== -1) {
+                return ValueState.Warning;
+            }
+            if (ORDER_STATUS_REJECTED.indexOf(sStatus) !== -1) {
+                return ValueState.Error;
+            }
+            if (ORDER_STATUS_PENDING.indexOf(sStatus) !== -1) {
+                return ValueState.Information;
+            }
+
+            return ValueState.None;
+        },
 
         _formatPercent: function (fValue) {
-
-            return (
-                Number(fValue).toFixed(2) +
-                "%"
-            );
+            return Number(fValue).toFixed(2) + "%";
         },
-
-
-        // ============================================================
-        // NUMBER FORMAT
-        // ============================================================
 
         _formatNumber: function (iValue) {
 
-            var fNumber =
-                Number(iValue || 0);
-
+            var fNumber = Number(iValue || 0);
 
             if (fNumber >= 1000000) {
-
-                return (
-                    fNumber / 1000000
-                ).toFixed(2) + "M";
+                return (fNumber / 1000000).toFixed(2) + "M";
             }
-
 
             if (fNumber >= 1000) {
-
-                return (
-                    fNumber / 1000
-                ).toFixed(1) + "K";
+                return (fNumber / 1000).toFixed(1) + "K";
             }
-
 
             return String(fNumber);
         },
 
-
-        // ============================================================
-        // RESPONSE TIME FORMAT
-        // ============================================================
-
         _formatResponseTime: function (fValue) {
-
-            return (
-                Number(fValue).toFixed(2) +
-                " ms"
-            );
+            return Number(fValue).toFixed(2) + " ms";
         }
 
     });

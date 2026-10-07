@@ -730,180 +730,119 @@
 
 </VBox>
  <!-- ===================================================== -->
-            <!-- RAIL DETAILS DIALOG -->
-            <!-- ===================================================== -->
+<!-- RAIL → PAYMENT ORDERS DIALOG -->
+<!-- ===================================================== -->
 
-            <Dialog
-                id="_IDGenRailDetailsDialog"
-                title="{railHealth>/selectedRail/rail} – Rail Health Details"
-                contentWidth="900px"
-                contentHeight="600px"
-                stretchOnPhone="true"
-                class="railDetailsDialog">
+<Dialog
+    id="_IDGenRailDetailsDialog"
+    title="{railHealth>/railOrdersTitle}"
+    contentWidth="1150px"
+    contentHeight="620px"
+    resizable="true"
+    draggable="true"
+    stretchOnPhone="true"
+    class="railDetailsDialog">
 
+    <content>
 
-                <content>
+        <VBox
+            id="_IDGenRailDialogVBox"
+            width="100%"
+            class="sapUiSmallMargin">
 
-                    <VBox
-                        id="_IDGenRailDialogVBox"
-                        width="100%"
-                        class="sapUiMediumMargin">
-
-
-                        <!-- ========================================= -->
-                        <!-- INCOMING / OUTGOING -->
-                        <!-- ========================================= -->
-
-                        <HBox
-                            id="_IDGenRailDirectionHBox"
-                            width="100%"
-                            justifyContent="Center"
-                            class="railDirectionSegment">
-
-
-                            <SegmentedButton
-                                id="_IDGenRailDirectionSegment"
-                                selectedKey="{railHealth>/railDetailsDirection}"
-                                selectionChange=".onRailDetailsDirectionChange">
-
-
-                                <items>
-
-                                    <SegmentedButtonItem
-                                        id="_IDGenIncomingButton"
-                                        key="Incoming"
-                                        text="Incoming"/>
-
-                                    <SegmentedButtonItem
-                                        id="_IDGenOutgoingButton"
-                                        key="Outgoing"
-                                        text="Outgoing"/>
-
-                                </items>
-
-                            </SegmentedButton>
-
-                        </HBox>
-
-
-                        <!-- ========================================= -->
-                        <!-- DETAILS TABLE -->
-                        <!-- ========================================= -->
-
-                       <Table
-    id="_IDGenRailDetailsTable"
-    width="100%"
-    inset="false"
-    class="sapUiSmallMarginTop"
-    items="{railHealth>/railDetails}">
-
-    <columns>
-
-        <Column id="_IDGenDetailsItemNumberColumn">
             <Text
-                id="_IDGenDetailsItemNumberText"
-                text="Item Number"/>
-        </Column>
+                id="_IDGenRailOrdersInfo"
+                text="{railHealth>/railOrdersInfo}"
+                class="sapUiTinyMarginBottom"/>
 
-        <Column id="_IDGenDetailsProcessingStatusColumn">
-            <Text
-                id="_IDGenDetailsProcessingStatusText"
-                text="Item Processing Status"/>
-        </Column>
+            <ScrollContainer
+                id="_IDGenRailOrdersScroll"
+                width="100%"
+                horizontal="true"
+                vertical="false">
 
-        <Column id="_IDGenDetailsIncomingOrderColumn">
-            <Text
-                id="_IDGenDetailsIncomingOrderText"
-                text="Incoming Payment Order"/>
-        </Column>
+                <Table
+                    id="_IDGenRailDetailsTable"
+                    width="1400px"
+                    inset="false"
+                    sticky="ColumnHeaders"
+                    growing="true"
+                    growingThreshold="50"
+                    growingScrollToLoad="true"
+                    busy="{railHealth>/railOrdersBusy}"
+                    busyIndicatorDelay="0"
+                    noDataText="No payment orders found for this channel"
+                    items="{railHealth>/railOrders}">
 
-        <Column id="_IDGenDetailsOutgoingOrderColumn">
-            <Text
-                id="_IDGenDetailsOutgoingOrderText"
-                text="Outgoing Payment Order"/>
-        </Column>
+                    <columns>
+                        <Column id="_IDGenOrdKeyCol" width="13rem">
+                            <Text id="_IDGenOrdKeyHdr" text="Order Key"/>
+                        </Column>
+                        <Column id="_IDGenOrdNoCol" width="9rem">
+                            <Text id="_IDGenOrdNoHdr" text="Payment Order No."/>
+                        </Column>
+                        <Column id="_IDGenOrdDateCol" width="9rem">
+                            <Text id="_IDGenOrdDateHdr" text="Payment Order Date"/>
+                        </Column>
+                        <Column id="_IDGenOrdStatusCol" width="11rem">
+                            <Text id="_IDGenOrdStatusHdr" text="Technical Status"/>
+                        </Column>
+                        <Column id="_IDGenOrdCreatedOnCol" width="8rem">
+                            <Text id="_IDGenOrdCreatedOnHdr" text="Created On"/>
+                        </Column>
+                        <Column id="_IDGenOrdCreatedByCol" width="9rem">
+                            <Text id="_IDGenOrdCreatedByHdr" text="Created By"/>
+                        </Column>
+                        <Column id="_IDGenOrdReleasedByCol" width="9rem">
+                            <Text id="_IDGenOrdReleasedByHdr" text="Released By"/>
+                        </Column>
+                        <Column id="_IDGenOrdFormatCol" width="9rem">
+                            <Text id="_IDGenOrdFormatHdr" text="Order Format"/>
+                        </Column>
+                        <Column id="_IDGenOrdMediumCol" width="7rem">
+                            <Text id="_IDGenOrdMediumHdr" text="Medium"/>
+                        </Column>
+                        <Column id="_IDGenOrdChannelCol" width="8rem">
+                            <Text id="_IDGenOrdChannelHdr" text="Channel"/>
+                        </Column>
+                    </columns>
 
-        <Column id="_IDGenDetailsTechnicalStatusColumn">
-            <Text
-                id="_IDGenDetailsTechnicalStatusText"
-                text="Technical Status"/>
-        </Column>
+                    <items>
+                        <ColumnListItem id="_IDGenRailOrderItem">
+                            <cells>
+                                <Text id="_IDGenOrdKeyVal" text="{railHealth>orderKey}"/>
+                                <Text id="_IDGenOrdNoVal" text="{railHealth>paymentOrderNumber}"/>
+                                <Text id="_IDGenOrdDateVal" text="{railHealth>paymentOrderDate}"/>
+                                <ObjectStatus
+                                    id="_IDGenOrdStatusVal"
+                                    text="{railHealth>technicalStatusText}"
+                                    state="{railHealth>technicalStatusState}"/>
+                                <Text id="_IDGenOrdCreatedOnVal" text="{railHealth>createdOn}"/>
+                                <Text id="_IDGenOrdCreatedByVal" text="{railHealth>createdBy}"/>
+                                <Text id="_IDGenOrdReleasedByVal" text="{railHealth>releasedBy}"/>
+                                <Text id="_IDGenOrdFormatVal" text="{railHealth>orderFormat}"/>
+                                <Text id="_IDGenOrdMediumVal" text="{railHealth>medium}"/>
+                                <Text id="_IDGenOrdChannelVal" text="{railHealth>channel}"/>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
 
-        <Column id="_IDGenDetailsPreviousTechnicalStatusColumn">
-            <Text
-                id="_IDGenDetailsPreviousTechnicalStatusText"
-                text="Previous Technical Status"/>
-        </Column>
+                </Table>
 
-        <Column id="_IDGenDetailsTransactionTypeColumn">
-            <Text
-                id="_IDGenDetailsTransactionTypeText"
-                text="Transaction Type"/>
-        </Column>
+            </ScrollContainer>
 
-    </columns>
+        </VBox>
 
-    <items>
+    </content>
 
-        <ColumnListItem id="_IDGenRailDetailsItem">
+    <endButton>
+        <Button
+            id="_IDGenRailDetailsCloseButton"
+            text="Close"
+            press=".onCloseRailDetails"/>
+    </endButton>
 
-            <cells>
-
-                <Text
-                    id="_IDGenDetailsItemNumberValue"
-                    text="{railHealth>itemNumber}"/>
-
-                <Text
-                    id="_IDGenDetailsProcessingStatusValue"
-                    text="{railHealth>itemProcessingStatus}"/>
-
-                <Text
-                    id="_IDGenDetailsIncomingOrderValue"
-                    text="{railHealth>incomingPaymentOrder}"/>
-
-                <Text
-                    id="_IDGenDetailsOutgoingOrderValue"
-                    text="{railHealth>outgoingPaymentOrder}"/>
-
-                <Text
-                    id="_IDGenDetailsTechnicalStatusValue"
-                    text="{railHealth>technicalStatus}"/>
-
-                <Text
-                    id="_IDGenDetailsPreviousTechnicalStatusValue"
-                    text="{railHealth>previousTechnicalStatus}"/>
-
-                <Text
-                    id="_IDGenDetailsTransactionTypeValue"
-                    text="{railHealth>transactionType}"/>
-
-            </cells>
-
-        </ColumnListItem>
-
-    </items>
-
-</Table>
-
-                    </VBox>
-
-                </content>
-
-
-                <!-- ================================================ -->
-                <!-- CLOSE -->
-                <!-- ================================================ -->
-
-                <beginButton>
-
-                    <Button
-                        id="_IDGenRailDetailsCloseButton"
-                        text="Close"
-                        press=".onCloseRailDetails"/>
-
-                </beginButton>
-
-            </Dialog>
+</Dialog>
 
         </VBox>
 

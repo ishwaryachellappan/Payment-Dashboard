@@ -499,7 +499,176 @@ sap.ui.define([
                     // Keep this list in one place so the Settings dialog and OData request
                     // stay aligned.
                     // Request the same master field list used by the table Settings.
-                    var sSelect = RECON_ODATA_FIELDS.join(",");
+                    var sSelect = [
+                        "ClearingArea",
+                        "PiDate",
+                        "PiNo",
+                        "TechStat",
+                        "PiKind",
+                        "Crusr",
+                        "Chusr",
+                        "Rlusr",
+                        "TrCurr",
+                        "TrAmount",
+                        "Holder",
+                        "RefRoute",
+                        "RefCustagr",
+                        "RefAmArea",
+                        "RefReservArea",
+                        "CheckAltCa",
+                        "PredetermRoute",
+                        "RpToDetermine",
+                        "RefAcctLocSrv",
+                        "RefItemExt",
+                        "RefPiAmArea",
+                        "RefPiAmArea2",
+                        "RefRevPiDate",
+                        "RefRevPiNo",
+                        "RefExtPoOrig",
+                        "RefExtPo",
+                        "RefInpPoDate",
+                        "RefInpPoNo",
+                        "RefOutpPoDate",
+                        "RefOutpPoNo",
+                        "RefOutInfDate",
+                        "RefOutInfNo",
+                        "RefCollDate",
+                        "RefCustomer",
+                        "RefCustSgm",
+                        "FlgReservedQc",
+                        "RefItemExtOut",
+                        "RefCustGrp",
+                        "Country",
+                        "Bankkey",
+                        "Bic",
+                        "Iban",
+                        "AcctNo",
+                        "AcctCur",
+                        "Clrsysidcd",
+                        "OrigCountry",
+                        "OrigBankkey",
+                        "OrigBic",
+                        "OrigIban",
+                        "OrigAcctNo",
+                        "OrigAcctCur",
+                        "OrigHolder",
+                        "RefCountry",
+                        "RefBankkey",
+                        "RefBic",
+                        "RefIban",
+                        "RefAcctNo",
+                        "RefAcctCur",
+                        "RefHolder",
+                        "NotifForOrp",
+                        "RefClrsysidcd",
+                        "RefOrigCountry",
+                        "RefOrigBankkey",
+                        "RefOrigBic",
+                        "RefOrigIban",
+                        "RefOrigAcctNo",
+                        "RefOrigAccCur",
+                        "RefOrigHolder",
+                        "OrigValDate",
+                        "OrigValTime",
+                        "ValDate",
+                        "ValTime",
+                        "RefValutaId",
+                        "RefRulesetId",
+                        "ValueDateStat",
+                        "FlgHldValDate",
+                        "ActValDate",
+                        "PiPostDate",
+                        "PiPostTime",
+                        "BalSpfDate",
+                        "BalSpfTime",
+                        "PlClrDate",
+                        "PlClrTime",
+                        "PiProcessDate",
+                        "PiProcessTime",
+                        "PlProcDate",
+                        "PlProcTime",
+                        "OrigPostDate",
+                        "ActPostDate",
+                        "TransDate",
+                        "TransTime",
+                        "OrigExecDate",
+                        "TrFee",
+                        "FeeDebCred",
+                        "ACurr",
+                        "AAmount",
+                        "AFee",
+                        "Exchngrate",
+                        "FeeInfo",
+                        "NumItems",
+                        "OriginalCurr",
+                        "OriginalAmount",
+                        "NomAmountChng",
+                        "AAmountFee",
+                        "AAmountCurr",
+                        "TransType",
+                        "ChequeNo",
+                        "OrigTranstype",
+                        "ReleaseActivity",
+                        "ReleaseStatus",
+                        "TransferAccSym",
+                        "EvId",
+                        "ContinueEv",
+                        "FlgInternal",
+                        "CheckSumMethod",
+                        "SplitIndi",
+                        "ItemGroup",
+                        "FlgItemAuth",
+                        "FlgEvStatusOpo",
+                        "EvIdOpo",
+                        "ContinueEvOpo",
+                        "PeAccountType",
+                        "AccountHolderId",
+                        "AccountGeneralLedgerGroup",
+                        "FlgCorrAddr",
+                        "RiskScore",
+                        "RefRecallDate",
+                        "RefRecallNo",
+                        "PiRange",
+                        "PiKind003",
+                        "PiRange003",
+                        "PiKind004",
+                        "PiRange004",
+                        "PiKindAcq",
+                        "PiRangeAcq",
+                        "FstInvBankkey",
+                        "ChkDepBankkey",
+                        "ChkConBankkey",
+                        "FstInvCountry",
+                        "ChkDepCountry",
+                        "ChkConCountry",
+                        "PostareaBuf",
+                        "ActionBuf",
+                        "PiKindBuf",
+                        "TechPriorityBuf",
+                        "AsyncStatusBuf",
+                        "PollErrUnidBuf",
+                        "AcctHashBuf",
+                        "AsyncReason",
+                        "FlgPostCancel",
+                        "ForeignCtrMrk",
+                        "SuspenseAccount",
+                        "FlgSapClient",
+                        "RcpIntCnt",
+                        "ComAmount",
+                        "ComCurr",
+                        "RefUndCon",
+                        "DueDate",
+                        "MandateId",
+                        "Uci",
+                        "OrigDueDate",
+                        "EndToEndId",
+                        "RefUeTr",
+                        "FbackDate",
+                        "DirectDebType",
+                        "SettlMethod",
+                        "ClrSysId",
+                        "SettlementBic"
+                    ].join(",");
 
                     /* ============================================================
                        RECONCILIATION FIELD CATALOG
@@ -550,14 +719,23 @@ sap.ui.define([
                         credentials: "same-origin"
                     });
 
-                    if (!oResponse.ok) {
-                        throw new Error(
-                            "HTTP " +
-                            oResponse.status +
-                            " - " +
-                            oResponse.statusText
-                        );
-                    }
+                  if (!oResponse.ok) {
+
+    var sErrorBody = "";
+
+    try {
+        sErrorBody = await oResponse.text();
+    } catch (e) {
+        sErrorBody = "(could not read response body)";
+    }
+
+    console.error("[Reconciliation] OData error body:", sErrorBody);
+
+    throw new Error(
+        "HTTP " + oResponse.status + " - " + oResponse.statusText +
+        " | " + sErrorBody
+    );
+}
 
                     var oJson = await oResponse.json();
 
@@ -628,6 +806,30 @@ sap.ui.define([
                 this._applySystemGate();   // ✅ was: manual group/kpi/chart building here
 
             },
+
+            // ============================================================
+// DATE FORMAT — DISPLAY (dd.MM.yyyy)
+// ============================================================
+
+_formatDisplayDate: function (vDate) {
+
+    if (!vDate) {
+        return "";
+    }
+
+    var sIso =
+        vDate instanceof Date
+            ? this._formatDateForOData(vDate)
+            : String(vDate).substring(0, 10);
+
+    var aParts = sIso.split("-");
+
+    if (aParts.length !== 3) {
+        return sIso;
+    }
+
+    return aParts[2] + "." + aParts[1] + "." + aParts[0];
+},
 
 
             /* ============================================================
@@ -3144,27 +3346,27 @@ sap.ui.define([
                 console.log("========== END TRANSACTION ANALYSIS ==========");
             },
 
-           _getTransactionCategory: function (oRow) {
+            _getTransactionCategory: function (oRow) {
 
-    if (!oRow) {
-        return "DM";
-    }
+                if (!oRow) {
+                    return "DM";
+                }
 
-    /*
-     * ============================================================
-     * RECONCILIATION CLASSIFICATION
-     * ============================================================
-     *
-     * TechStat 31  -> PC Received
-     * Everything else -> DM Received
-     */
+                /*
+                 * ============================================================
+                 * RECONCILIATION CLASSIFICATION
+                 * ============================================================
+                 *
+                 * TechStat 31  -> PC Received
+                 * Everything else -> DM Received
+                 */
 
-    if (String(oRow.TechStat) === "31") {
-        return "PC";
-    }
+                if (String(oRow.TechStat) === "31") {
+                    return "PC";
+                }
 
-    return "DM";
-},
+                return "DM";
+            },
 
         }
 
