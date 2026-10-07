@@ -13,8 +13,7 @@ sap.ui.define([
     var ValueState = coreLibrary.ValueState;
 
     // ================================================================
-    // PAYMENT ORDER TECHNICAL STATUS GROUPS
-    // Same groupings as the Overview tab (View1.controller.js)
+    // PAYMENT ORDER TECHNICAL STATUS GROUPS (same as Overview tab)
     // ================================================================
 
     var ORDER_STATUS_SUCCESS = ["128", "130", "230", "270"];
@@ -25,6 +24,31 @@ sap.ui.define([
         "176", "177", "178", "179", "180", "101", "103", "105"
     ];
 
+    // ================================================================
+    // ITEM PROCESSING STATUS GROUPS (same as Overview donut / items)
+    // ================================================================
+
+    var ITEM_STATUS_POSTED = ["31", "34"];
+    var ITEM_STATUS_POST_PROCESSING = ["60", "70"];
+    var ITEM_STATUS_PENDING = [
+        "15", "17", "18", "20", "22", "23", "29", "30",
+        "35", "37", "39", "77", "79"
+    ];
+    var ITEM_STATUS_FAILED = ["14", "36", "38"];
+    var ITEM_STATUS_REJECTED = ["73"];
+
+    // TransactionType that marks an OUTGOING item
+    var OUTGOING_TRANSACTION_TYPE = "119010";
+
+    // Numeric EDM types (literal must NOT be quoted in $filter)
+    var NUMERIC_EDM_TYPES = [
+        "Edm.Byte", "Edm.SByte", "Edm.Int16", "Edm.Int32", "Edm.Int64",
+        "Edm.Decimal", "Edm.Double", "Edm.Single"
+    ];
+
+    var ITEMS_LOADING_TEXT = "Loading items…";
+    var ITEMS_NO_DATA_TEXT = "No items for this direction";
+
     return Controller.extend("payment.dashboard.controller.RailHealth", {
 
         // ============================================================
@@ -32,6 +56,15 @@ sap.ui.define([
         // ============================================================
 
         onInit: function () {
+
+            // Item cache: "ClearingArea|PaymentOrderDate|PaymentOrder" -> rows
+            this._mOrderItemsCache = {};
+
+            // Request counter — ignores stale responses
+            this._iOrderItemsReqId = 0;
+
+            // Cached EDM type of ItemDetails.PaymentOrder
+            this._sPaymentOrderEdmType = null;
 
             var oRailHealthModel = new JSONModel({
 
@@ -84,14 +117,29 @@ sap.ui.define([
                     createdOn: ""
                 },
 
-                // ====================================================
-                // ✅ NEW — PAYMENT ORDERS FOR SELECTED CHANNEL
-                // ====================================================
+                // ---------------- PAYMENT ORDERS (channel) ----------------
 
                 railOrders: [],
                 railOrdersBusy: false,
                 railOrdersTitle: "",
-                railOrdersInfo: ""
+                railOrdersInfo: "",
+
+                // ---------------- ITEM DETAILS (payment order) ----------------
+
+                selectedOrder: {},
+                orderItemsAll: [],
+                orderItems: [],
+                orderItemsBusy: false,
+                orderItemsNoDataText: ITEMS_NO_DATA_TEXT,
+                orderItemsDirection: "Incoming",
+                orderItemsTitle: "",
+                orderItemsInfo: "",
+                incomingLabel: "Incoming (0)",
+                outgoingLabel: "Outgoing (0)",
+
+                // Direction-dependent column visibility
+                showIncomingPoColumn: true,
+                showOutgoingPoColumn: false
             });
 
             this.getView().setModel(oRailHealthModel, "railHealth");
@@ -135,6 +183,9 @@ sap.ui.define([
                 console.warn("Rail Health: filterModel not found");
                 return;
             }
+
+            // Header filters changed — cached items may be stale
+            this._mOrderItemsCache = {};
 
             var sClearingArea = oFilterModel.getProperty("/clearingArea");
             var sPostingDate = this._normaliseDate(oFilterModel.getProperty("/kpiDate")) || "";
@@ -194,7 +245,6 @@ sap.ui.define([
                 .then(function (aData) {
 
                     console.log("Rail Health: TOTAL rows loaded:", aData.length);
-                    console.log("Rail Health: first rows:", aData.slice(0, 5));
 
                     var aMatchingRecords = aData.filter(function (oItem) {
 
@@ -213,10 +263,6 @@ sap.ui.define([
                     console.log("Rail Health: records after filters:", aMatchingRecords.length);
 
                     if (!aMatchingRecords.length) {
-                        console.warn("Rail Health: NO matching records", {
-                            clearingArea: sClearingArea,
-                            createdOn: sCreatedOn
-                        });
                         this._setEmptyRailKpis();
                         return;
                     }
@@ -464,8 +510,7 @@ sap.ui.define([
 
 
         // ============================================================
-        // ✅ ROW PRESS — open dialog with PaymentInfo orders for
-        // the clicked row's channel
+        // RAIL ROW PRESS → PAYMENT ORDERS DIALOG
         // ============================================================
 
         onRailRowPress: function (oEvent) {
@@ -481,8 +526,6 @@ sap.ui.define([
 
             oModel.setProperty("/selectedRail", oSelectedRail);
 
-            console.log("SELECTED RAIL ROW:", oSelectedRail);
-
             var oDialog = this.byId("_IDGenRailDetailsDialog");
 
             if (oDialog) {
@@ -494,7 +537,7 @@ sap.ui.define([
 
 
         // ============================================================
-        // ✅ NEW — LOAD PAYMENT ORDERS (PaymentInfo) FOR A CHANNEL
+        // LOAD PAYMENT ORDERS (PaymentInfo) FOR A CHANNEL
         //
         // Server-side : ClearingArea (+ CreatedOn when set)
         // Client-side : Channel match (normalised) + CreatedOn safety
@@ -519,16 +562,14 @@ sap.ui.define([
             oModel.setProperty(
                 "/railOrdersInfo",
                 "Clearing Area: " + (sClearingArea || "–") +
-                "   |   Created On: " + (sCreatedOn ? this._formatDisplayDate(sCreatedOn) : "All dates")
+                "   |   Created On: " + (sCreatedOn ? this._formatDisplayDate(sCreatedOn) : "All dates") +
+                "   |   Click a row to view its items"
             );
 
             if (!sClearingArea) {
-                console.warn("Rail orders: Clearing Area missing");
                 oModel.setProperty("/railOrdersBusy", false);
                 return;
             }
-
-            // ---------------- SERVER FILTER ----------------
 
             var aFilters = [
                 "ClearingArea eq '" + String(sClearingArea).replace(/'/g, "''") + "'"
@@ -549,10 +590,6 @@ sap.ui.define([
 
                 .then(function (aData) {
 
-                    console.log("Rail orders: rows loaded:", aData.length);
-
-                    // ---------------- CLIENT FILTER ----------------
-
                     var aOrders = aData.filter(function (oItem) {
 
                         if (this._normaliseChannel(oItem.Channel) !== sTargetChannel) {
@@ -566,8 +603,6 @@ sap.ui.define([
                         return true;
 
                     }.bind(this));
-
-                    // ---------------- MAP TO DIALOG ROWS ----------------
 
                     var aRows = aOrders.map(function (oItem) {
 
@@ -603,10 +638,8 @@ sap.ui.define([
                 }.bind(this))
 
                 .catch(function (oError) {
-
                     console.error("Rail orders PaymentInfo load failed:", oError);
                     oModel.setProperty("/railOrders", []);
-
                 })
 
                 .finally(function () {
@@ -615,13 +648,391 @@ sap.ui.define([
         },
 
 
-        // ============================================================
-        // CLOSE DIALOG
-        // ============================================================
-
         onCloseRailDetails: function () {
 
             var oDialog = this.byId("_IDGenRailDetailsDialog");
+
+            if (oDialog) {
+                oDialog.close();
+            }
+        },
+
+
+        // ============================================================
+        // PAYMENT ORDER ROW PRESS → ITEM DETAILS DIALOG
+        // ============================================================
+
+        onRailOrderPress: function (oEvent) {
+
+            var oContext = oEvent.getSource().getBindingContext("railHealth");
+
+            if (!oContext) {
+                return;
+            }
+
+            var oOrder = oContext.getObject();
+            var oModel = this.getView().getModel("railHealth");
+
+            oModel.setProperty("/selectedOrder", oOrder);
+            oModel.setProperty("/orderItemsDirection", "Incoming");
+            this._applyColumnVisibility("Incoming");
+
+            var oDialog = this.byId("_IDGenOrderItemsDialog");
+
+            if (oDialog) {
+                oDialog.open();
+            }
+
+            this._loadOrderItems(oOrder);
+        },
+
+
+        // Same logic as Overview: "XXXX / 000123" -> "123"
+        _extractPaymentOrderNumber: function (oOrder) {
+
+            var sKey = String((oOrder && oOrder.orderKey) || "");
+            var sNumber;
+
+            if (sKey.indexOf("/") !== -1) {
+                sNumber = sKey.split("/")[1].trim();
+            } else {
+                sNumber = String((oOrder && oOrder.paymentOrderNumber) || "").trim();
+            }
+
+            return sNumber.replace(/^0+/, "");
+        },
+
+
+        // ============================================================
+        // BUILD SERVER-SIDE PaymentOrder FILTER
+        //
+        // Reads the EDM type of ItemDetails.PaymentOrder from the
+        // V4 metadata once, so the literal is quoted only when the
+        // property is a string. Falls back to a quoted literal.
+        // ============================================================
+
+        _buildPaymentOrderFilter: function (sPaymentOrder) {
+
+            var fnLiteral = function (sType) {
+
+                return NUMERIC_EDM_TYPES.indexOf(sType) !== -1
+                    ? "PaymentOrder eq " + sPaymentOrder
+                    : "PaymentOrder eq '" + String(sPaymentOrder).replace(/'/g, "''") + "'";
+            };
+
+            if (this._sPaymentOrderEdmType) {
+                return Promise.resolve(fnLiteral(this._sPaymentOrderEdmType));
+            }
+
+            var oODataModel = this.getOwnerComponent().getModel("odataModel");
+
+            if (!oODataModel || !oODataModel.getMetaModel) {
+                return Promise.resolve(fnLiteral("Edm.String"));
+            }
+
+            return oODataModel.getMetaModel()
+                .requestObject("/ItemDetails/PaymentOrder/$Type")
+
+                .then(function (sType) {
+
+                    this._sPaymentOrderEdmType = sType || "Edm.String";
+
+                    console.log("ItemDetails.PaymentOrder EDM type:", this._sPaymentOrderEdmType);
+
+                    return fnLiteral(this._sPaymentOrderEdmType);
+
+                }.bind(this))
+
+                .catch(function () {
+                    return fnLiteral("Edm.String");
+                });
+        },
+
+
+        // ============================================================
+        // LOAD ITEM DETAILS FOR ONE PAYMENT ORDER  (fast path)
+        //
+        // 1. Cache hit             -> instant
+        // 2. Server filter incl.
+        //    PaymentOrder          -> only this order's items
+        // 3. If that request fails -> fallback to broad query
+        //
+        // Raw fetch (not bindList) — ItemDetails' key doesn't include
+        // ItemNumber, so bindList fails with "Duplicate key predicate".
+        // ============================================================
+
+        _loadOrderItems: function (oOrder) {
+
+            var oModel = this.getView().getModel("railHealth");
+
+            if (!oModel || !oOrder) {
+                return;
+            }
+
+            var oRaw = oOrder.oData || {};
+            var sPaymentOrder = this._extractPaymentOrderNumber(oOrder);
+
+            var sClearingArea =
+                oRaw.ClearingArea ||
+                oModel.getProperty("/globalFilter/clearingArea") ||
+                "";
+
+            var sOrderDate = this._normaliseDate(oRaw.PaymentOrderDate) || "";
+
+            var iReqId = ++this._iOrderItemsReqId;
+
+            // ---------------- RESET DIALOG STATE ----------------
+
+            oModel.setProperty("/orderItemsAll", []);
+            oModel.setProperty("/orderItems", []);
+            oModel.setProperty("/incomingLabel", "Incoming (…)");
+            oModel.setProperty("/outgoingLabel", "Outgoing (…)");
+            oModel.setProperty("/orderItemsTitle", "Payment Order " + sPaymentOrder + " – Items");
+            oModel.setProperty(
+                "/orderItemsInfo",
+                "Order Key: " + (oOrder.orderKey || "–") +
+                "   |   Status: " + (oOrder.technicalStatusText || "–") +
+                "   |   Payment Order Date: " + (oOrder.paymentOrderDate || "–") +
+                "   |   Channel: " + (oOrder.channel || "–")
+            );
+
+            if (!sPaymentOrder || !sClearingArea) {
+                console.warn("Order items: missing payment order or clearing area");
+                this._setOrderItems([], sPaymentOrder);
+                return;
+            }
+
+            // ---------------- CACHE ----------------
+
+            var sCacheKey = [sClearingArea, sOrderDate, sPaymentOrder].join("|");
+
+            if (this._mOrderItemsCache[sCacheKey]) {
+                console.log("Order items: cache hit", sCacheKey);
+                this._setOrderItems(this._mOrderItemsCache[sCacheKey], sPaymentOrder);
+                return;
+            }
+
+            oModel.setProperty("/orderItemsBusy", true);
+            oModel.setProperty("/orderItemsNoDataText", ITEMS_LOADING_TEXT);
+
+            // ---------------- BASE FILTERS ----------------
+
+            var aBaseFilters = [
+                "ClearingArea eq '" + String(sClearingArea).replace(/'/g, "''") + "'"
+            ];
+
+            if (sOrderDate) {
+                aBaseFilters.push("PaymentOrderDate eq " + sOrderDate);
+            }
+
+            var sBaseUrl = this._getServiceUrl() + "ItemDetails?$filter=";
+
+            var sBroadUrl = sBaseUrl + encodeURIComponent(aBaseFilters.join(" and "));
+
+            this._buildPaymentOrderFilter(sPaymentOrder)
+
+                .then(function (sPoFilter) {
+
+                    var sFastUrl =
+                        sBaseUrl +
+                        encodeURIComponent(aBaseFilters.concat([sPoFilter]).join(" and "));
+
+                    console.log("Order items (fast) URL:", sFastUrl);
+
+                    return this._fetchAllPages(sFastUrl)
+
+                        .catch(function (oError) {
+
+                            console.warn(
+                                "Order items: PaymentOrder filter rejected, falling back to broad query.",
+                                oError && oError.message
+                            );
+
+                            return this._fetchAllPages(sBroadUrl);
+
+                        }.bind(this));
+
+                }.bind(this))
+
+                .then(function (aData) {
+
+                    // Ignore stale responses (user clicked another order)
+                    if (iReqId !== this._iOrderItemsReqId) {
+                        return;
+                    }
+
+                    console.log("Order items: rows loaded:", aData.length);
+
+                    var aRows = this._mapOrderItems(aData, sPaymentOrder);
+
+                    this._mOrderItemsCache[sCacheKey] = aRows;
+
+                    this._setOrderItems(aRows, sPaymentOrder);
+
+                }.bind(this))
+
+                .catch(function (oError) {
+
+                    if (iReqId !== this._iOrderItemsReqId) {
+                        return;
+                    }
+
+                    console.error("Order items ItemDetails load failed:", oError);
+                    this._setOrderItems([], sPaymentOrder);
+
+                }.bind(this))
+
+                .finally(function () {
+
+                    if (iReqId !== this._iOrderItemsReqId) {
+                        return;
+                    }
+
+                    oModel.setProperty("/orderItemsBusy", false);
+                    oModel.setProperty("/orderItemsNoDataText", ITEMS_NO_DATA_TEXT);
+
+                }.bind(this));
+        },
+
+
+        // Match this order (safety), dedupe, and map to dialog rows
+        _mapOrderItems: function (aData, sPaymentOrder) {
+
+            var aMatched = aData.filter(function (oItem) {
+                return String(oItem.PaymentOrder || "")
+                    .trim()
+                    .replace(/^0+/, "") === sPaymentOrder;
+            });
+
+            var oSeen = {};
+
+            aMatched = aMatched.filter(function (oItem) {
+
+                var sKey = [
+                    oItem.ItemNumber,
+                    oItem.PaymentOrder,
+                    oItem.ClearingArea
+                ].join("|");
+
+                if (oSeen[sKey]) {
+                    return false;
+                }
+
+                oSeen[sKey] = true;
+                return true;
+            });
+
+            return aMatched.map(function (oItem) {
+
+                var sItemStatus = String(oItem.ItemProcessingStatus || "");
+                var sTechStatus = String(oItem.TechnicalStatus || "");
+
+                return {
+                    direction: this._getItemDirection(oItem),
+                    paymentItemDate: this._formatDisplayDate(oItem.PaymentItemDate),
+                    clearingArea: oItem.ClearingArea || "",
+                    itemNumber: oItem.ItemNumber || "",
+                    itemStatusText: this._formatItemStatusText(sItemStatus),
+                    itemStatusState: this._formatItemStatusState(sItemStatus),
+                    incomingPaymentOrder: oItem.IncomingPaymentOrder || "",
+                    outgoingPaymentOrder: oItem.OutgoingPaymentOrder || "",
+                    technicalStatusText: this._formatItemStatusText(sTechStatus),
+                    technicalStatusState: this._formatItemStatusState(sTechStatus),
+                    transactionType: oItem.TransactionType || "",
+                    valueDate: this._formatDisplayDate(oItem.ValueDate),
+                    amount: oItem.TotalAmount !== undefined && oItem.TotalAmount !== null
+                        ? Number(oItem.TotalAmount).toFixed(2)
+                        : "",
+                    currency: oItem.TransactionCurrency || "",
+                    oData: oItem
+                };
+
+            }.bind(this));
+        },
+
+
+        // Push mapped rows into the model + update counts/labels
+        _setOrderItems: function (aRows, sPaymentOrder) {
+
+            var oModel = this.getView().getModel("railHealth");
+
+            var iIncoming = aRows.filter(function (o) {
+                return o.direction === "Incoming";
+            }).length;
+
+            var iOutgoing = aRows.length - iIncoming;
+
+            console.log("Order items for PO", sPaymentOrder, {
+                total: aRows.length,
+                incoming: iIncoming,
+                outgoing: iOutgoing
+            });
+
+            oModel.setProperty("/orderItemsAll", aRows);
+            oModel.setProperty("/incomingLabel", "Incoming (" + iIncoming + ")");
+            oModel.setProperty("/outgoingLabel", "Outgoing (" + iOutgoing + ")");
+            oModel.setProperty(
+                "/orderItemsTitle",
+                "Payment Order " + sPaymentOrder + " – Items (" + aRows.length + ")"
+            );
+            oModel.setProperty("/orderItemsBusy", false);
+            oModel.setProperty("/orderItemsNoDataText", ITEMS_NO_DATA_TEXT);
+
+            this._applyOrderItemsDirection();
+        },
+
+
+        // ============================================================
+        // INCOMING / OUTGOING
+        // ============================================================
+
+        // Single place for the direction rule — change here if needed
+        _getItemDirection: function (oItem) {
+
+            return String(oItem.TransactionType || "").trim() === OUTGOING_TRANSACTION_TYPE
+                ? "Outgoing"
+                : "Incoming";
+        },
+
+        // Incoming -> hide "Outgoing Payment Order" column, and vice versa
+        _applyColumnVisibility: function (sDirection) {
+
+            var oModel = this.getView().getModel("railHealth");
+
+            oModel.setProperty("/showIncomingPoColumn", sDirection === "Incoming");
+            oModel.setProperty("/showOutgoingPoColumn", sDirection === "Outgoing");
+        },
+
+        _applyOrderItemsDirection: function () {
+
+            var oModel = this.getView().getModel("railHealth");
+            var sDirection = oModel.getProperty("/orderItemsDirection") || "Incoming";
+            var aAll = oModel.getProperty("/orderItemsAll") || [];
+
+            this._applyColumnVisibility(sDirection);
+
+            oModel.setProperty(
+                "/orderItems",
+                aAll.filter(function (oItem) {
+                    return oItem.direction === sDirection;
+                })
+            );
+        },
+
+        onOrderItemsDirectionChange: function (oEvent) {
+
+            var sDirection = oEvent.getParameter("item").getKey();
+
+            this.getView()
+                .getModel("railHealth")
+                .setProperty("/orderItemsDirection", sDirection);
+
+            this._applyOrderItemsDirection();
+        },
+
+        onCloseOrderItems: function () {
+
+            var oDialog = this.byId("_IDGenOrderItemsDialog");
 
             if (oDialog) {
                 oDialog.close();
@@ -804,6 +1215,51 @@ sap.ui.define([
             }
             if (ORDER_STATUS_PENDING.indexOf(sStatus) !== -1) {
                 return ValueState.Information;
+            }
+
+            return ValueState.None;
+        },
+
+        _formatItemStatusText: function (sStatus) {
+
+            if (!sStatus) {
+                return "";
+            }
+            if (ITEM_STATUS_POSTED.indexOf(sStatus) !== -1) {
+                return sStatus + " - Posted";
+            }
+            if (ITEM_STATUS_POST_PROCESSING.indexOf(sStatus) !== -1) {
+                return sStatus + " - Post Processing";
+            }
+            if (ITEM_STATUS_PENDING.indexOf(sStatus) !== -1) {
+                return sStatus + " - Pending";
+            }
+            if (ITEM_STATUS_FAILED.indexOf(sStatus) !== -1) {
+                return sStatus + " - Failed";
+            }
+            if (ITEM_STATUS_REJECTED.indexOf(sStatus) !== -1) {
+                return sStatus + " - Rejected";
+            }
+
+            return sStatus;
+        },
+
+        _formatItemStatusState: function (sStatus) {
+
+            if (ITEM_STATUS_POSTED.indexOf(sStatus) !== -1) {
+                return ValueState.Success;
+            }
+            if (ITEM_STATUS_POST_PROCESSING.indexOf(sStatus) !== -1) {
+                return ValueState.Warning;
+            }
+            if (ITEM_STATUS_PENDING.indexOf(sStatus) !== -1) {
+                return ValueState.Information;
+            }
+            if (
+                ITEM_STATUS_FAILED.indexOf(sStatus) !== -1 ||
+                ITEM_STATUS_REJECTED.indexOf(sStatus) !== -1
+            ) {
+                return ValueState.Error;
             }
 
             return ValueState.None;
