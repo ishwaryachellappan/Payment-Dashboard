@@ -21,17 +21,17 @@
             width="100%"
             class="reconciliationHeaderSection"
         >
-            <Title
-                id="reconciliationPageTitle"
-                text="Reconciliation"
-                level="H2"
-            />
+           <Title
+    id="reconciliationPageTitle"
+    text="{i18n>reconciliation}"
+    level="H2"
+/>
 
-            <Text
-                id="reconciliationPageSubtitle"
-                text="Evaluation of outgoing items sent to AM System"
-                class="reconSubtitle"
-            />
+<Text
+    id="reconciliationPageSubtitle"
+    text="{i18n>evaluationOutgoingItemsAMSystem}"
+    class="reconSubtitle"
+/>
         </VBox>
 
         <!-- ===================================================== -->
@@ -66,16 +66,16 @@
             id="reconciliationFilterTitleBox"
             class="reconciliationFilterTitleBox">
 
-            <Title
-                id="reconciliationFilterTitle"
-                text="Reconciliation Systems"
-                level="H5"
-                class="reconciliationFilterTitle"/>
+          <Title
+    id="reconciliationFilterTitle"
+    text="{i18n>reconciliationSystems}"
+    level="H5"
+    class="reconciliationFilterTitle"/>
 
-            <Text
-                id="reconciliationFilterDescription"
-                text="Select the source and target system for reconciliation"
-                class="reconciliationFilterDescription"/>
+<Text
+    id="reconciliationFilterDescription"
+    text="{i18n>selectSourceTargetSystem}"
+    class="reconciliationFilterDescription"/>
 
         </VBox>
 
@@ -210,10 +210,10 @@
             <headerToolbar>
                 <OverflowToolbar id="reconciliationChartToolbar">
                     <Title
-                        id="reconciliationChartTitle"
-                        text="Reconciliation"
-                        level="H5"
-                    />
+    id="reconciliationChartTitle"
+    text="{i18n>reconciliation}"
+    level="H5"
+/>
 
                     <ToolbarSpacer id="reconciliationChartToolbarSpacer" />
 
@@ -251,9 +251,7 @@
         <!-- RECONCILIATION DETAILS                                -->
         <!-- ===================================================== -->
 
-        <!-- ===================================================== -->
-<!-- RECONCILIATION DETAILS                               -->
-<!-- ===================================================== -->
+     
 
 <Panel
     id="reconciliationDetailsPanel"
@@ -296,17 +294,17 @@
                 >
 
                     <Title
-                        id="reconciliationDetailsTitle"
-                        text="Reconciliation Details"
-                        level="H4"
-                        class="reconciliationDetailsTitle"
-                    />
+    id="reconciliationDetailsTitle"
+    text="{i18n>reconciliationDetails}"
+    level="H4"
+    class="reconciliationDetailsTitle"
+/>
 
-                    <Text
-                        id="reconciliationDetailsSubtitle"
-                        text="View and analyse transaction details "
-                        class="reconciliationDetailsSubtitle"
-                    />
+                   <Text
+    id="reconciliationDetailsSubtitle"
+    text="{i18n>viewAnalyseTransactionDetails}"
+    class="reconciliationDetailsSubtitle"
+/>
 
                 </VBox>
 

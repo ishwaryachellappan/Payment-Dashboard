@@ -740,10 +740,10 @@
                                             width="100%"
                                         >
                                             <Title
-                                                id="_IDGenTitle"
-                                                text="Status Breakdown"
-                                                level="H6"
-                                            />
+    id="_IDGenTitle"
+    text="{i18n>statusBreakdown}"
+    level="H6"
+/>
                                             <Button
                                                 id="donutExpandButton"
                                                 icon="sap-icon://full-screen"
@@ -1306,11 +1306,11 @@
                 >
 
                     <Title
-                        id="_IDGenTitle4"
-                        text="Payment Transactions"
-                        level="H6"
-                        class="paymentTransactionsTitle"
-                    />
+    id="_IDGenTitle4"
+    text="{i18n>paymentTransactions}"
+    level="H6"
+    class="paymentTransactionsTitle"
+/>
 
                     <Text
                         id="_IDGenText7"

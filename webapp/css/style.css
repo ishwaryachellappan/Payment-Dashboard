@@ -6479,3 +6479,15 @@ body {
     height: auto !important;
     overflow: visible !important;
 }
+
+.railKpiRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    width: 100%;
+}
+
+.railKpiRow .kpiCard {
+    width: calc(25% - 12px) !important;
+    box-sizing: border-box;
+}

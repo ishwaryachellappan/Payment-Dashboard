@@ -730,11 +730,11 @@
         alignItems="Center"
     >
         <VBox id="_IDGenVBox78">
-            <Title
-                id="_IDGenTitle16"
-                text="Exception Reasons"
-                level="H6"
-            />
+           <Title
+    id="_IDGenTitle16"
+    text="{i18n>exceptionReasons}"
+    level="H6"
+/>
             <Text
                 id="_IDGenText117"
                 text="Grouped Queue Overview"
@@ -883,18 +883,18 @@
                 class="exceptionWorkspaceTitleBox"
             >
 
-                <Title
-                    id="_IDGenTitle15"
-                    text="Open Exceptions by Reason"
-                    level="H5"
-                    class="exceptionWorkspaceTitle"
-                />
+               <Title
+    id="_IDGenTitle15"
+    text="{i18n>openExceptionsByReason}"
+    level="H5"
+    class="exceptionWorkspaceTitle"
+/>
 
-                <Text
-                    id="exceptionWorkspaceSubtitle"
-                    text="Review and resolve open payment exceptions"
-                    class="exceptionWorkspaceSubtitle"
-                />
+<Text
+    id="exceptionWorkspaceSubtitle"
+    text="{i18n>reviewResolveOpenPaymentExceptions}"
+    class="exceptionWorkspaceSubtitle"
+/>
 
             </VBox>
 
