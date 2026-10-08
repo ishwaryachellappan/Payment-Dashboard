@@ -6491,3 +6491,338 @@ body {
     width: calc(25% - 12px) !important;
     box-sizing: border-box;
 }
+
+/* =========================================================
+   RAIL HEALTH - PAYMENT ORDERS TABLE
+   Reference-style SAP table
+   ========================================================= */
+
+.railPaymentOrdersTable {
+    width: 1350px !important;
+    border-collapse: separate;
+}
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.railPaymentOrdersTable .sapMListTblHeader {
+    background: #eef4fb !important;
+}
+
+.railPaymentOrdersTable .sapMListTblHeaderCell {
+    background: #eef4fb !important;
+
+    padding: 0.75rem 1rem !important;
+
+    height: 3.25rem !important;
+
+    vertical-align: middle;
+
+    border-bottom: 1px solid #d5dde8 !important;
+}
+
+/* Header text */
+
+.railPaymentOrdersTable
+    .sapMListTblHeaderCell
+    .sapMText {
+
+    color: #1d3f68 !important;
+
+    font-weight: 700 !important;
+
+    font-size: 0.82rem !important;
+
+    white-space: nowrap;
+
+    line-height: 1.2rem;
+}
+
+
+/* =========================================================
+   DATA ROW
+   ========================================================= */
+
+.railPaymentOrdersTable .sapMLIB {
+    min-height: 3.5rem !important;
+
+    border-bottom: 1px solid #e1e6ec !important;
+
+    background: #ffffff !important;
+}
+
+
+/* =========================================================
+   DATA CELLS
+   ========================================================= */
+
+.railPaymentOrdersTable .sapMListTblCell {
+
+    padding: 0.9rem 1rem !important;
+
+    height: 3.5rem !important;
+
+    vertical-align: middle;
+
+    border-bottom: 1px solid #e1e6ec !important;
+}
+
+
+/* =========================================================
+   DATA TEXT
+   ========================================================= */
+
+.railPaymentOrdersTable
+    .sapMListTblCell
+    .sapMText {
+
+    font-size: 0.82rem !important;
+
+    color: #1f2933;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    line-height: 1.4rem;
+}
+
+
+/* =========================================================
+   ORDER KEY
+   ========================================================= */
+
+.railPaymentOrdersTable
+    .sapMListTblCell:nth-child(2)
+    .sapMText {
+
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   TECHNICAL STATUS
+   ========================================================= */
+
+.railPaymentOrdersTable
+    .sapMListTblCell
+    .sapMObjStatus {
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   ROW HOVER
+   ========================================================= */
+
+.railPaymentOrdersTable
+    .sapMLIB:not(.sapMLIBActive):hover {
+
+    background: #f7faff !important;
+}
+
+
+/* =========================================================
+   ARROW COLUMN
+   ========================================================= */
+
+.railPaymentOrdersTable
+    .sapMListTblCell:first-child {
+
+    padding-left: 0.6rem !important;
+
+    padding-right: 0.6rem !important;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   TABLE OUTER BORDER
+   ========================================================= */
+
+.railPaymentOrdersTable {
+
+    border: 1px solid #d9e0e8;
+
+    border-radius: 0.25rem;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   SCROLL AREA
+   ========================================================= */
+
+.railDetailsDialog
+    .sapMScrollCont {
+
+    width: 100% !important;
+}
+
+
+/* =========================================================
+   DIALOG TABLE AREA
+   ========================================================= */
+
+.railDetailsDialog
+    .sapMDialogScroll {
+
+    padding: 0 !important;
+}
+
+/* =========================================================
+   RAIL HEALTH - PAYMENT ORDER ITEMS TABLE
+   ========================================================= */
+
+.railOrderItemsTable {
+    width: 1250px !important;
+    border: 1px solid #d9e0e8;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.railOrderItemsTable .sapMListTblHeader {
+    background: #eef4fb !important;
+}
+
+.railOrderItemsTable .sapMListTblHeaderCell {
+    background: #eef4fb !important;
+
+    padding: 0.75rem 1rem !important;
+
+    height: 3.25rem !important;
+
+    vertical-align: middle;
+
+    border-bottom: 1px solid #d5dde8 !important;
+}
+
+.railOrderItemsTable
+    .sapMListTblHeaderCell
+    .sapMText {
+
+    color: #1d3f68 !important;
+
+    font-weight: 700 !important;
+
+    font-size: 0.82rem !important;
+
+    white-space: nowrap;
+
+    line-height: 1.2rem;
+}
+
+
+/* =========================================================
+   ROWS
+   ========================================================= */
+
+.railOrderItemsTable .sapMLIB {
+
+    min-height: 3.5rem !important;
+
+    background: #ffffff !important;
+
+    border-bottom: 1px solid #e1e6ec !important;
+}
+
+
+/* =========================================================
+   CELLS
+   ========================================================= */
+
+.railOrderItemsTable .sapMListTblCell {
+
+    padding: 0.9rem 1rem !important;
+
+    height: 3.5rem !important;
+
+    vertical-align: middle;
+
+    border-bottom: 1px solid #e1e6ec !important;
+}
+
+
+/* =========================================================
+   TEXT
+   ========================================================= */
+
+.railOrderItemsTable
+    .sapMListTblCell
+    .sapMText {
+
+    font-size: 0.82rem !important;
+
+    color: #1f2933;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    line-height: 1.4rem;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.railOrderItemsTable
+    .sapMListTblCell
+    .sapMObjStatus {
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   AMOUNT
+   ========================================================= */
+
+.railOrderItemsTable
+    .sapMListTblCell
+    .sapMObjectNumber {
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   ROW HOVER
+   ========================================================= */
+
+.railOrderItemsTable
+    .sapMLIB:not(.sapMLIBActive):hover {
+
+    background: #f7faff !important;
+}
+
+
+/* =========================================================
+   SCROLLING
+   ========================================================= */
+
+.railDetailsDialog
+    .sapMScrollCont {
+
+    width: 100% !important;
+}

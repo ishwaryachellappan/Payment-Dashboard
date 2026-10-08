@@ -230,9 +230,15 @@
                                     select=".onRailSelectAll"/>
                             </header>
                         </Column>
-                        <Column id="_IDGenRailChannelColumn" width="15%">
-                            <Text id="_IDGenRailChannelColumnText" text="Channel"/>
-                        </Column>
+                        <!-- PAYMENT RAIL -->
+    <Column
+        id="_IDGenRailChannelColumn"
+        width="15%">
+      
+        <Text
+            id="_IDGenRailChannelColumnText"
+            text="Payment Rail"/>
+    </Column>
                         <Column id="_IDGenStatusColumn" width="15%">
                             <Text id="_IDGenStatusColumnText" text="Status"/>
                         </Column>
@@ -242,15 +248,25 @@
                         <Column id="_IDGenResponseColumn" width="15%">
                             <Text id="_IDGenResponseColumnText" text="Avg Response"/>
                         </Column>
-                        <Column id="_IDGenRailMediumColumn" width="15%">
-                            <Text id="_IDGenRailMediumColumnText" text="Medium"/>
-                        </Column>
+                   
                         <Column id="_IDGenQueueDepthColumn" width="15%">
                             <Text id="_IDGenQueueDepthColumnText" text="Queue Depth"/>
                         </Column>
                         <Column id="_IDGenCreatedOnColumn" width="15%">
                             <Text id="_IDGenCreatedOnColumnText" text="Created On"/>
                         </Column>
+                             <Column id="_IDGenRailMediumColumn" width="15%">
+                            <Text id="_IDGenRailMediumColumnText" text="Medium"/>
+                        </Column>
+                         <!-- FORMAT -->
+    <Column
+        id="_IDGenRailFormatColumn"
+        width="15%"
+        hAlign="Begin">
+        <Text
+            id="_IDGenRailFormatColumnText"
+            text="Format"/>
+    </Column>
                     </columns>
 
                     <items>
@@ -265,9 +281,14 @@
                                 <Text id="_IDGenText1" text="{railHealth>status}"/>
                                 <Text id="_IDGenText2" text="{railHealth>successRate}"/>
                                 <Text id="_IDGenText3" text="{railHealth>responseTime}"/>
-                                <Text id="_IDGenText4" text="{railHealth>medium}"/>
+                               
                                 <Text id="_IDGenText21" text="{railHealth>queueDepth}"/>
                                 <Text id="_IDGenText28" text="{railHealth>createdOn}"/>
+                                 <Text id="_IDGenText4" text="{railHealth>medium}"/>
+                                  <!-- 8. FORMAT -->
+    <Text
+        id="_IDGenTextFormat"
+        text="{railHealth>format}"/>
                             </cells>
                         </ColumnListItem>
                     </items>
@@ -280,15 +301,15 @@
             <!-- RAIL → PAYMENT ORDERS DIALOG -->
             <!-- ===================================================== -->
 
-            <Dialog
-                id="_IDGenRailDetailsDialog"
-                title="{railHealth>/railOrdersTitle}"
-                contentWidth="1150px"
-                contentHeight="620px"
-                resizable="true"
-                draggable="true"
-                stretchOnPhone="true"
-                class="railDetailsDialog">
+          <Dialog
+    id="_IDGenRailDetailsDialog"
+    title="{railHealth>/railOrdersTitle}"
+    contentWidth="1400px"
+    contentHeight="680px"
+    resizable="true"
+    draggable="true"
+    stretchOnPhone="true"
+    class="railDetailsDialog">
 
                 <content>
 
@@ -302,89 +323,222 @@
                             text="{railHealth>/railOrdersInfo}"
                             class="sapUiTinyMarginBottom"/>
 
-                        <ScrollContainer
-                            id="_IDGenRailOrdersScroll"
-                            width="100%"
-                            horizontal="true"
-                            vertical="false">
+                       <ScrollContainer
+    id="_IDGenRailOrdersScroll"
+    width="100%"
+    horizontal="true"
+    vertical="false">
 
-                            <Table
-                                id="_IDGenRailDetailsTable"
-                                width="1450px"
-                                inset="false"
-                                sticky="ColumnHeaders"
-                                growing="true"
-                                growingThreshold="50"
-                                growingScrollToLoad="true"
-                                busy="{railHealth>/railOrdersBusy}"
-                                busyIndicatorDelay="0"
-                                noDataText="No payment orders found for this channel"
-                                items="{railHealth>/railOrders}">
+    <Table
+        id="_IDGenRailDetailsTable"
+        width="1350px"
+        inset="false"
+        sticky="ColumnHeaders"
+        growing="true"
+        growingThreshold="50"
+        growingScrollToLoad="true"
+        busy="{railHealth>/railOrdersBusy}"
+        busyIndicatorDelay="0"
+        noDataText="No payment orders found for this channel"
+        items="{railHealth>/railOrders}"
+        class="railPaymentOrdersTable">
 
-                                <columns>
-                                    <!-- ✅ Leading ">" column -->
-                                    <Column id="_IDGenOrdArrowCol" width="2.5rem" hAlign="Center"/>
+        <columns>
 
-                                    <Column id="_IDGenOrdKeyCol" width="13rem">
-                                        <Text id="_IDGenOrdKeyHdr" text="Order Key"/>
-                                    </Column>
-                                    <Column id="_IDGenOrdNoCol" width="9rem">
-                                        <Text id="_IDGenOrdNoHdr" text="Payment Order No."/>
-                                    </Column>
-                                    <Column id="_IDGenOrdDateCol" width="9rem">
-                                        <Text id="_IDGenOrdDateHdr" text="Payment Order Date"/>
-                                    </Column>
-                                    <Column id="_IDGenOrdStatusCol" width="11rem">
-                                        <Text id="_IDGenOrdStatusHdr" text="Technical Status"/>
-                                    </Column>
-                                    <Column id="_IDGenOrdCreatedOnCol" width="8rem">
-                                        <Text id="_IDGenOrdCreatedOnHdr" text="Created On"/>
-                                    </Column>
-                                    <Column id="_IDGenOrdCreatedByCol" width="9rem">
-                                        <Text id="_IDGenOrdCreatedByHdr" text="Created By"/>
-                                    </Column>
-                                    <Column id="_IDGenOrdReleasedByCol" width="9rem">
-                                        <Text id="_IDGenOrdReleasedByHdr" text="Released By"/>
-                                    </Column>
-                                    <Column id="_IDGenOrdFormatCol" width="9rem">
-                                        <Text id="_IDGenOrdFormatHdr" text="Order Format"/>
-                                    </Column>
-                                    <Column id="_IDGenOrdMediumCol" width="7rem">
-                                        <Text id="_IDGenOrdMediumHdr" text="Medium"/>
-                                    </Column>
-                                    <Column id="_IDGenOrdChannelCol" width="8rem">
-                                        <Text id="_IDGenOrdChannelHdr" text="Channel"/>
-                                    </Column>
-                                </columns>
+            <!-- ARROW -->
+            <Column
+                id="_IDGenOrdArrowCol"
+                width="3rem"
+                hAlign="Center"/>
 
-                                <items>
-                                    <ColumnListItem id="_IDGenColumnListItem3"
-                                        type="Active"
-                                        press=".onRailOrderPress">
-                                        <cells>
-                                            <core:Icon id="_IDGenIcon"
-                                                src="sap-icon://navigation-right-arrow"
-                                                color="Default"
-                                                tooltip="View items"/>
-                                            <Text id="_IDGenText36" text="{railHealth>orderKey}"/>
-                                            <Text id="_IDGenText37" text="{railHealth>paymentOrderNumber}"/>
-                                            <Text id="_IDGenText48" text="{railHealth>paymentOrderDate}"/>
-                                            <ObjectStatus id="_IDGenObjectStatus"
-                                                text="{railHealth>technicalStatusText}"
-                                                state="{railHealth>technicalStatusState}"/>
-                                            <Text id="_IDGenText49" text="{railHealth>createdOn}"/>
-                                            <Text id="_IDGenText50" text="{railHealth>createdBy}"/>
-                                            <Text id="_IDGenText51" text="{railHealth>releasedBy}"/>
-                                            <Text id="_IDGenText52" text="{railHealth>orderFormat}"/>
-                                            <Text id="_IDGenText53" text="{railHealth>medium}"/>
-                                            <Text id="_IDGenText60" text="{railHealth>channel}"/>
-                                        </cells>
-                                    </ColumnListItem>
-                                </items>
+            <!-- ORDER KEY -->
+            <Column
+                id="_IDGenOrdKeyCol"
+                width="15rem">
 
-                            </Table>
+                <Text
+                    id="_IDGenOrdKeyHdr"
+                    text="Order Key"/>
 
-                        </ScrollContainer>
+            </Column>
+
+            <!-- PAYMENT ORDER NO -->
+            <Column
+                id="_IDGenOrdNoCol"
+                width="10rem">
+
+                <Text
+                    id="_IDGenOrdNoHdr"
+                    text="Payment Order No."/>
+
+            </Column>
+
+            <!-- PAYMENT ORDER DATE -->
+            <Column
+                id="_IDGenOrdDateCol"
+                width="11rem">
+
+                <Text
+                    id="_IDGenOrdDateHdr"
+                    text="Payment Order Date"/>
+
+            </Column>
+
+            <!-- TECHNICAL STATUS -->
+            <Column
+                id="_IDGenOrdStatusCol"
+                width="12rem">
+
+                <Text
+                    id="_IDGenOrdStatusHdr"
+                    text="Technical Status"/>
+
+            </Column>
+
+            <!-- CREATED ON -->
+            <Column
+                id="_IDGenOrdCreatedOnCol"
+                width="10rem">
+
+                <Text
+                    id="_IDGenOrdCreatedOnHdr"
+                    text="Created On"/>
+
+            </Column>
+
+            <!-- CREATED BY -->
+            <Column
+                id="_IDGenOrdCreatedByCol"
+                width="10rem">
+
+                <Text
+                    id="_IDGenOrdCreatedByHdr"
+                    text="Created By"/>
+
+            </Column>
+
+            <!-- RELEASED BY -->
+            <Column
+                id="_IDGenOrdReleasedByCol"
+                width="10rem">
+
+                <Text
+                    id="_IDGenOrdReleasedByHdr"
+                    text="Released By"/>
+
+            </Column>
+
+            <!-- ORDER FORMAT -->
+            <Column
+                id="_IDGenOrdFormatCol"
+                width="10rem">
+
+                <Text
+                    id="_IDGenOrdFormatHdr"
+                    text="Order Format"/>
+
+            </Column>
+
+            <!-- MEDIUM -->
+            <Column
+                id="_IDGenOrdMediumCol"
+                width="8rem">
+
+                <Text
+                    id="_IDGenOrdMediumHdr"
+                    text="Medium"/>
+
+            </Column>
+
+            <!-- CHANNEL -->
+            <Column
+                id="_IDGenOrdChannelCol"
+                width="8rem">
+
+                <Text
+                    id="_IDGenOrdChannelHdr"
+                    text="Channel"/>
+
+            </Column>
+
+        </columns>
+
+        <items>
+
+            <ColumnListItem
+                id="_IDGenColumnListItem3"
+                type="Active"
+                press=".onRailOrderPress">
+
+                <cells>
+
+                    <!-- ARROW -->
+                    <core:Icon
+                        id="_IDGenIcon"
+                        src="sap-icon://navigation-right-arrow"
+                        color="Default"
+                        tooltip="View items"/>
+
+                    <!-- ORDER KEY -->
+                    <Text
+                        id="_IDGenText36"
+                        text="{railHealth>orderKey}"/>
+
+                    <!-- PAYMENT ORDER NO -->
+                    <Text
+                        id="_IDGenText37"
+                        text="{railHealth>paymentOrderNumber}"/>
+
+                    <!-- PAYMENT ORDER DATE -->
+                    <Text
+                        id="_IDGenText48"
+                        text="{railHealth>paymentOrderDate}"/>
+
+                    <!-- TECHNICAL STATUS -->
+                    <ObjectStatus
+                        id="_IDGenObjectStatus"
+                        text="{railHealth>technicalStatusText}"
+                        state="{railHealth>technicalStatusState}"/>
+
+                    <!-- CREATED ON -->
+                    <Text
+                        id="_IDGenText49"
+                        text="{railHealth>createdOn}"/>
+
+                    <!-- CREATED BY -->
+                    <Text
+                        id="_IDGenText50"
+                        text="{railHealth>createdBy}"/>
+
+                    <!-- RELEASED BY -->
+                    <Text
+                        id="_IDGenText51"
+                        text="{railHealth>releasedBy}"/>
+
+                    <!-- ORDER FORMAT -->
+                    <Text
+                        id="_IDGenText52"
+                        text="{railHealth>orderFormat}"/>
+
+                    <!-- MEDIUM -->
+                    <Text
+                        id="_IDGenText53"
+                        text="{railHealth>medium}"/>
+
+                    <!-- CHANNEL -->
+                    <Text
+                        id="_IDGenText60"
+                        text="{railHealth>channel}"/>
+
+                </cells>
+
+            </ColumnListItem>
+
+        </items>
+
+    </Table>
+
+</ScrollContainer>
 
                     </VBox>
 
@@ -403,15 +557,15 @@
             <!-- PAYMENT ORDER → ITEM DETAILS DIALOG -->
             <!-- ===================================================== -->
 
-            <Dialog
-                id="_IDGenOrderItemsDialog"
-                title="{railHealth>/orderItemsTitle}"
-                contentWidth="1150px"
-                contentHeight="580px"
-                resizable="true"
-                draggable="true"
-                stretchOnPhone="true"
-                class="railDetailsDialog">
+          <Dialog
+    id="_IDGenOrderItemsDialog"
+    title="{railHealth>/orderItemsTitle}"
+    contentWidth="1300px"
+    contentHeight="600px"
+    resizable="true"
+    draggable="true"
+    stretchOnPhone="true"
+    class="railDetailsDialog">
 
                 <content>
 
@@ -452,95 +606,212 @@
                         </HBox>
 
                         <!-- ITEMS TABLE -->
-                        <ScrollContainer
-                            id="_IDGenOrderItemsScroll"
-                            width="100%"
-                            horizontal="true"
-                            vertical="false">
+                       <ScrollContainer
+    id="_IDGenOrderItemsScroll"
+    width="100%"
+    horizontal="true"
+    vertical="false">
 
-                            <Table
-                                id="_IDGenOrderItemsTable"
-                                width="1300px"
-                                inset="false"
-                                sticky="ColumnHeaders"
-                                growing="true"
-                                growingThreshold="50"
-                                growingScrollToLoad="true"
-                                busy="{railHealth>/orderItemsBusy}"
-                                busyIndicatorDelay="0"
-                                noDataText="{railHealth>/orderItemsNoDataText}"
-                                items="{railHealth>/orderItems}">
+    <Table
+        id="_IDGenOrderItemsTable"
+        width="1250px"
+        inset="false"
+        sticky="ColumnHeaders"
+        growing="true"
+        growingThreshold="50"
+        growingScrollToLoad="true"
+        busy="{railHealth>/orderItemsBusy}"
+        busyIndicatorDelay="0"
+        noDataText="{railHealth>/orderItemsNoDataText}"
+        items="{railHealth>/orderItems}"
+        class="railOrderItemsTable">
 
-                                <columns>
-                                    <Column id="_IDGenItmDateCol" width="9rem">
-                                        <Text id="_IDGenItmDateHdr" text="Payment Item Date"/>
-                                    </Column>
-                                    <Column id="_IDGenItmCaCol" width="8rem">
-                                        <Text id="_IDGenItmCaHdr" text="Clearing Area"/>
-                                    </Column>
-                                    <Column id="_IDGenItmNoCol" width="9rem">
-                                        <Text id="_IDGenItmNoHdr" text="Item Number"/>
-                                    </Column>
-                                    <Column id="_IDGenItmStatusCol" width="12rem">
-                                        <Text id="_IDGenItmStatusHdr" text="Item Processing Status"/>
-                                    </Column>
+        <columns>
 
-                                    <!-- ✅ Shown only for Incoming -->
-                                    <Column
-                                        id="_IDGenItmInPoCol"
-                                        width="10rem"
-                                        visible="{railHealth>/showIncomingPoColumn}">
-                                        <Text id="_IDGenItmInPoHdr" text="Incoming Payment Order"/>
-                                    </Column>
+            <!-- PAYMENT ITEM DATE -->
+            <Column
+                id="_IDGenItmDateCol"
+                width="11rem">
 
-                                    <!-- ✅ Shown only for Outgoing -->
-                                    <Column
-                                        id="_IDGenItmOutPoCol"
-                                        width="10rem"
-                                        visible="{railHealth>/showOutgoingPoColumn}">
-                                        <Text id="_IDGenItmOutPoHdr" text="Outgoing Payment Order"/>
-                                    </Column>
+                <Text
+                    id="_IDGenItmDateHdr"
+                    text="Payment Item Date"/>
 
-                                    <Column id="_IDGenItmTechCol" width="11rem">
-                                        <Text id="_IDGenItmTechHdr" text="Technical Status"/>
-                                    </Column>
-                                    <Column id="_IDGenItmTxTypeCol" width="9rem">
-                                        <Text id="_IDGenItmTxTypeHdr" text="Transaction Type"/>
-                                    </Column>
-                                    <Column id="_IDGenItmValDateCol" width="8rem">
-                                        <Text id="_IDGenItmValDateHdr" text="Value Date"/>
-                                    </Column>
-                                    <Column id="_IDGenItmAmtCol" width="9rem" hAlign="End">
-                                        <Text id="_IDGenItmAmtHdr" text="Amount"/>
-                                    </Column>
-                                </columns>
+            </Column>
 
-                                <items>
-                                    <ColumnListItem id="_IDGenColumnListItem4">
-                                        <cells>
-                                            <Text id="_IDGenText61" text="{railHealth>paymentItemDate}"/>
-                                            <Text id="_IDGenText62" text="{railHealth>clearingArea}"/>
-                                            <Text id="_IDGenText63" text="{railHealth>itemNumber}"/>
-                                            <ObjectStatus id="_IDGenObjectStatus1"
-                                                text="{railHealth>itemStatusText}"
-                                                state="{railHealth>itemStatusState}"/>
-                                            <Text id="_IDGenText64" text="{railHealth>incomingPaymentOrder}"/>
-                                            <Text id="_IDGenText65" text="{railHealth>outgoingPaymentOrder}"/>
-                                            <ObjectStatus id="_IDGenObjectStatus2"
-                                                text="{railHealth>technicalStatusText}"
-                                                state="{railHealth>technicalStatusState}"/>
-                                            <Text id="_IDGenText66" text="{railHealth>transactionType}"/>
-                                            <Text id="_IDGenText67" text="{railHealth>valueDate}"/>
-                                            <ObjectNumber id="_IDGenObjectNumber"
-                                                number="{railHealth>amount}"
-                                                unit="{railHealth>currency}"/>
-                                        </cells>
-                                    </ColumnListItem>
-                                </items>
+            <!-- CLEARING AREA -->
+            <Column
+                id="_IDGenItmCaCol"
+                width="9rem">
 
-                            </Table>
+                <Text
+                    id="_IDGenItmCaHdr"
+                    text="Clearing Area"/>
 
-                        </ScrollContainer>
+            </Column>
+
+            <!-- ITEM NUMBER -->
+            <Column
+                id="_IDGenItmNoCol"
+                width="10rem">
+
+                <Text
+                    id="_IDGenItmNoHdr"
+                    text="Item Number"/>
+
+            </Column>
+
+            <!-- ITEM PROCESSING STATUS -->
+            <Column
+                id="_IDGenItmStatusCol"
+                width="14rem">
+
+                <Text
+                    id="_IDGenItmStatusHdr"
+                    text="Item Processing Status"/>
+
+            </Column>
+
+            <!-- INCOMING PAYMENT ORDER -->
+            <Column
+                id="_IDGenItmInPoCol"
+                width="13rem"
+                visible="{railHealth>/showIncomingPoColumn}">
+
+                <Text
+                    id="_IDGenItmInPoHdr"
+                    text="Incoming Payment Order"/>
+
+            </Column>
+
+            <!-- OUTGOING PAYMENT ORDER -->
+            <Column
+                id="_IDGenItmOutPoCol"
+                width="13rem"
+                visible="{railHealth>/showOutgoingPoColumn}">
+
+                <Text
+                    id="_IDGenItmOutPoHdr"
+                    text="Outgoing Payment Order"/>
+
+            </Column>
+
+            <!-- TECHNICAL STATUS -->
+            <Column
+                id="_IDGenItmTechCol"
+                width="12rem">
+
+                <Text
+                    id="_IDGenItmTechHdr"
+                    text="Technical Status"/>
+
+            </Column>
+
+            <!-- TRANSACTION TYPE -->
+            <Column
+                id="_IDGenItmTxTypeCol"
+                width="11rem">
+
+                <Text
+                    id="_IDGenItmTxTypeHdr"
+                    text="Transaction Type"/>
+
+            </Column>
+
+            <!-- VALUE DATE -->
+            <Column
+                id="_IDGenItmValDateCol"
+                width="10rem">
+
+                <Text
+                    id="_IDGenItmValDateHdr"
+                    text="Value Date"/>
+
+            </Column>
+
+            <!-- AMOUNT -->
+            <Column
+                id="_IDGenItmAmtCol"
+                width="11rem"
+                hAlign="End">
+
+                <Text
+                    id="_IDGenItmAmtHdr"
+                    text="Amount"/>
+
+            </Column>
+
+        </columns>
+
+        <items>
+
+            <ColumnListItem
+                id="_IDGenColumnListItem4">
+
+                <cells>
+
+                    <!-- PAYMENT ITEM DATE -->
+                    <Text
+                        id="_IDGenText61"
+                        text="{railHealth>paymentItemDate}"/>
+
+                    <!-- CLEARING AREA -->
+                    <Text
+                        id="_IDGenText62"
+                        text="{railHealth>clearingArea}"/>
+
+                    <!-- ITEM NUMBER -->
+                    <Text
+                        id="_IDGenText63"
+                        text="{railHealth>itemNumber}"/>
+
+                    <!-- ITEM PROCESSING STATUS -->
+                    <ObjectStatus
+                        id="_IDGenObjectStatus1"
+                        text="{railHealth>itemStatusText}"
+                        state="{railHealth>itemStatusState}"/>
+
+                    <!-- INCOMING PAYMENT ORDER -->
+                    <Text
+                        id="_IDGenText64"
+                        text="{railHealth>incomingPaymentOrder}"/>
+
+                    <!-- OUTGOING PAYMENT ORDER -->
+                    <Text
+                        id="_IDGenText65"
+                        text="{railHealth>outgoingPaymentOrder}"/>
+
+                    <!-- TECHNICAL STATUS -->
+                    <ObjectStatus
+                        id="_IDGenObjectStatus2"
+                        text="{railHealth>technicalStatusText}"
+                        state="{railHealth>technicalStatusState}"/>
+
+                    <!-- TRANSACTION TYPE -->
+                    <Text
+                        id="_IDGenText66"
+                        text="{railHealth>transactionType}"/>
+
+                    <!-- VALUE DATE -->
+                    <Text
+                        id="_IDGenText67"
+                        text="{railHealth>valueDate}"/>
+
+                    <!-- AMOUNT -->
+                    <ObjectNumber
+                        id="_IDGenObjectNumber"
+                        number="{railHealth>amount}"
+                        unit="{railHealth>currency}"/>
+
+                </cells>
+
+            </ColumnListItem>
+
+        </items>
+
+    </Table>
+
+</ScrollContainer>
 
                     </VBox>
 

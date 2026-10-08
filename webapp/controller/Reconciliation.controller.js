@@ -68,6 +68,117 @@ sap.ui.define([
     // ✅ Muted palette — PC received, DM posted, Reconciliation gap
     var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
+    var RECON_STATUS_MAP = {
+        "5": {
+            description: "Created Manually",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "10": {
+            description: "Ready for Processing",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "14": {
+            description: "E&V - Formal checks failed",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "15": {
+            description: "Formal Check Successful",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "18": {
+            description: "Waiting for Authorization",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "20": {
+            description: "Ready for Final Processing",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "22": {
+            description: "Waiting for Asynchronous Processing",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "23": {
+            description: "Further Processing Required",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "31": {
+            description: "Posted in Account Management System",
+            system: "DM",
+            postedInDM: true,
+            gap: false
+        },
+        "35": {
+            description: "Outgoing Order - confirmation pending",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "36": {
+            description: "Formal Check Failed",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "37": {
+            description: "Outgoing Order - assigned",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "38": {
+            description: "Outgoing Order - conversion failed",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "39": {
+            description: "Outgoing Order - conversion successful",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "60": {
+            description: "In Automatic Postprocessing",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "70": {
+            description: "In Postprocessing",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "77": {
+            description: "Resubmission",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
+        "79": {
+            description: "In Processing AM",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        }
+    };
+
     /* ============================================================
        RECONCILIATION DETAIL COLUMN CONFIGURATION
        ============================================================ */
@@ -434,315 +545,184 @@ sap.ui.define([
                 this.loadReconciliationData();
 
             },
+            _getReconStatusInfo: function (vTechStat) {
 
+                var sTechStat = String(vTechStat || "").trim();
+
+                var oStatus = RECON_STATUS_MAP[sTechStat];
+
+                if (!oStatus) {
+                    return {
+                        description: "Unknown Status",
+                        system: "UNKNOWN",
+                        postedInDM: false,
+                        gap: false
+                    };
+                }
+
+                return oStatus;
+            },
 
             loadReconciliationData: async function () {
 
-                var oFilterModel = this.getView().getModel("filterModel");
-                var oReconModel = this.getView().getModel("reconciliation");
+                var oFilterModel =
+                    this.getView().getModel("filterModel");
+
+                var oReconModel =
+                    this.getView().getModel("reconciliation");
 
                 if (!oReconModel) {
-                    console.error("[Reconciliation] 'reconciliation' model not found.");
-                    return;
-                }
-
-                var sClearingArea = oFilterModel
-                    ? oFilterModel.getProperty("/clearingArea")
-                    : "DEBNKC";
-
-                var sSelectedDate = oFilterModel
-                    ? oFilterModel.getProperty("/kpiDate")
-                    : new Date().toISOString().slice(0, 10);
-
-                // Normalize Date objects to yyyy-MM-dd.
-                if (sSelectedDate instanceof Date) {
-                    sSelectedDate =
-                        sSelectedDate.getFullYear() + "-" +
-                        String(sSelectedDate.getMonth() + 1).padStart(2, "0") + "-" +
-                        String(sSelectedDate.getDate()).padStart(2, "0");
-                } else {
-                    sSelectedDate = String(sSelectedDate).slice(0, 10);
-                }
-
-                if (!sClearingArea || !sSelectedDate) {
-                    console.warn(
-                        "[Reconciliation] Missing clearing area or date."
+                    console.error(
+                        "[Reconciliation] 'reconciliation' model not found."
                     );
                     return;
                 }
 
-                oReconModel.setProperty("/busy", true);
+                var sClearingArea =
+                    oFilterModel
+                        ? oFilterModel.getProperty("/clearingArea")
+                        : "DEBNKC";
+
+                var sSelectedDate =
+                    oFilterModel
+                        ? oFilterModel.getProperty("/kpiDate")
+                        : new Date().toISOString().slice(0, 10);
+
+                // ------------------------------------------------------------
+                // NORMALIZE DATE
+                // ------------------------------------------------------------
+
+                if (sSelectedDate instanceof Date) {
+
+                    sSelectedDate =
+                        sSelectedDate.getFullYear() +
+                        "-" +
+                        String(
+                            sSelectedDate.getMonth() + 1
+                        ).padStart(2, "0") +
+                        "-" +
+                        String(
+                            sSelectedDate.getDate()
+                        ).padStart(2, "0");
+
+                } else {
+
+                    sSelectedDate =
+                        String(sSelectedDate).slice(0, 10);
+                }
+
+                if (!sClearingArea || !sSelectedDate) {
+
+                    console.warn(
+                        "[Reconciliation] Missing clearing area or date."
+                    );
+
+                    return;
+                }
+
+                oReconModel.setProperty(
+                    "/busy",
+                    true
+                );
 
                 try {
 
-                    /*
-                     * Use the manifest service URL directly.
-                     *
-                     * This avoids OData V4 list-binding key handling and also
-                     * prevents sap-client from being accidentally appended inside
-                     * the $filter expression.
-                     */
+                    // --------------------------------------------------------
+                    // SERVICE URL
+                    // --------------------------------------------------------
+
                     var sServiceUrl =
                         this.getOwnerComponent()
                             .getManifestEntry(
                                 "/sap.app/dataSources/mainService/uri"
                             );
 
-                    /*
-                     * Remove an existing query string from the service URL.
-                     * sap-client must be added as a separate query parameter,
-                     * never as part of the $filter expression.
-                     */
-                    var sBaseUrl = sServiceUrl.split("?")[0];
+                    var sBaseUrl =
+                        sServiceUrl.split("?")[0];
 
-                    // All fields exposed by the Reconcilation OData entity.
-                    // Keep this list in one place so the Settings dialog and OData request
-                    // stay aligned.
-                    // Request the same master field list used by the table Settings.
-                    var sSelect = [
-                        "ClearingArea",
-                        "PiDate",
-                        "PiNo",
-                        "TechStat",
-                        "PiKind",
-                        "Crusr",
-                        "Chusr",
-                        "Rlusr",
-                        "TrCurr",
-                        "TrAmount",
-                        "Holder",
-                        "RefRoute",
-                        "RefCustagr",
-                        "RefAmArea",
-                        "RefReservArea",
-                        "CheckAltCa",
-                        "PredetermRoute",
-                        "RpToDetermine",
-                        "RefAcctLocSrv",
-                        "RefItemExt",
-                        "RefPiAmArea",
-                        "RefPiAmArea2",
-                        "RefRevPiDate",
-                        "RefRevPiNo",
-                        "RefExtPoOrig",
-                        "RefExtPo",
-                        "RefInpPoDate",
-                        "RefInpPoNo",
-                        "RefOutpPoDate",
-                        "RefOutpPoNo",
-                        "RefOutInfDate",
-                        "RefOutInfNo",
-                        "RefCollDate",
-                        "RefCustomer",
-                        "RefCustSgm",
-                        "FlgReservedQc",
-                        "RefItemExtOut",
-                        "RefCustGrp",
-                        "Country",
-                        "Bankkey",
-                        "Bic",
-                        "Iban",
-                        "AcctNo",
-                        "AcctCur",
-                        "Clrsysidcd",
-                        "OrigCountry",
-                        "OrigBankkey",
-                        "OrigBic",
-                        "OrigIban",
-                        "OrigAcctNo",
-                        "OrigAcctCur",
-                        "OrigHolder",
-                        "RefCountry",
-                        "RefBankkey",
-                        "RefBic",
-                        "RefIban",
-                        "RefAcctNo",
-                        "RefAcctCur",
-                        "RefHolder",
-                        "NotifForOrp",
-                        "RefClrsysidcd",
-                        "RefOrigCountry",
-                        "RefOrigBankkey",
-                        "RefOrigBic",
-                        "RefOrigIban",
-                        "RefOrigAcctNo",
-                        "RefOrigAccCur",
-                        "RefOrigHolder",
-                        "OrigValDate",
-                        "OrigValTime",
-                        "ValDate",
-                        "ValTime",
-                        "RefValutaId",
-                        "RefRulesetId",
-                        "ValueDateStat",
-                        "FlgHldValDate",
-                        "ActValDate",
-                        "PiPostDate",
-                        "PiPostTime",
-                        "BalSpfDate",
-                        "BalSpfTime",
-                        "PlClrDate",
-                        "PlClrTime",
-                        "PiProcessDate",
-                        "PiProcessTime",
-                        "PlProcDate",
-                        "PlProcTime",
-                        "OrigPostDate",
-                        "ActPostDate",
-                        "TransDate",
-                        "TransTime",
-                        "OrigExecDate",
-                        "TrFee",
-                        "FeeDebCred",
-                        "ACurr",
-                        "AAmount",
-                        "AFee",
-                        "Exchngrate",
-                        "FeeInfo",
-                        "NumItems",
-                        "OriginalCurr",
-                        "OriginalAmount",
-                        "NomAmountChng",
-                        "AAmountFee",
-                        "AAmountCurr",
-                        "TransType",
-                        "ChequeNo",
-                        "OrigTranstype",
-                        "ReleaseActivity",
-                        "ReleaseStatus",
-                        "TransferAccSym",
-                        "EvId",
-                        "ContinueEv",
-                        "FlgInternal",
-                        "CheckSumMethod",
-                        "SplitIndi",
-                        "ItemGroup",
-                        "FlgItemAuth",
-                        "FlgEvStatusOpo",
-                        "EvIdOpo",
-                        "ContinueEvOpo",
-                        "PeAccountType",
-                        "AccountHolderId",
-                        "AccountGeneralLedgerGroup",
-                        "FlgCorrAddr",
-                        "RiskScore",
-                        "RefRecallDate",
-                        "RefRecallNo",
-                        "PiRange",
-                        "PiKind003",
-                        "PiRange003",
-                        "PiKind004",
-                        "PiRange004",
-                        "PiKindAcq",
-                        "PiRangeAcq",
-                        "FstInvBankkey",
-                        "ChkDepBankkey",
-                        "ChkConBankkey",
-                        "FstInvCountry",
-                        "ChkDepCountry",
-                        "ChkConCountry",
-                        "PostareaBuf",
-                        "ActionBuf",
-                        "PiKindBuf",
-                        "TechPriorityBuf",
-                        "AsyncStatusBuf",
-                        "PollErrUnidBuf",
-                        "AcctHashBuf",
-                        "AsyncReason",
-                        "FlgPostCancel",
-                        "ForeignCtrMrk",
-                        "SuspenseAccount",
-                        "FlgSapClient",
-                        "RcpIntCnt",
-                        "ComAmount",
-                        "ComCurr",
-                        "RefUndCon",
-                        "DueDate",
-                        "MandateId",
-                        "Uci",
-                        "OrigDueDate",
-                        "EndToEndId",
-                        "RefUeTr",
-                        "FbackDate",
-                        "DirectDebType",
-                        "SettlMethod",
-                        "ClrSysId",
-                        "SettlementBic"
-                    ].join(",");
-
-                    /* ============================================================
-                       RECONCILIATION FIELD CATALOG
-                       ============================================================
-                       Every field returned by Reconcilation is available through
-                       the Settings icon.
-                    
-                       defaultVisible = true
-                           -> shown when the table first loads
-                    
-                       defaultVisible = false
-                           -> available through Settings, but hidden initially
-                       ============================================================ */
-
-
-
-
-                    var sFilter =
-                        "ClearingArea eq '" +
-                        String(sClearingArea).replace(/'/g, "''") +
-                        "' and PiPostDate eq " +
-                        sSelectedDate;
-
-                    /*
-                     * Build every query parameter separately.
-                     */
-                    var oParams = new URLSearchParams();
-
-                    oParams.set("$select", sSelect);
-                    oParams.set("$filter", sFilter);
-                    oParams.set("sap-client", "500");
+                    // --------------------------------------------------------
+                    // PARAMETERIZED RECONCILIATION ENTITY
+                    // --------------------------------------------------------
 
                     var sUrl =
                         sBaseUrl +
-                        "Reconcilation?" +
-                        oParams.toString();
+                        "Reconcilation(" +
+                        "p_clearing_area='" +
+                        encodeURIComponent(
+                            sClearingArea
+                        ).replace(/'/g, "%27") +
+                        "'," +
+                        "p_created_on=" +
+                        sSelectedDate +
+                        ")/Set?sap-client=500";
 
                     console.log(
                         "[Reconciliation] Fetch URL:",
                         sUrl
                     );
 
-                    var oResponse = await fetch(sUrl, {
-                        method: "GET",
-                        headers: {
-                            "Accept": "application/json"
-                        },
-                        credentials: "same-origin"
-                    });
+                    // --------------------------------------------------------
+                    // FETCH
+                    // --------------------------------------------------------
 
-                  if (!oResponse.ok) {
+                    var oResponse =
+                        await fetch(
+                            sUrl,
+                            {
+                                method: "GET",
 
-    var sErrorBody = "";
+                                headers: {
+                                    "Accept":
+                                        "application/json"
+                                },
 
-    try {
-        sErrorBody = await oResponse.text();
-    } catch (e) {
-        sErrorBody = "(could not read response body)";
-    }
+                                credentials:
+                                    "same-origin"
+                            }
+                        );
 
-    console.error("[Reconciliation] OData error body:", sErrorBody);
+                    if (!oResponse.ok) {
 
-    throw new Error(
-        "HTTP " + oResponse.status + " - " + oResponse.statusText +
-        " | " + sErrorBody
-    );
-}
+                        var sErrorBody = "";
 
-                    var oJson = await oResponse.json();
+                        try {
+                            sErrorBody =
+                                await oResponse.text();
+                        } catch (e) {
+                            sErrorBody =
+                                "(could not read response body)";
+                        }
+
+                        console.error(
+                            "[Reconciliation] OData error body:",
+                            sErrorBody
+                        );
+
+                        throw new Error(
+                            "HTTP " +
+                            oResponse.status +
+                            " - " +
+                            oResponse.statusText +
+                            " | " +
+                            sErrorBody
+                        );
+                    }
+
+                    // --------------------------------------------------------
+                    // RESPONSE
+                    // --------------------------------------------------------
+
+                    var oJson =
+                        await oResponse.json();
 
                     var aRawData = [];
 
-                    if (oJson && Array.isArray(oJson.value)) {
-                        aRawData = oJson.value;
+                    if (
+                        oJson &&
+                        Array.isArray(oJson.value)
+                    ) {
+                        aRawData =
+                            oJson.value;
                     }
 
                     console.log(
@@ -755,7 +735,13 @@ sap.ui.define([
                         aRawData.slice(0, 3)
                     );
 
-                    this._processReconciliationData(aRawData);
+                    // --------------------------------------------------------
+                    // PROCESS
+                    // --------------------------------------------------------
+
+                    this._processReconciliationData(
+                        aRawData
+                    );
 
                 } catch (oError) {
 
@@ -779,13 +765,6 @@ sap.ui.define([
                 }
             },
 
-            reload: function () {
-
-                this.loadReconciliationData();
-
-            },
-
-
             /* ============================================================
                FULL RENDER — runs on every fresh OData load. Always shows
                ALL data first, per the requirement, and clears any bar
@@ -808,28 +787,28 @@ sap.ui.define([
             },
 
             // ============================================================
-// DATE FORMAT — DISPLAY (dd.MM.yyyy)
-// ============================================================
+            // DATE FORMAT — DISPLAY (dd.MM.yyyy)
+            // ============================================================
 
-_formatDisplayDate: function (vDate) {
+            _formatDisplayDate: function (vDate) {
 
-    if (!vDate) {
-        return "";
-    }
+                if (!vDate) {
+                    return "";
+                }
 
-    var sIso =
-        vDate instanceof Date
-            ? this._formatDateForOData(vDate)
-            : String(vDate).substring(0, 10);
+                var sIso =
+                    vDate instanceof Date
+                        ? this._formatDateForOData(vDate)
+                        : String(vDate).substring(0, 10);
 
-    var aParts = sIso.split("-");
+                var aParts = sIso.split("-");
 
-    if (aParts.length !== 3) {
-        return sIso;
-    }
+                if (aParts.length !== 3) {
+                    return sIso;
+                }
 
-    return aParts[2] + "." + aParts[1] + "." + aParts[0];
-},
+                return aParts[2] + "." + aParts[1] + "." + aParts[0];
+            },
 
 
             /* ============================================================
@@ -842,341 +821,432 @@ _formatDisplayDate: function (vDate) {
 
             _buildGroupsAndKpi: function (aRawData) {
 
-                var oModel = this.getView().getModel("reconciliation");
+    var oModel =
+        this.getView().getModel("reconciliation");
 
-                var oGroupsMap = {};
-                var aGroupOrder = [];
+    var oGroupsMap = {};
+    var aGroupOrder = [];
 
-                var fTotalAmount = 0;
-                var iTotalObjects = 0;
+    var fTotalAmount = 0;
+    var iTotalObjects = 0;
 
-                var fDebitTotal = 0;
-                var fCreditTotal = 0;
+    var fDebitTotal = 0;
+    var fCreditTotal = 0;
 
-                var fPcReceived = 0;
-                var fDmReceived = 0;
+    var fPcReceived = 0;
+    var fDmReceived = 0;
 
-                var iPcCount = 0;
-                var iDmCount = 0;
-                var iUnknownCount = 0;
+    var iPcCount = 0;
+    var iDmCount = 0;
+    var iUnknownCount = 0;
 
+    var fReconciliationGap = 0;
 
-                // ============================================================
-                // PROCESS ALL TRANSACTIONS
-                // ============================================================
+    // ============================================================
+    // PROCESS ALL TRANSACTIONS
+    // ============================================================
 
-                (aRawData || []).forEach(function (oRow) {
+    (aRawData || []).forEach(
+        function (oRow) {
 
-                    if (!oRow) {
-                        return;
-                    }
+            if (!oRow) {
+                return;
+            }
 
-                    var fAmount =
-                        Number(oRow.TrAmount) || 0;
+            // ----------------------------------------------------
+            // AMOUNT
+            // ----------------------------------------------------
 
-                    var sCurrency =
-                        oRow.TrCurr || "";
+            var fAmount =
+                Number(oRow.TrAmount) || 0;
 
-                    var sDateKey =
-                        oRow.PiPostDate ||
-                        oRow.PiDate ||
-                        "";
+            // ----------------------------------------------------
+            // CURRENCY
+            // ----------------------------------------------------
 
-                    var sDirection =
-                        "Credit";
+            var sCurrency =
+                oRow.TrCurr || "";
 
-                    var sDirectionState =
-                        sDirection === "Credit"
-                            ? "Success"
-                            : "Error";
+            // ----------------------------------------------------
+            // DATE
+            // ----------------------------------------------------
 
+            var sDateKey =
+                oRow.PiPostDate ||
+                oRow.PiDate ||
+                "";
 
-                    // ========================================================
-                    // CLASSIFY TRANSACTION
-                    // ========================================================
+            // ----------------------------------------------------
+            // DIRECTION
+            // ----------------------------------------------------
 
-                    var sCategory =
-                        this._getTransactionCategory(oRow);
+            var sDirection =
+                "Credit";
 
+            var sDirectionState =
+                sDirection === "Credit"
+                    ? "Success"
+                    : "Error";
 
-                    // ========================================================
-                    // PC / DM TOTALS
-                    // ========================================================
+            // ====================================================
+            // STATUS CLASSIFICATION
+            // ====================================================
 
-                    if (sCategory === "PC") {
+            var oStatusInfo =
+                this._getReconStatusInfo(
+                    oRow.TechStat
+                );
 
-                        fPcReceived += fAmount;
-                        iPcCount++;
+            var sSystem =
+                oStatusInfo.system;
 
-                    } else if (sCategory === "DM") {
+            var bPostedInDM =
+                oStatusInfo.postedInDM;
 
-                        fDmReceived += fAmount;
-                        iDmCount++;
+            var bGap =
+                oStatusInfo.gap;
 
-                    } else {
+            var sStatusDescription =
+                oStatusInfo.description;
 
-                        iUnknownCount++;
-                    }
+            // ====================================================
+            // CREATE PROCESSED ROW
+            // ====================================================
 
-
-                    // ========================================================
-                    // GROUP KEY
-                    // ========================================================
-
-                    var sGroupKey =
-                        sDateKey + "_" +
-                        sCurrency + "_" +
-                        sDirection;
-
-
-                    // ========================================================
-                    // CREATE GROUP
-                    // ========================================================
-
-                    if (!oGroupsMap[sGroupKey]) {
-
-                        oGroupsMap[sGroupKey] = {
-
-                            groupId: sGroupKey,
-
-                            date: this._formatDate(sDateKey),
-
-                            currency: sCurrency,
-
-                            direction: sDirection,
-
-                            directionState: sDirectionState,
-
-                            // IMPORTANT:
-                            // These names match the XML bindings
-                            count: 0,
-
-                            amount: 0,
-
-                            expanded: false,
-
-                            details: []
-                        };
-
-                        aGroupOrder.push(sGroupKey);
-                    }
-
-
-                    var oGroup =
-                        oGroupsMap[sGroupKey];
-
-
-                    // ========================================================
-                    // UPDATE GROUP
-                    // ========================================================
-
-                    oGroup.count++;
-
-                    oGroup.amount += fAmount;
-
-
-                    // ========================================================
-                    // KEEP ORIGINAL ODATA ROW
-                    // ========================================================
-
-                    var oDetail =
-                        Object.assign({}, oRow);
-
-                    // Store classification for future filtering
-                    oDetail._reconCategory =
-                        sCategory;
-
-                    oGroup.details.push(
-                        oDetail
-                    );
-
-
-                    // ========================================================
-                    // KPI TOTALS
-                    // ========================================================
-
-                    fTotalAmount += fAmount;
-
-                    iTotalObjects++;
-
-                    fCreditTotal += fAmount;
-
-                }.bind(this));
-
-
-                // ============================================================
-                // EXPAND FIRST GROUP
-                // ============================================================
-
-                if (aGroupOrder.length) {
-
-                    oGroupsMap[
-                        aGroupOrder[0]
-                    ].expanded = true;
-                }
-
-
-                // ============================================================
-                // CONVERT GROUP MAP TO ARRAY
-                // ============================================================
-
-                var aGroups =
-                    aGroupOrder.map(function (sKey) {
-
-                        return oGroupsMap[sKey];
-
-                    });
-
-
-                // ============================================================
-                // RECONCILIATION GAP
-                // ============================================================
-
-                var fReconciliationGap =
-                    Math.abs(
-                        fPcReceived -
-                        fDmReceived
-                    );
-
-
-                // ============================================================
-                // CHART DATA
-                // ============================================================
-
-                var aChartData = [
-
+            var oProcessedRow =
+                Object.assign(
+                    {},
+                    oRow,
                     {
-                        Category: "PC Received",
-                        Amount: fPcReceived
-                    },
+                        StatusDescription:
+                            sStatusDescription,
 
-                    {
-                        Category: "DM Received",
-                        Amount: fDmReceived
-                    },
+                        System:
+                            sSystem,
 
-                    {
-                        Category: "Reconciliation Gap",
-                        Amount: fReconciliationGap
+                        PostedInDM:
+                            bPostedInDM,
+
+                        Gap:
+                            bGap
                     }
+                );
 
-                ];
+            // ====================================================
+            // PC / DM TOTALS
+            // ====================================================
 
+            if (sSystem === "PC") {
 
-                // ============================================================
-                // RESULT
-                // ============================================================
+                fPcReceived +=
+                    fAmount;
 
-                var oResult = {
+                iPcCount++;
 
-                    groups: aGroups,
+            } else if (sSystem === "DM") {
 
-                    kpi: {
+                fDmReceived +=
+                    fAmount;
 
-                        totalAmount:
-                            fTotalAmount.toFixed(2),
+                iDmCount++;
 
-                        totalObjects:
-                            String(iTotalObjects),
+            } else {
 
-                        debitTotal:
-                            fDebitTotal.toFixed(2),
+                iUnknownCount++;
+            }
 
-                        creditTotal:
-                            fCreditTotal.toFixed(2)
-                    },
+            // ====================================================
+            // RECONCILIATION GAP
+            //
+            // Every status whose PostedInDM = No
+            // contributes its transaction amount to the gap.
+            // ====================================================
 
-                    fPcReceived:
-                        fPcReceived,
+            if (bGap) {
 
-                    iPcCount:
-                        iPcCount,
+                fReconciliationGap +=
+                    fAmount;
+            }
 
-                    fDmPosted:
-                        fDmReceived,
+            // ====================================================
+            // GROUP KEY
+            // ====================================================
 
-                    fDmReceived:
-                        fDmReceived,
+            var sGroupKey =
+                sDateKey +
+                "_" +
+                sCurrency +
+                "_" +
+                sDirection;
 
-                    iDmCount:
-                        iDmCount,
+            // ====================================================
+            // CREATE GROUP
+            // ====================================================
 
-                    iUnknownCount:
-                        iUnknownCount,
+            if (!oGroupsMap[sGroupKey]) {
 
-                    fReconciliationGap:
-                        fReconciliationGap,
+                oGroupsMap[sGroupKey] = {
 
-                    chartData:
-                        aChartData
+                    groupId:
+                        sGroupKey,
+
+                    date:
+                        this._formatDate(
+                            sDateKey
+                        ),
+
+                    currency:
+                        sCurrency,
+
+                    direction:
+                        sDirection,
+
+                    directionState:
+                        sDirectionState,
+
+                    count:
+                        0,
+
+                    amount:
+                        0,
+
+                    expanded:
+                        false,
+
+                    details:
+                        []
                 };
 
-
-                // ============================================================
-                // UPDATE MODEL
-                // ============================================================
-
-                oModel.setProperty(
-                    "/groups",
-                    aGroups
+                aGroupOrder.push(
+                    sGroupKey
                 );
+            }
 
-                oModel.setProperty(
-                    "/kpi",
-                    oResult.kpi
-                );
+            // ====================================================
+            // UPDATE GROUP
+            // ====================================================
 
-                oModel.setProperty(
-                    "/chartData",
-                    aChartData
-                );
+            var oGroup =
+                oGroupsMap[sGroupKey];
 
-                oModel.setProperty(
-                    "/pcReceived",
-                    fPcReceived
-                );
+            oGroup.count++;
 
-                oModel.setProperty(
-                    "/dmReceived",
-                    fDmReceived
-                );
+            oGroup.amount +=
+                fAmount;
 
-                oModel.setProperty(
-                    "/reconciliationGap",
-                    fReconciliationGap
-                );
+            // ====================================================
+            // STORE PROCESSED DETAIL
+            // ====================================================
 
-                oModel.setProperty(
-                    "/pcCount",
-                    iPcCount
-                );
+            oGroup.details.push(
+                oProcessedRow
+            );
 
-                oModel.setProperty(
-                    "/dmCount",
-                    iDmCount
-                );
+            // ====================================================
+            // TOTAL KPI
+            // ====================================================
 
-                oModel.setProperty(
-                    "/unknownCount",
-                    iUnknownCount
-                );
+            fTotalAmount +=
+                fAmount;
 
+            iTotalObjects++;
 
-                console.log(
-                    "[Reconciliation] Groups:",
-                    aGroups
-                );
+            // Current dashboard behavior
+            fCreditTotal +=
+                fAmount;
 
-                console.log(
-                    "[Reconciliation] PC:",
-                    fPcReceived,
-                    "DM:",
-                    fDmReceived
-                );
+        }.bind(this)
+    );
 
+    // ============================================================
+    // EXPAND FIRST GROUP
+    // ============================================================
 
-                return oResult;
-            },
+    if (aGroupOrder.length) {
+
+        oGroupsMap[
+            aGroupOrder[0]
+        ].expanded = true;
+    }
+
+    // ============================================================
+    // CONVERT GROUP MAP TO ARRAY
+    // ============================================================
+
+    var aGroups =
+        aGroupOrder.map(
+            function (sKey) {
+
+                return oGroupsMap[
+                    sKey
+                ];
+
+            }
+        );
+
+    // ============================================================
+    // CHART DATA
+    // ============================================================
+
+    var aChartData = [
+
+        {
+            Category:
+                "PC Received",
+
+            Amount:
+                fPcReceived
+        },
+
+        {
+            Category:
+                "DM Received",
+
+            Amount:
+                fDmReceived
+        },
+
+        {
+            Category:
+                "Reconciliation Gap",
+
+            Amount:
+                fReconciliationGap
+        }
+    ];
+
+    // ============================================================
+    // RESULT
+    // ============================================================
+
+    var oResult = {
+
+        groups:
+            aGroups,
+
+        kpi: {
+
+            totalAmount:
+                fTotalAmount.toFixed(2),
+
+            totalObjects:
+                String(
+                    iTotalObjects
+                ),
+
+            debitTotal:
+                fDebitTotal.toFixed(2),
+
+            creditTotal:
+                fCreditTotal.toFixed(2)
+        },
+
+        fPcReceived:
+            fPcReceived,
+
+        iPcCount:
+            iPcCount,
+
+        fDmPosted:
+            fDmReceived,
+
+        fDmReceived:
+            fDmReceived,
+
+        iDmCount:
+            iDmCount,
+
+        iUnknownCount:
+            iUnknownCount,
+
+        fReconciliationGap:
+            fReconciliationGap,
+
+        chartData:
+            aChartData
+    };
+
+    // ============================================================
+    // UPDATE MODEL
+    // ============================================================
+
+    oModel.setProperty(
+        "/groups",
+        aGroups
+    );
+
+    oModel.setProperty(
+        "/kpi",
+        oResult.kpi
+    );
+
+    oModel.setProperty(
+        "/chartData",
+        aChartData
+    );
+
+    oModel.setProperty(
+        "/pcReceived",
+        fPcReceived
+    );
+
+    oModel.setProperty(
+        "/dmReceived",
+        fDmReceived
+    );
+
+    oModel.setProperty(
+        "/reconciliationGap",
+        fReconciliationGap
+    );
+
+    oModel.setProperty(
+        "/pcCount",
+        iPcCount
+    );
+
+    oModel.setProperty(
+        "/dmCount",
+        iDmCount
+    );
+
+    oModel.setProperty(
+        "/unknownCount",
+        iUnknownCount
+    );
+
+    console.log(
+        "[Reconciliation] PC:",
+        fPcReceived
+    );
+
+    console.log(
+        "[Reconciliation] DM:",
+        fDmReceived
+    );
+
+    console.log(
+        "[Reconciliation] Gap:",
+        fReconciliationGap
+    );
+
+    console.log(
+        "[Reconciliation] PC Count:",
+        iPcCount
+    );
+
+    console.log(
+        "[Reconciliation] DM Count:",
+        iDmCount
+    );
+
+    console.log(
+        "[Reconciliation] Unknown Count:",
+        iUnknownCount
+    );
+
+    return oResult;
+},
 
 
             _formatDate: function (sIsoDate) {
@@ -1544,191 +1614,165 @@ _formatDisplayDate: function (vDate) {
 
             _applyChartCategoryFilter: function (sCategory) {
 
-                var oReconModel =
-                    this.getView().getModel("reconciliation");
+    var oReconModel =
+        this.getView().getModel(
+            "reconciliation"
+        );
 
-                var aRawData =
-                    this._aReconciliationRawData || [];
+    var aRawData =
+        this._aReconciliationRawData || [];
 
+    var aOriginalChartData =
+        oReconModel.getProperty(
+            "/chartData"
+        );
 
-                // ============================================================
-                // SAVE ORIGINAL CHART DATA
-                //
-                // The graph must NOT change when we filter the table.
-                // ============================================================
+    var aFilteredRows = [];
+    var sMessage = "";
 
-                var aOriginalChartData =
-                    oReconModel.getProperty("/chartData");
+    // ============================================================
+    // PC
+    // ============================================================
 
+    if (
+        sCategory === "PC Received" ||
+        sCategory === "PC received"
+    ) {
 
-                var aFilteredRows = [];
-                var sMessage = "";
+        aFilteredRows =
+            aRawData.filter(
+                function (oRow) {
 
-
-                // ============================================================
-                // PC RECEIVED
-                // ============================================================
-
-                if (
-                    sCategory === "PC Received" ||
-                    sCategory === "PC received"
-                ) {
-
-                    aFilteredRows =
-                        aRawData.filter(function (oRow) {
-
-                            return this._getTransactionCategory(oRow)
-                                === "PC";
-
-                        }.bind(this));
-
-
-                    sMessage =
-                        "Showing " +
-                        aFilteredRows.length +
-                        " PC Received transaction(s).";
-                }
-
-
-                // ============================================================
-                // DM RECEIVED / DM POSTED
-                // ============================================================
-
-                else if (
-                    sCategory === "DM Received" ||
-                    sCategory === "DM received" ||
-                    sCategory === "DM posted" ||
-                    sCategory === "DM Posted"
-                ) {
-
-                    aFilteredRows =
-                        aRawData.filter(function (oRow) {
-
-                            return this._getTransactionCategory(oRow)
-                                === "DM";
-
-                        }.bind(this));
-
-
-                    sMessage =
-                        "Showing " +
-                        aFilteredRows.length +
-                        " DM transaction(s).";
-                }
-
-
-                // ============================================================
-                // RECONCILIATION GAP
-                // ============================================================
-
-                else if (
-                    sCategory === "Reconciliation Gap"
-                ) {
-
-                    /*
-                     * Gap is not an actual transaction.
-                     *
-                     * It is:
-                     *
-                     * |PC Received - DM Received|
-                     *
-                     * Therefore show all transactions.
-                     */
-
-                    aFilteredRows =
-                        aRawData;
-
-                    sMessage =
-                        "Reconciliation Gap is a calculated value. Showing all transactions.";
-                }
-
-
-                // ============================================================
-                // UNKNOWN CATEGORY
-                // ============================================================
-
-                else {
-
-                    aFilteredRows =
-                        aRawData;
-
-                    sMessage = "";
-                }
-
-
-                // ============================================================
-                // REBUILD ONLY THE TABLE GROUPS
-                // ============================================================
-
-                var oResult =
-                    this._buildGroupsAndKpi(
-                        aFilteredRows
+                    return (
+                        this._getTransactionCategory(
+                            oRow
+                        ) === "PC"
                     );
 
+                }.bind(this)
+            );
 
-                // ============================================================
-                // UPDATE TABLE
-                // ============================================================
+        sMessage =
+            "Showing " +
+            aFilteredRows.length +
+            " PC Received transaction(s).";
+    }
 
-                oReconModel.setProperty(
-                    "/groups",
-                    oResult.groups
-                );
+    // ============================================================
+    // DM
+    // ============================================================
 
+    else if (
+        sCategory === "DM Received" ||
+        sCategory === "DM received" ||
+        sCategory === "DM Posted" ||
+        sCategory === "DM posted"
+    ) {
 
-                // ============================================================
-                // RESTORE ORIGINAL GRAPH
-                //
-                // VERY IMPORTANT
-                // ============================================================
+        aFilteredRows =
+            aRawData.filter(
+                function (oRow) {
 
-                oReconModel.setProperty(
-                    "/chartData",
-                    aOriginalChartData
-                );
+                    return (
+                        this._getTransactionCategory(
+                            oRow
+                        ) === "DM"
+                    );
 
+                }.bind(this)
+            );
 
-                // ============================================================
-                // UI STATE
-                // ============================================================
+        sMessage =
+            "Showing " +
+            aFilteredRows.length +
+            " DM transaction(s).";
+    }
 
-                oReconModel.setProperty(
-                    "/selectedCategory",
-                    sCategory
-                );
+    // ============================================================
+    // GAP
+    // ============================================================
 
-                oReconModel.setProperty(
-                    "/filterMessage",
-                    sMessage
-                );
+    else if (
+        sCategory ===
+        "Reconciliation Gap"
+    ) {
 
-                /*
- * If text search is active, re-apply it on top of
- * the selected chart category.
- */
-                var oTableSearch =
-                    oReconModel.getProperty("/tableSearch") || {};
+        /*
+         * Gap is based on the status mapping.
+         * Show only transactions whose
+         * PostedInDM = No / Gap = Yes.
+         */
 
-                if (
-                    String(oTableSearch.piNo || "").trim() ||
-                    String(oTableSearch.piKind || "").trim() ||
-                    String(oTableSearch.refItemText || "").trim()
-                ) {
+        aFilteredRows =
+            aRawData.filter(
+                function (oRow) {
 
-                    this._applyReconTableSearch();
-                }
+                    var oStatusInfo =
+                        this._getReconStatusInfo(
+                            oRow.TechStat
+                        );
 
+                    return (
+                        oStatusInfo.gap === true
+                    );
 
-                console.log(
-                    "[Reconciliation] Selected graph category:",
-                    sCategory
-                );
+                }.bind(this)
+            );
 
-                console.log(
-                    "[Reconciliation] Table rows after filter:",
-                    aFilteredRows.length
-                );
-            },
+        sMessage =
+            "Showing " +
+            aFilteredRows.length +
+            " reconciliation gap transaction(s).";
+    }
+
+    else {
+
+        aFilteredRows =
+            aRawData;
+
+        sMessage = "";
+    }
+
+    // ============================================================
+    // REBUILD TABLE
+    // ============================================================
+
+    var oResult =
+        this._buildGroupsAndKpi(
+            aFilteredRows
+        );
+
+    oReconModel.setProperty(
+        "/groups",
+        oResult.groups
+    );
+
+    // ============================================================
+    // RESTORE ORIGINAL KPI / CHART
+    // ============================================================
+
+    oReconModel.setProperty(
+        "/kpi",
+        oReconModel.getProperty(
+            "/_originalKpi"
+        )
+    );
+
+    oReconModel.setProperty(
+        "/chartData",
+        aOriginalChartData
+    );
+
+    oReconModel.setProperty(
+        "/selectedCategory",
+        sCategory
+    );
+
+    oReconModel.setProperty(
+        "/filterMessage",
+        sMessage
+    );
+},
             /* "Show All" button — clears the bar filter and restores the
                full table for the currently loaded Clearing Area / Date. */
             onClearChartFilter: function () {
@@ -2165,36 +2209,7 @@ _formatDisplayDate: function (vDate) {
             /**
              * Reset the three table search fields.
              */
-            onResetReconTableSearch: function () {
-
-                var oModel =
-                    this.getView().getModel("reconciliation");
-
-                if (!oModel) {
-                    return;
-                }
-
-
-                oModel.setProperty(
-                    "/tableSearch/piNo",
-                    ""
-                );
-
-                oModel.setProperty(
-                    "/tableSearch/piKind",
-                    ""
-                );
-
-                oModel.setProperty(
-                    "/tableSearch/refItemText",
-                    ""
-                );
-
-
-                this._restoreReconTableAfterSearch();
-            },
-
-
+           
             /**
              * Restore the table after search is cleared.
              *
@@ -2702,55 +2717,113 @@ _formatDisplayDate: function (vDate) {
                through here. If the combo isn't PC → DM, everything is cleared
                and a blocked message is shown, regardless of how much raw data
                was actually loaded from OData. */
-            _applySystemGate: function () {
+          _applySystemGate: function () {
 
-                var oReconModel = this.getView().getModel("reconciliation");
-                if (!oReconModel) { return; }
-                if (this._isValidSystemCombo()) {
+    var oReconModel =
+        this.getView().getModel(
+            "reconciliation"
+        );
 
-                    var oResult =
-                        this._buildGroupsAndKpi(
-                            this._aReconciliationRawData || []
-                        );
+    if (!oReconModel) {
+        return;
+    }
 
+    if (this._isValidSystemCombo()) {
 
-                    /*
-                     * Keep the original KPI and chart values.
-                     *
-                     * Table search must NOT modify these.
-                     */
-                    oReconModel.setProperty(
-                        "/_originalKpi",
-                        Object.assign({}, oResult.kpi)
-                    );
+        var oResult =
+            this._buildGroupsAndKpi(
+                this._aReconciliationRawData || []
+            );
 
-                    oReconModel.setProperty(
-                        "/_originalChartData",
-                        (oResult.chartData || []).map(function (oItem) {
-                            return Object.assign({}, oItem);
-                        })
-                    );
+        oReconModel.setProperty(
+            "/_originalKpi",
+            Object.assign(
+                {},
+                oResult.kpi
+            )
+        );
 
-
-                    oReconModel.setProperty(
-                        "/groups",
-                        oResult.groups
-                    );
-
-                    oReconModel.setProperty(
-                        "/kpi",
-                        oResult.kpi
-                    );
-
-                    oReconModel.setProperty(
-                        "/chartData",
-                        oResult.chartData
+        oReconModel.setProperty(
+            "/_originalChartData",
+            (oResult.chartData || []).map(
+                function (oItem) {
+                    return Object.assign(
+                        {},
+                        oItem
                     );
                 }
+            )
+        );
 
-                this._createReconChart();
+        oReconModel.setProperty(
+            "/groups",
+            oResult.groups
+        );
 
-            },
+        oReconModel.setProperty(
+            "/kpi",
+            oResult.kpi
+        );
+
+        oReconModel.setProperty(
+            "/chartData",
+            oResult.chartData
+        );
+
+    } else {
+
+        // Invalid System 1 / System 2 combination
+        oReconModel.setProperty(
+            "/groups",
+            []
+        );
+
+        oReconModel.setProperty(
+            "/kpi",
+            {
+                totalAmount: "0.00",
+                totalObjects: "0",
+                debitTotal: "0.00",
+                creditTotal: "0.00"
+            }
+        );
+
+        oReconModel.setProperty(
+            "/chartData",
+            [
+                {
+                    Category: "PC Received",
+                    Amount: 0
+                },
+                {
+                    Category: "DM Received",
+                    Amount: 0
+                },
+                {
+                    Category: "Reconciliation Gap",
+                    Amount: 0
+                }
+            ]
+        );
+
+        oReconModel.setProperty(
+            "/pcReceived",
+            0
+        );
+
+        oReconModel.setProperty(
+            "/dmReceived",
+            0
+        );
+
+        oReconModel.setProperty(
+            "/reconciliationGap",
+            0
+        );
+    }
+
+    this._createReconChart();
+},
 
             /* ============================================================
         COLUMN SETTINGS
@@ -3346,27 +3419,42 @@ _formatDisplayDate: function (vDate) {
                 console.log("========== END TRANSACTION ANALYSIS ==========");
             },
 
-            _getTransactionCategory: function (oRow) {
+           _getTransactionCategory: function (oRow) {
 
-                if (!oRow) {
-                    return "DM";
-                }
+    if (!oRow) {
+        return "UNKNOWN";
+    }
 
-                /*
-                 * ============================================================
-                 * RECONCILIATION CLASSIFICATION
-                 * ============================================================
-                 *
-                 * TechStat 31  -> PC Received
-                 * Everything else -> DM Received
-                 */
+    var oStatusInfo =
+        this._getReconStatusInfo(
+            oRow.TechStat
+        );
 
-                if (String(oRow.TechStat) === "31") {
-                    return "PC";
-                }
+    /*
+     * Business rule:
+     *
+     * Posted in DM = Yes
+     *     -> DM
+     *
+     * Posted in DM = No
+     *     -> PC
+     */
 
-                return "DM";
-            },
+    if (oStatusInfo.postedInDM === true) {
+        return "DM";
+    }
+
+    if (oStatusInfo.postedInDM === false) {
+
+        if (
+            oStatusInfo.system === "PC"
+        ) {
+            return "PC";
+        }
+    }
+
+    return "UNKNOWN";
+},
 
         }
 

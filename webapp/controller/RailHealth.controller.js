@@ -379,6 +379,8 @@ sap.ui.define([
 
                     createdOnRaw: this._normaliseDate(oItem.CreatedOn) || "",
 
+                      format: String(oItem.ioFormat || "").replace(/^\/+/, ""),
+
                     oData: oItem,
 
                     selected: false
