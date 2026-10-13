@@ -5830,10 +5830,7 @@ body {
 }
 
 
-.paymentTransactionsTableContainer
-.sapMListTblCell:first-child
-.sapMBtn
-.sapUiIcon {
+.paymentTransactionsTableContainer .sapMListTblCell:first-child .sapMBtn .sapUiIcon {
     color: #0a6ed1 !important;
 }
 
@@ -6524,9 +6521,7 @@ body {
 
 /* Header text */
 
-.railPaymentOrdersTable
-    .sapMListTblHeaderCell
-    .sapMText {
+.railPaymentOrdersTable .sapMListTblHeaderCell .sapMText {
 
     color: #1d3f68 !important;
 
@@ -6573,9 +6568,7 @@ body {
    DATA TEXT
    ========================================================= */
 
-.railPaymentOrdersTable
-    .sapMListTblCell
-    .sapMText {
+.railPaymentOrdersTable .sapMListTblCell .sapMText {
 
     font-size: 0.82rem !important;
 
@@ -6595,9 +6588,7 @@ body {
    ORDER KEY
    ========================================================= */
 
-.railPaymentOrdersTable
-    .sapMListTblCell:nth-child(2)
-    .sapMText {
+.railPaymentOrdersTable .sapMListTblCell:nth-child(2) .sapMText {
 
     font-weight: 500;
 }
@@ -6607,9 +6598,7 @@ body {
    TECHNICAL STATUS
    ========================================================= */
 
-.railPaymentOrdersTable
-    .sapMListTblCell
-    .sapMObjStatus {
+.railPaymentOrdersTable .sapMListTblCell .sapMObjStatus {
 
     font-weight: 600;
 
@@ -6621,8 +6610,7 @@ body {
    ROW HOVER
    ========================================================= */
 
-.railPaymentOrdersTable
-    .sapMLIB:not(.sapMLIBActive):hover {
+.railPaymentOrdersTable .sapMLIB:not(.sapMLIBActive):hover {
 
     background: #f7faff !important;
 }
@@ -6632,8 +6620,7 @@ body {
    ARROW COLUMN
    ========================================================= */
 
-.railPaymentOrdersTable
-    .sapMListTblCell:first-child {
+.railPaymentOrdersTable .sapMListTblCell:first-child {
 
     padding-left: 0.6rem !important;
 
@@ -6661,8 +6648,7 @@ body {
    SCROLL AREA
    ========================================================= */
 
-.railDetailsDialog
-    .sapMScrollCont {
+.railDetailsDialog .sapMScrollCont {
 
     width: 100% !important;
 }
@@ -6672,8 +6658,7 @@ body {
    DIALOG TABLE AREA
    ========================================================= */
 
-.railDetailsDialog
-    .sapMDialogScroll {
+.railDetailsDialog .sapMDialogScroll {
 
     padding: 0 !important;
 }
@@ -6710,9 +6695,7 @@ body {
     border-bottom: 1px solid #d5dde8 !important;
 }
 
-.railOrderItemsTable
-    .sapMListTblHeaderCell
-    .sapMText {
+.railOrderItemsTable .sapMListTblHeaderCell .sapMText {
 
     color: #1d3f68 !important;
 
@@ -6760,9 +6743,7 @@ body {
    TEXT
    ========================================================= */
 
-.railOrderItemsTable
-    .sapMListTblCell
-    .sapMText {
+.railOrderItemsTable .sapMListTblCell .sapMText {
 
     font-size: 0.82rem !important;
 
@@ -6782,9 +6763,7 @@ body {
    STATUS
    ========================================================= */
 
-.railOrderItemsTable
-    .sapMListTblCell
-    .sapMObjStatus {
+.railOrderItemsTable .sapMListTblCell .sapMObjStatus {
 
     font-weight: 600;
 
@@ -6796,9 +6775,7 @@ body {
    AMOUNT
    ========================================================= */
 
-.railOrderItemsTable
-    .sapMListTblCell
-    .sapMObjectNumber {
+.railOrderItemsTable .sapMListTblCell .sapMObjectNumber {
 
     font-weight: 600;
 
@@ -6810,8 +6787,7 @@ body {
    ROW HOVER
    ========================================================= */
 
-.railOrderItemsTable
-    .sapMLIB:not(.sapMLIBActive):hover {
+.railOrderItemsTable .sapMLIB:not(.sapMLIBActive):hover {
 
     background: #f7faff !important;
 }
@@ -6821,8 +6797,1719 @@ body {
    SCROLLING
    ========================================================= */
 
-.railDetailsDialog
-    .sapMScrollCont {
+.railDetailsDialog .sapMScrollCont {
 
     width: 100% !important;
 }
+
+.donutWrap {
+    position: relative;
+}
+
+.donutCenterLabel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    text-align: center;
+}
+
+.donutCenterPercent {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #32363a;
+}
+
+.donutCenterCategory {
+    font-size: 0.75rem;
+    color: #6a6d70;
+}
+
+.donutLegendDot {
+    font-size: 0.6rem;
+    margin-right: 0.4rem;
+}
+
+.donutLegendLabel {
+    font-size: 0.875rem;
+}
+
+.donutLegendValue {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.donutLegendRow {
+    padding: 0.35rem 0;
+    border-bottom: 1px solid #ebebeb;
+    width: 100%;
+}
+
+.auditMasterDetailLayout {
+    width: 100%;
+    align-items: stretch;
+}
+
+.auditPaymentsPanel,
+.auditDetailPanel,
+.auditEventDetailPanel {
+    min-height: 720px;
+}
+
+.auditPaymentsTable .sapMListTblRow:hover {
+    background-color: #f5f6f7;
+    cursor: pointer;
+}
+
+.auditPaymentRowSelected {
+    background-color: #e8f2fd !important;
+    border-left: 3px solid #0A6ED1;
+}
+
+.auditPayIdText {
+    color: #0A6ED1;
+    font-weight: 600;
+}
+
+.auditPaymentsPagerRow {
+    gap: 2px;
+}
+
+.auditPagerBtn {
+    min-width: 2rem;
+}
+
+.auditDetailFieldsRow {
+    gap: 1.5rem;
+}
+
+.auditDetailField {
+    min-width: 140px;
+}
+
+.auditDetailFieldLabel {
+    color: #6a6d70;
+    font-size: 0.75rem;
+}
+
+.auditDetailFieldValue {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.auditTimelineRow {
+    gap: 0;
+}
+
+.auditTimelineStepWrap {
+    flex: 1;
+}
+
+.auditTimelineStep {
+    min-width: 90px;
+    text-align: center;
+}
+
+.timelineNode {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+}
+
+.timelineNodeGreen {
+    background-color: #0ca30c;
+}
+
+.timelineNodeBlue {
+    background-color: #0A6ED1;
+}
+
+.auditTimelineLabel {
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.auditTimelineTime {
+    color: #6a6d70;
+    font-size: 0.75rem;
+}
+
+.auditTimelineSystem {
+    color: #6a6d70;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.auditTimelineConnector {
+    margin: 0 4px;
+    align-self: center;
+}
+
+.auditEventDetailList {
+    gap: 0.6rem;
+}
+
+.auditEventDetailRow {
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.auditEventDetailLabel {
+    color: #6a6d70;
+    font-size: 0.8rem;
+}
+
+.auditEventDetailValue {
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-align: right;
+}
+
+.auditMasterDetailLayout {
+    width: 100%;
+    align-items: stretch;
+}
+
+.auditPaymentsPanel,
+.auditDetailPanel,
+.auditEventDetailPanel {
+    min-height: 720px;
+}
+
+.auditPaymentsTable .sapMListTblRow:hover {
+    background-color: #f5f6f7;
+    cursor: pointer;
+}
+
+.auditPayIdText {
+    color: #0A6ED1;
+    font-weight: 600;
+}
+
+.auditPaymentsPagerRow {
+    gap: 2px;
+}
+
+.auditPagerBtn {
+    min-width: 2rem;
+}
+
+.auditDetailFieldsRow {
+    gap: 1.5rem;
+}
+
+.auditDetailField {
+    min-width: 140px;
+}
+
+.auditDetailFieldLabel {
+    color: #6a6d70;
+    font-size: 0.75rem;
+}
+
+.auditDetailFieldValue {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.auditTimelineRow {
+    gap: 0;
+}
+
+.auditTimelineStepWrap {
+    flex: 1;
+}
+
+.auditTimelineStep {
+    min-width: 90px;
+    text-align: center;
+}
+
+.timelineNode {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+}
+
+.timelineNodeGreen {
+    background-color: #0ca30c;
+}
+
+.timelineNodeBlue {
+    background-color: #0A6ED1;
+}
+
+.auditTimelineLabel {
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.auditTimelineTime {
+    color: #6a6d70;
+    font-size: 0.75rem;
+}
+
+.auditTimelineSystem {
+    color: #6a6d70;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.auditTimelineConnector {
+    margin: 0 4px;
+    align-self: center;
+}
+
+.auditEventDetailList {
+    gap: 0.6rem;
+}
+
+.auditEventDetailRow {
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.auditEventDetailLabel {
+    color: #6a6d70;
+    font-size: 0.8rem;
+}
+
+.auditEventDetailValue {
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-align: right;
+}
+
+/* ================= Payments table ================= */
+.auditPaymentsTable .sapMListTblRow:hover,
+.auditPaymentsNarrowTable .sapMListTblRow:hover {
+    background-color: #eef4fc;
+    cursor: pointer;
+}
+
+.auditRowSelected,
+.auditRowSelected:hover {
+    background-color: #e3f1fd !important;
+    border-left: 3px solid #0A6ED1;
+}
+
+.auditPayIdText {
+    color: #0A6ED1;
+    font-weight: 600;
+}
+
+/* ================= Status pills ================= */
+.statusPill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.statusPillGreen {
+    background-color: #e3f5e1;
+    color: #0ca30c;
+}
+
+.statusPillAmber {
+    background-color: #fdf0d9;
+    color: #a35a00;
+}
+
+.statusPillRed {
+    background-color: #fbe3e3;
+    color: #d03b3b;
+}
+
+.statusPillBlue {
+    background-color: #e3f0fd;
+    color: #0A6ED1;
+}
+
+/* Audit Events "Result" column — same pill look as reference */
+.auditEventsTableCtrl .sapMObjStatus,
+.auditEventDetailPanel .sapMObjStatus {
+    padding: 2px 10px;
+    border-radius: 12px;
+    background-color: #e3f5e1 !important;
+}
+
+.auditEventsTableCtrl .sapMObjStatus .sapMObjStatusText,
+.auditEventDetailPanel .sapMObjStatus .sapMObjStatusText {
+    color: #0ca30c !important;
+    font-weight: 600;
+}
+
+/* ================= Timeline ================= */
+.auditTimelineRow {
+    gap: 0;
+}
+
+.auditTimelineStepWrap {
+    flex: 1;
+}
+
+.auditTimelineStep {
+    min-width: 95px;
+    text-align: center;
+}
+
+.timelineNode {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.timelineNodeGreen {
+    background-color: #0ca30c;
+}
+
+.timelineNodeBlue {
+    background-color: #0A6ED1;
+}
+
+.auditTimelineLabel {
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.auditTimelineTime {
+    color: #6a6d70;
+    font-size: 0.75rem;
+}
+
+.auditTimelineSystem {
+    color: #6a6d70;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.auditTimelineConnector {
+    margin: 0 4px;
+    align-self: center;
+}
+
+.auditDetailFieldsRow {
+    align-items: stretch;
+}
+
+.auditDetailField {
+    min-width: 150px;
+    padding: 0 1.25rem;
+}
+
+.auditDetailField:first-child {
+    padding-left: 0;
+}
+
+.auditFieldDivider {
+    width: 1px;
+    background-color: #e0e0e0;
+    align-self: stretch;
+    margin: 2px 0;
+}
+
+.auditDetailFieldLabel {
+    color: #6a6d70;
+    font-size: 0.75rem;
+}
+
+.auditDetailFieldValue {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+
+.auditDetailFieldsRow {
+    align-items: stretch;
+}
+
+.auditDetailField {
+    min-width: 150px;
+    padding: 0 1.25rem;
+}
+
+.auditDetailField:first-child {
+    padding-left: 0;
+}
+
+.auditFieldDivider {
+    width: 1px;
+    background-color: #e0e0e0;
+    align-self: stretch;
+    margin: 2px 0;
+}
+
+.auditDetailFieldLabel {
+    color: #6a6d70;
+    font-size: 0.75rem;
+}
+
+.auditDetailFieldValue {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+
+
+/* Audit page: master-detail layout */
+.auditMasterDetailLayout {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.auditPaymentsPanel,
+.auditDetailPanel,
+.auditEventDetailPanel {
+    box-sizing: border-box;
+    min-width: 0;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #e5e9ef;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    padding: 12px;
+}
+
+.auditPaymentsHeaderRow {
+    padding-bottom: 8px;
+}
+
+.auditPaymentsNarrowTable,
+.auditPaymentsTable {
+    width: 100%;
+}
+
+.auditPaymentsNarrowTable .sapMListTblHeaderCell,
+.auditPaymentsNarrowTable .sapMListTblCell {
+    padding: 9px 8px;
+}
+
+.auditPaymentsNarrowTable .sapMListTblHeaderCell {
+    background: #f7f9fc;
+    border-bottom: 1px solid #dfe5ed;
+}
+
+.auditPaymentsNarrowTable .sapMListTblRow {
+    border-bottom: 1px solid #e8edf3;
+}
+
+.auditPayIdText {
+    color: #0064d9;
+    font-weight: 600;
+}
+
+.auditRowSelected {
+    background: #e8f2ff !important;
+}
+
+.auditPaymentsPagerRow {
+    gap: 4px;
+}
+
+/* Payment summary heading */
+.auditDetailHeaderRow {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e9ef;
+}
+
+.auditDetailHeaderRow .sapMTitle {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* Rounded payment status */
+.statusPill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 24px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.statusPillGreen {
+    color: #256f3a;
+    background: #d9f4dc;
+    border: 1px solid #c1e8c5;
+}
+
+.statusPillAmber {
+    color: #8d5f00;
+    background: #fff0c2;
+    border: 1px solid #f7df98;
+}
+
+.statusPillRed {
+    color: #aa0808;
+    background: #ffe5e5;
+    border: 1px solid #f4c7c7;
+}
+
+.statusPillBlue {
+    color: #0057a8;
+    background: #e1efff;
+    border: 1px solid #c6e0ff;
+}
+
+/* Summary fields: equal widths and consistent vertical dividers */
+.auditDetailFieldsRow {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e9ef;
+    box-sizing: border-box;
+    gap: 0;
+}
+
+.auditDetailField {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 12px;
+    box-sizing: border-box;
+    gap: 5px;
+}
+
+.auditDetailField:first-child {
+    padding-left: 0;
+}
+
+.auditDetailFieldLabel {
+    color: #64748b;
+    font-size: 0.72rem;
+}
+
+.auditDetailFieldValue {
+    color: #182230;
+    font-size: 0.82rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.auditFieldDivider {
+    width: 1px;
+    min-width: 1px;
+    align-self: stretch;
+    background: #e1e6ed;
+}
+
+/* Timeline */
+.auditTimelineRow {
+    width: 100%;
+    padding: 18px 0;
+    border-bottom: 1px solid #e5e9ef;
+    box-sizing: border-box;
+}
+
+.auditTimelineStepWrap {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+}
+
+.auditTimelineStep {
+    min-width: 0;
+    flex: 1 1 auto;
+    text-align: center;
+}
+
+.timelineNode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 50%;
+    background: #22a765;
+    box-shadow: 0 0 0 4px #e5f6eb;
+}
+
+.timelineNodeBlue {
+    background: #1684e8;
+    box-shadow: 0 0 0 4px #e4f1ff;
+}
+
+.auditTimelineConnector {
+    margin: 0 4px;
+    align-self: flex-start;
+    margin-top: 10px;
+    flex-shrink: 0;
+}
+
+.auditTimelineLabel {
+    font-size: 0.73rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.auditTimelineTime {
+    color: #536579;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.auditTimelineSystem {
+    color: #64748b;
+    font-size: 0.66rem;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* Audit events table */
+#auditEventsCard {
+    min-width: 0;
+}
+
+.auditDetailPanel .sapMListTbl {
+    border-collapse: collapse;
+}
+
+.auditDetailPanel .sapMListTblHeaderCell {
+    background: #f5f7fa;
+    border-bottom: 1px solid #dce3ec;
+    padding: 9px 6px;
+}
+
+.auditDetailPanel .sapMListTblHeaderCell .sapMText {
+    color: #43546a;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.auditDetailPanel .sapMListTblCell {
+    padding: 8px 6px;
+    border-bottom: 1px solid #e6ebf1;
+    vertical-align: middle;
+}
+
+.auditDetailPanel .sapMListTblCell .sapMText,
+.auditDetailPanel .sapMListTblCell .sapMLnk {
+    font-size: 0.72rem;
+}
+
+.auditDetailPanel .sapMListTblRow:hover {
+    background: #f7faff;
+}
+
+.auditDetailPanel .sapMListTblCell .sapMObjStatus {
+    white-space: nowrap;
+}
+
+/* Event details panel */
+.auditEventDetailList {
+    border-top: 1px solid #e7ebf0;
+}
+
+.auditEventDetailRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.auditEventDetailLabel {
+    flex: 0 0 43%;
+    color: #64748b;
+    font-size: 0.73rem;
+}
+
+.auditEventDetailValue {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+    font-size: 0.73rem;
+}
+
+@media (max-width: 1100px) {
+    .auditDetailFieldsRow {
+        flex-wrap: wrap;
+        row-gap: 14px;
+    }
+
+    .auditDetailField {
+        flex: 1 1 30%;
+    }
+
+    .auditFieldDivider {
+        display: none;
+    }
+
+    .auditTimelineSystem {
+        font-size: 0.6rem;
+    }
+}
+
+
+
+.auditEventsTable .sapMListTblCell {
+    vertical-align: middle;
+}
+
+.auditEventsTable .sapMListTblHeaderCell {
+    white-space: nowrap;
+}
+
+.auditEventsTable .sapMObjStatusInverted {
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+
+
+/* Payment summary: flexible, responsive field layout */
+.auditDetailFieldsRow {
+    display: flex;
+    flex-wrap: wrap !important;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+    gap: 16px 0;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e9ef;
+}
+
+/* Each field occupies approximately one-third of the available width */
+.auditDetailFieldsRow > .auditDetailField {
+    flex: 1 1 30%;
+    min-width: 0;
+    max-width: 33.333%;
+    padding: 0 12px;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+
+/* Remove extra padding from the first field */
+.auditDetailFieldsRow > .auditDetailField:first-child {
+    padding-left: 0;
+}
+
+/* Hide vertical dividers when fields can wrap */
+.auditDetailFieldsRow > .auditFieldDivider {
+    display: none !important;
+}
+
+/* Labels */
+.auditDetailFieldLabel {
+    display: block;
+    color: #64748b;
+    font-size: 0.72rem;
+    white-space: normal;
+}
+
+/* Values */
+.auditDetailFieldValue {
+    display: block;
+    max-width: 100%;
+    color: #182230;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.4;
+}
+
+/* Very narrow middle panel */
+@media (max-width: 1100px) {
+    .auditDetailFieldsRow > .auditDetailField {
+        flex: 1 1 45%;
+        max-width: 50%;
+    }
+}
+
+
+
+/* Payment summary fields with vertical dividers */
+.auditDetailFieldsRow {
+    display: flex;
+    flex-wrap: wrap !important;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+    gap: 14px 0;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e9ef;
+}
+
+/* Each field */
+.auditDetailFieldsRow > .auditDetailField {
+    flex: 1 1 30%;
+    min-width: 0;
+    max-width: 33.333%;
+    padding: 0 12px;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+
+/* First field aligned to the left edge */
+.auditDetailFieldsRow > .auditDetailField:first-child {
+    padding-left: 0;
+}
+
+/* Vertical divider between fields */
+.auditDetailFieldsRow > .auditFieldDivider {
+    display: block !important;
+    flex: 0 0 1px;
+    width: 1px;
+    min-width: 1px;
+    align-self: stretch;
+    background-color: #d9e0e8;
+    margin: 0;
+}
+
+/* Labels */
+.auditDetailFieldLabel {
+    color: #64748b;
+    font-size: 0.72rem;
+    white-space: normal;
+}
+
+/* Values */
+.auditDetailFieldValue {
+    color: #182230;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+}
+
+/* Narrower middle panel when Event Details is open */
+@media (max-width: 1100px) {
+    .auditDetailFieldsRow > .auditDetailField {
+        flex: 1 1 28%;
+        max-width: 33.333%;
+    }
+}
+
+
+
+/* Keep all six payment fields on one line */
+.auditDetailFieldsRow {
+    display: flex;
+    flex-wrap: nowrap !important;
+    align-items: stretch;
+    justify-content: space-between;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    gap: 0;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e9ef;
+}
+
+/* Allow every field to shrink */
+.auditDetailFieldsRow > .auditDetailField {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    padding: 0 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* First field starts at the left edge */
+.auditDetailFieldsRow > .auditDetailField:first-child {
+    padding-left: 0;
+}
+
+/* Vertical separators between fields */
+.auditDetailFieldsRow > .auditFieldDivider {
+    display: block !important;
+    flex: 0 0 1px;
+    width: 1px;
+    min-width: 1px;
+    align-self: stretch;
+    background: #d9e0e8;
+    margin: 0;
+}
+
+/* Compact labels */
+.auditDetailFieldLabel {
+    font-size: 0.68rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Compact values without overlapping adjacent fields */
+.auditDetailFieldValue {
+    display: block;
+    max-width: 100%;
+    font-size: 0.73rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Keep reconciliation status inside its column */
+#auditFieldReconVal {
+    max-width: 100%;
+    width: fit-content;
+}
+
+/* Smaller middle panel when Event Details is visible */
+.auditDetailPanel {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+
+
+/* Main detail card */
+.auditDetailPanel {
+    width: 76%;
+    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Top payment summary box */
+.auditPaymentSummaryBox {
+    width: 100%;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* Timeline in its own full-width box */
+.auditTimelineBox {
+    width: 100%;
+    padding: 14px 12px;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* Bottom section */
+.auditBottomSection {
+    width: 100%;
+    align-items: stretch;
+    gap: 12px;
+    min-width: 0;
+}
+
+/* Audit table */
+.auditEventsCard {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* Event details shares only the bottom row */
+.auditBottomSection > .auditEventDetailPanel {
+    flex: 0 0 32%;
+    width: 32%;
+    min-width: 0;
+    margin-left: 0;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* Avoid table overflow */
+.auditEventsCard .sapMListTbl {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.auditEventsCard .sapMListTblCell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Smaller screens */
+@media (max-width: 1100px) {
+    .auditBottomSection {
+        flex-wrap: wrap;
+    }
+
+    .auditEventsCard,
+    .auditBottomSection > .auditEventDetailPanel {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+}
+
+
+
+/* Audit page overall layout */
+.auditMasterDetailLayout {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.auditPaymentsPanel,
+.auditDetailPanel {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Main detail panel contains three stacked sections */
+.auditDetailPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 76%;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 8px;
+}
+
+/* Box 1: payment ID, status and all six summary fields */
+.auditPaymentSummaryBox {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.auditDetailHeaderRow {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e9ef;
+}
+
+.auditDetailFieldsRow {
+    display: flex;
+    flex-wrap: nowrap !important;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    gap: 0;
+    padding: 12px 0 0;
+    box-sizing: border-box;
+}
+
+.auditDetailFieldsRow > .auditDetailField {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    padding: 0 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.auditDetailFieldsRow > .auditDetailField:first-child {
+    padding-left: 0;
+}
+
+.auditDetailFieldsRow > .auditFieldDivider {
+    display: block !important;
+    flex: 0 0 1px;
+    width: 1px;
+    min-width: 1px;
+    align-self: stretch;
+    margin: 0;
+    background: #d9e0e8;
+}
+
+.auditDetailFieldLabel {
+    display: block;
+    color: #64748b;
+    font-size: 0.68rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.auditDetailFieldValue {
+    display: block;
+    max-width: 100%;
+    color: #182230;
+    font-size: 0.73rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.statusPill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    box-sizing: border-box;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.statusPillGreen {
+    color: #256f3a;
+    background: #d9f4dc;
+    border: 1px solid #c1e8c5;
+}
+
+.statusPillAmber {
+    color: #8d5f00;
+    background: #fff0c2;
+    border: 1px solid #f7df98;
+}
+
+.statusPillRed {
+    color: #aa0808;
+    background: #ffe5e5;
+    border: 1px solid #f4c7c7;
+}
+
+.statusPillBlue {
+    color: #0057a8;
+    background: #e1efff;
+    border: 1px solid #c6e0ff;
+}
+
+/* Box 2: timeline on its own full-width row */
+.auditTimelineBox {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.auditTimelineRow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    min-width: 0;
+    margin-top: 0 !important;
+}
+
+.auditTimelineStepWrap {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+}
+
+.auditTimelineStep {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+}
+
+.timelineNode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 50%;
+    background: #22a765;
+    box-shadow: 0 0 0 4px #e5f6eb;
+}
+
+.timelineNodeBlue {
+    background: #1684e8;
+    box-shadow: 0 0 0 4px #e4f1ff;
+}
+
+.auditTimelineConnector {
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin: 10px 4px 0;
+}
+
+.auditTimelineLabel {
+    font-size: 0.73rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.auditTimelineTime {
+    color: #536579;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.auditTimelineSystem {
+    color: #64748b;
+    font-size: 0.66rem;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* Box 3: audit events and event details side by side */
+.auditBottomSection {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    width: 100%;
+    min-width: 0;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+/* Audit table card shrinks when Event Details opens */
+.auditEventsCard {
+    flex: 1 1 0%;
+    width: 0;
+    min-width: 0;
+    max-width: 100%;
+    padding: 12px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.auditEventsHeaderRow {
+    width: 100%;
+    min-width: 0;
+}
+
+.auditEventsHeaderActions {
+    flex: 0 0 auto;
+}
+
+/* Horizontal scrolling stays below the table, not over the details panel */
+.auditEventsTableScroll {
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    box-sizing: border-box;
+}
+
+.auditEventsTableScroll .sapMScrollContScroll {
+    min-width: 0;
+}
+
+.auditEventsTable {
+    width: 64rem !important;
+    min-width: 64rem;
+    table-layout: fixed;
+}
+
+.auditEventsTable .sapMListTblHeaderCell {
+    padding: 8px 6px;
+    background: #f5f7fa;
+    border-bottom: 1px solid #dce3ec;
+    white-space: nowrap;
+}
+
+.auditEventsTable .sapMListTblCell {
+    padding: 8px 6px;
+    border-bottom: 1px solid #e6ebf1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+.auditEventsTable .sapMListTblCell .sapMText,
+.auditEventsTable .sapMListTblCell .sapMLnk {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.72rem;
+}
+
+.auditEventsTable .sapMListTblCell .sapMObjStatus {
+    white-space: nowrap;
+}
+
+/* Event Details is confined to the bottom row; it never overlays the table */
+.auditBottomSection > .auditEventDetailPanel {
+    display: flex;
+    flex: 0 0 32%;
+    width: 32%;
+    min-width: 250px;
+    max-width: 38%;
+    margin: 0 !important;
+    padding: 12px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.auditEventDetailList {
+    width: 100%;
+    min-width: 0;
+    border-top: 1px solid #e7ebf0;
+}
+
+.auditEventDetailRow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.auditEventDetailLabel {
+    flex: 0 0 43%;
+    min-width: 0;
+    color: #64748b;
+    font-size: 0.73rem;
+}
+
+.auditEventDetailValue {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+    font-size: 0.73rem;
+}
+
+@media (max-width: 1100px) {
+    .auditBottomSection {
+        flex-wrap: wrap;
+    }
+
+    .auditEventsCard,
+    .auditBottomSection > .auditEventDetailPanel {
+        flex: 1 1 100%;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+}
+
+
+/* Payment status pill: Posted */
+#auditDetailStatusPill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 12px;
+    min-height: 22px;
+    border-radius: 999px;
+    background-color: #d9f4dc;
+    color: #256f3a;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+#auditDetailStatusPill .sapMText {
+    color: #256f3a !important;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Reconciliation status pill: Matched */
+#auditFieldReconVal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 12px;
+    min-height: 22px;
+    width: fit-content;
+    border-radius: 999px;
+    background-color: #d9f4dc;
+    color: #256f3a;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+#auditFieldReconVal .sapMText {
+    color: #256f3a !important;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+
+
+/* Match Event Details Success with Audit Events Success */
+.auditEventDetailRow .sapMObjStatus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;
+    min-height: 22px;
+    border-radius: 999px;
+    background-color: #d9f4dc;
+    box-sizing: border-box;
+}
+
+/* Remove default status text styling */
+.auditEventDetailRow .sapMObjStatus .sapMObjStatusText {
+    color: #256f3a !important;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Keep the Success pill aligned to the right */
+.auditEventDetailRow:has(.sapMObjStatus) {
+    align-items: center;
+}
+
+
+/* Timeline icon circles */
+.auditTimelineRow .timelineNode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 50%;
+    background-color: #27a765;
+    box-shadow: 0 2px 5px rgba(39, 167, 101, 0.2);
+    box-sizing: border-box;
+}
+
+/* White icons inside the circles */
+.auditTimelineRow .timelineNode .sapUiIcon {
+    color: #ffffff !important;
+    font-size: 1rem;
+}
+
+/* Posting Initiated: blue circle */
+.auditTimelineRow .timelineNodeBlue {
+    background-color: #1684e8 !important;
+    box-shadow: 0 2px 5px rgba(22, 132, 232, 0.2);
+}
+
+/* Green connecting arrows */
+.auditTimelineRow .auditTimelineConnector {
+    color: #27a765 !important;
+    font-size: 1rem;
+    margin: 0 5px;
+    align-self: center;
+    flex-shrink: 0;
+}
+
+/* Align each timeline step */
+.auditTimelineRow .auditTimelineStepWrap {
+    display: flex;
+    flex: 1 1 0;
+    min-width: 0;
+    align-items: center;
+}
+
+/* Center labels and timestamps */
+.auditTimelineRow .auditTimelineLabel {
+    font-size: 0.73rem;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.auditTimelineRow .auditTimelineTime {
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.auditTimelineRow .auditTimelineSystem {
+    font-size: 0.68rem;
+    text-align: center;
+    line-height: 1.35;
+}
+
+/* Timeline container */
+.auditTimelineBox {
+    width: 100%;
+    padding: 18px 12px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+
+
+.auditTimelineRow .timelineNode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 50%;
+    background: #27a765;
+}
+
+.auditTimelineRow .timelineNode .sapUiIcon {
+    color: #fff !important;
+    font-size: 1rem !important;
+    line-height: 1;
+}
+
+.auditTimelineRow .timelineNodeBlue {
+    background: #1684e8 !important;
+}
+
+.auditTimelineRow .auditTimelineConnector {
+    color: #27a765 !important;
+    font-size: 1rem;
+}
+
+
+
+/* Audit timeline — visible circular icon nodes */
+.auditTimelineRow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.25rem;
+}
+
+.auditTimelineStepWrap {
+    display: flex;
+    align-items: center;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.auditTimelineStep {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+}
+
+/* Force the icon container to have visible dimensions */
+.timelineNode {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    border-radius: 50%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+/* Completed steps */
+.timelineNodeGreen {
+    background-color: #16a34a !important;
+}
+
+/* Current/in-progress step */
+.timelineNodeBlue {
+    background-color: #0a6ed1 !important;
+}
+
+/* Make the SAPUI5 icon itself visible */
+.timelineNode .sapUiIcon {
+    color: #ffffff !important;
+    font-size: 1.3rem !important;
+    line-height: 1.3rem;
+    display: inline-block !important;
+}
+
+.auditTimelineConnector {
+    flex-shrink: 0;
+    margin: 0 0.2rem;
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+}
+
+.auditTimelineLabel {
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.auditTimelineTime,
+.auditTimelineSystem {
+    font-size: 0.65rem;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+
+.auditTimelineIconCircle {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: visible;
+}
+
+.auditTimelineIconGreen {
+    background: #16a34a !important;
+}
+
+.auditTimelineIconBlue {
+    background: #0a6ed1 !important;
+}
+
+.auditTimelineIconCircle .sapUiIcon {
+    display: inline-block !important;
+    color: #fff !important;
+    font-size: 1.25rem !important;
+    line-height: 1.25rem;
+}
+
+.auditTimelineStepWrap {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.auditTimelineStep {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+}
+
+.auditTimelineConnector {
+    margin: 0 0.25rem;
+    margin-top: 0.85rem;
+    flex-shrink: 0;
+}
+
+
