@@ -8512,4 +8512,5 @@ body {
     flex-shrink: 0;
 }
 
-
+.auditDetailDialogFieldsWrap { gap: 1rem 1.5rem; }
+.auditDetailDialogField { min-width: 11rem; }

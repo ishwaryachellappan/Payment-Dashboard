@@ -412,19 +412,7 @@
 
                    />
 
-                   <Button
-
-                       id="auditOpenPaymentExternalButton"
-
-                       icon="sap-icon://action"
-
-                       type="Transparent"
-
-                       tooltip="Open in new window"
-
-                       press="onOpenPaymentExternal"
-
-                   />
+                  
 
                </HBox>
 

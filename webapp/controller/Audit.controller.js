@@ -8,7 +8,12 @@ sap.ui.define([
     "sap/m/Button",
     "sap/m/ObjectStatus",
     "sap/m/HBox",
+    "sap/m/VBox",
+    "sap/m/CheckBox",
     "sap/ui/core/Icon",
+    "sap/ui/core/Fragment",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
     "sap/ui/export/Spreadsheet"
 ], function (
     Controller,
@@ -20,7 +25,12 @@ sap.ui.define([
     Button,
     ObjectStatus,
     HBox,
+    VBox,
+    CheckBox,
     Icon,
+    Fragment,
+    Filter,
+    FilterOperator,
     Spreadsheet
 ) {
     "use strict";
@@ -60,7 +70,11 @@ sap.ui.define([
 
 
 
-
+    var AUDIT_DETAIL_DEFAULT_FIELDS = [
+        "OrderKey", "TechnicalStatus", "CreatedOn", "ClearingArea",
+        "Channel", "PaymentOrderNumber", "PaymentOrderType",
+        "RecipientName", "ExternalSenderBIC", "RecipientBIC"
+    ];
 
 
     var PAGE_SIZE = 10;
@@ -144,38 +158,38 @@ sap.ui.define([
         },
 
 
-// Called by View1.controller.js's _refreshAudit() every time Overview's
-// own PaymentInfo read finishes — Clearing Area, Posting Date, or Created
-// On change, variant load, or initial page load. aRows is the EXACT array
-// Overview's own Payment Transactions table is bound to
-// (paymentTable>/PaymentInfo) — not a copy, not re-filtered here. Whatever
-// Overview shows, Audit shows, by construction.
-setPaymentData: function (aRows) {
+        // Called by View1.controller.js's _refreshAudit() every time Overview's
+        // own PaymentInfo read finishes — Clearing Area, Posting Date, or Created
+        // On change, variant load, or initial page load. aRows is the EXACT array
+        // Overview's own Payment Transactions table is bound to
+        // (paymentTable>/PaymentInfo) — not a copy, not re-filtered here. Whatever
+        // Overview shows, Audit shows, by construction.
+        setPaymentData: function (aRows) {
 
-    var that = this;
+            var that = this;
 
-    var aMapped = (aRows || []).map(function (oRow) {
+            var aMapped = (aRows || []).map(function (oRow) {
 
-        var oStatus = that._classifyTechnicalStatus(String(oRow.TechnicalStatus || ""));
+                var oStatus = that._classifyTechnicalStatus(String(oRow.TechnicalStatus || ""));
 
-        return Object.assign({}, oRow, {
-            PaymentId: "PAY-" + (oRow.PaymentOrderNumber || oRow.OrderKey || ""),
-            Status: oStatus.label,
-            StatusState: oStatus.state,
-            StatusColor: oStatus.color
-        });
-    });
+                return Object.assign({}, oRow, {
+                    PaymentId: "PAY-" + (oRow.PaymentOrderNumber || oRow.OrderKey || ""),
+                    Status: oStatus.label,
+                    StatusState: oStatus.state,
+                    StatusColor: oStatus.color
+                });
+            });
 
-    var oPaymentsModel = this.getView().getModel("auditPayments");
+            var oPaymentsModel = this.getView().getModel("auditPayments");
 
-    oPaymentsModel.setProperty("/all", aMapped);
-    oPaymentsModel.setProperty("/filtered", aMapped);
-    oPaymentsModel.setProperty("/total", aMapped.length);
-    oPaymentsModel.setProperty("/totalPages", Math.max(1, Math.ceil(aMapped.length / PAGE_SIZE)));
-    oPaymentsModel.setProperty("/currentPage", 1);
+            oPaymentsModel.setProperty("/all", aMapped);
+            oPaymentsModel.setProperty("/filtered", aMapped);
+            oPaymentsModel.setProperty("/total", aMapped.length);
+            oPaymentsModel.setProperty("/totalPages", Math.max(1, Math.ceil(aMapped.length / PAGE_SIZE)));
+            oPaymentsModel.setProperty("/currentPage", 1);
 
-    this._applyPaymentsPage();
-},
+            this._applyPaymentsPage();
+        },
 
 
         // Builds 2-4 rows that exactly match the given filter values, so Audit
@@ -456,7 +470,7 @@ setPaymentData: function (aRows) {
         // entity exists — only the header (PaymentId/Status/OrderKey/Amount)
         // reflects the clicked row for now.
         _selectPayment: function (oRow) {
-
+            this._oSelectedPaymentRow = oRow;
             var oPaymentsModel = this.getView().getModel("auditPayments");
             oPaymentsModel.setProperty("/selectedPaymentId", oRow.PaymentId);
 
@@ -502,18 +516,18 @@ setPaymentData: function (aRows) {
 
         },
 
-      onRefreshPaymentsList: function () {
-    var oModel = this.getView().getModel("auditPayments");
-    var aAll = oModel.getProperty("/all");
+        onRefreshPaymentsList: function () {
+            var oModel = this.getView().getModel("auditPayments");
+            var aAll = oModel.getProperty("/all");
 
-    oModel.setProperty("/filtered", aAll);
-    oModel.setProperty("/total", aAll.length);
-    oModel.setProperty("/totalPages", Math.max(1, Math.ceil(aAll.length / PAGE_SIZE)));
-    oModel.setProperty("/currentPage", 1);
+            oModel.setProperty("/filtered", aAll);
+            oModel.setProperty("/total", aAll.length);
+            oModel.setProperty("/totalPages", Math.max(1, Math.ceil(aAll.length / PAGE_SIZE)));
+            oModel.setProperty("/currentPage", 1);
 
-    this._applyPaymentsPage();
-    MessageToast.show("Synced with Overview's current filters");
-},
+            this._applyPaymentsPage();
+
+        },
 
         onOpenPaymentsFilter: function () {
             MessageToast.show("Filter — coming soon");
@@ -577,8 +591,229 @@ setPaymentData: function (aRows) {
         // DETAIL HEADER ACTIONS
         // ==========================================================
 
-        onViewPaymentDetails: function () {
-            MessageToast.show("View Payment Details — coming soon");
+        // Default fields shown in the detail dialog grid before the user opens
+        // Settings — a readable subset of PAYMENT_INFO_FIELD_CATALOG, same idea as
+        // Overview's detailHeaderColumnsModel default set.
+
+
+        // ==========================================================
+        // VIEW PAYMENT DETAILS DIALOG
+        // ==========================================================
+
+        onViewPaymentDetails: async function () {
+
+            var oRow = this._oSelectedPaymentRow;
+
+            if (!oRow) {
+                MessageToast.show("Select a payment first");
+                return;
+            }
+
+            if (!this._oAuditDetailDialog) {
+                this._oAuditDetailDialog = await Fragment.load({
+                    id: this.getView().getId(),
+                    name: "payment.dashboard.view.fragments.AuditPaymentDetails",
+                    controller: this
+                });
+                this.getView().addDependent(this._oAuditDetailDialog);
+            }
+
+            this.getView().setModel(
+                new JSONModel(Object.assign({}, oRow, {
+                    StatusState: this._statusToObjectState(oRow.Status)
+                })),
+                "auditDetailDialog"
+            );
+
+            if (!this._aAuditDetailVisibleFields) {
+                this._aAuditDetailVisibleFields = AUDIT_DETAIL_DEFAULT_FIELDS.slice();
+            }
+
+            this._rebuildAuditDetailDialogFields();
+
+            this.getView().setModel(new JSONModel({ items: [] }), "auditDetailItems");
+            this._rebuildAuditDetailItemTable();
+
+            this._oAuditDetailDialog.open();
+
+            // Same ItemDetails lookup pattern as View1's onShowPaymentDetails —
+            // PaymentOrder alone isn't unique across Clearing Areas/dates, so scope
+            // by all three.
+            var oModel = this.getOwnerComponent().getModel("odataModel");
+            var sPaymentOrder = oRow.PaymentOrderNumber
+                || String(oRow.OrderKey || "").split("/").pop().replace(/^0+/, "");
+
+            var aFilters = [new Filter("PaymentOrder", FilterOperator.EQ, sPaymentOrder)];
+
+            if (oRow.ClearingArea) {
+                aFilters.push(new Filter("ClearingArea", FilterOperator.EQ, oRow.ClearingArea));
+            }
+            if (oRow.PaymentOrderDate) {
+                aFilters.push(new Filter("PaymentOrderDate", FilterOperator.EQ, oRow.PaymentOrderDate));
+            }
+
+            var aItems = [];
+            try {
+                var oBinding = oModel.bindList("/ItemDetails", undefined, undefined, aFilters);
+                var aContexts = await oBinding.requestContexts(0, 100);
+                aItems = aContexts.map(function (oContext) { return oContext.getObject(); });
+            } catch (oError) {
+                console.error("Audit payment details — ItemDetails read failed:", oError && (oError.message || oError));
+            }
+
+            this.getView().getModel("auditDetailItems").setProperty("/items", aItems);
+            this._rebuildAuditDetailItemTable();
+        },
+
+        onCloseAuditPaymentDetails: function () {
+            if (this._oAuditDetailDialog) {
+                this._oAuditDetailDialog.close();
+            }
+        },
+
+        _statusToObjectState: function (sStatus) {
+            switch (sStatus) {
+                case "Posted":
+                case "Matched":
+                    return "Success";
+                case "Pending":
+                    return "Warning";
+                case "Failed":
+                case "Unmatched":
+                    return "Error";
+                default:
+                    return "None";
+            }
+        },
+
+        _getPaymentFieldDef: function (sKey) {
+            var aMatches = PAYMENT_INFO_FIELD_CATALOG.filter(function (oField) {
+                return oField.key === sKey;
+            });
+            return aMatches[0];
+        },
+
+        _rebuildAuditDetailDialogFields: function () {
+
+            var oWrap = Fragment.byId(this.getView().getId(), "auditDetailDialogFieldsWrap");
+            if (!oWrap) {
+                return;
+            }
+
+            oWrap.destroyItems();
+
+            var oRow = this._oSelectedPaymentRow || {};
+            var that = this;
+
+            this._aAuditDetailVisibleFields.forEach(function (sKey) {
+
+                var oFieldDef = that._getPaymentFieldDef(sKey);
+                var vValue = oRow[sKey];
+                var sDisplay = (vValue === undefined || vValue === null || vValue === "")
+                    ? "-"
+                    : String(vValue);
+
+                oWrap.addItem(new VBox({
+                    width: "11rem",
+                    class: "auditDetailDialogField",
+                    items: [
+                        new Text({ text: oFieldDef ? oFieldDef.label : sKey, class: "auditDetailFieldLabel" }),
+                        new Text({ text: sDisplay, class: "auditDetailFieldValue" })
+                    ]
+                }));
+            });
+        },
+
+        onOpenAuditDetailFieldSettings: function () {
+
+            var that = this;
+            var aSelectedFields = this._aAuditDetailVisibleFields.slice();
+
+            if (this._oAuditDetailSettingsDialog) {
+                this._oAuditDetailSettingsDialog.destroy();
+            }
+
+            var oVBox = new VBox({ class: "sapUiSmallMargin" });
+
+            PAYMENT_INFO_FIELD_CATALOG.forEach(function (oFieldDef) {
+                oVBox.addItem(new CheckBox({
+                    text: oFieldDef.label,
+                    selected: aSelectedFields.indexOf(oFieldDef.key) > -1,
+                    select: function (oEvent) {
+                        var bSelected = oEvent.getParameter("selected");
+                        var iIndex = aSelectedFields.indexOf(oFieldDef.key);
+                        if (bSelected && iIndex === -1) {
+                            aSelectedFields.push(oFieldDef.key);
+                        } else if (!bSelected && iIndex > -1) {
+                            aSelectedFields.splice(iIndex, 1);
+                        }
+                    }
+                }));
+            });
+
+            this._oAuditDetailSettingsDialog = new sap.m.Dialog({
+                title: "Choose Fields",
+                contentWidth: "350px",
+                contentHeight: "420px",
+                content: [
+                    new sap.m.ScrollContainer({
+                        height: "100%", width: "100%", vertical: true,
+                        content: [oVBox]
+                    })
+                ],
+                beginButton: new Button({
+                    text: "OK",
+                    press: function () {
+                        that._aAuditDetailVisibleFields = aSelectedFields;
+                        that._rebuildAuditDetailDialogFields();
+                        that._oAuditDetailSettingsDialog.close();
+                    }
+                }),
+                endButton: new Button({
+                    text: "Cancel",
+                    press: function () { that._oAuditDetailSettingsDialog.close(); }
+                })
+            });
+
+            this.getView().addDependent(this._oAuditDetailSettingsDialog);
+            this._oAuditDetailSettingsDialog.open();
+        },
+
+        _rebuildAuditDetailItemTable: function () {
+
+            var oTable = Fragment.byId(this.getView().getId(), "auditDetailItemTable");
+            if (!oTable) {
+                return;
+            }
+
+            var aColumns = [
+                { key: "ItemNumber", label: "Item Number" },
+                { key: "ClearingArea", label: "Clearing Area" },
+                { key: "ItemProcessingStatus", label: "Processing Status" },
+                { key: "TransactionType", label: "Transaction Type" },
+                { key: "TotalAmount", label: "Amount" },
+                { key: "TransactionCurrency", label: "Currency" }
+            ];
+
+            oTable.destroyColumns();
+            oTable.unbindItems();
+
+            aColumns.forEach(function (oCol) {
+                oTable.addColumn(new Column({
+                    width: "9rem",
+                    header: new Text({ text: oCol.label })
+                }));
+            });
+
+            oTable.bindItems({
+                path: "auditDetailItems>/items",
+                factory: function () {
+                    var aCells = aColumns.map(function (oCol) {
+                        return new Text({ text: "{auditDetailItems>" + oCol.key + "}" });
+                    });
+                    return new ColumnListItem({ cells: aCells });
+                }
+            });
         },
 
         onOpenPaymentExternal: function () {

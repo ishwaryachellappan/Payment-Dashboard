@@ -1,0 +1,72 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <Dialog
+        id="auditPaymentDetailsDialog"
+        title="Payment Details"
+        contentWidth="950px"
+        contentHeight="650px"
+        resizable="true"
+        draggable="true"
+        stretchOnPhone="true"
+    >
+        <content>
+            <VBox id="_IDGenVBox7" class="sapUiSmallMargin" width="100%">
+
+                <HBox
+                    id="auditDetailDialogHeaderRow"
+                    justifyContent="SpaceBetween"
+                    alignItems="Center"
+                    width="100%"
+                >
+                    <HBox id="_IDGenHBox46" alignItems="Center">
+                        <Title id="_IDGenTitle6" text="{auditDetailDialog>/PaymentId}" level="H4" class="sapUiTinyMarginEnd"/>
+                        <ObjectStatus id="_IDGenObjectStatus4"
+                            text="{auditDetailDialog>/Status}"
+                            state="{auditDetailDialog>/StatusState}"
+                        />
+                    </HBox>
+
+                    <Button id="_IDGenButton3"
+                        icon="sap-icon://action-settings"
+                        type="Transparent"
+                        tooltip="Choose fields"
+                        press="onOpenAuditDetailFieldSettings"
+                    />
+                </HBox>
+
+                <HBox
+                    id="auditDetailDialogFieldsWrap"
+                    wrap="Wrap"
+                    class="sapUiSmallMarginTop auditDetailDialogFieldsWrap"
+                />
+
+                <Title id="_IDGenTitle7"
+                    text="{= 'Item Details (' + ${auditDetailItems>/items}.length + ')' }"
+                    level="H5"
+                    class="sapUiMediumMarginTop"
+                />
+
+                <ScrollContainer id="_IDGenScrollContainer4"
+                    width="100%"
+                    height="220px"
+                    horizontal="true"
+                    vertical="true"
+                >
+                    <Table
+                        id="auditDetailItemTable"
+                        width="auto"
+                        fixedLayout="false"
+                        noDataText="No item-level data available for this payment"
+                    />
+                </ScrollContainer>
+
+            </VBox>
+        </content>
+
+        <endButton>
+            <Button id="_IDGenButton4" text="Close" press="onCloseAuditPaymentDetails"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
