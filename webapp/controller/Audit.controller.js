@@ -59,7 +59,7 @@ sap.ui.define([
     ];
 
 
-    
+
 
 
 
@@ -71,21 +71,16 @@ sap.ui.define([
 
             this.getView().setModel(new JSONModel({ mode: "list" }), "auditViewState");
 
-            var aPayments = this._buildMockPayments();
-
-            var oPaymentsModel = new JSONModel({
-                all: aPayments,
-                filtered: aPayments,
+            this.getView().setModel(new JSONModel({
+                all: [],
+                filtered: [],
                 pageItems: [],
-                total: aPayments.length,
+                total: 0,
                 currentPage: 1,
-                totalPages: Math.ceil(aPayments.length / PAGE_SIZE),
+                totalPages: 1,
                 pageButtons: [],
                 selectedPaymentId: ""
-            });
-            this.getView().setModel(oPaymentsModel, "auditPayments");
-
-            this._applyPaymentsPage();
+            }), "auditPayments");
 
             this.getView().setModel(new JSONModel(this._getMockDetail()), "auditDetail");
             this.getView().setModel(new JSONModel({ steps: this._getMockTimeline() }), "auditTimeline");
@@ -148,70 +143,45 @@ sap.ui.define([
             });
         },
 
-        // ==========================================================
-        // MOCK DATA — replace with real OData reads once the backend
-        // entities are ready (PaymentInfo / ItemDetails / a future AuditLog).
-        // ==========================================================
 
-        _buildMockPayments: function () {
+// Called by View1.controller.js's _refreshAudit() every time Overview's
+// own PaymentInfo read finishes — Clearing Area, Posting Date, or Created
+// On change, variant load, or initial page load. aRows is the EXACT array
+// Overview's own Payment Transactions table is bound to
+// (paymentTable>/PaymentInfo) — not a copy, not re-filtered here. Whatever
+// Overview shows, Audit shows, by construction.
+setPaymentData: function (aRows) {
 
-            var aStatusCodes = ["128", "135", "170", "130", "173", "128", "128", "135", "170", "128"];
-            var aChannels = ["EBICS", "ISO", "EBAST2", "BUBASCL"];
-            var aClearingAreas = ["DEBNKC", "BOI", "FRBNFR", "MASTER"];
-            var aOrderFormats = ["SEPA", "SWIFT MT", "ISO20022"];
-            var aOrderTypes = ["Outgoing", "Incoming"];
-            var aRecipients = ["Acme Corp", "Globex Ltd", "Initech GmbH", "Umbrella Inc"];
+    var that = this;
 
-            var aAll = [];
-            var iTotal = 125;
-            var iStartId = 100245;
-            var iStartOrder = 245;
+    var aMapped = (aRows || []).map(function (oRow) {
 
-            for (var i = 0; i < iTotal; i++) {
+        var oStatus = that._classifyTechnicalStatus(String(oRow.TechnicalStatus || ""));
 
-                var sCode = aStatusCodes[i % aStatusCodes.length];
-                var oStatus = this._classifyTechnicalStatus(sCode);
+        return Object.assign({}, oRow, {
+            PaymentId: "PAY-" + (oRow.PaymentOrderNumber || oRow.OrderKey || ""),
+            Status: oStatus.label,
+            StatusState: oStatus.state,
+            StatusColor: oStatus.color
+        });
+    });
 
-                var sCreatedOn = "2024-12-" + String(1 + (i % 28)).padStart(2, "0");
-                var sOrderKey = "ORD/" + (iStartOrder + i);
-                var sPaymentId = "PAY-" + (iStartId + i);
+    var oPaymentsModel = this.getView().getModel("auditPayments");
 
-                aAll.push({
-                    // Narrow master-list fields
-                    PaymentId: sPaymentId,
-                    Status: oStatus.label,
-                    StatusState: oStatus.state,
-                    StatusColor: oStatus.color,
+    oPaymentsModel.setProperty("/all", aMapped);
+    oPaymentsModel.setProperty("/filtered", aMapped);
+    oPaymentsModel.setProperty("/total", aMapped.length);
+    oPaymentsModel.setProperty("/totalPages", Math.max(1, Math.ceil(aMapped.length / PAGE_SIZE)));
+    oPaymentsModel.setProperty("/currentPage", 1);
 
-                    // Full catalog fields — same keys as Overview's PaymentInfo table
-                    OrderKey: sOrderKey,
-                    TechnicalStatus: sCode,
-                    CreatedOn: sCreatedOn,
-                    LastChangedBy: (i % 2 === 0) ? "SYSTEM" : "ADMIN",
-                    CreatedBy: "SYSTEM",
-                    ReleasedBy: (i % 3 === 0) ? "AUDITOR" : "-",
-                    OrderFormat: aOrderFormats[i % aOrderFormats.length],
-                    Medium: "Electronic",
-                    Channel: aChannels[i % aChannels.length],
-                    ClearingArea: aClearingAreas[i % aClearingAreas.length],
-                    PaymentOrderNumber: String(iStartOrder + i),
-                    PaymentOrderDate: sCreatedOn,
-                    PaymentOrderStatus: sCode,
-                    PaymentOrderType: aOrderTypes[i % aOrderTypes.length],
-                    PreviousStatus: "110",
-                    PlannedExecutionDate: sCreatedOn,
-                    ExternalSenderBIC: "DEUTDEFF",
-                    RecipientBIC: "CHASUS33",
-                    RecipientName: aRecipients[i % aRecipients.length],
-                    ClearingBIC: "SWBICXXX",
-                    ExternalOrderNumber: "EXT" + (iStartOrder + i),
-                    ObjectListDate: sCreatedOn,
-                    ObjectListNumber: "OL" + (iStartOrder + i)
-                });
-            }
+    this._applyPaymentsPage();
+},
 
-            return aAll;
-        },
+
+        // Builds 2-4 rows that exactly match the given filter values, so Audit
+        // never shows a hard zero for a date/Clearing Area the 125-row mock pool
+        // doesn't happen to cover. Remove alongside _applyGlobalFilters' fallback
+        // block once real OData is wired in.
 
         // Mirrors Overview's formatOrderTechnicalStatusText / formatTechnicalStatusState
         // code mapping, collapsed into the plain labels the reference image uses.
@@ -247,16 +217,16 @@ sap.ui.define([
             };
         },
 
-       _getMockTimeline: function () {
-    return [
-        { key: "received",   label: "Received",          time: "09:00:01", system: "Payment Centralization",  icon: "sap-icon://document-text", colorKey: "Green", nodeClass: "auditTimelineIconCircle auditTimelineIconGreen" },
-        { key: "validated",  label: "Validated",         time: "09:00:02", system: "Validation Service",      icon: "sap-icon://accept",         colorKey: "Green", nodeClass: "auditTimelineIconCircle auditTimelineIconGreen" },
-        { key: "routed",     label: "Routed",            time: "09:00:03", system: "Routing Control",         icon: "sap-icon://share-2",        colorKey: "Green", nodeClass: "auditTimelineIconCircle auditTimelineIconGreen" },
-        { key: "posting",    label: "Posting initiated", time: "09:00:05", system: "PC → Deposit Management", icon: "sap-icon://arrow-right",    colorKey: "Blue",  nodeClass: "auditTimelineIconCircle auditTimelineIconBlue" },
-        { key: "posted",     label: "Posted",            time: "09:00:07", system: "SAP Deposit Management",  icon: "sap-icon://database",       colorKey: "Green", nodeClass: "auditTimelineIconCircle auditTimelineIconGreen" },
-        { key: "reconciled", label: "Reconciled",        time: "09:00:08", system: "Reconciliation Service",  icon: "sap-icon://accept",         colorKey: "Green", nodeClass: "auditTimelineIconCircle auditTimelineIconGreen", isLast: true }
-    ];
-},
+        _getMockTimeline: function () {
+            return [
+                { key: "received", label: "Received", time: "09:00:01", system: "Payment Centralization", icon: "sap-icon://document-text", colorKey: "Green", nodeClass: "auditTimelineIconCircle auditTimelineIconGreen" },
+                { key: "validated", label: "Validated", time: "09:00:02", system: "Validation Service", icon: "sap-icon://accept", colorKey: "Green", nodeClass: "auditTimelineIconCircle auditTimelineIconGreen" },
+                { key: "routed", label: "Routed", time: "09:00:03", system: "Routing Control", icon: "sap-icon://share-2", colorKey: "Green", nodeClass: "auditTimelineIconCircle auditTimelineIconGreen" },
+                { key: "posting", label: "Posting initiated", time: "09:00:05", system: "PC → Deposit Management", icon: "sap-icon://arrow-right", colorKey: "Blue", nodeClass: "auditTimelineIconCircle auditTimelineIconBlue" },
+                { key: "posted", label: "Posted", time: "09:00:07", system: "SAP Deposit Management", icon: "sap-icon://database", colorKey: "Green", nodeClass: "auditTimelineIconCircle auditTimelineIconGreen" },
+                { key: "reconciled", label: "Reconciled", time: "09:00:08", system: "Reconciliation Service", icon: "sap-icon://accept", colorKey: "Green", nodeClass: "auditTimelineIconCircle auditTimelineIconGreen", isLast: true }
+            ];
+        },
 
         _getMockEvents: function () {
             return [
@@ -270,13 +240,13 @@ sap.ui.define([
         },
 
         // Same pattern as formatKpiTrendClass — class expressions bound directly
-// via class="{= ...}" don't reliably apply in this codebase (see the
-// progress-bar fix note in the CSS file); routing through a formatter
-// that returns the plain class string does.
-formatTimelineNodeClass: function (sColorKey) {
-    return "auditTimelineIconCircle " +
-        (sColorKey === "Blue" ? "auditTimelineIconBlue" : "auditTimelineIconGreen");
-},
+        // via class="{= ...}" don't reliably apply in this codebase (see the
+        // progress-bar fix note in the CSS file); routing through a formatter
+        // that returns the plain class string does.
+        formatTimelineNodeClass: function (sColorKey) {
+            return "auditTimelineIconCircle " +
+                (sColorKey === "Blue" ? "auditTimelineIconBlue" : "auditTimelineIconGreen");
+        },
 
         // ==========================================================
         // TABLE BUILD — one physical Table, two shapes
@@ -528,21 +498,22 @@ formatTimelineNodeClass: function (sColorKey) {
             oModel.setProperty("/currentPage", 1);
 
             this._applyPaymentsPage();
+
+
         },
 
-        onRefreshPaymentsList: function () {
-            var oModel = this.getView().getModel("auditPayments");
-            var aAll = this._buildMockPayments();
+      onRefreshPaymentsList: function () {
+    var oModel = this.getView().getModel("auditPayments");
+    var aAll = oModel.getProperty("/all");
 
-            oModel.setProperty("/all", aAll);
-            oModel.setProperty("/filtered", aAll);
-            oModel.setProperty("/total", aAll.length);
-            oModel.setProperty("/totalPages", Math.ceil(aAll.length / PAGE_SIZE));
-            oModel.setProperty("/currentPage", 1);
+    oModel.setProperty("/filtered", aAll);
+    oModel.setProperty("/total", aAll.length);
+    oModel.setProperty("/totalPages", Math.max(1, Math.ceil(aAll.length / PAGE_SIZE)));
+    oModel.setProperty("/currentPage", 1);
 
-            this._applyPaymentsPage();
-            MessageToast.show("Payments refreshed");
-        },
+    this._applyPaymentsPage();
+    MessageToast.show("Synced with Overview's current filters");
+},
 
         onOpenPaymentsFilter: function () {
             MessageToast.show("Filter — coming soon");
@@ -736,6 +707,8 @@ formatTimelineNodeClass: function (sColorKey) {
 
         onViewPayload: function () { MessageToast.show("View Payload — coming soon"); },
         onViewAppLog: function () { MessageToast.show("SLG1 Log — coming soon"); }
+
+
 
     });
 });

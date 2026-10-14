@@ -64,7 +64,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
     // entries here any time to expose additional PaymentInfo fields in the picker.
     var PAYMENT_INFO_FIELD_CATALOG = [
         { key: "OrderKey", label: "Order Key", default: true },
-       
+
         { key: "TechnicalStatus", label: "Technical Status", default: true },
         { key: "CreatedOn", label: "Created On", default: true, type: "date" },
         { key: "LastChangedBy", label: "Last Changed By", default: true },
@@ -72,9 +72,9 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
         { key: "ReleasedBy", label: "Released By", default: true },
 
         // NEW FIELDS
-    { key: "OrderFormat", label: "Order Format", default: true },
-    { key: "Medium", label: "Medium", default: true },
-    { key: "Channel", label: "Channel", default: true },
+        { key: "OrderFormat", label: "Order Format", default: true },
+        { key: "Medium", label: "Medium", default: true },
+        { key: "Channel", label: "Channel", default: true },
 
         { key: "ClearingArea", label: "Clearing Area" },
         { key: "PaymentOrderNumber", label: "Payment Order Number" },
@@ -735,6 +735,9 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this.getView()
                 .getModel("paymentTable")
                 .setProperty("/PaymentInfo", aData);
+
+                this._refreshAudit(aData);
+
         },
         onTotalProcessedPress: function () {
             this.loadTransactionsByStatus([]);
@@ -1032,55 +1035,79 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
 
 
-       onClearingAreaChange: function () {
+        onClearingAreaChange: function () {
 
-    this._loadKpiSummary();
+            this._loadKpiSummary();
 
-    this._loadFlowChart();
+            this._loadFlowChart();
 
-    this._refreshExceptionKpis();
+            this._refreshExceptionKpis();
 
-    this._refreshReconciliation();
+            this._refreshReconciliation();
 
-    this._refreshRailHealth();
-    this._refreshRailHealth(); 
+            this._refreshRailHealth();
+            
 
-    this.loadTransactionsByStatus([]);
+            this.loadTransactionsByStatus([]);
 
-    this.getView()
-        .getModel("donutViewModel")
-        .setProperty(
-            "/selectedStatus",
-            ""
-        );
+            this.getView()
+                .getModel("donutViewModel")
+                .setProperty(
+                    "/selectedStatus",
+                    ""
+                );
 
-    this.getView()
-        .getModel("donutItemsModel")
-        .setProperty(
-            "/items",
-            []
-        );
-},
+            this.getView()
+                .getModel("donutItemsModel")
+                .setProperty(
+                    "/items",
+                    []
+                );
+        },
 
-_refreshRailHealth: function () {
+        _refreshRailHealth: function () {
 
-    var oRailHealthView = this.byId("railHealthView");
+            var oRailHealthView = this.byId("railHealthView");
 
-    if (!oRailHealthView) {
-        console.warn("railHealthView not found");
+            if (!oRailHealthView) {
+                console.warn("railHealthView not found");
+                return;
+            }
+
+            var oController = oRailHealthView.getController();
+
+            if (!oController) {
+                console.warn("RailHealth controller not found");
+                return;
+            }
+
+            console.log("Refreshing Rail Health");
+
+            oController.onFilterChange();
+        },
+
+       _refreshAudit: function (aPaymentData) {
+
+    var oAuditView = this.byId("AuditView");
+
+    if (!oAuditView) {
         return;
     }
 
-    var oController = oRailHealthView.getController();
+    var oController = oAuditView.getController();
 
-    if (!oController) {
-        console.warn("RailHealth controller not found");
+    if (!oController || !oController.setPaymentData) {
         return;
     }
 
-    console.log("Refreshing Rail Health");
+    // If called without data (shouldn't normally happen now that
+    // loadTransactionsByStatus always passes it), fall back to whatever
+    // paymentTable currently holds rather than doing nothing.
+    var aData = aPaymentData
+        || this.getView().getModel("paymentTable").getProperty("/PaymentInfo")
+        || [];
 
-    oController.onFilterChange();
+    oController.setPaymentData(aData);
 },
 
         // ‚úÖ DONUT CLICK INTERACTION
@@ -1599,401 +1626,401 @@ _refreshRailHealth: function () {
 
         },
 
-      _loadKpiSummary: async function () {
+        _loadKpiSummary: async function () {
 
-    var oModel = this.getOwnerComponent().getModel("odataModel");
-    var oKpiSummaryModel = this.getView().getModel("kpiSummaryModel");
-    var oFilterModel = this.getView().getModel("filterModel");
+            var oModel = this.getOwnerComponent().getModel("odataModel");
+            var oKpiSummaryModel = this.getView().getModel("kpiSummaryModel");
+            var oFilterModel = this.getView().getModel("filterModel");
 
-    if (!oModel || !oFilterModel || !oKpiSummaryModel) {
-        return;
-    }
-
-    var sKpiDate = oFilterModel.getProperty("/kpiDate");
-    var sClearingArea = oFilterModel.getProperty("/clearingArea");
-    var sCreatedOn = oFilterModel.getProperty("/createdOn");
-
-    if (!sKpiDate || !sClearingArea) {
-        return;
-    }
-
-    console.log("========== KPI FILTERS ==========");
-    console.log("Clearing Area:", sClearingArea);
-    console.log("Posting Date:", sKpiDate);
-    console.log("Created On:", sCreatedOn || "ALL");
-    console.log("=================================");
-
-
-    /*
-     * ============================================================
-     * READ PAYMENT INFO FOR KPI
-     * ============================================================
-     */
-
-    var fnReadKpiForDate = async function (sPostingDate) {
-
-        var aFilters = [
-
-            // Clearing Area
-            new Filter(
-                "ClearingArea",
-                FilterOperator.EQ,
-                sClearingArea
-            ),
-
-            // Posting Date
-            new Filter(
-                "PaymentOrderDate",
-                FilterOperator.EQ,
-                sPostingDate
-            )
-
-        ];
-
-
-        /*
-         * Created On
-         *
-         * If Created On is selected:
-         *     only that creation date is included
-         *
-         * If Created On is empty:
-         *     all creation dates are included
-         */
-
-        if (sCreatedOn) {
-
-            aFilters.push(
-                new Filter(
-                    "CreatedOn",
-                    FilterOperator.EQ,
-                    sCreatedOn
-                )
-            );
-
-        }
-
-
-        console.log(
-            "Loading KPI PaymentInfo:",
-            {
-                clearingArea: sClearingArea,
-                postingDate: sPostingDate,
-                createdOn: sCreatedOn || "ALL"
+            if (!oModel || !oFilterModel || !oKpiSummaryModel) {
+                return;
             }
-        );
 
+            var sKpiDate = oFilterModel.getProperty("/kpiDate");
+            var sClearingArea = oFilterModel.getProperty("/clearingArea");
+            var sCreatedOn = oFilterModel.getProperty("/createdOn");
 
-        var oListBinding = oModel.bindList(
-            "/PaymentInfo",
-            undefined,
-            undefined,
-            aFilters,
-            {
-                $select:
-                    "ClearingArea," +
-                    "PaymentOrderDate," +
-                    "CreatedOn," +
-                    "TechnicalStatus"
+            if (!sKpiDate || !sClearingArea) {
+                return;
             }
-        );
 
-
-        try {
-
-            /*
-             * Load all matching records.
-             *
-             * Increase this number if your PaymentInfo
-             * contains more than 10,000 records for one day.
-             */
-
-            var aContexts =
-                await oListBinding.requestContexts(0, 10000);
-
-
-            var aRows = aContexts.map(function (oContext) {
-                return oContext.getObject();
-            });
-
-
-            console.log(
-                "KPI records:",
-                sPostingDate,
-                "Created On:",
-                sCreatedOn || "ALL",
-                "Count:",
-                aRows.length
-            );
+            console.log("========== KPI FILTERS ==========");
+            console.log("Clearing Area:", sClearingArea);
+            console.log("Posting Date:", sKpiDate);
+            console.log("Created On:", sCreatedOn || "ALL");
+            console.log("=================================");
 
 
             /*
-             * ====================================================
-             * STATUS COUNTS
-             * ====================================================
+             * ============================================================
+             * READ PAYMENT INFO FOR KPI
+             * ============================================================
              */
 
-            var iTotalProcessed = aRows.length;
+            var fnReadKpiForDate = async function (sPostingDate) {
 
-            var iSuccessful = 0;
-            var iRejected = 0;
-            var iFailed = 0;
-            var iPending = 0;
+                var aFilters = [
+
+                    // Clearing Area
+                    new Filter(
+                        "ClearingArea",
+                        FilterOperator.EQ,
+                        sClearingArea
+                    ),
+
+                    // Posting Date
+                    new Filter(
+                        "PaymentOrderDate",
+                        FilterOperator.EQ,
+                        sPostingDate
+                    )
+
+                ];
 
 
-            aRows.forEach(function (oRow) {
+                /*
+                 * Created On
+                 *
+                 * If Created On is selected:
+                 *     only that creation date is included
+                 *
+                 * If Created On is empty:
+                 *     all creation dates are included
+                 */
 
-                var sStatus = String(
-                    oRow.TechnicalStatus || ""
+                if (sCreatedOn) {
+
+                    aFilters.push(
+                        new Filter(
+                            "CreatedOn",
+                            FilterOperator.EQ,
+                            sCreatedOn
+                        )
+                    );
+
+                }
+
+
+                console.log(
+                    "Loading KPI PaymentInfo:",
+                    {
+                        clearingArea: sClearingArea,
+                        postingDate: sPostingDate,
+                        createdOn: sCreatedOn || "ALL"
+                    }
                 );
 
 
-                /*
-                 * SUCCESSFUL
-                 */
-                if (
-                    sStatus === "128" ||
-                    sStatus === "130"
-                ) {
+                var oListBinding = oModel.bindList(
+                    "/PaymentInfo",
+                    undefined,
+                    undefined,
+                    aFilters,
+                    {
+                        $select:
+                            "ClearingArea," +
+                            "PaymentOrderDate," +
+                            "CreatedOn," +
+                            "TechnicalStatus"
+                    }
+                );
 
-                    iSuccessful++;
+
+                try {
+
+                    /*
+                     * Load all matching records.
+                     *
+                     * Increase this number if your PaymentInfo
+                     * contains more than 10,000 records for one day.
+                     */
+
+                    var aContexts =
+                        await oListBinding.requestContexts(0, 10000);
+
+
+                    var aRows = aContexts.map(function (oContext) {
+                        return oContext.getObject();
+                    });
+
+
+                    console.log(
+                        "KPI records:",
+                        sPostingDate,
+                        "Created On:",
+                        sCreatedOn || "ALL",
+                        "Count:",
+                        aRows.length
+                    );
+
+
+                    /*
+                     * ====================================================
+                     * STATUS COUNTS
+                     * ====================================================
+                     */
+
+                    var iTotalProcessed = aRows.length;
+
+                    var iSuccessful = 0;
+                    var iRejected = 0;
+                    var iFailed = 0;
+                    var iPending = 0;
+
+
+                    aRows.forEach(function (oRow) {
+
+                        var sStatus = String(
+                            oRow.TechnicalStatus || ""
+                        );
+
+
+                        /*
+                         * SUCCESSFUL
+                         */
+                        if (
+                            sStatus === "128" ||
+                            sStatus === "130"
+                        ) {
+
+                            iSuccessful++;
+
+                        }
+
+
+                        /*
+                         * REJECTED
+                         */
+                        else if (
+                            sStatus === "172" ||
+                            sStatus === "173"
+                        ) {
+
+                            iRejected++;
+
+                        }
+
+
+                        /*
+                         * FAILED
+                         */
+                        else if (
+                            sStatus === "114" ||
+                            sStatus === "170"
+                        ) {
+
+                            iFailed++;
+
+                        }
+
+
+                        /*
+                         * PENDING
+                         */
+                        else if (
+                            [
+                                "39",
+                                "35",
+                                "37",
+                                "110",
+                                "115",
+                                "117",
+                                "118",
+                                "119",
+                                "120",
+                                "176",
+                                "177",
+                                "178",
+                                "179",
+                                "180",
+                                "101",
+                                "103",
+                                "105"
+                            ].indexOf(sStatus) !== -1
+                        ) {
+
+                            iPending++;
+
+                        }
+
+                    });
+
+
+                    var oResult = {
+
+                        TotalProcessed: iTotalProcessed,
+
+                        SuccessfulPayments: iSuccessful,
+
+                        RejectedPayments: iRejected,
+
+                        FailedPayments: iFailed,
+
+                        PendingPayments: iPending
+
+                    };
+
+
+                    console.log(
+                        "KPI RESULT:",
+                        sPostingDate,
+                        oResult
+                    );
+
+
+                    return oResult;
+
+                } catch (oError) {
+
+                    console.error(
+                        "❌ KPI PaymentInfo request failed:",
+                        {
+                            postingDate: sPostingDate,
+                            clearingArea: sClearingArea,
+                            createdOn: sCreatedOn,
+                            error: oError
+                        }
+                    );
+
+
+                    return {
+
+                        TotalProcessed: 0,
+
+                        SuccessfulPayments: 0,
+
+                        RejectedPayments: 0,
+
+                        FailedPayments: 0,
+
+                        PendingPayments: 0
+
+                    };
 
                 }
-
-
-                /*
-                 * REJECTED
-                 */
-                else if (
-                    sStatus === "172" ||
-                    sStatus === "173"
-                ) {
-
-                    iRejected++;
-
-                }
-
-
-                /*
-                 * FAILED
-                 */
-                else if (
-                    sStatus === "114" ||
-                    sStatus === "170"
-                ) {
-
-                    iFailed++;
-
-                }
-
-
-                /*
-                 * PENDING
-                 */
-                else if (
-                    [
-                        "39",
-                        "35",
-                        "37",
-                        "110",
-                        "115",
-                        "117",
-                        "118",
-                        "119",
-                        "120",
-                        "176",
-                        "177",
-                        "178",
-                        "179",
-                        "180",
-                        "101",
-                        "103",
-                        "105"
-                    ].indexOf(sStatus) !== -1
-                ) {
-
-                    iPending++;
-
-                }
-
-            });
-
-
-            var oResult = {
-
-                TotalProcessed: iTotalProcessed,
-
-                SuccessfulPayments: iSuccessful,
-
-                RejectedPayments: iRejected,
-
-                FailedPayments: iFailed,
-
-                PendingPayments: iPending
 
             };
-
-
-            console.log(
-                "KPI RESULT:",
-                sPostingDate,
-                oResult
-            );
-
-
-            return oResult;
-
-        } catch (oError) {
-
-            console.error(
-                "❌ KPI PaymentInfo request failed:",
-                {
-                    postingDate: sPostingDate,
-                    clearingArea: sClearingArea,
-                    createdOn: sCreatedOn,
-                    error: oError
-                }
-            );
-
-
-            return {
-
-                TotalProcessed: 0,
-
-                SuccessfulPayments: 0,
-
-                RejectedPayments: 0,
-
-                FailedPayments: 0,
-
-                PendingPayments: 0
-
-            };
-
-        }
-
-    };
-
-
-    /*
-     * ============================================================
-     * CURRENT DATE + PREVIOUS DATE
-     * ============================================================
-     */
-
-    var sPreviousDate =
-        this._getPreviousDateStr(sKpiDate);
-
-
-    try {
-
-        var aResults = await Promise.all([
-
-            fnReadKpiForDate(sKpiDate),
-
-            fnReadKpiForDate(sPreviousDate)
-
-        ]);
-
-
-        var oToday = aResults[0];
-        var oPrevious = aResults[1];
-
-
-        /*
-         * ========================================================
-         * SET KPI MODEL
-         * ========================================================
-         */
-
-        oKpiSummaryModel.setData({
-
-            TotalProcessed:
-                oToday.TotalProcessed,
-
-            SuccessfulPayments:
-                oToday.SuccessfulPayments,
-
-            RejectedPayments:
-                oToday.RejectedPayments,
-
-            FailedPayments:
-                oToday.FailedPayments,
-
-            PendingPayments:
-                oToday.PendingPayments,
-
-
-            IncomingPayments: 0,
-
-            OutgoingPayments: 0,
 
 
             /*
-             * TRENDS
+             * ============================================================
+             * CURRENT DATE + PREVIOUS DATE
+             * ============================================================
              */
 
-            totalProcessedTrend:
-                this._computeKpiTrend(
-                    oToday.TotalProcessed,
-                    oPrevious.TotalProcessed,
-                    "neutral"
-                ),
-
-            successfulTrend:
-                this._computeKpiTrend(
-                    oToday.SuccessfulPayments,
-                    oPrevious.SuccessfulPayments,
-                    "goodUp"
-                ),
-
-            pendingTrend:
-                this._computeKpiTrend(
-                    oToday.PendingPayments,
-                    oPrevious.PendingPayments,
-                    "badUp"
-                ),
-
-            failedTrend:
-                this._computeKpiTrend(
-                    oToday.FailedPayments,
-                    oPrevious.FailedPayments,
-                    "badUp"
-                ),
-
-            rejectedTrend:
-                this._computeKpiTrend(
-                    oToday.RejectedPayments,
-                    oPrevious.RejectedPayments,
-                    "badUp"
-                )
-
-        });
+            var sPreviousDate =
+                this._getPreviousDateStr(sKpiDate);
 
 
-        /*
-         * Refresh status breakdown / donut if required
-         */
+            try {
 
-        this._updateStatusBreakdown();
+                var aResults = await Promise.all([
 
+                    fnReadKpiForDate(sKpiDate),
 
-        console.log(
-            "========== KPI UPDATED ==========",
-            oToday
-        );
+                    fnReadKpiForDate(sPreviousDate)
+
+                ]);
 
 
-    } catch (oError) {
+                var oToday = aResults[0];
+                var oPrevious = aResults[1];
 
-        console.error(
-            "❌ KPI update failed:",
-            oError
-        );
 
-    }
+                /*
+                 * ========================================================
+                 * SET KPI MODEL
+                 * ========================================================
+                 */
 
-},
+                oKpiSummaryModel.setData({
+
+                    TotalProcessed:
+                        oToday.TotalProcessed,
+
+                    SuccessfulPayments:
+                        oToday.SuccessfulPayments,
+
+                    RejectedPayments:
+                        oToday.RejectedPayments,
+
+                    FailedPayments:
+                        oToday.FailedPayments,
+
+                    PendingPayments:
+                        oToday.PendingPayments,
+
+
+                    IncomingPayments: 0,
+
+                    OutgoingPayments: 0,
+
+
+                    /*
+                     * TRENDS
+                     */
+
+                    totalProcessedTrend:
+                        this._computeKpiTrend(
+                            oToday.TotalProcessed,
+                            oPrevious.TotalProcessed,
+                            "neutral"
+                        ),
+
+                    successfulTrend:
+                        this._computeKpiTrend(
+                            oToday.SuccessfulPayments,
+                            oPrevious.SuccessfulPayments,
+                            "goodUp"
+                        ),
+
+                    pendingTrend:
+                        this._computeKpiTrend(
+                            oToday.PendingPayments,
+                            oPrevious.PendingPayments,
+                            "badUp"
+                        ),
+
+                    failedTrend:
+                        this._computeKpiTrend(
+                            oToday.FailedPayments,
+                            oPrevious.FailedPayments,
+                            "badUp"
+                        ),
+
+                    rejectedTrend:
+                        this._computeKpiTrend(
+                            oToday.RejectedPayments,
+                            oPrevious.RejectedPayments,
+                            "badUp"
+                        )
+
+                });
+
+
+                /*
+                 * Refresh status breakdown / donut if required
+                 */
+
+                this._updateStatusBreakdown();
+
+
+                console.log(
+                    "========== KPI UPDATED ==========",
+                    oToday
+                );
+
+
+            } catch (oError) {
+
+                console.error(
+                    "❌ KPI update failed:",
+                    oError
+                );
+
+            }
+
+        },
 
         // ✅ Returns "YYYY-MM-DD" for the day before sDate — local date math (not
         // toISOString()) to avoid UTC-shift issues, same pattern already used in
@@ -2063,54 +2090,54 @@ _refreshRailHealth: function () {
 
         onKpiDateChange: function (oEvent) {
 
-    var bValid =
-        oEvent.getParameter("valid");
+            var bValid =
+                oEvent.getParameter("valid");
 
-    var sNewDate =
-        oEvent.getParameter("value");
-
-
-    if (!bValid || !sNewDate) {
-        return;
-    }
+            var sNewDate =
+                oEvent.getParameter("value");
 
 
-    this.getView()
-        .getModel("filterModel")
-        .setProperty(
-            "/kpiDate",
-            sNewDate
-        );
+            if (!bValid || !sNewDate) {
+                return;
+            }
 
 
-    this._loadKpiSummary();
-
-    this._refreshExceptionKpis();
-
-    this._refreshReconciliation();
-
-    this._loadFlowChart();
-
-    this.loadTransactionsByStatus([]);
-
-    this._refreshRailHealth();
-
-    this.getView()
-        .getModel("donutViewModel")
-        .setProperty(
-            "/selectedStatus",
-            ""
-        );
+            this.getView()
+                .getModel("filterModel")
+                .setProperty(
+                    "/kpiDate",
+                    sNewDate
+                );
 
 
-    this.getView()
-        .getModel("donutItemsModel")
-        .setProperty(
-            "/items",
-            []
-        );
+            this._loadKpiSummary();
 
-},
+            this._refreshExceptionKpis();
+
+            this._refreshReconciliation();
+         
+            this._loadFlowChart();
+
+            this.loadTransactionsByStatus([]);
+
+            this._refreshRailHealth();
+
+            this.getView()
+                .getModel("donutViewModel")
+                .setProperty(
+                    "/selectedStatus",
+                    ""
+                );
+
+
+            this.getView()
+                .getModel("donutItemsModel")
+                .setProperty(
+                    "/items",
+                    []
+                );
+
+        },
 
         // real mix by day
 
@@ -2118,318 +2145,243 @@ _refreshRailHealth: function () {
 
         _loadHourlyFlow: function () {
 
-    var oODataModel =
-        this.getOwnerComponent().getModel("odataModel");
+            var oODataModel =
+                this.getOwnerComponent().getModel("odataModel");
 
-    var oFlowModel =
-        new JSONModel({
-            data: []
-        });
+            var oFlowModel =
+                new JSONModel({
+                    data: []
+                });
 
-    this.getView()
-        .setModel(
-            oFlowModel,
-            "flowModel"
-        );
-
-
-    var oFilterModel =
-        this.getView().getModel("filterModel");
-
-
-    var sKpiDate =
-        oFilterModel.getProperty("/kpiDate");
-
-    var sClearingArea =
-        oFilterModel.getProperty("/clearingArea");
-
-    var sCreatedOn =
-        oFilterModel.getProperty("/createdOn");
-
-
-    if (!sKpiDate || !sClearingArea) {
-        return;
-    }
-
-
-    /*
-     * ============================================================
-     * DATE HELPERS
-     * ============================================================
-     */
-
-    var fnToDateStr = function (oDate) {
-
-        var y =
-            oDate.getFullYear();
-
-        var m =
-            String(
-                oDate.getMonth() + 1
-            ).padStart(2, "0");
-
-        var d =
-            String(
-                oDate.getDate()
-            ).padStart(2, "0");
-
-
-        return (
-            y +
-            "-" +
-            m +
-            "-" +
-            d
-        );
-
-    };
-
-
-    /*
-     * ============================================================
-     * FIVE DAY WINDOW
-     *
-     * Example:
-     * Posting Date = 18 Sep
-     *
-     * 14 Sep -> 18 Sep
-     * ============================================================
-     */
-
-    var oEndDate =
-        new Date(
-            sKpiDate + "T00:00:00"
-        );
-
-
-    var oStartDate =
-        new Date(oEndDate);
-
-
-    oStartDate.setDate(
-        oStartDate.getDate() - 4
-    );
-
-
-    var sStartDate =
-        fnToDateStr(oStartDate);
-
-    var sEndDate =
-        sKpiDate;
-
-
-    /*
-     * ============================================================
-     * POSTING DATE RANGE
-     * ============================================================
-     */
-
-    var oDateRangeFilter =
-        new Filter({
-
-            filters: [
-
-                new Filter(
-                    "ProcessedDate",
-                    FilterOperator.GE,
-                    sStartDate
-                ),
-
-                new Filter(
-                    "ProcessedDate",
-                    FilterOperator.LE,
-                    sEndDate
-                )
-
-            ],
-
-            and: true
-
-        });
-
-
-    /*
-     * ============================================================
-     * BASE FILTERS
-     * ============================================================
-     */
-
-    var aFilters = [
-
-        new Filter(
-            "ClearingArea",
-            FilterOperator.EQ,
-            sClearingArea
-        ),
-
-        oDateRangeFilter
-
-    ];
-
-
-    /*
-     * ============================================================
-     * CREATED ON
-     *
-     * If selected:
-     *
-     * CreationDate = selected Created On
-     *
-     * If empty:
-     *
-     * no CreationDate filter
-     * ============================================================
-     */
-
-    if (sCreatedOn) {
-
-        aFilters.push(
-
-            new Filter(
-                "CreationDate",
-                FilterOperator.EQ,
-                sCreatedOn
-            )
-
-        );
-
-    }
-
-
-    /*
-     * ============================================================
-     * READ DAILY TREND
-     * ============================================================
-     */
-
-    var oListBinding =
-        oODataModel.bindList(
-            "/DailyPaymentTrend",
-            undefined,
-            undefined,
-            aFilters,
-            {
-
-                $select:
-                    "ClearingArea," +
-                    "ProcessedDate," +
-                    "CreationDate," +
-                    "Channel," +
-                    "PaymentCount"
-
-            }
-        );
-
-
-    oListBinding
-        .requestContexts(0, 500)
-
-        .then(function (aContexts) {
-
-
-            var aRows =
-                aContexts.map(
-                    function (oCtx) {
-
-                        return oCtx.getObject();
-
-                    }
+            this.getView()
+                .setModel(
+                    oFlowModel,
+                    "flowModel"
                 );
 
 
+            var oFilterModel =
+                this.getView().getModel("filterModel");
+
+
+            var sKpiDate =
+                oFilterModel.getProperty("/kpiDate");
+
+            var sClearingArea =
+                oFilterModel.getProperty("/clearingArea");
+
+            var sCreatedOn =
+                oFilterModel.getProperty("/createdOn");
+
+
+            if (!sKpiDate || !sClearingArea) {
+                return;
+            }
+
+
             /*
-             * ====================================================
-             * BUILD DAY + CHANNEL MAP
-             * ====================================================
+             * ============================================================
+             * DATE HELPERS
+             * ============================================================
              */
 
-            var oMap = {};
+            var fnToDateStr = function (oDate) {
+
+                var y =
+                    oDate.getFullYear();
+
+                var m =
+                    String(
+                        oDate.getMonth() + 1
+                    ).padStart(2, "0");
+
+                var d =
+                    String(
+                        oDate.getDate()
+                    ).padStart(2, "0");
 
 
-            aRows.forEach(
-                function (oRow) {
+                return (
+                    y +
+                    "-" +
+                    m +
+                    "-" +
+                    d
+                );
 
-                    var sDay =
-                        oRow.ProcessedDate;
-
-                    var sChannel =
-                        oRow.Channel;
-
-
-                    var sKey =
-                        sDay +
-                        "|" +
-                        sChannel;
+            };
 
 
-                    if (!oMap[sKey]) {
+            /*
+             * ============================================================
+             * FIVE DAY WINDOW
+             *
+             * Example:
+             * Posting Date = 18 Sep
+             *
+             * 14 Sep -> 18 Sep
+             * ============================================================
+             */
 
-                        oMap[sKey] = {
-
-                            Day: sDay,
-
-                            Channel: sChannel,
-
-                            Payments: 0
-
-                        };
-
-                    }
+            var oEndDate =
+                new Date(
+                    sKpiDate + "T00:00:00"
+                );
 
 
-                    oMap[sKey].Payments +=
-                        Number(
-                            oRow.PaymentCount
-                        ) || 0;
+            var oStartDate =
+                new Date(oEndDate);
 
-                }
+
+            oStartDate.setDate(
+                oStartDate.getDate() - 4
             );
 
 
+            var sStartDate =
+                fnToDateStr(oStartDate);
+
+            var sEndDate =
+                sKpiDate;
+
+
             /*
-             * ====================================================
-             * CREATE ALL FIVE DAYS
-             * ====================================================
+             * ============================================================
+             * POSTING DATE RANGE
+             * ============================================================
              */
 
-            var aAllDays = [];
+            var oDateRangeFilter =
+                new Filter({
 
-            var oCursor =
-                new Date(
-                    sStartDate +
-                    "T00:00:00"
-                );
+                    filters: [
+
+                        new Filter(
+                            "ProcessedDate",
+                            FilterOperator.GE,
+                            sStartDate
+                        ),
+
+                        new Filter(
+                            "ProcessedDate",
+                            FilterOperator.LE,
+                            sEndDate
+                        )
+
+                    ],
+
+                    and: true
+
+                });
 
 
-            for (
-                var i = 0;
-                i < 5;
-                i++
-            ) {
+            /*
+             * ============================================================
+             * BASE FILTERS
+             * ============================================================
+             */
 
-                aAllDays.push(
-                    fnToDateStr(oCursor)
-                );
+            var aFilters = [
+
+                new Filter(
+                    "ClearingArea",
+                    FilterOperator.EQ,
+                    sClearingArea
+                ),
+
+                oDateRangeFilter
+
+            ];
 
 
-                oCursor.setDate(
-                    oCursor.getDate() + 1
+            /*
+             * ============================================================
+             * CREATED ON
+             *
+             * If selected:
+             *
+             * CreationDate = selected Created On
+             *
+             * If empty:
+             *
+             * no CreationDate filter
+             * ============================================================
+             */
+
+            if (sCreatedOn) {
+
+                aFilters.push(
+
+                    new Filter(
+                        "CreationDate",
+                        FilterOperator.EQ,
+                        sCreatedOn
+                    )
+
                 );
 
             }
 
 
             /*
-             * ====================================================
-             * ZERO FILL CHANNELS
-             * ====================================================
+             * ============================================================
+             * READ DAILY TREND
+             * ============================================================
              */
 
-            aAllDays.forEach(
-                function (sDay) {
+            var oListBinding =
+                oODataModel.bindList(
+                    "/DailyPaymentTrend",
+                    undefined,
+                    undefined,
+                    aFilters,
+                    {
 
-                    CHANNEL_ORDER.forEach(
-                        function (sChannel) {
+                        $select:
+                            "ClearingArea," +
+                            "ProcessedDate," +
+                            "CreationDate," +
+                            "Channel," +
+                            "PaymentCount"
+
+                    }
+                );
+
+
+            oListBinding
+                .requestContexts(0, 500)
+
+                .then(function (aContexts) {
+
+
+                    var aRows =
+                        aContexts.map(
+                            function (oCtx) {
+
+                                return oCtx.getObject();
+
+                            }
+                        );
+
+
+                    /*
+                     * ====================================================
+                     * BUILD DAY + CHANNEL MAP
+                     * ====================================================
+                     */
+
+                    var oMap = {};
+
+
+                    aRows.forEach(
+                        function (oRow) {
+
+                            var sDay =
+                                oRow.ProcessedDate;
+
+                            var sChannel =
+                                oRow.Channel;
+
 
                             var sKey =
                                 sDay +
@@ -2443,8 +2395,7 @@ _refreshRailHealth: function () {
 
                                     Day: sDay,
 
-                                    Channel:
-                                        sChannel,
+                                    Channel: sChannel,
 
                                     Payments: 0
 
@@ -2452,610 +2403,686 @@ _refreshRailHealth: function () {
 
                             }
 
+
+                            oMap[sKey].Payments +=
+                                Number(
+                                    oRow.PaymentCount
+                                ) || 0;
+
                         }
                     );
 
-                }
-            );
 
+                    /*
+                     * ====================================================
+                     * CREATE ALL FIVE DAYS
+                     * ====================================================
+                     */
 
-            /*
-             * ====================================================
-             * SORT
-             * ====================================================
-             */
+                    var aAllDays = [];
 
-            var aFlowData =
-                Object.keys(oMap)
-
-                    .map(function (sKey) {
-
-                        return oMap[sKey];
-
-                    })
-
-                    .sort(function (a, b) {
-
-                        var iDayCompare =
-                            a.Day.localeCompare(
-                                b.Day
-                            );
-
-
-                        if (
-                            iDayCompare !== 0
-                        ) {
-
-                            return iDayCompare;
-
-                        }
-
-
-                        return (
-                            CHANNEL_ORDER.indexOf(
-                                a.Channel
-                            ) -
-                            CHANNEL_ORDER.indexOf(
-                                b.Channel
-                            )
+                    var oCursor =
+                        new Date(
+                            sStartDate +
+                            "T00:00:00"
                         );
 
-                    });
+
+                    for (
+                        var i = 0;
+                        i < 5;
+                        i++
+                    ) {
+
+                        aAllDays.push(
+                            fnToDateStr(oCursor)
+                        );
 
 
-            /*
-             * Remove zero channels
-             */
-
-            aFlowData =
-                this._filterActiveChannels(
-                    aFlowData
-                );
-
-
-            /*
-             * ====================================================
-             * UPDATE MODEL
-             * ====================================================
-             */
-
-            oFlowModel.setProperty(
-                "/data",
-                aFlowData
-            );
-
-
-            this._reapplyActiveChartType();
-
-
-            /*
-             * ====================================================
-             * CHART TITLE
-             * ====================================================
-             */
-
-            this.getView()
-                .getModel("infoModel")
-                .setProperty(
-                    "/flowChartTitle",
-                    "Payments (Value Flow by Day)"
-                );
-
-
-            var oBarChartDay =
-                this.byId("barChart");
-
-
-            if (oBarChartDay) {
-
-                oBarChartDay.setVizProperties({
-
-                    categoryAxis: {
-
-                        title: {
-
-                            visible: true,
-
-                            text: "Day"
-
-                        }
-
-                    },
-
-                    plotArea: {
-
-                        colorPalette:
-                            CHANNEL_COLORS
+                        oCursor.setDate(
+                            oCursor.getDate() + 1
+                        );
 
                     }
+
+
+                    /*
+                     * ====================================================
+                     * ZERO FILL CHANNELS
+                     * ====================================================
+                     */
+
+                    aAllDays.forEach(
+                        function (sDay) {
+
+                            CHANNEL_ORDER.forEach(
+                                function (sChannel) {
+
+                                    var sKey =
+                                        sDay +
+                                        "|" +
+                                        sChannel;
+
+
+                                    if (!oMap[sKey]) {
+
+                                        oMap[sKey] = {
+
+                                            Day: sDay,
+
+                                            Channel:
+                                                sChannel,
+
+                                            Payments: 0
+
+                                        };
+
+                                    }
+
+                                }
+                            );
+
+                        }
+                    );
+
+
+                    /*
+                     * ====================================================
+                     * SORT
+                     * ====================================================
+                     */
+
+                    var aFlowData =
+                        Object.keys(oMap)
+
+                            .map(function (sKey) {
+
+                                return oMap[sKey];
+
+                            })
+
+                            .sort(function (a, b) {
+
+                                var iDayCompare =
+                                    a.Day.localeCompare(
+                                        b.Day
+                                    );
+
+
+                                if (
+                                    iDayCompare !== 0
+                                ) {
+
+                                    return iDayCompare;
+
+                                }
+
+
+                                return (
+                                    CHANNEL_ORDER.indexOf(
+                                        a.Channel
+                                    ) -
+                                    CHANNEL_ORDER.indexOf(
+                                        b.Channel
+                                    )
+                                );
+
+                            });
+
+
+                    /*
+                     * Remove zero channels
+                     */
+
+                    aFlowData =
+                        this._filterActiveChannels(
+                            aFlowData
+                        );
+
+
+                    /*
+                     * ====================================================
+                     * UPDATE MODEL
+                     * ====================================================
+                     */
+
+                    oFlowModel.setProperty(
+                        "/data",
+                        aFlowData
+                    );
+
+
+                    this._reapplyActiveChartType();
+
+
+                    /*
+                     * ====================================================
+                     * CHART TITLE
+                     * ====================================================
+                     */
+
+                    this.getView()
+                        .getModel("infoModel")
+                        .setProperty(
+                            "/flowChartTitle",
+                            "Payments (Value Flow by Day)"
+                        );
+
+
+                    var oBarChartDay =
+                        this.byId("barChart");
+
+
+                    if (oBarChartDay) {
+
+                        oBarChartDay.setVizProperties({
+
+                            categoryAxis: {
+
+                                title: {
+
+                                    visible: true,
+
+                                    text: "Day"
+
+                                }
+
+                            },
+
+                            plotArea: {
+
+                                colorPalette:
+                                    CHANNEL_COLORS
+
+                            }
+
+                        });
+
+                    }
+
+
+                    /*
+                     * ====================================================
+                     * PEAK DAY
+                     * ====================================================
+                     */
+
+                    var oDayTotals = {};
+
+
+                    aFlowData.forEach(
+                        function (oRow) {
+
+                            oDayTotals[oRow.Day] =
+                                (
+                                    oDayTotals[oRow.Day] ||
+                                    0
+                                ) +
+                                oRow.Payments;
+
+                        }
+                    );
+
+
+                    var sPeakDay = null;
+                    var iPeakValue = -1;
+
+
+                    Object.keys(oDayTotals)
+                        .forEach(
+                            function (sDay) {
+
+                                if (
+                                    oDayTotals[sDay] >
+                                    iPeakValue
+                                ) {
+
+                                    iPeakValue =
+                                        oDayTotals[sDay];
+
+                                    sPeakDay =
+                                        sDay;
+
+                                }
+
+                            }
+                        );
+
+
+                    if (
+                        sPeakDay &&
+                        iPeakValue > 0
+                    ) {
+
+                        this.getView()
+                            .getModel("infoModel")
+                            .setProperty(
+                                "/peakHour",
+                                sPeakDay
+                            );
+
+                        this.getView()
+                            .getModel("infoModel")
+                            .setProperty(
+                                "/spikeMessage",
+                                sPeakDay +
+                                " spike driven by Daily Payments"
+                            );
+
+                        this.getView()
+                            .getModel("infoModel")
+                            .setProperty(
+                                "/showSpike",
+                                true
+                            );
+
+                    } else {
+
+                        this.getView()
+                            .getModel("infoModel")
+                            .setProperty(
+                                "/showSpike",
+                                false
+                            );
+
+                    }
+
+                }.bind(this))
+
+                .catch(function (oError) {
+
+                    console.error(
+                        "Daily flow load failed:",
+                        oError
+                    );
 
                 });
 
-            }
-
-
-            /*
-             * ====================================================
-             * PEAK DAY
-             * ====================================================
-             */
-
-            var oDayTotals = {};
-
-
-            aFlowData.forEach(
-                function (oRow) {
-
-                    oDayTotals[oRow.Day] =
-                        (
-                            oDayTotals[oRow.Day] ||
-                            0
-                        ) +
-                        oRow.Payments;
-
-                }
-            );
-
-
-            var sPeakDay = null;
-            var iPeakValue = -1;
-
-
-            Object.keys(oDayTotals)
-                .forEach(
-                    function (sDay) {
-
-                        if (
-                            oDayTotals[sDay] >
-                            iPeakValue
-                        ) {
-
-                            iPeakValue =
-                                oDayTotals[sDay];
-
-                            sPeakDay =
-                                sDay;
-
-                        }
-
-                    }
-                );
-
-
-            if (
-                sPeakDay &&
-                iPeakValue > 0
-            ) {
-
-                this.getView()
-                    .getModel("infoModel")
-                    .setProperty(
-                        "/peakHour",
-                        sPeakDay
-                    );
-
-                this.getView()
-                    .getModel("infoModel")
-                    .setProperty(
-                        "/spikeMessage",
-                        sPeakDay +
-                        " spike driven by Daily Payments"
-                    );
-
-                this.getView()
-                    .getModel("infoModel")
-                    .setProperty(
-                        "/showSpike",
-                        true
-                    );
-
-            } else {
-
-                this.getView()
-                    .getModel("infoModel")
-                    .setProperty(
-                        "/showSpike",
-                        false
-                    );
-
-            }
-
-        }.bind(this))
-
-        .catch(function (oError) {
-
-            console.error(
-                "Daily flow load failed:",
-                oError
-            );
-
-        });
-
-},
+        },
 
         _loadFlowByHour: function () {
 
-    var oODataModel =
-        this.getOwnerComponent().getModel("odataModel");
+            var oODataModel =
+                this.getOwnerComponent().getModel("odataModel");
 
-    var oFlowModel =
-        this.getView().getModel("flowModel");
+            var oFlowModel =
+                this.getView().getModel("flowModel");
 
-    var oFilterModel =
-        this.getView().getModel("filterModel");
-
-
-    var sKpiDate =
-        oFilterModel.getProperty("/kpiDate");
-
-    var sClearingArea =
-        oFilterModel.getProperty("/clearingArea");
-
-    var sCreatedOn =
-        oFilterModel.getProperty("/createdOn");
+            var oFilterModel =
+                this.getView().getModel("filterModel");
 
 
-    if (!sKpiDate || !sClearingArea) {
-        return;
-    }
+            var sKpiDate =
+                oFilterModel.getProperty("/kpiDate");
+
+            var sClearingArea =
+                oFilterModel.getProperty("/clearingArea");
+
+            var sCreatedOn =
+                oFilterModel.getProperty("/createdOn");
 
 
-    /*
-     * ============================================================
-     * BASE FILTERS
-     * ============================================================
-     */
-
-    var aFilters = [
-
-        new Filter(
-            "ClearingArea",
-            FilterOperator.EQ,
-            sClearingArea
-        ),
-
-        new Filter(
-            "ProcessedDate",
-            FilterOperator.EQ,
-            sKpiDate
-        )
-
-    ];
-
-
-    /*
-     * ============================================================
-     * CREATED ON FILTER
-     *
-     * Only add this when user selected a Created On date.
-     * ============================================================
-     */
-
-    if (sCreatedOn) {
-
-        aFilters.push(
-            new Filter(
-                "CreationDate",
-                FilterOperator.EQ,
-                sCreatedOn
-            )
-        );
-
-    }
-
-
-    /*
-     * ============================================================
-     * READ HOURLY TREND
-     * ============================================================
-     */
-
-    var oListBinding = oODataModel.bindList(
-        "/HourlyPaymentTrend",
-        undefined,
-        undefined,
-        aFilters,
-        {
-            $select:
-                "ClearingArea," +
-                "ProcessedDate," +
-                "CreationDate," +
-                "PaymentHour," +
-                "Channel," +
-                "PaymentCount"
-        }
-    );
-
-
-    oListBinding
-        .requestContexts(0, 500)
-        .then(function (aContexts) {
-
-            var aRows = aContexts.map(
-                function (oCtx) {
-                    return oCtx.getObject();
-                }
-            );
+            if (!sKpiDate || !sClearingArea) {
+                return;
+            }
 
 
             /*
-             * ====================================================
-             * BUILD HOUR + CHANNEL MAP
-             * ====================================================
+             * ============================================================
+             * BASE FILTERS
+             * ============================================================
              */
 
-            var oMap = {};
+            var aFilters = [
 
+                new Filter(
+                    "ClearingArea",
+                    FilterOperator.EQ,
+                    sClearingArea
+                ),
 
-            aRows.forEach(function (oRow) {
+                new Filter(
+                    "ProcessedDate",
+                    FilterOperator.EQ,
+                    sKpiDate
+                )
 
-                var sHour =
-                    String(oRow.PaymentHour)
-                        .padStart(2, "0") + ":00";
-
-                var sChannel =
-                    oRow.Channel;
-
-                var sKey =
-                    sHour + "|" + sChannel;
-
-
-                if (!oMap[sKey]) {
-
-                    oMap[sKey] = {
-
-                        Day: sHour,
-
-                        Channel: sChannel,
-
-                        Payments: 0
-
-                    };
-
-                }
-
-
-                oMap[sKey].Payments +=
-                    Number(oRow.PaymentCount) || 0;
-
-            });
+            ];
 
 
             /*
-             * ====================================================
-             * CREATE COMPLETE 24-HOUR AXIS
-             * ====================================================
+             * ============================================================
+             * CREATED ON FILTER
+             *
+             * Only add this when user selected a Created On date.
+             * ============================================================
              */
 
-            var aAllHours = [];
+            if (sCreatedOn) {
 
-
-            for (var h = 0; h < 24; h++) {
-
-                aAllHours.push(
-                    String(h).padStart(2, "0") + ":00"
+                aFilters.push(
+                    new Filter(
+                        "CreationDate",
+                        FilterOperator.EQ,
+                        sCreatedOn
+                    )
                 );
 
             }
 
 
             /*
-             * ====================================================
-             * ZERO FILL ALL CHANNELS
-             * ====================================================
+             * ============================================================
+             * READ HOURLY TREND
+             * ============================================================
              */
 
-            aAllHours.forEach(function (sHour) {
-
-                CHANNEL_ORDER.forEach(function (sChannel) {
-
-                    var sKey =
-                        sHour + "|" + sChannel;
-
-
-                    if (!oMap[sKey]) {
-
-                        oMap[sKey] = {
-
-                            Day: sHour,
-
-                            Channel: sChannel,
-
-                            Payments: 0
-
-                        };
-
-                    }
-
-                });
-
-            });
+            var oListBinding = oODataModel.bindList(
+                "/HourlyPaymentTrend",
+                undefined,
+                undefined,
+                aFilters,
+                {
+                    $select:
+                        "ClearingArea," +
+                        "ProcessedDate," +
+                        "CreationDate," +
+                        "PaymentHour," +
+                        "Channel," +
+                        "PaymentCount"
+                }
+            );
 
 
-            /*
-             * ====================================================
-             * SORT
-             * ====================================================
-             */
+            oListBinding
+                .requestContexts(0, 500)
+                .then(function (aContexts) {
 
-            var aFlowData =
-                Object.keys(oMap)
+                    var aRows = aContexts.map(
+                        function (oCtx) {
+                            return oCtx.getObject();
+                        }
+                    );
 
-                    .map(function (sKey) {
-                        return oMap[sKey];
-                    })
 
-                    .sort(function (a, b) {
+                    /*
+                     * ====================================================
+                     * BUILD HOUR + CHANNEL MAP
+                     * ====================================================
+                     */
 
-                        var iHourCompare =
-                            a.Day.localeCompare(b.Day);
+                    var oMap = {};
 
-                        if (iHourCompare !== 0) {
-                            return iHourCompare;
+
+                    aRows.forEach(function (oRow) {
+
+                        var sHour =
+                            String(oRow.PaymentHour)
+                                .padStart(2, "0") + ":00";
+
+                        var sChannel =
+                            oRow.Channel;
+
+                        var sKey =
+                            sHour + "|" + sChannel;
+
+
+                        if (!oMap[sKey]) {
+
+                            oMap[sKey] = {
+
+                                Day: sHour,
+
+                                Channel: sChannel,
+
+                                Payments: 0
+
+                            };
+
                         }
 
-                        return (
-                            CHANNEL_ORDER.indexOf(a.Channel) -
-                            CHANNEL_ORDER.indexOf(b.Channel)
-                        );
+
+                        oMap[sKey].Payments +=
+                            Number(oRow.PaymentCount) || 0;
 
                     });
 
 
-            /*
-             * Remove channels with zero total
-             */
+                    /*
+                     * ====================================================
+                     * CREATE COMPLETE 24-HOUR AXIS
+                     * ====================================================
+                     */
 
-            aFlowData =
-                this._filterActiveChannels(aFlowData);
-
-
-            /*
-             * ====================================================
-             * UPDATE CHART
-             * ====================================================
-             */
-
-            oFlowModel.setProperty(
-                "/data",
-                aFlowData
-            );
+                    var aAllHours = [];
 
 
-            this._reapplyActiveChartType();
+                    for (var h = 0; h < 24; h++) {
 
-
-            this.getView()
-                .getModel("infoModel")
-                .setProperty(
-                    "/flowChartTitle",
-                    "Payments (Value Flow by Hour)"
-                );
-
-
-            var oBarChartHour =
-                this.byId("barChart");
-
-
-            if (oBarChartHour) {
-
-                oBarChartHour.setVizProperties({
-
-                    categoryAxis: {
-
-                        title: {
-
-                            visible: true,
-
-                            text: "Hour"
-
-                        }
-
-                    },
-
-                    plotArea: {
-
-                        colorPalette:
-                            CHANNEL_COLORS
+                        aAllHours.push(
+                            String(h).padStart(2, "0") + ":00"
+                        );
 
                     }
 
-                });
 
-            }
+                    /*
+                     * ====================================================
+                     * ZERO FILL ALL CHANNELS
+                     * ====================================================
+                     */
 
+                    aAllHours.forEach(function (sHour) {
 
-            /*
-             * ====================================================
-             * PEAK HOUR
-             * ====================================================
-             */
+                        CHANNEL_ORDER.forEach(function (sChannel) {
 
-            var oHourTotals = {};
-
-
-            aFlowData.forEach(function (oRow) {
-
-                oHourTotals[oRow.Day] =
-                    (oHourTotals[oRow.Day] || 0) +
-                    oRow.Payments;
-
-            });
+                            var sKey =
+                                sHour + "|" + sChannel;
 
 
-            var sPeakHour = null;
-            var iPeakValue = -1;
+                            if (!oMap[sKey]) {
+
+                                oMap[sKey] = {
+
+                                    Day: sHour,
+
+                                    Channel: sChannel,
+
+                                    Payments: 0
+
+                                };
+
+                            }
+
+                        });
+
+                    });
 
 
-            Object.keys(oHourTotals)
-                .forEach(function (sHour) {
+                    /*
+                     * ====================================================
+                     * SORT
+                     * ====================================================
+                     */
+
+                    var aFlowData =
+                        Object.keys(oMap)
+
+                            .map(function (sKey) {
+                                return oMap[sKey];
+                            })
+
+                            .sort(function (a, b) {
+
+                                var iHourCompare =
+                                    a.Day.localeCompare(b.Day);
+
+                                if (iHourCompare !== 0) {
+                                    return iHourCompare;
+                                }
+
+                                return (
+                                    CHANNEL_ORDER.indexOf(a.Channel) -
+                                    CHANNEL_ORDER.indexOf(b.Channel)
+                                );
+
+                            });
+
+
+                    /*
+                     * Remove channels with zero total
+                     */
+
+                    aFlowData =
+                        this._filterActiveChannels(aFlowData);
+
+
+                    /*
+                     * ====================================================
+                     * UPDATE CHART
+                     * ====================================================
+                     */
+
+                    oFlowModel.setProperty(
+                        "/data",
+                        aFlowData
+                    );
+
+
+                    this._reapplyActiveChartType();
+
+
+                    this.getView()
+                        .getModel("infoModel")
+                        .setProperty(
+                            "/flowChartTitle",
+                            "Payments (Value Flow by Hour)"
+                        );
+
+
+                    var oBarChartHour =
+                        this.byId("barChart");
+
+
+                    if (oBarChartHour) {
+
+                        oBarChartHour.setVizProperties({
+
+                            categoryAxis: {
+
+                                title: {
+
+                                    visible: true,
+
+                                    text: "Hour"
+
+                                }
+
+                            },
+
+                            plotArea: {
+
+                                colorPalette:
+                                    CHANNEL_COLORS
+
+                            }
+
+                        });
+
+                    }
+
+
+                    /*
+                     * ====================================================
+                     * PEAK HOUR
+                     * ====================================================
+                     */
+
+                    var oHourTotals = {};
+
+
+                    aFlowData.forEach(function (oRow) {
+
+                        oHourTotals[oRow.Day] =
+                            (oHourTotals[oRow.Day] || 0) +
+                            oRow.Payments;
+
+                    });
+
+
+                    var sPeakHour = null;
+                    var iPeakValue = -1;
+
+
+                    Object.keys(oHourTotals)
+                        .forEach(function (sHour) {
+
+                            if (
+                                oHourTotals[sHour] >
+                                iPeakValue
+                            ) {
+
+                                iPeakValue =
+                                    oHourTotals[sHour];
+
+                                sPeakHour =
+                                    sHour;
+
+                            }
+
+                        });
+
 
                     if (
-                        oHourTotals[sHour] >
-                        iPeakValue
+                        sPeakHour &&
+                        iPeakValue > 0
                     ) {
 
-                        iPeakValue =
-                            oHourTotals[sHour];
+                        this.getView()
+                            .getModel("infoModel")
+                            .setProperty(
+                                "/peakHour",
+                                sPeakHour
+                            );
 
-                        sPeakHour =
-                            sHour;
+                        this.getView()
+                            .getModel("infoModel")
+                            .setProperty(
+                                "/spikeMessage",
+                                sPeakHour +
+                                " spike driven by Hourly Payments"
+                            );
+
+                        this.getView()
+                            .getModel("infoModel")
+                            .setProperty(
+                                "/showSpike",
+                                true
+                            );
+
+                    } else {
+
+                        this.getView()
+                            .getModel("infoModel")
+                            .setProperty(
+                                "/showSpike",
+                                false
+                            );
 
                     }
 
+                }.bind(this))
+
+                .catch(function (oError) {
+
+                    console.error(
+                        "Hourly flow load failed:",
+                        oError
+                    );
+
                 });
 
-
-            if (
-                sPeakHour &&
-                iPeakValue > 0
-            ) {
-
-                this.getView()
-                    .getModel("infoModel")
-                    .setProperty(
-                        "/peakHour",
-                        sPeakHour
-                    );
-
-                this.getView()
-                    .getModel("infoModel")
-                    .setProperty(
-                        "/spikeMessage",
-                        sPeakHour +
-                        " spike driven by Hourly Payments"
-                    );
-
-                this.getView()
-                    .getModel("infoModel")
-                    .setProperty(
-                        "/showSpike",
-                        true
-                    );
-
-            } else {
-
-                this.getView()
-                    .getModel("infoModel")
-                    .setProperty(
-                        "/showSpike",
-                        false
-                    );
-
-            }
-
-        }.bind(this))
-
-        .catch(function (oError) {
-
-            console.error(
-                "Hourly flow load failed:",
-                oError
-            );
-
-        });
-
-},
+        },
 
         onPaymentInfoTableUpdateFinished: function (oEvent) {
             var oTableInfoModel = this.getView().getModel("tableInfoModel");
@@ -4427,80 +4454,80 @@ _refreshRailHealth: function () {
 
         },
 
-       onCreatedOnFilterChange: function (oEvent) {
+        onCreatedOnFilterChange: function (oEvent) {
 
-    var oDatePicker =
-        oEvent.getSource();
+            var oDatePicker =
+                oEvent.getSource();
 
-    var bValid =
-        oEvent.getParameter("valid");
+            var bValid =
+                oEvent.getParameter("valid");
 
-    if (!bValid) {
-        return;
-    }
-
-
-    var sCreatedOn =
-        oDatePicker.getValue();
+            if (!bValid) {
+                return;
+            }
 
 
-    /*
-     * Store Created On
-     */
-    this.getView()
-        .getModel("filterModel")
-        .setProperty(
-            "/createdOn",
-            sCreatedOn
-        );
+            var sCreatedOn =
+                oDatePicker.getValue();
 
 
-    /*
-     * ============================================================
-     * REFRESH EVERYTHING THAT USES THE HEADER FILTERS
-     * ============================================================
-     */
-
-    // 1. KPI tiles
-    this._loadKpiSummary();
-
-
-    // 2. Daily / Hourly trend
-    this._loadFlowChart();
+            /*
+             * Store Created On
+             */
+            this.getView()
+                .getModel("filterModel")
+                .setProperty(
+                    "/createdOn",
+                    sCreatedOn
+                );
 
 
-    // 3. Payment transaction table
-    this.loadTransactionsByStatus([]);
+            /*
+             * ============================================================
+             * REFRESH EVERYTHING THAT USES THE HEADER FILTERS
+             * ============================================================
+             */
+
+            // 1. KPI tiles
+            this._loadKpiSummary();
 
 
-    // 4. Exception KPIs
-    this._refreshExceptionKpis();
+            // 2. Daily / Hourly trend
+            this._loadFlowChart();
 
 
-    // 5. Reconciliation
-    this._refreshReconciliation();
-this._refreshRailHealth(); 
-
-    /*
-     * Clear donut selection
-     */
-
-    this.getView()
-        .getModel("donutViewModel")
-        .setProperty(
-            "/selectedStatus",
-            ""
-        );
+            // 3. Payment transaction table
+            this.loadTransactionsByStatus([]);
 
 
-    this.getView()
-        .getModel("donutItemsModel")
-        .setProperty(
-            "/items",
-            []
-        );
+            // 4. Exception KPIs
+            this._refreshExceptionKpis();
 
-},
+
+            // 5. Reconciliation
+            this._refreshReconciliation();
+            this._refreshRailHealth();
+            
+            /*
+             * Clear donut selection
+             */
+
+            this.getView()
+                .getModel("donutViewModel")
+                .setProperty(
+                    "/selectedStatus",
+                    ""
+                );
+
+
+            this.getView()
+                .getModel("donutItemsModel")
+                .setProperty(
+                    "/items",
+                    []
+                );
+
+        },
 
 
 

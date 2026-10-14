@@ -561,11 +561,11 @@
     class="auditTimelineRow"
     items="{auditTimeline>/steps}">
 
-    <HBox alignItems="Start" class="auditTimelineStepWrap">
+    <HBox id="_IDGenHBox" alignItems="Start" class="auditTimelineStepWrap">
 
-        <VBox alignItems="Center" class="auditTimelineStep">
+        <VBox id="_IDGenVBox6" alignItems="Center" class="auditTimelineStep">
 
-            <HBox
+            <HBox id="_IDGenHBox42"
                 width="2.5rem"
                 height="2.5rem"
                 alignItems="Center"
@@ -575,19 +575,19 @@
                     ? 'auditTimelineIconBlue'
                     : 'auditTimelineIconGreen') }">
 
-                <core:Icon
+                <core:Icon id="_IDGenIcon2"
                     src="{auditTimeline>icon}"
                      color="#000000"
                     size="1.25rem"
                     decorative="false"/>
             </HBox>
 
-            <Text text="{auditTimeline>label}" class="auditTimelineLabel sapUiTinyMarginTop"/>
-            <Text text="{auditTimeline>time}" class="auditTimelineTime"/>
-            <Text text="{auditTimeline>system}" class="auditTimelineSystem"/>
+            <Text id="_IDGenText128" text="{auditTimeline>label}" class="auditTimelineLabel sapUiTinyMarginTop"/>
+            <Text id="_IDGenText129" text="{auditTimeline>time}" class="auditTimelineTime"/>
+            <Text id="_IDGenText130" text="{auditTimeline>system}" class="auditTimelineSystem"/>
         </VBox>
 
-        <core:Icon
+        <core:Icon id="_IDGenIcon3"
             src="sap-icon://navigation-right-arrow"
             color="#16A34A"
             size="0.8rem"
