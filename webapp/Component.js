@@ -1,9 +1,10 @@
 sap.ui.define([
     "sap/ui/core/UIComponent",
+    "sap/ui/core/Theming",
     "sap/ui/Device",
     "payment/dashboard/model/models",
     "sap/ui/model/odata/v4/ODataModel"
-], function (UIComponent, Device, models, ODataModel) {
+], function (UIComponent, Theming, Device, models, ODataModel) {
     "use strict";
 
     return UIComponent.extend("payment.dashboard.Component", {
@@ -14,27 +15,36 @@ sap.ui.define([
 
         init: function () {
 
-            console.log("========== PAYMENT COMPONENT INIT ==========");
-            console.log("Component ID:", this.getId());
+    console.log("========== PAYMENT COMPONENT INIT ==========");
+    console.log("Component ID:", this.getId());
 
-            UIComponent.prototype.init.apply(this, arguments);
+    UIComponent.prototype.init.apply(this, arguments);
 
-            console.log("========== COMPONENT BASE INIT DONE ==========");
+    console.log("========== COMPONENT BASE INIT DONE ==========");
 
-            var oModel = new ODataModel({
-                serviceUrl: "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/",
-                operationMode: "Server",
-                autoExpandSelect: true,
-                groupId: "$auto"
-            });
+    // Stop Chrome from auto-translating the app
+    document.documentElement.setAttribute("translate", "no");
+    document.documentElement.setAttribute("lang", sap.ui.getCore().getConfiguration().getLanguage());
 
-            this.setModel(oModel);
+    var oModel = new ODataModel({
+        serviceUrl: "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/",
+        operationMode: "Server",
+        autoExpandSelect: true,
+        groupId: "$auto"
+    });
 
-            console.log("========== BEFORE ROUTER INITIALIZE ==========");
+    this.setModel(oModel);
 
-            this.getRouter().initialize();
+    console.log("========== BEFORE ROUTER INITIALIZE ==========");
 
-            console.log("========== AFTER ROUTER INITIALIZE ==========");
-        }
+    // Force light theme for this dashboard
+    if (Theming.getTheme() !== "sap_horizon") {
+        Theming.setTheme("sap_horizon");
+    }
+
+    this.getRouter().initialize();
+
+    console.log("========== AFTER ROUTER INITIALIZE ==========");
+}
     });
 });

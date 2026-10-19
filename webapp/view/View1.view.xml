@@ -252,7 +252,7 @@
                                 >
                                     <VBox
                                         id="_IDGenVBox118"
-                                        class="kpiSectionContainer"
+                                       class="kpiSummaryNoOutline"
                                     >
                                         <!-- KPI summary -->
                                         <!-- KPI summary -->

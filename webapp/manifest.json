@@ -3,7 +3,11 @@
   "sap.app": {
     "id": "payment.dashboard",
     "type": "application",
-    "i18n": "i18n/i18n.properties",
+     "i18n": {
+    "bundleUrl": "i18n/i18n.properties",
+    "supportedLocales": ["en", "ar"],
+    "fallbackLocale": "en"
+  },
     "applicationVersion": {
       "version": "0.0.1"
     },
@@ -76,12 +80,14 @@
       "cozy": true
     },
     "models": {
-      "i18n": {
-        "type": "sap.ui.model.resource.ResourceModel",
-        "settings": {
-          "bundleName": "payment.dashboard.i18n.i18n"
-        }
-      },
+     "i18n": {
+  "type": "sap.ui.model.resource.ResourceModel",
+  "settings": {
+    "bundleName": "payment.dashboard.i18n.i18n",
+    "supportedLocales": ["en", "ar"],
+    "fallbackLocale": "en"
+  }
+},
       "odataModel": {
         "dataSource": "mainService",
         "type": "sap.ui.model.odata.v4.ODataModel",

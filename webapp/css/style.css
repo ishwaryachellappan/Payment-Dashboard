@@ -8514,3 +8514,82 @@ body {
 
 .auditDetailDialogFieldsWrap { gap: 1rem 1.5rem; }
 .auditDetailDialogField { min-width: 11rem; }
+
+
+.kpiSectionContainer:focus,
+.kpiSectionContainer:focus-visible {
+    outline: none;
+}
+
+.kpiSectionContainer {
+    border: 1px solid var(--sapList_BorderColor, #e5e7eb);
+}
+
+
+/* Remove the black outline from the KPI sections on all tabs */
+.kpiSectionContainer,
+.kpiSectionContainer:focus,
+.kpiSectionContainer:focus-visible,
+.kpiSectionContainer:focus-within {
+    outline: none !important;
+    border: none !important;
+}
+
+.railSection,
+.auditPaymentsPanel,
+.auditDetailPanel {
+    outline: none !important;
+}
+
+.kpiSection {
+    border: none;
+    outline: none;
+    box-shadow: none;
+    border-radius: 16px;
+    background: #ffffff;
+}
+
+.sapMITH .sapMITBFilter:focus {
+    outline: none;
+}
+
+/* Remove the outer border around KPI cards on all dashboard tabs */
+.kpiSectionContainer,
+.kpiSectionContainer.sapMFlexBox,
+.kpiSectionContainer.sapMVBox,
+.railOverviewSection,
+.railOverviewSection.sapMFlexBox,
+.railOverviewSection.sapMVBox {
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Remove borders from any nested wrapper around KPI rows */
+.kpiSectionContainer > .sapMFlexItem,
+.railOverviewSection > .sapMFlexItem {
+    border: 0 !important;
+    outline: 0 !important;
+}
+
+/* Overview: remove the outer border around all KPI cards */
+.kpiSummaryNoOutline,
+.kpiSummaryNoOutline:focus,
+.kpiSummaryNoOutline:focus-visible,
+.kpiSummaryNoOutline:focus-within {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Keep the KPI row itself free of an outer border */
+.kpiSummaryNoOutline .kpiSummaryRow {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Preserve the individual KPI card styling */
+.kpiSummaryNoOutline .kpiCard {
+    border-radius: 16px;
+}
