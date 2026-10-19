@@ -299,6 +299,17 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                         return oField.key;
                     });
 
+                    var oView = this.getView();
+
+if (!oView.getModel("itemColumnsModel")) {
+    oView.setModel(
+        new sap.ui.model.json.JSONModel({
+            visibleFields: aDefaultItemFields
+        }),
+        "itemColumnsModel"
+    );
+}
+
                 this.getView().setModel(
                     new JSONModel({
                         visibleFields: aDefaultItemFields
@@ -736,7 +747,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 .getModel("paymentTable")
                 .setProperty("/PaymentInfo", aData);
 
-                this._refreshAudit(aData);
+            this._refreshAudit(aData);
 
         },
         onTotalProcessedPress: function () {
@@ -1046,7 +1057,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this._refreshReconciliation();
 
             this._refreshRailHealth();
-            
+
 
             this.loadTransactionsByStatus([]);
 
@@ -1086,29 +1097,29 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             oController.onFilterChange();
         },
 
-       _refreshAudit: function (aPaymentData) {
+        _refreshAudit: function (aPaymentData) {
 
-    var oAuditView = this.byId("AuditView");
+            var oAuditView = this.byId("AuditView");
 
-    if (!oAuditView) {
-        return;
-    }
+            if (!oAuditView) {
+                return;
+            }
 
-    var oController = oAuditView.getController();
+            var oController = oAuditView.getController();
 
-    if (!oController || !oController.setPaymentData) {
-        return;
-    }
+            if (!oController || !oController.setPaymentData) {
+                return;
+            }
 
-    // If called without data (shouldn't normally happen now that
-    // loadTransactionsByStatus always passes it), fall back to whatever
-    // paymentTable currently holds rather than doing nothing.
-    var aData = aPaymentData
-        || this.getView().getModel("paymentTable").getProperty("/PaymentInfo")
-        || [];
+            // If called without data (shouldn't normally happen now that
+            // loadTransactionsByStatus always passes it), fall back to whatever
+            // paymentTable currently holds rather than doing nothing.
+            var aData = aPaymentData
+                || this.getView().getModel("paymentTable").getProperty("/PaymentInfo")
+                || [];
 
-    oController.setPaymentData(aData);
-},
+            oController.setPaymentData(aData);
+        },
 
         // ‚úÖ DONUT CLICK INTERACTION
         onDonutSelect: async function (oEvent) {
@@ -2115,7 +2126,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             this._refreshExceptionKpis();
 
             this._refreshReconciliation();
-         
+
             this._loadFlowChart();
 
             this.loadTransactionsByStatus([]);
@@ -2565,7 +2576,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                         .getModel("infoModel")
                         .setProperty(
                             "/flowChartTitle",
-                            "Payments (Value Flow by Day)"
+                              this._getFlowChartTitle("Day")
                         );
 
 
@@ -2956,7 +2967,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                         .getModel("infoModel")
                         .setProperty(
                             "/flowChartTitle",
-                            "Payments (Value Flow by Hour)"
+                          this._getFlowChartTitle("Hour")
                         );
 
 
@@ -3094,6 +3105,19 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
             oTableInfoModel.setProperty("/visible", iCount);
         },
+
+
+        _getFlowChartTitle: function (sGranularity) {
+    var oBundle = this.getView()
+        .getModel("i18n")
+        .getResourceBundle();
+
+    var sKey = sGranularity === "Hour"
+        ? "flowChartTitleHour"
+        : "flowChartTitleDay";
+
+    return oBundle.getText(sKey);
+},
 
         //Search bar for daily payment flow table
         onFilterPaymentInfo: function (oEvent) {
@@ -3989,6 +4013,8 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
         },
 
+       
+
         onExportItemDetails: function () {
 
             var aItems = this._oPaymentDialog
@@ -4445,6 +4471,9 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
 
 
+
+
+
         onExit: function () {
 
             console.log("================================");
@@ -4507,7 +4536,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             // 5. Reconciliation
             this._refreshReconciliation();
             this._refreshRailHealth();
-            
+
             /*
              * Clear donut selection
              */

@@ -553,7 +553,9 @@
 
             <Text
                 id="_IDGenFlowSubtitle"
-                text="Value flow across payment channels "
+              
+    text="{i18n>valueFlowAcrossPaymentChannels}"
+
                 class="dashboardCardSubtitle"
             />
         </VBox>
@@ -600,13 +602,13 @@
             <core:Item
                 id="_IDGenFlowGranDay"
                 key="Day"
-                text="Daily"
+               text="{i18n>daily}"
             />
 
             <core:Item
                 id="_IDGenFlowGranHour"
                 key="Hour"
-                text="Hourly"
+                text="{i18n>hourly}"
             />
         </Select>
 
@@ -1185,11 +1187,17 @@
                                                     justifyContent="SpaceBetween"
                                                     alignItems="Center"
                                                 >
-                                                    <Title
-                                                        id="donutDrillTitle"
-                                                        text="Payment Items ({= ${donutItemsModel>/items}.length }) — {donutViewModel>/selectedStatus}"
-                                                        level="H6"
-                                                    />
+                                                  <Title
+    id="donutDrillTitle"
+    text="{
+        parts: [
+            { path: 'donutItemsModel>/items' },
+            { path: 'donutViewModel>/selectedStatus' }
+        ],
+        formatter: '.formatPaymentItemsCount'
+    }"
+    level="H6"
+/>
 
                                                     <HBox
                                                         id="_IDGenHBox110"
