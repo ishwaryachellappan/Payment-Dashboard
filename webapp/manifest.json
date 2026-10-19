@@ -84,7 +84,7 @@
   "type": "sap.ui.model.resource.ResourceModel",
   "settings": {
     "bundleName": "payment.dashboard.i18n.i18n",
-    "supportedLocales": ["en", "ar"],
+     "supportedLocales": ["", "en", "ar", "ar-SA"],
     "fallbackLocale": "en"
   }
 },

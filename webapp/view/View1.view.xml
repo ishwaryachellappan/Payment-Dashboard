@@ -275,10 +275,10 @@
         height="100%"
     >
         <Text
-            id="_IDGenKpiTotalLabel"
-            text="Total Payments"
-            class="kpiCardLabel"
-        />
+    id="_IDGenKpiTotalLabel"
+    text="{i18n>kpiTotalPayments}"
+    class="kpiCardLabel"
+/>
 
         <HBox
             id="_IDGenKpiTotalValueRow"
@@ -320,11 +320,9 @@
         width="100%"
         height="100%"
     >
-        <Text
-            id="_IDGenKpiSuccessLabel"
-            text="Successful Payments"
-            class="kpiCardLabel"
-        />
+     <Text id="_IDGenKpiSuccessLabel"
+      text="{i18n>kpiSuccessfulPayments}"
+      class="kpiCardLabel"/>
 
         <HBox
             id="_IDGenKpiSuccessValueRow"
@@ -366,11 +364,9 @@
         width="100%"
         height="100%"
     >
-        <Text
-            id="_IDGenKpiPendingLabel"
-            text="Pending Payments"
-            class="kpiCardLabel"
-        />
+       <Text id="_IDGenKpiPendingLabel"
+      text="{i18n>kpiPendingPayments}"
+      class="kpiCardLabel"/>
 
         <HBox
             id="_IDGenKpiPendingValueRow"
@@ -412,11 +408,9 @@
         width="100%"
         height="100%"
     >
-        <Text
-            id="_IDGenKpiFailedLabel"
-            text="Failed Payments"
-            class="kpiCardLabel"
-        />
+       <Text id="_IDGenKpiFailedLabel"
+      text="{i18n>kpiFailedPayments}"
+      class="kpiCardLabel"/>
 
         <HBox
             id="_IDGenKpiFailedValueRow"
@@ -458,11 +452,9 @@
         width="100%"
         height="100%"
     >
-        <Text
-            id="_IDGenKpiRejectedLabel"
-            text="Rejected Payments"
-            class="kpiCardLabel"
-        />
+       <Text id="_IDGenKpiRejectedLabel"
+      text="{i18n>kpiRejectedPayments}"
+      class="kpiCardLabel"/>
 
         <HBox
             id="_IDGenKpiRejectedValueRow"
