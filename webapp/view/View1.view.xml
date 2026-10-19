@@ -151,6 +151,32 @@
                     key="MASTER"
                     text="MASTER"
                 />
+
+                 <core:Item id="_IDGenItem4"
+                 
+                    key="SAMA01"
+                    text="SAMA01"
+                />
+
+                 <core:Item id="_IDGenItem3" 
+                 
+                    key="SARIYB"
+                    text="SARIYB"
+                />
+
+                 <core:Item id="_IDGenItem5" 
+                 
+                    key="SARJHI"
+                    text="SARJHI"
+                />
+
+                 <core:Item id="_IDGenItem6" 
+                 
+                    key="SASNB1"
+                    text="SASNB1"
+                />
+
+                
             </Select>
         </VBox>
 
@@ -668,24 +694,24 @@
                                             xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
                                         >
                                             <viz:dataset>
-                                                <viz.data:FlattenedDataset
+                                                <viz.data:FlattenedDataset 
                                                    
                                                     data="{flowModel>/data}"
                                                 >
                                                     <viz.data:dimensions>
-                                                        <viz.data:DimensionDefinition
+                                                        <viz.data:DimensionDefinition 
                                                    
                                                             name="Day"
                                                             value="{flowModel>Day}"
                                                         />
-                                                        <viz.data:DimensionDefinition
+                                                        <viz.data:DimensionDefinition 
                                                             
                                                             name="Channel"
                                                             value="{flowModel>Channel}"
                                                         />
                                                     </viz.data:dimensions>
                                                     <viz.data:measures>
-                                                        <viz.data:MeasureDefinition
+                                                        <viz.data:MeasureDefinition 
                                                           
                                                             name="Payments"
                                                             value="{flowModel>Payments}"
@@ -695,19 +721,19 @@
                                             </viz:dataset>
 
                                             <viz:feeds>
-                                                <viz.feeds:FeedItem
+                                                <viz.feeds:FeedItem 
                                                    
                                                     uid="valueAxis"
                                                     type="Measure"
                                                     values="Payments"
                                                 />
-                                                <viz.feeds:FeedItem
+                                                <viz.feeds:FeedItem 
                                                     
                                                     uid="categoryAxis"
                                                     type="Dimension"
                                                     values="Day"
                                                 />
-                                                <viz.feeds:FeedItem
+                                                <viz.feeds:FeedItem 
                                                     
                                                     uid="color"
                                                     type="Dimension"
@@ -788,20 +814,20 @@
                                                     xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
                                                 >
                                                     <viz:dataset>
-                                                        <viz.data:FlattenedDataset
+                                                        <viz.data:FlattenedDataset id="_IDGenFlattenedDataset1"
                                                           
                                                             data="{statusModel>/data}"
                                                         >
                                                             <viz.data:dimensions
                                                             >
-                                                                <viz.data:DimensionDefinition
+                                                                <viz.data:DimensionDefinition 
                                                                     
                                                                     name="Status"
                                                                     value="{statusModel>status}"
                                                                 />
                                                             </viz.data:dimensions>
                                                             <viz.data:measures>
-                                                                <viz.data:MeasureDefinition
+                                                                <viz.data:MeasureDefinition 
                                                                    
                                                                     name="Count"
                                                                     value="{statusModel>value}"
