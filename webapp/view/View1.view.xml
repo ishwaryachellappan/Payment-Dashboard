@@ -30,11 +30,11 @@
                 class="sapUiTinyMarginBegin"
             />
 
-            <Text
-                id="_IDGenBreadcrumbHome"
-                text="Payment Operations"
-                class="breadcrumbLink sapUiTinyMarginBegin"
-            />
+           <Text
+    id="_IDGenBreadcrumbHome"
+    text="{i18n>paymentOperations}"
+    class="breadcrumbLink sapUiTinyMarginBegin"
+/>
             <core:Icon
                 id="_IDGenBreadcrumbChevron"
                 class="breadcrumbChevron sapUiTinyMarginBegin sapUiTinyMarginEnd"
@@ -1338,11 +1338,14 @@
     class="paymentTransactionsTitle"
 />
 
-                    <Text
-                        id="_IDGenText7"
-                        text="{= 'Top ' + ${tableInfoModel>/visible} + ' by Combined Flow' }"
-                        class="paymentTransactionsSubtitle"
-                    />
+                   <Text
+    id="_IDGenText7"
+    text="{
+        parts: ['i18n>topByCombinedFlow', 'tableInfoModel>/visible'],
+        formatter: '.formatI18nText'
+    }"
+    class="paymentTransactionsSubtitle"
+/>
 
                 </VBox>
 
@@ -1357,13 +1360,13 @@
                 class="paymentTransactionsActions"
             >
 
-                <SearchField
-                    id="_IDGenPaymentInfoSearch"
-                    width="280px"
-                    placeholder="Search order, status, reference..."
-                    liveChange="onFilterPaymentInfo"
-                    class="paymentTransactionsSearch"
-                />
+             <SearchField
+    id="_IDGenPaymentInfoSearch"
+    width="280px"
+    placeholder="{i18n>searchPaymentInfoPlaceholder}"
+    liveChange="onFilterPaymentInfo"
+    class="paymentTransactionsSearch"
+/>
 
 
                 <Button
@@ -1434,15 +1437,15 @@
                                         width="30%"
                                         class="chartCard sapUiSmallPadding"
                                     >
-                                        <Title
-                                            id="_IDGenTitle3"
-                                            text="Cutoff &amp; SLA"
-                                        />
-                                        <Text
-                                            id="_IDGenText29"
-                                            text="Time-to-Cutoff for Each Settlement Rail"
-                                            class="sapUiSmallMarginBottom"
-                                        />
+                                       <Title
+    id="_IDGenTitle3"
+    text="{i18n>cutoffAndSla}"
+/>
+                                       <Text
+    id="_IDGenText29"
+    text="{i18n>timeToCutoffPerRail}"
+    class="sapUiSmallMarginBottom"
+/>
 
                                         <HBox
                                             id="_IDGenHBox54"

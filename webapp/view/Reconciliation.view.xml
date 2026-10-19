@@ -101,11 +101,11 @@
             width="280px"
             class="reconciliationFilterItem">
 
-            <Label
-                id="system1Label"
-                text="Source System"
-                labelFor="system1Select"
-                class="reconciliationFilterLabel"/>
+        <Label
+    id="system1Label"
+    text="{i18n>sourceSystem}"
+    labelFor="system1Select"
+    class="reconciliationFilterLabel"/>
 
             <Select
                 id="system1Select"
@@ -131,10 +131,10 @@
 
             </Select>
 
-            <Text
-                id="system1HelperText"
-                text="System sending the items"
-                class="reconciliationFilterHelper"/>
+           <Text
+    id="system1HelperText"
+    text="{i18n>systemSendingItems}"
+    class="reconciliationFilterHelper"/>
 
         </VBox>
 
@@ -148,11 +148,11 @@
             width="280px"
             class="reconciliationFilterItem">
 
-            <Label
-                id="system2Label"
-                text="Target System"
-                labelFor="system2Select"
-                class="reconciliationFilterLabel"/>
+          <Label
+    id="system2Label"
+    text="{i18n>targetSystem}"
+    labelFor="system2Select"
+    class="reconciliationFilterLabel"/>
 
             <Select
                 id="system2Select"
@@ -173,10 +173,10 @@
 
             </Select>
 
-            <Text
-                id="system2HelperText"
-                text="System receiving the items"
-                class="reconciliationFilterHelper"/>
+          <Text
+    id="system2HelperText"
+    text="{i18n>systemReceivingItems}"
+    class="reconciliationFilterHelper"/>
 
         </VBox>
 
@@ -391,12 +391,12 @@
                     id="reconciliationSearchHeadingText"
                 >
 
-                    <Title
-                        id="reconciliationTableSearchTitle"
-                        text="Search"
-                        level="H5"
-                        class="reconciliationSearchTitle"
-                    />
+                   <Title
+    id="reconciliationTableSearchTitle"
+    text="{i18n>search}"
+    level="H5"
+    class="reconciliationSearchTitle"
+/>
 
                    
 
@@ -425,10 +425,10 @@
                 >
 
                     <Label
-                        id="reconPiNoSearchLabel"
-                        text="PI Number"
-                        labelFor="reconPiNoSearch"
-                    />
+    id="reconPiNoSearchLabel"
+    text="{i18n>piNumber}"
+    labelFor="reconPiNoSearch"
+/>
 
                     <Input
                         id="reconPiNoSearch"
@@ -448,11 +448,11 @@
                     class="reconciliationSearchField"
                 >
 
-                    <Label
-                        id="reconPiKindSearchLabel"
-                        text="PI Kind"
-                        labelFor="reconPiKindSearch"
-                    />
+                   <Label
+    id="reconPiKindSearchLabel"
+    text="{i18n>piKind}"
+    labelFor="reconPiKindSearch"
+/>
 
                     <Input
                         id="reconPiKindSearch"
@@ -472,11 +472,11 @@
                     class="reconciliationSearchField reconciliationSearchFieldLarge"
                 >
 
-                    <Label
-                        id="reconRefItemSearchLabel"
-                        text="Ref Item Text"
-                        labelFor="reconRefItemSearch"
-                    />
+                   <Label
+    id="reconRefItemSearchLabel"
+    text="{i18n>refItemText}"
+    labelFor="reconRefItemSearch"
+/>
 
                     <Input
                         id="reconRefItemSearch"

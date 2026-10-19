@@ -324,35 +324,36 @@ sap.ui.define([
             };
 
             var iTotalRailCount = Number(aRecords[0].TotalRailCount || 0);
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
             // ---------------- KPI TILES ----------------
 
-            oModel.setProperty("/kpis/transactions", this._formatNumber(iTotalTransactions));
-            oModel.setProperty("/kpis/transactionsSub", "Total transactions");
+        oModel.setProperty("/kpis/transactions", this._formatNumber(iTotalTransactions));
+oModel.setProperty("/kpis/transactionsSub", oBundle.getText("transactionsSub"));
 
-            oModel.setProperty("/kpis/successRate", this._formatPercent(fnAvg(fSuccessRateWeighted)));
-            oModel.setProperty("/kpis/successRateSub", "Across selected payment rail");
+oModel.setProperty("/kpis/successRate", this._formatPercent(fnAvg(fSuccessRateWeighted)));
+oModel.setProperty("/kpis/successRateSub", oBundle.getText("successRateSubSelected"));
 
-            oModel.setProperty("/kpis/failedPayments", this._formatPercent(fnAvg(fFailedRateWeighted)));
-            oModel.setProperty("/kpis/failedPaymentsSub", "Of total transactions");
+oModel.setProperty("/kpis/failedPayments", this._formatPercent(fnAvg(fFailedRateWeighted)));
+oModel.setProperty("/kpis/failedPaymentsSub", oBundle.getText("failedPaymentsSub"));
 
-            oModel.setProperty("/kpis/responseTime", this._formatResponseTime(fnAvg(fResponseTimeWeighted)));
-            oModel.setProperty("/kpis/responseTimeSub", "Average response time");
+oModel.setProperty("/kpis/responseTime", this._formatResponseTime(fnAvg(fResponseTimeWeighted)));
+oModel.setProperty("/kpis/responseTimeSub", oBundle.getText("responseTimeSub"));
 
-            oModel.setProperty("/kpis/queueDepth", Number(fnAvg(fQueueDepthWeighted)).toFixed(3));
-            oModel.setProperty("/kpis/queueDepthSub", "Transactions in queue");
+oModel.setProperty("/kpis/queueDepth", Number(fnAvg(fQueueDepthWeighted)).toFixed(3));
+oModel.setProperty("/kpis/queueDepthSub", oBundle.getText("queueDepthSub"));
 
-            oModel.setProperty("/kpis/alerts", String(iTotalCriticalAlerts));
-            oModel.setProperty(
-                "/kpis/alertsSub",
-                iTotalCriticalAlerts > 0 ? "Require attention" : "No critical alerts"
-            );
+oModel.setProperty("/kpis/alerts", String(iTotalCriticalAlerts));
+oModel.setProperty(
+    "/kpis/alertsSub",
+    iTotalCriticalAlerts > 0 ? oBundle.getText("requireAttention") : oBundle.getText("alertsSub")
+);
 
-            oModel.setProperty("/kpis/overallHealth", this._formatPercent(fnAvg(fOverallHealthWeighted)));
-            oModel.setProperty("/kpis/overallHealthSub", "From RailHealthKpi");
+oModel.setProperty("/kpis/overallHealth", this._formatPercent(fnAvg(fOverallHealthWeighted)));
+oModel.setProperty("/kpis/overallHealthSub", oBundle.getText("overallHealthSub"));
 
-            oModel.setProperty("/kpis/activeRails", aDistinctRails.length + " / " + iTotalRailCount);
-            oModel.setProperty("/kpis/activeRailsSub", "Active for selected filter");
+oModel.setProperty("/kpis/activeRails", aDistinctRails.length + " / " + iTotalRailCount);
+oModel.setProperty("/kpis/activeRailsSub", oBundle.getText("activeRailsSubFiltered"));
 
             // ---------------- TABLE ROWS ----------------
 

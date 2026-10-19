@@ -162,11 +162,11 @@
                 width="100%"
                 class="railSearchSection sapUiSmallMarginTop sapUiSmallMarginBottom">
 
-                <Title
-                    id="_IDGenRailSearchTitle"
-                    text="Search rails"
-                    level="H5"
-                    class="railSearchTitle"/>
+               <Title
+    id="_IDGenRailSearchTitle"
+    text="{i18n>searchRails}"
+    level="H5"
+    class="railSearchTitle"/>
 
                 <HBox
                     id="_IDGenRailSearchFilters"
@@ -175,7 +175,7 @@
                     class="railSearchFilters">
 
                     <VBox id="_IDGenRailFilterBox" class="railFilterItem">
-                        <Label id="_IDGenRailFilterLabel" text="Rail"/>
+                        <Label id="_IDGenRailFilterLabel" text="{i18n>rail}"/>
                         <Select
                             id="_IDGenRailFilterSelect"
                             width="100%"
@@ -189,7 +189,7 @@
                     </VBox>
 
                     <VBox id="_IDGenRailStatusFilterBox" class="railFilterItem">
-                        <Label id="_IDGenRailStatusFilterLabel" text="Status"/>
+                     <Label id="_IDGenRailStatusFilterLabel" text="{i18n>status}"/>
                         <Select
                             id="_IDGenRailStatusFilterSelect"
                             width="100%"

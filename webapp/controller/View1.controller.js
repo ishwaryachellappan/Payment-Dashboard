@@ -63,64 +63,62 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
     // only appears once the user checks it. "date" fields get date formatting; add more
     // entries here any time to expose additional PaymentInfo fields in the picker.
     var PAYMENT_INFO_FIELD_CATALOG = [
-        { key: "OrderKey", label: "Order Key", default: true },
+        { key: "OrderKey", i18n: "piOrderKey", label: "Order Key", default: true },
+        { key: "TechnicalStatus", i18n: "piTechnicalStatus", label: "Technical Status", default: true },
+        { key: "CreatedOn", i18n: "createdOn", label: "Created On", default: true, type: "date" },
+        { key: "LastChangedBy", i18n: "piLastChangedBy", label: "Last Changed By", default: true },
+        { key: "CreatedBy", i18n: "piCreatedBy", label: "Created By", default: true },
+        { key: "ReleasedBy", i18n: "piReleasedBy", label: "Released By", default: true },
+        { key: "OrderFormat", i18n: "piOrderFormat", label: "Order Format", default: true },
+        { key: "Medium", i18n: "piMedium", label: "Medium", default: true },
+        { key: "Channel", i18n: "piChannel", label: "Channel", default: true },
 
-        { key: "TechnicalStatus", label: "Technical Status", default: true },
-        { key: "CreatedOn", label: "Created On", default: true, type: "date" },
-        { key: "LastChangedBy", label: "Last Changed By", default: true },
-        { key: "CreatedBy", label: "Created By", default: true },
-        { key: "ReleasedBy", label: "Released By", default: true },
-
-        // NEW FIELDS
-        { key: "OrderFormat", label: "Order Format", default: true },
-        { key: "Medium", label: "Medium", default: true },
-        { key: "Channel", label: "Channel", default: true },
-
-        { key: "ClearingArea", label: "Clearing Area" },
-        { key: "PaymentOrderNumber", label: "Payment Order Number" },
-        { key: "PaymentOrderDate", label: "Payment Order Date", type: "date" },
-        { key: "PaymentOrderStatus", label: "Payment Order Status" },
-        { key: "PaymentOrderType", label: "Payment Order Type" },
-        { key: "PreviousStatus", label: "Previous Status" },
-        { key: "PlannedExecutionDate", label: "Planned Execution Date", type: "date" },
-        { key: "ExternalSenderBIC", label: "External Sender BIC" },
-        { key: "RecipientBIC", label: "Recipient BIC" },
-        { key: "RecipientName", label: "Recipient Name" },
-        { key: "ClearingBIC", label: "Clearing BIC" },
-        { key: "ExternalOrderNumber", label: "External Order Number" },
-        { key: "ObjectListDate", label: "Object List Date", type: "date" },
-        { key: "ObjectListNumber", label: "Object List Number" }
+        { key: "ClearingArea", i18n: "clearingArea", label: "Clearing Area" },
+        { key: "PaymentOrderNumber", i18n: "piPaymentOrderNumber", label: "Payment Order Number" },
+        { key: "PaymentOrderDate", i18n: "piPaymentOrderDate", label: "Payment Order Date", type: "date" },
+        { key: "PaymentOrderStatus", i18n: "piPaymentOrderStatus", label: "Payment Order Status" },
+        { key: "PaymentOrderType", i18n: "piPaymentOrderType", label: "Payment Order Type" },
+        { key: "PreviousStatus", i18n: "piPreviousStatus", label: "Previous Status" },
+        { key: "PlannedExecutionDate", i18n: "piPlannedExecutionDate", label: "Planned Execution Date", type: "date" },
+        { key: "ExternalSenderBIC", i18n: "piExternalSenderBIC", label: "External Sender BIC" },
+        { key: "RecipientBIC", i18n: "piRecipientBIC", label: "Recipient BIC" },
+        { key: "RecipientName", i18n: "piRecipientName", label: "Recipient Name" },
+        { key: "ClearingBIC", i18n: "piClearingBIC", label: "Clearing BIC" },
+        { key: "ExternalOrderNumber", i18n: "piExternalOrderNumber", label: "External Order Number" },
+        { key: "ObjectListDate", i18n: "piObjectListDate", label: "Object List Date", type: "date" },
+        { key: "ObjectListNumber", i18n: "piObjectListNumber", label: "Object List Number" }
     ];
+
 
     var ITEM_DETAILS_FIELD_CATALOG = [
 
         // Default visible columns
-        { key: "PaymentItemDate", label: "Payment Item Date", default: true, type: "date" },
-        { key: "ClearingArea", label: "Clearing Area", default: true },
-        { key: "ItemNumber", label: "Item Number", default: true },
-        { key: "ItemProcessingStatus", label: "Item Processing Status", default: true },
-        { key: "IncomingPaymentOrder", label: "Incoming Payment Order", default: true },
-        { key: "OutgoingPaymentOrder", label: "Outgoing Payment Order", default: true },
+        { key: "PaymentItemDate", i18n: "idiPaymentItemDate", label: "Payment Item Date", default: true, type: "date" },
+        { key: "ClearingArea", i18n: "clearingArea", label: "Clearing Area", default: true },
+        { key: "ItemNumber", i18n: "idiItemNumber", label: "Item Number", default: true },
+        { key: "ItemProcessingStatus", i18n: "idiItemProcessingStatus", label: "Item Processing Status", default: true },
+        { key: "IncomingPaymentOrder", i18n: "idiIncomingPaymentOrder", label: "Incoming Payment Order", default: true },
+        { key: "OutgoingPaymentOrder", i18n: "idiOutgoingPaymentOrder", label: "Outgoing Payment Order", default: true },
 
         // Additional fields
-        { key: "TechnicalStatus", label: "Technical Status" },
-        { key: "PreviousTechnicalStatus", label: "Previous Technical Status" },
-        { key: "ProcessingDate", label: "Processing Date", type: "date" },
-        { key: "ProcessingTime", label: "Processing Time" },
-        { key: "SettlementDate", label: "Settlement Date", type: "date" },
-        { key: "DueDate", label: "Due Date", type: "date" },
-        { key: "PostingDate", label: "Posting Date", type: "date" },
-        { key: "ValueDate", label: "Value Date", type: "date" },
-        { key: "Country", label: "Country" },
-        { key: "BIC", label: "BIC" },
-        { key: "IBAN", label: "IBAN" },
-        { key: "AccountHolder", label: "Account Holder" },
-        { key: "PurposeCode", label: "Purpose Code" },
-        { key: "TransactionType", label: "Transaction Type" },
-        { key: "PaymentScope", label: "Payment Scope" },
-        { key: "TotalAmount", label: "Total Amount" },
-        { key: "TransactionCurrency", label: "Transaction Currency" },
-        { key: "EndToEndID", label: "End To End ID" }
+        { key: "TechnicalStatus", i18n: "piTechnicalStatus", label: "Technical Status" },
+        { key: "PreviousTechnicalStatus", i18n: "idiPreviousTechnicalStatus", label: "Previous Technical Status" },
+        { key: "ProcessingDate", i18n: "idiProcessingDate", label: "Processing Date", type: "date" },
+        { key: "ProcessingTime", i18n: "idiProcessingTime", label: "Processing Time" },
+        { key: "SettlementDate", i18n: "idiSettlementDate", label: "Settlement Date", type: "date" },
+        { key: "DueDate", i18n: "idiDueDate", label: "Due Date", type: "date" },
+        { key: "PostingDate", i18n: "postingDate", label: "Posting Date", type: "date" },
+        { key: "ValueDate", i18n: "idiValueDate", label: "Value Date", type: "date" },
+        { key: "Country", i18n: "idiCountry", label: "Country" },
+        { key: "BIC", i18n: "idiBIC", label: "BIC" },
+        { key: "IBAN", i18n: "idiIBAN", label: "IBAN" },
+        { key: "AccountHolder", i18n: "idiAccountHolder", label: "Account Holder" },
+        { key: "PurposeCode", i18n: "idiPurposeCode", label: "Purpose Code" },
+        { key: "TransactionType", i18n: "idiTransactionType", label: "Transaction Type" },
+        { key: "PaymentScope", i18n: "idiPaymentScope", label: "Payment Scope" },
+        { key: "TotalAmount", i18n: "idiTotalAmount", label: "Total Amount" },
+        { key: "TransactionCurrency", i18n: "idiTransactionCurrency", label: "Transaction Currency" },
+        { key: "EndToEndID", i18n: "idiEndToEndID", label: "End To End ID" }
 
     ];
 
@@ -185,7 +183,17 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
 
 
-                var oHeaderModel = new JSONModel({ currentTab: "Overview" });
+                var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+
+                PAYMENT_INFO_FIELD_CATALOG.forEach(function (oField) {
+                    oField.label = oBundle.getText(oField.i18n);
+                });
+
+                ITEM_DETAILS_FIELD_CATALOG.forEach(function (oField) {
+                    oField.label = oBundle.getText(oField.i18n);
+                });
+
+                var oHeaderModel = new JSONModel({ currentTab: oBundle.getText("overview") });
                 this.getView().setModel(oHeaderModel, "headerModel");
 
                 //
@@ -234,11 +242,14 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 // ‚úÖ Date formatting
                 var oDate = new Date();
                 var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                var sFormattedDate = oDate.toLocaleDateString(undefined, options);
+                var sFormattedDate = sap.ui.core.format.DateFormat
+                    .getDateInstance({ pattern: "EEEE, d MMMM yyyy" })
+                    .format(new Date());
 
                 var oGreetingText = this.getView().byId("_IDGenText24");
                 if (oGreetingText) {
-                    oGreetingText.setText("Today, " + sFormattedDate + " – Payments for All Branches ");
+                    var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+                    oGreetingText.setText(oBundle.getText("pageSubtitle", [sFormattedDate]));
                 } else {
                     console.warn("_IDGenText24 not found at onInit time");
                 }
@@ -299,16 +310,16 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                         return oField.key;
                     });
 
-                    var oView = this.getView();
+                var oView = this.getView();
 
-if (!oView.getModel("itemColumnsModel")) {
-    oView.setModel(
-        new sap.ui.model.json.JSONModel({
-            visibleFields: aDefaultItemFields
-        }),
-        "itemColumnsModel"
-    );
-}
+                if (!oView.getModel("itemColumnsModel")) {
+                    oView.setModel(
+                        new sap.ui.model.json.JSONModel({
+                            visibleFields: aDefaultItemFields
+                        }),
+                        "itemColumnsModel"
+                    );
+                }
 
                 this.getView().setModel(
                     new JSONModel({
@@ -2576,7 +2587,7 @@ if (!oView.getModel("itemColumnsModel")) {
                         .getModel("infoModel")
                         .setProperty(
                             "/flowChartTitle",
-                              this._getFlowChartTitle("Day")
+                            this._getFlowChartTitle("Day")
                         );
 
 
@@ -2967,7 +2978,7 @@ if (!oView.getModel("itemColumnsModel")) {
                         .getModel("infoModel")
                         .setProperty(
                             "/flowChartTitle",
-                          this._getFlowChartTitle("Hour")
+                            this._getFlowChartTitle("Hour")
                         );
 
 
@@ -3108,16 +3119,16 @@ if (!oView.getModel("itemColumnsModel")) {
 
 
         _getFlowChartTitle: function (sGranularity) {
-    var oBundle = this.getView()
-        .getModel("i18n")
-        .getResourceBundle();
+            var oBundle = this.getView()
+                .getModel("i18n")
+                .getResourceBundle();
 
-    var sKey = sGranularity === "Hour"
-        ? "flowChartTitleHour"
-        : "flowChartTitleDay";
+            var sKey = sGranularity === "Hour"
+                ? "flowChartTitleHour"
+                : "flowChartTitleDay";
 
-    return oBundle.getText(sKey);
-},
+            return oBundle.getText(sKey);
+        },
 
         //Search bar for daily payment flow table
         onFilterPaymentInfo: function (oEvent) {
@@ -3297,6 +3308,8 @@ if (!oView.getModel("itemColumnsModel")) {
 
                 var bNoData = total === 0;
 
+                var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+
                 var oStatusModel = new JSONModel({
 
                     data: bNoData
@@ -3327,7 +3340,10 @@ if (!oView.getModel("itemColumnsModel")) {
                             }
                         ],
 
-                    totalText: fmt(total) + " Payment Items",
+
+
+
+                    totalText: oBundle.getText("totalPaymentItems", [fmt(total)]),
 
                     posted: {
                         display: fmt(posted)
@@ -3390,6 +3406,10 @@ if (!oView.getModel("itemColumnsModel")) {
 
             }.bind(this));
 
+        },
+
+        formatItemsCountTitle: function (sPattern, aItems) {
+            return (sPattern || "").replace("{0}", (aItems || []).length);
         },
 
         _loadDonutDrillItems: async function (sStatus) {
@@ -4013,7 +4033,7 @@ if (!oView.getModel("itemColumnsModel")) {
 
         },
 
-       
+
 
         onExportItemDetails: function () {
 
@@ -4402,19 +4422,30 @@ if (!oView.getModel("itemColumnsModel")) {
         // when there's no prior-day data (tile shows nothing, per your requirement).
         formatKpiTrendText: function (oTrend) {
 
+            console.log("NEW formatter running");
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+
             // No previous-day data available
             if (!oTrend || !oTrend.hasData) {
-                return "Insufficient data to compare";
+                return oBundle.getText("kpiInsufficientData");
             }
 
             // Current and previous values are the same
             if (oTrend.direction === "flat") {
-                return "No change vs yesterday";
+                return oBundle.getText("kpiNoChange");
             }
 
-            var sArrow = oTrend.direction === "up" ? "+" : "-";
+            var sKey = oTrend.direction === "up" ? "kpiTrendUp" : "kpiTrendDown";
+            return oBundle.getText(sKey, [oTrend.percent.toFixed(1)]);
+        },
 
-            return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
+        formatI18nText: function (sPattern, vValue) {
+
+            console.log("NEW formatter running");
+            if (!sPattern) {
+                return "";
+            }
+            return sPattern.replace("{0}", vValue);
         },
 
         // ✅ Shared class formatter — colors the subtext based on whether the

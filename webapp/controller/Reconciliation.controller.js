@@ -469,6 +469,15 @@ sap.ui.define([
 
             onInit: function () {
 
+                var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+
+RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
+    var sKey = "rc" + oColumn.key;
+    if (oBundle.hasText(sKey)) {
+        oColumn.label = oBundle.getText(sKey);
+    }
+});
+
                 var aVisibleColumns = RECON_DETAIL_COLUMNS.filter(function (oColumn) {
                     return oColumn.defaultVisible;
                 });
@@ -717,13 +726,17 @@ sap.ui.define([
 
                     var aRawData = [];
 
-                    if (
-                        oJson &&
-                        Array.isArray(oJson.value)
-                    ) {
-                        aRawData =
-                            oJson.value;
+                    var aRawData = [];
+
+                    if (oJson && Array.isArray(oJson.value)) {
+                        aRawData = oJson.value;
                     }
+
+                    // Keep only rows whose posting date matches the selected Posting Date
+                    aRawData = aRawData.filter(function (oRow) {
+                        var sRowDate = String(oRow.PiPostDate || oRow.PiDate || "").substring(0, 10);
+                        return sRowDate === sSelectedDate;
+                    });
 
                     console.log(
                         "[Reconciliation] Rows received:",
@@ -764,6 +777,10 @@ sap.ui.define([
                     );
                 }
             },
+
+            onFilterChange: function () {
+    this.loadReconciliationData();
+},
 
             /* ============================================================
                FULL RENDER — runs on every fresh OData load. Always shows
@@ -821,432 +838,432 @@ sap.ui.define([
 
             _buildGroupsAndKpi: function (aRawData) {
 
-    var oModel =
-        this.getView().getModel("reconciliation");
+                var oModel =
+                    this.getView().getModel("reconciliation");
 
-    var oGroupsMap = {};
-    var aGroupOrder = [];
+                var oGroupsMap = {};
+                var aGroupOrder = [];
 
-    var fTotalAmount = 0;
-    var iTotalObjects = 0;
+                var fTotalAmount = 0;
+                var iTotalObjects = 0;
 
-    var fDebitTotal = 0;
-    var fCreditTotal = 0;
+                var fDebitTotal = 0;
+                var fCreditTotal = 0;
 
-    var fPcReceived = 0;
-    var fDmReceived = 0;
+                var fPcReceived = 0;
+                var fDmReceived = 0;
 
-    var iPcCount = 0;
-    var iDmCount = 0;
-    var iUnknownCount = 0;
+                var iPcCount = 0;
+                var iDmCount = 0;
+                var iUnknownCount = 0;
 
-    var fReconciliationGap = 0;
+                var fReconciliationGap = 0;
 
-    // ============================================================
-    // PROCESS ALL TRANSACTIONS
-    // ============================================================
+                // ============================================================
+                // PROCESS ALL TRANSACTIONS
+                // ============================================================
 
-    (aRawData || []).forEach(
-        function (oRow) {
+                (aRawData || []).forEach(
+                    function (oRow) {
 
-            if (!oRow) {
-                return;
-            }
+                        if (!oRow) {
+                            return;
+                        }
 
-            // ----------------------------------------------------
-            // AMOUNT
-            // ----------------------------------------------------
+                        // ----------------------------------------------------
+                        // AMOUNT
+                        // ----------------------------------------------------
 
-            var fAmount =
-                Number(oRow.TrAmount) || 0;
+                        var fAmount =
+                            Number(oRow.TrAmount) || 0;
 
-            // ----------------------------------------------------
-            // CURRENCY
-            // ----------------------------------------------------
+                        // ----------------------------------------------------
+                        // CURRENCY
+                        // ----------------------------------------------------
 
-            var sCurrency =
-                oRow.TrCurr || "";
+                        var sCurrency =
+                            oRow.TrCurr || "";
 
-            // ----------------------------------------------------
-            // DATE
-            // ----------------------------------------------------
+                        // ----------------------------------------------------
+                        // DATE
+                        // ----------------------------------------------------
 
-            var sDateKey =
-                oRow.PiPostDate ||
-                oRow.PiDate ||
-                "";
+                        var sDateKey =
+                            oRow.PiPostDate ||
+                            oRow.PiDate ||
+                            "";
 
-            // ----------------------------------------------------
-            // DIRECTION
-            // ----------------------------------------------------
+                        // ----------------------------------------------------
+                        // DIRECTION
+                        // ----------------------------------------------------
 
-            var sDirection =
-                "Credit";
+                        var sDirection =
+                            "Credit";
 
-            var sDirectionState =
-                sDirection === "Credit"
-                    ? "Success"
-                    : "Error";
+                        var sDirectionState =
+                            sDirection === "Credit"
+                                ? "Success"
+                                : "Error";
 
-            // ====================================================
-            // STATUS CLASSIFICATION
-            // ====================================================
+                        // ====================================================
+                        // STATUS CLASSIFICATION
+                        // ====================================================
 
-            var oStatusInfo =
-                this._getReconStatusInfo(
-                    oRow.TechStat
+                        var oStatusInfo =
+                            this._getReconStatusInfo(
+                                oRow.TechStat
+                            );
+
+                        var sSystem =
+                            oStatusInfo.system;
+
+                        var bPostedInDM =
+                            oStatusInfo.postedInDM;
+
+                        var bGap =
+                            oStatusInfo.gap;
+
+                        var sStatusDescription =
+                            oStatusInfo.description;
+
+                        // ====================================================
+                        // CREATE PROCESSED ROW
+                        // ====================================================
+
+                        var oProcessedRow =
+                            Object.assign(
+                                {},
+                                oRow,
+                                {
+                                    StatusDescription:
+                                        sStatusDescription,
+
+                                    System:
+                                        sSystem,
+
+                                    PostedInDM:
+                                        bPostedInDM,
+
+                                    Gap:
+                                        bGap
+                                }
+                            );
+
+                        // ====================================================
+                        // PC / DM TOTALS
+                        // ====================================================
+
+                        if (sSystem === "PC") {
+
+                            fPcReceived +=
+                                fAmount;
+
+                            iPcCount++;
+
+                        } else if (sSystem === "DM") {
+
+                            fDmReceived +=
+                                fAmount;
+
+                            iDmCount++;
+
+                        } else {
+
+                            iUnknownCount++;
+                        }
+
+                        // ====================================================
+                        // RECONCILIATION GAP
+                        //
+                        // Every status whose PostedInDM = No
+                        // contributes its transaction amount to the gap.
+                        // ====================================================
+
+                        if (bGap) {
+
+                            fReconciliationGap +=
+                                fAmount;
+                        }
+
+                        // ====================================================
+                        // GROUP KEY
+                        // ====================================================
+
+                        var sGroupKey =
+                            sDateKey +
+                            "_" +
+                            sCurrency +
+                            "_" +
+                            sDirection;
+
+                        // ====================================================
+                        // CREATE GROUP
+                        // ====================================================
+
+                        if (!oGroupsMap[sGroupKey]) {
+
+                            oGroupsMap[sGroupKey] = {
+
+                                groupId:
+                                    sGroupKey,
+
+                                date:
+                                    this._formatDate(
+                                        sDateKey
+                                    ),
+
+                                currency:
+                                    sCurrency,
+
+                                direction:
+                                    sDirection,
+
+                                directionState:
+                                    sDirectionState,
+
+                                count:
+                                    0,
+
+                                amount:
+                                    0,
+
+                                expanded:
+                                    false,
+
+                                details:
+                                    []
+                            };
+
+                            aGroupOrder.push(
+                                sGroupKey
+                            );
+                        }
+
+                        // ====================================================
+                        // UPDATE GROUP
+                        // ====================================================
+
+                        var oGroup =
+                            oGroupsMap[sGroupKey];
+
+                        oGroup.count++;
+
+                        oGroup.amount +=
+                            fAmount;
+
+                        // ====================================================
+                        // STORE PROCESSED DETAIL
+                        // ====================================================
+
+                        oGroup.details.push(
+                            oProcessedRow
+                        );
+
+                        // ====================================================
+                        // TOTAL KPI
+                        // ====================================================
+
+                        fTotalAmount +=
+                            fAmount;
+
+                        iTotalObjects++;
+
+                        // Current dashboard behavior
+                        fCreditTotal +=
+                            fAmount;
+
+                    }.bind(this)
                 );
 
-            var sSystem =
-                oStatusInfo.system;
+                // ============================================================
+                // EXPAND FIRST GROUP
+                // ============================================================
 
-            var bPostedInDM =
-                oStatusInfo.postedInDM;
+                if (aGroupOrder.length) {
 
-            var bGap =
-                oStatusInfo.gap;
+                    oGroupsMap[
+                        aGroupOrder[0]
+                    ].expanded = true;
+                }
 
-            var sStatusDescription =
-                oStatusInfo.description;
+                // ============================================================
+                // CONVERT GROUP MAP TO ARRAY
+                // ============================================================
 
-            // ====================================================
-            // CREATE PROCESSED ROW
-            // ====================================================
+                var aGroups =
+                    aGroupOrder.map(
+                        function (sKey) {
 
-            var oProcessedRow =
-                Object.assign(
-                    {},
-                    oRow,
+                            return oGroupsMap[
+                                sKey
+                            ];
+
+                        }
+                    );
+
+                // ============================================================
+                // CHART DATA
+                // ============================================================
+
+                var aChartData = [
+
                     {
-                        StatusDescription:
-                            sStatusDescription,
+                        Category:
+                            "PC Received",
 
-                        System:
-                            sSystem,
+                        Amount:
+                            fPcReceived
+                    },
 
-                        PostedInDM:
-                            bPostedInDM,
+                    {
+                        Category:
+                            "DM Received",
 
-                        Gap:
-                            bGap
+                        Amount:
+                            fDmReceived
+                    },
+
+                    {
+                        Category:
+                            "Reconciliation Gap",
+
+                        Amount:
+                            fReconciliationGap
                     }
-                );
-
-            // ====================================================
-            // PC / DM TOTALS
-            // ====================================================
-
-            if (sSystem === "PC") {
-
-                fPcReceived +=
-                    fAmount;
-
-                iPcCount++;
-
-            } else if (sSystem === "DM") {
-
-                fDmReceived +=
-                    fAmount;
-
-                iDmCount++;
-
-            } else {
-
-                iUnknownCount++;
-            }
-
-            // ====================================================
-            // RECONCILIATION GAP
-            //
-            // Every status whose PostedInDM = No
-            // contributes its transaction amount to the gap.
-            // ====================================================
-
-            if (bGap) {
-
-                fReconciliationGap +=
-                    fAmount;
-            }
-
-            // ====================================================
-            // GROUP KEY
-            // ====================================================
-
-            var sGroupKey =
-                sDateKey +
-                "_" +
-                sCurrency +
-                "_" +
-                sDirection;
-
-            // ====================================================
-            // CREATE GROUP
-            // ====================================================
-
-            if (!oGroupsMap[sGroupKey]) {
-
-                oGroupsMap[sGroupKey] = {
-
-                    groupId:
-                        sGroupKey,
-
-                    date:
-                        this._formatDate(
-                            sDateKey
-                        ),
-
-                    currency:
-                        sCurrency,
-
-                    direction:
-                        sDirection,
-
-                    directionState:
-                        sDirectionState,
-
-                    count:
-                        0,
-
-                    amount:
-                        0,
-
-                    expanded:
-                        false,
-
-                    details:
-                        []
-                };
-
-                aGroupOrder.push(
-                    sGroupKey
-                );
-            }
-
-            // ====================================================
-            // UPDATE GROUP
-            // ====================================================
-
-            var oGroup =
-                oGroupsMap[sGroupKey];
-
-            oGroup.count++;
-
-            oGroup.amount +=
-                fAmount;
-
-            // ====================================================
-            // STORE PROCESSED DETAIL
-            // ====================================================
-
-            oGroup.details.push(
-                oProcessedRow
-            );
-
-            // ====================================================
-            // TOTAL KPI
-            // ====================================================
-
-            fTotalAmount +=
-                fAmount;
-
-            iTotalObjects++;
-
-            // Current dashboard behavior
-            fCreditTotal +=
-                fAmount;
-
-        }.bind(this)
-    );
-
-    // ============================================================
-    // EXPAND FIRST GROUP
-    // ============================================================
-
-    if (aGroupOrder.length) {
-
-        oGroupsMap[
-            aGroupOrder[0]
-        ].expanded = true;
-    }
-
-    // ============================================================
-    // CONVERT GROUP MAP TO ARRAY
-    // ============================================================
-
-    var aGroups =
-        aGroupOrder.map(
-            function (sKey) {
-
-                return oGroupsMap[
-                    sKey
                 ];
 
-            }
-        );
+                // ============================================================
+                // RESULT
+                // ============================================================
 
-    // ============================================================
-    // CHART DATA
-    // ============================================================
+                var oResult = {
 
-    var aChartData = [
+                    groups:
+                        aGroups,
 
-        {
-            Category:
-                "PC Received",
+                    kpi: {
 
-            Amount:
-                fPcReceived
-        },
+                        totalAmount:
+                            fTotalAmount.toFixed(2),
 
-        {
-            Category:
-                "DM Received",
+                        totalObjects:
+                            String(
+                                iTotalObjects
+                            ),
 
-            Amount:
-                fDmReceived
-        },
+                        debitTotal:
+                            fDebitTotal.toFixed(2),
 
-        {
-            Category:
-                "Reconciliation Gap",
+                        creditTotal:
+                            fCreditTotal.toFixed(2)
+                    },
 
-            Amount:
-                fReconciliationGap
-        }
-    ];
+                    fPcReceived:
+                        fPcReceived,
 
-    // ============================================================
-    // RESULT
-    // ============================================================
+                    iPcCount:
+                        iPcCount,
 
-    var oResult = {
+                    fDmPosted:
+                        fDmReceived,
 
-        groups:
-            aGroups,
+                    fDmReceived:
+                        fDmReceived,
 
-        kpi: {
+                    iDmCount:
+                        iDmCount,
 
-            totalAmount:
-                fTotalAmount.toFixed(2),
+                    iUnknownCount:
+                        iUnknownCount,
 
-            totalObjects:
-                String(
-                    iTotalObjects
-                ),
+                    fReconciliationGap:
+                        fReconciliationGap,
 
-            debitTotal:
-                fDebitTotal.toFixed(2),
+                    chartData:
+                        aChartData
+                };
 
-            creditTotal:
-                fCreditTotal.toFixed(2)
-        },
+                // ============================================================
+                // UPDATE MODEL
+                // ============================================================
 
-        fPcReceived:
-            fPcReceived,
+                oModel.setProperty(
+                    "/groups",
+                    aGroups
+                );
 
-        iPcCount:
-            iPcCount,
+                oModel.setProperty(
+                    "/kpi",
+                    oResult.kpi
+                );
 
-        fDmPosted:
-            fDmReceived,
+                oModel.setProperty(
+                    "/chartData",
+                    aChartData
+                );
 
-        fDmReceived:
-            fDmReceived,
+                oModel.setProperty(
+                    "/pcReceived",
+                    fPcReceived
+                );
 
-        iDmCount:
-            iDmCount,
+                oModel.setProperty(
+                    "/dmReceived",
+                    fDmReceived
+                );
 
-        iUnknownCount:
-            iUnknownCount,
+                oModel.setProperty(
+                    "/reconciliationGap",
+                    fReconciliationGap
+                );
 
-        fReconciliationGap:
-            fReconciliationGap,
+                oModel.setProperty(
+                    "/pcCount",
+                    iPcCount
+                );
 
-        chartData:
-            aChartData
-    };
+                oModel.setProperty(
+                    "/dmCount",
+                    iDmCount
+                );
 
-    // ============================================================
-    // UPDATE MODEL
-    // ============================================================
+                oModel.setProperty(
+                    "/unknownCount",
+                    iUnknownCount
+                );
 
-    oModel.setProperty(
-        "/groups",
-        aGroups
-    );
+                console.log(
+                    "[Reconciliation] PC:",
+                    fPcReceived
+                );
 
-    oModel.setProperty(
-        "/kpi",
-        oResult.kpi
-    );
+                console.log(
+                    "[Reconciliation] DM:",
+                    fDmReceived
+                );
 
-    oModel.setProperty(
-        "/chartData",
-        aChartData
-    );
+                console.log(
+                    "[Reconciliation] Gap:",
+                    fReconciliationGap
+                );
 
-    oModel.setProperty(
-        "/pcReceived",
-        fPcReceived
-    );
+                console.log(
+                    "[Reconciliation] PC Count:",
+                    iPcCount
+                );
 
-    oModel.setProperty(
-        "/dmReceived",
-        fDmReceived
-    );
+                console.log(
+                    "[Reconciliation] DM Count:",
+                    iDmCount
+                );
 
-    oModel.setProperty(
-        "/reconciliationGap",
-        fReconciliationGap
-    );
+                console.log(
+                    "[Reconciliation] Unknown Count:",
+                    iUnknownCount
+                );
 
-    oModel.setProperty(
-        "/pcCount",
-        iPcCount
-    );
-
-    oModel.setProperty(
-        "/dmCount",
-        iDmCount
-    );
-
-    oModel.setProperty(
-        "/unknownCount",
-        iUnknownCount
-    );
-
-    console.log(
-        "[Reconciliation] PC:",
-        fPcReceived
-    );
-
-    console.log(
-        "[Reconciliation] DM:",
-        fDmReceived
-    );
-
-    console.log(
-        "[Reconciliation] Gap:",
-        fReconciliationGap
-    );
-
-    console.log(
-        "[Reconciliation] PC Count:",
-        iPcCount
-    );
-
-    console.log(
-        "[Reconciliation] DM Count:",
-        iDmCount
-    );
-
-    console.log(
-        "[Reconciliation] Unknown Count:",
-        iUnknownCount
-    );
-
-    return oResult;
-},
+                return oResult;
+            },
 
 
             _formatDate: function (sIsoDate) {
@@ -1614,165 +1631,165 @@ sap.ui.define([
 
             _applyChartCategoryFilter: function (sCategory) {
 
-    var oReconModel =
-        this.getView().getModel(
-            "reconciliation"
-        );
-
-    var aRawData =
-        this._aReconciliationRawData || [];
-
-    var aOriginalChartData =
-        oReconModel.getProperty(
-            "/chartData"
-        );
-
-    var aFilteredRows = [];
-    var sMessage = "";
-
-    // ============================================================
-    // PC
-    // ============================================================
-
-    if (
-        sCategory === "PC Received" ||
-        sCategory === "PC received"
-    ) {
-
-        aFilteredRows =
-            aRawData.filter(
-                function (oRow) {
-
-                    return (
-                        this._getTransactionCategory(
-                            oRow
-                        ) === "PC"
+                var oReconModel =
+                    this.getView().getModel(
+                        "reconciliation"
                     );
 
-                }.bind(this)
-            );
+                var aRawData =
+                    this._aReconciliationRawData || [];
 
-        sMessage =
-            "Showing " +
-            aFilteredRows.length +
-            " PC Received transaction(s).";
-    }
-
-    // ============================================================
-    // DM
-    // ============================================================
-
-    else if (
-        sCategory === "DM Received" ||
-        sCategory === "DM received" ||
-        sCategory === "DM Posted" ||
-        sCategory === "DM posted"
-    ) {
-
-        aFilteredRows =
-            aRawData.filter(
-                function (oRow) {
-
-                    return (
-                        this._getTransactionCategory(
-                            oRow
-                        ) === "DM"
+                var aOriginalChartData =
+                    oReconModel.getProperty(
+                        "/chartData"
                     );
 
-                }.bind(this)
-            );
+                var aFilteredRows = [];
+                var sMessage = "";
 
-        sMessage =
-            "Showing " +
-            aFilteredRows.length +
-            " DM transaction(s).";
-    }
+                // ============================================================
+                // PC
+                // ============================================================
 
-    // ============================================================
-    // GAP
-    // ============================================================
+                if (
+                    sCategory === "PC Received" ||
+                    sCategory === "PC received"
+                ) {
 
-    else if (
-        sCategory ===
-        "Reconciliation Gap"
-    ) {
+                    aFilteredRows =
+                        aRawData.filter(
+                            function (oRow) {
 
-        /*
-         * Gap is based on the status mapping.
-         * Show only transactions whose
-         * PostedInDM = No / Gap = Yes.
-         */
+                                return (
+                                    this._getTransactionCategory(
+                                        oRow
+                                    ) === "PC"
+                                );
 
-        aFilteredRows =
-            aRawData.filter(
-                function (oRow) {
-
-                    var oStatusInfo =
-                        this._getReconStatusInfo(
-                            oRow.TechStat
+                            }.bind(this)
                         );
 
-                    return (
-                        oStatusInfo.gap === true
+                    sMessage =
+                        "Showing " +
+                        aFilteredRows.length +
+                        " PC Received transaction(s).";
+                }
+
+                // ============================================================
+                // DM
+                // ============================================================
+
+                else if (
+                    sCategory === "DM Received" ||
+                    sCategory === "DM received" ||
+                    sCategory === "DM Posted" ||
+                    sCategory === "DM posted"
+                ) {
+
+                    aFilteredRows =
+                        aRawData.filter(
+                            function (oRow) {
+
+                                return (
+                                    this._getTransactionCategory(
+                                        oRow
+                                    ) === "DM"
+                                );
+
+                            }.bind(this)
+                        );
+
+                    sMessage =
+                        "Showing " +
+                        aFilteredRows.length +
+                        " DM transaction(s).";
+                }
+
+                // ============================================================
+                // GAP
+                // ============================================================
+
+                else if (
+                    sCategory ===
+                    "Reconciliation Gap"
+                ) {
+
+                    /*
+                     * Gap is based on the status mapping.
+                     * Show only transactions whose
+                     * PostedInDM = No / Gap = Yes.
+                     */
+
+                    aFilteredRows =
+                        aRawData.filter(
+                            function (oRow) {
+
+                                var oStatusInfo =
+                                    this._getReconStatusInfo(
+                                        oRow.TechStat
+                                    );
+
+                                return (
+                                    oStatusInfo.gap === true
+                                );
+
+                            }.bind(this)
+                        );
+
+                    sMessage =
+                        "Showing " +
+                        aFilteredRows.length +
+                        " reconciliation gap transaction(s).";
+                }
+
+                else {
+
+                    aFilteredRows =
+                        aRawData;
+
+                    sMessage = "";
+                }
+
+                // ============================================================
+                // REBUILD TABLE
+                // ============================================================
+
+                var oResult =
+                    this._buildGroupsAndKpi(
+                        aFilteredRows
                     );
 
-                }.bind(this)
-            );
+                oReconModel.setProperty(
+                    "/groups",
+                    oResult.groups
+                );
 
-        sMessage =
-            "Showing " +
-            aFilteredRows.length +
-            " reconciliation gap transaction(s).";
-    }
+                // ============================================================
+                // RESTORE ORIGINAL KPI / CHART
+                // ============================================================
 
-    else {
+                oReconModel.setProperty(
+                    "/kpi",
+                    oReconModel.getProperty(
+                        "/_originalKpi"
+                    )
+                );
 
-        aFilteredRows =
-            aRawData;
+                oReconModel.setProperty(
+                    "/chartData",
+                    aOriginalChartData
+                );
 
-        sMessage = "";
-    }
+                oReconModel.setProperty(
+                    "/selectedCategory",
+                    sCategory
+                );
 
-    // ============================================================
-    // REBUILD TABLE
-    // ============================================================
-
-    var oResult =
-        this._buildGroupsAndKpi(
-            aFilteredRows
-        );
-
-    oReconModel.setProperty(
-        "/groups",
-        oResult.groups
-    );
-
-    // ============================================================
-    // RESTORE ORIGINAL KPI / CHART
-    // ============================================================
-
-    oReconModel.setProperty(
-        "/kpi",
-        oReconModel.getProperty(
-            "/_originalKpi"
-        )
-    );
-
-    oReconModel.setProperty(
-        "/chartData",
-        aOriginalChartData
-    );
-
-    oReconModel.setProperty(
-        "/selectedCategory",
-        sCategory
-    );
-
-    oReconModel.setProperty(
-        "/filterMessage",
-        sMessage
-    );
-},
+                oReconModel.setProperty(
+                    "/filterMessage",
+                    sMessage
+                );
+            },
             /* "Show All" button — clears the bar filter and restores the
                full table for the currently loaded Clearing Area / Date. */
             onClearChartFilter: function () {
@@ -2209,7 +2226,7 @@ sap.ui.define([
             /**
              * Reset the three table search fields.
              */
-           
+
             /**
              * Restore the table after search is cleared.
              *
@@ -2717,113 +2734,113 @@ sap.ui.define([
                through here. If the combo isn't PC → DM, everything is cleared
                and a blocked message is shown, regardless of how much raw data
                was actually loaded from OData. */
-          _applySystemGate: function () {
+            _applySystemGate: function () {
 
-    var oReconModel =
-        this.getView().getModel(
-            "reconciliation"
-        );
+                var oReconModel =
+                    this.getView().getModel(
+                        "reconciliation"
+                    );
 
-    if (!oReconModel) {
-        return;
-    }
+                if (!oReconModel) {
+                    return;
+                }
 
-    if (this._isValidSystemCombo()) {
+                if (this._isValidSystemCombo()) {
 
-        var oResult =
-            this._buildGroupsAndKpi(
-                this._aReconciliationRawData || []
-            );
+                    var oResult =
+                        this._buildGroupsAndKpi(
+                            this._aReconciliationRawData || []
+                        );
 
-        oReconModel.setProperty(
-            "/_originalKpi",
-            Object.assign(
-                {},
-                oResult.kpi
-            )
-        );
+                    oReconModel.setProperty(
+                        "/_originalKpi",
+                        Object.assign(
+                            {},
+                            oResult.kpi
+                        )
+                    );
 
-        oReconModel.setProperty(
-            "/_originalChartData",
-            (oResult.chartData || []).map(
-                function (oItem) {
-                    return Object.assign(
-                        {},
-                        oItem
+                    oReconModel.setProperty(
+                        "/_originalChartData",
+                        (oResult.chartData || []).map(
+                            function (oItem) {
+                                return Object.assign(
+                                    {},
+                                    oItem
+                                );
+                            }
+                        )
+                    );
+
+                    oReconModel.setProperty(
+                        "/groups",
+                        oResult.groups
+                    );
+
+                    oReconModel.setProperty(
+                        "/kpi",
+                        oResult.kpi
+                    );
+
+                    oReconModel.setProperty(
+                        "/chartData",
+                        oResult.chartData
+                    );
+
+                } else {
+
+                    // Invalid System 1 / System 2 combination
+                    oReconModel.setProperty(
+                        "/groups",
+                        []
+                    );
+
+                    oReconModel.setProperty(
+                        "/kpi",
+                        {
+                            totalAmount: "0.00",
+                            totalObjects: "0",
+                            debitTotal: "0.00",
+                            creditTotal: "0.00"
+                        }
+                    );
+
+                    oReconModel.setProperty(
+                        "/chartData",
+                        [
+                            {
+                                Category: "PC Received",
+                                Amount: 0
+                            },
+                            {
+                                Category: "DM Received",
+                                Amount: 0
+                            },
+                            {
+                                Category: "Reconciliation Gap",
+                                Amount: 0
+                            }
+                        ]
+                    );
+
+                    oReconModel.setProperty(
+                        "/pcReceived",
+                        0
+                    );
+
+                    oReconModel.setProperty(
+                        "/dmReceived",
+                        0
+                    );
+
+                    oReconModel.setProperty(
+                        "/reconciliationGap",
+                        0
                     );
                 }
-            )
-        );
 
-        oReconModel.setProperty(
-            "/groups",
-            oResult.groups
-        );
-
-        oReconModel.setProperty(
-            "/kpi",
-            oResult.kpi
-        );
-
-        oReconModel.setProperty(
-            "/chartData",
-            oResult.chartData
-        );
-
-    } else {
-
-        // Invalid System 1 / System 2 combination
-        oReconModel.setProperty(
-            "/groups",
-            []
-        );
-
-        oReconModel.setProperty(
-            "/kpi",
-            {
-                totalAmount: "0.00",
-                totalObjects: "0",
-                debitTotal: "0.00",
-                creditTotal: "0.00"
-            }
-        );
-
-        oReconModel.setProperty(
-            "/chartData",
-            [
-                {
-                    Category: "PC Received",
-                    Amount: 0
-                },
-                {
-                    Category: "DM Received",
-                    Amount: 0
-                },
-                {
-                    Category: "Reconciliation Gap",
-                    Amount: 0
-                }
-            ]
-        );
-
-        oReconModel.setProperty(
-            "/pcReceived",
-            0
-        );
-
-        oReconModel.setProperty(
-            "/dmReceived",
-            0
-        );
-
-        oReconModel.setProperty(
-            "/reconciliationGap",
-            0
-        );
-    }
-
-    this._createReconChart();
-},
+                this._createReconChart();
+            },
 
             /* ============================================================
         COLUMN SETTINGS
@@ -3419,42 +3436,42 @@ sap.ui.define([
                 console.log("========== END TRANSACTION ANALYSIS ==========");
             },
 
-           _getTransactionCategory: function (oRow) {
+            _getTransactionCategory: function (oRow) {
 
-    if (!oRow) {
-        return "UNKNOWN";
-    }
+                if (!oRow) {
+                    return "UNKNOWN";
+                }
 
-    var oStatusInfo =
-        this._getReconStatusInfo(
-            oRow.TechStat
-        );
+                var oStatusInfo =
+                    this._getReconStatusInfo(
+                        oRow.TechStat
+                    );
 
-    /*
-     * Business rule:
-     *
-     * Posted in DM = Yes
-     *     -> DM
-     *
-     * Posted in DM = No
-     *     -> PC
-     */
+                /*
+                 * Business rule:
+                 *
+                 * Posted in DM = Yes
+                 *     -> DM
+                 *
+                 * Posted in DM = No
+                 *     -> PC
+                 */
 
-    if (oStatusInfo.postedInDM === true) {
-        return "DM";
-    }
+                if (oStatusInfo.postedInDM === true) {
+                    return "DM";
+                }
 
-    if (oStatusInfo.postedInDM === false) {
+                if (oStatusInfo.postedInDM === false) {
 
-        if (
-            oStatusInfo.system === "PC"
-        ) {
-            return "PC";
-        }
-    }
+                    if (
+                        oStatusInfo.system === "PC"
+                    ) {
+                        return "PC";
+                    }
+                }
 
-    return "UNKNOWN";
-},
+                return "UNKNOWN";
+            },
 
         }
 

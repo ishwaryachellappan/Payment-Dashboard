@@ -2115,6 +2115,7 @@ console.log(
         loadRailKpi: function () {
 
             console.log("Rail KPI: loadRailKpi() called");
+    var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
             var oODataModel = this.getOwnerComponent().getModel("odataModel");
 
@@ -2171,11 +2172,11 @@ console.log(
                 oListBinding = oODataModel.bindList("/RailKpi", undefined, undefined, undefined, {
                     $select: "ClearingArea,PaymentItemDate,OnHold,InPostProcessing,Rejected"
                 });
-            } catch (oBindError) {
-                console.error("Rail KPI: bindList() threw synchronously", oBindError);
-                oRailModel.setData({ data: [], total: 0, totalText: "0 Open Items" });
-                return;
-            }
+           } catch (oBindError) {
+    console.error("Rail KPI: bindList() threw synchronously", oBindError);
+    oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZero") });
+    return;
+}
 
             oListBinding.requestContexts(0, 5000).then(function (aContexts) {
 
@@ -2207,7 +2208,7 @@ console.log(
                 var iRejected = oMatch ? (oMatch.Rejected || 0) : 0;
 
                 var iTotal = iHold + iPostProcessing + iRejected;
-
+            
                 // "percent" is only used by the Progress Bar view — each
                 // status's share of the total, capped at 100 (ProgressIndicator
                 // can't exceed 100%). Guard against divide-by-zero when total is 0.
@@ -2222,13 +2223,16 @@ console.log(
                         { status: "Rejected", value: iRejected, percent: toPercent(iRejected) }
                     ],
                     total: iTotal,
-                    totalText: iTotal + " Open Items · " + sClearingArea
+                  // success case
+totalText: oBundle.getText("openItemsByClearingArea", [iTotal, sClearingArea])
+
                 });
 
             }).catch(function (oError) {
                 console.error("Rail KPI load failed:", oError);
-                oRailModel.setData({ data: [], total: 0, totalText: "0 Open Items" });
-            });
+                // bindList catch (sync error)
+oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZero") });
+     });
         },
 
         loadExceptionTrend: function () {
@@ -3150,7 +3154,7 @@ console.log(
         },
 
         _getTrendWarningMessage: function (aTrendData) {
-
+var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             if (!aTrendData || aTrendData.length === 0) {
                 return {
                     type: "Information",
@@ -3278,13 +3282,35 @@ console.log(
             /*
              * Backlog is stable
              */
-            return {
-                type: "Information",
-                message:
-                    "Backlog Stable: Opened and resolved are both " +
-                    iOpened +
-                    "."
-            };
+            // empty data
+return {
+    type: "Information",
+    message: oBundle.getText("noTrendData")
+};
+
+// growing (replace the whole block, including sMessage and getOrdinal)
+if (iOpened > iResolved) {
+    return {
+        type: "Warning",
+        message: iGrowingDays > 1
+            ? oBundle.getText("backlogGrowingDays", [iOpened, iResolved, iDifference, iGrowingDays])
+            : oBundle.getText("backlogGrowing", [iOpened, iResolved, iDifference])
+    };
+}
+
+// improving
+if (iResolved > iOpened) {
+    return {
+        type: "Success",
+        message: oBundle.getText("backlogImproving", [iResolved, iOpened, iDifference])
+    };
+}
+
+// stable (the one you pasted)
+return {
+    type: "Information",
+    message: oBundle.getText("backlogStable", [iOpened])
+};
         },
 
         onBulkAction: function () {
@@ -3732,20 +3758,28 @@ console.log(
 
         // ✅ Open Exceptions: MORE exceptions is bad, so "up" = warn color, "down" = good color.
         // Returns "" (nothing shown) when there's no real yesterday value to compare against.
-        formatOpenExceptionTrendText: function (oTrend) {
+       _getTrendText: function (oTrend) {
+    var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
-            if (!oTrend || !oTrend.hasData) {
-                return "Insufficient data to compare";
-            }
+    if (!oTrend || !oTrend.hasData) {
+        return oBundle.getText("kpiInsufficientData");
+    }
 
-            if (oTrend.direction === "flat") {
-                return "No change vs yesterday";
-            }
+    if (oTrend.direction === "flat") {
+        return oBundle.getText("kpiNoChange");
+    }
 
-            var sArrow = oTrend.direction === "up" ? "+" : "-";
+    var sKey = oTrend.direction === "up" ? "kpiTrendUp" : "kpiTrendDown";
+    return oBundle.getText(sKey, [oTrend.percent.toFixed(1)]);
+},
 
-            return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
-        },
+formatOpenExceptionTrendText: function (oTrend) {
+    return this._getTrendText(oTrend);
+},
+
+formatValueAtRiskTrendText: function (oTrend) {
+    return this._getTrendText(oTrend);
+},
 
         formatOpenExceptionTrendClass: function (oTrend) {
             if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {
@@ -3759,20 +3793,7 @@ console.log(
 
         // ✅ Value at Risk: same "more is worse" semantics as Open Exceptions.
         // ✅ Value at Risk: same "more is worse" semantics as Open Exceptions.
-        formatValueAtRiskTrendText: function (oTrend) {
-
-            if (!oTrend || !oTrend.hasData) {
-                return "Insufficient data to compare";
-            }
-
-            if (oTrend.direction === "flat") {
-                return "No change vs yesterday";
-            }
-
-            var sArrow = oTrend.direction === "up" ? "+" : "-";
-
-            return sArrow + oTrend.percent.toFixed(1) + "% vs yesterday";
-        },
+       
 
         formatValueAtRiskTrendClass: function (oTrend) {
             if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {

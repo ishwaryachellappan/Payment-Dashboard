@@ -45,7 +45,7 @@
     <!-- KPI Label -->
     <Text
         id="_IDGenKpiOpenExceptionsLabel"
-        text="Open Exceptions"
+         text="{i18n>kpiOpenExceptions}"
         class="kpiCardLabel"
     />
 
@@ -94,7 +94,7 @@
     <!-- KPI Label -->
     <Text
         id="_IDGenKpiValueAtRiskLabel"
-        text="Value at Risk"
+         text="{i18n>kpiValueAtRisk}"
         class="kpiCardLabel"
     />
 
@@ -142,7 +142,7 @@
 >
     <Text
         id="_IDGenKpiAwaitingApprovalLabel"
-        text="Awaiting Approval"
+       text="{i18n>kpiAwaitingApproval}"
         class="kpiCardLabel"
     />
 
@@ -173,7 +173,7 @@
 
    <Text
     id="_IDGenKpiAwaitingApprovalSub"
-    text="Insufficient data to compare"
+      text="{i18n>kpiInsufficientData}"
     class="kpiCardSubtext"
 />
 </VBox>
@@ -188,7 +188,7 @@
 >
     <Text
         id="_IDGenKpiSanctionsHoldsLabel"
-        text="Sanctions Holds"
+          text="{i18n>kpiSanctionsHolds}"
         class="kpiCardLabel"
     />
 
@@ -219,7 +219,7 @@
 
    <Text
     id="_IDGenKpiSanctionsHoldsSub"
-    text="Insufficient data to compare"
+      text="{i18n>kpiInsufficientData}"
     class="kpiCardSubtext"
 />
 </VBox>
@@ -290,17 +290,17 @@
                 class="exceptionChartTitleBox"
             >
 
-                <Title
-                    id="_IDGenTitle5"
-                    text="Exception Trend (Last 7 Days)"
-                    class="exceptionChartTitle"
-                />
+               <Title
+    id="_IDGenTitle5"
+    text="{i18n>exceptionTrendLast7Days}"
+    class="exceptionChartTitle"
+/>
 
-                <Text
-                    id="_IDGenText84"
-                    text="Opened vs Resolved · Daily Volume"
-                    class="exceptionChartSubtitle"
-                />
+               <Text
+    id="_IDGenText84"
+    text="{i18n>openedVsResolvedDaily}"
+    class="exceptionChartSubtitle"
+/>
 
             </VBox>
 
@@ -512,7 +512,7 @@
         >
             <Title
                 id="_IDGenTitle14"
-                text="By Rail"
+               text="{i18n>byRail}"
                 class="exceptionChartTitle"
             />
 
@@ -737,7 +737,7 @@
 />
             <Text
                 id="_IDGenText117"
-                text="Grouped Queue Overview"
+               text="{i18n>groupedQueueOverview}"
                 class="kpiSubText"
             />
         </VBox>
@@ -764,7 +764,7 @@
         />
         <Text
             id="_IDGenReasonInfoText"
-            text="Top exception drivers requiring action today"
+          text="{i18n>topExceptionDrivers}"
             class="excInfoStripText"
         />
     </HBox>
@@ -916,11 +916,11 @@
                 class="exceptionMiniKpi"
             >
 
-                <Text
-                    id="_IDGenText115"
-                    text="Open"
-                    class="exceptionMiniKpiLabel"
-                />
+               <Text
+    id="_IDGenText115"
+    text="{i18n>open}"
+    class="exceptionMiniKpiLabel"
+/>
 
                 <Text
                     id="_IDGenText102"
@@ -948,7 +948,7 @@
 
                 <Text
                     id="_IDGenText122"
-                    text="Highest Value At Risk"
+                    text="{i18n>highestValueAtRisk}"
                     class="exceptionMiniKpiLabel"
                 />
 
@@ -1000,7 +1000,7 @@
 
             <Text
                 id="exceptionFilterTitle"
-                text="Search exceptions"
+                text="{i18n>searchExceptions}"
                 class="exceptionFilterTitle"
             />
 
@@ -1027,7 +1027,7 @@
 
                     <Label
                         id="_IDGenText118"
-                        text="Rail"
+                        text="{i18n>rail}"
                         class="exceptionFilterLabel"
                     />
 
@@ -1056,11 +1056,11 @@
                     class="exceptionFilterItem"
                 >
 
-                    <Label
-                        id="_IDGenText119"
-                        text="Status"
-                        class="exceptionFilterLabel"
-                    />
+                   <Label
+    id="_IDGenText119"
+    text="{i18n>status}"
+    class="exceptionFilterLabel"
+/>
 
                     <Select
                         id="filterStatus"
@@ -1105,11 +1105,11 @@
                     class="exceptionFilterItem"
                 >
 
-                    <Label
-                        id="_IDGenText101"
-                        text="Aging"
-                        class="exceptionFilterLabel"
-                    />
+                   <Label
+    id="_IDGenText101"
+    text="{i18n>aging}"
+    class="exceptionFilterLabel"
+/>
 
                     <Select
                         id="filterAging"
@@ -1138,7 +1138,7 @@
 
                     <Label
                         id="_IDGenText121"
-                        text="Currency"
+                        text="{i18n>currency}"
                         class="exceptionFilterLabel"
                     />
 
@@ -1168,11 +1168,11 @@
                     class="exceptionFilterItem exceptionFilterItemWide"
                 >
 
-                    <Label
-                        id="_IDGenText120"
-                        text="Object Category"
-                        class="exceptionFilterLabel"
-                    />
+                  <Label
+    id="_IDGenText120"
+    text="{i18n>objectCategory}"
+    class="exceptionFilterLabel"
+/>
 
                     <Select
                         id="filterObjectCategory"
@@ -1202,11 +1202,11 @@
     class="exceptionFilterItem exceptionReasonFilter"
 >
 
-    <Label
-        id="_IDGenText104"
-        text="Reason"
-        class="exceptionFilterLabel"
-    />
+   <Label
+    id="_IDGenText104"
+    text="{i18n>reason}"
+    class="exceptionFilterLabel"
+/>
 
     <Select
         id="filterReason"
@@ -1263,138 +1263,59 @@
 
                     <columns>
 
-                        <Column
-                            id="colClearingArea"
-                            width="110px"
-                        >
-                            <Text
-                                id="_IDGenText55"
-                                text="Clearing Area"
-                            />
-                        </Column>
+    <Column id="colClearingArea" width="110px">
+        <Text id="_IDGenText55" text="{i18n>clearingArea}"/>
+    </Column>
 
-                        <Column
-                            id="colPaymentItemDate"
-                            width="130px"
-                        >
-                            <Text
-                                id="_IDGenText56"
-                                text="Payment Item Date"
-                            />
-                        </Column>
+    <Column id="colPaymentItemDate" width="130px">
+        <Text id="_IDGenText56" text="{i18n>excPaymentItemDate}"/>
+    </Column>
 
-                        <Column
-                            id="colObjectCategory"
-                            width="120px"
-                        >
-                            <Text
-                                id="_IDGenText58"
-                                text="Object Category"
-                            />
-                        </Column>
+    <Column id="colObjectCategory" width="120px">
+        <Text id="_IDGenText58" text="{i18n>objectCategory}"/>
+    </Column>
 
-                        <Column
-                            id="_IDGenColumn17"
-                            width="100px"
-                        >
-                            <Text
-                                id="_IDGenText6"
-                                text="PO Type"
-                            />
-                        </Column>
+    <Column id="_IDGenColumn17" width="100px">
+        <Text id="_IDGenText6" text="{i18n>excPoType}"/>
+    </Column>
 
-                        <Column
-                            id="_IDGenColumn18"
-                            width="120px"
-                        >
-                            <Text
-                                id="_IDGenText27"
-                                text="PO Type Status"
-                            />
-                        </Column>
+    <Column id="_IDGenColumn18" width="120px">
+        <Text id="_IDGenText27" text="{i18n>excPoTypeStatus}"/>
+    </Column>
 
-                        <Column
-                            id="colTechStat"
-                            width="140px"
-                        >
-                            <Text
-                                id="_IDGenText59"
-                                text="Technical Status"
-                            />
-                        </Column>
+    <Column id="colTechStat" width="140px">
+        <Text id="_IDGenText59" text="{i18n>piTechnicalStatus}"/>
+    </Column>
 
-                        <Column
-                            id="colPaymentItemNumber"
-                            width="150px"
-                        >
-                            <Text
-                                id="_IDGenText86"
-                                text="Payment Item Number"
-                            />
-                        </Column>
+    <Column id="colPaymentItemNumber" width="150px">
+        <Text id="_IDGenText86" text="{i18n>excPaymentItemNumber}"/>
+    </Column>
 
-                        <Column
-                            id="colReference"
-                            width="120px"
-                        >
-                            <Text
-                                id="_IDGenText87"
-                                text="Reference"
-                            />
-                        </Column>
+    <Column id="colReference" width="120px">
+        <Text id="_IDGenText87" text="{i18n>excReference}"/>
+    </Column>
 
-                        <Column
-                            id="colReasonDetail"
-                            width="180px"
-                        >
-                            <Text
-                                id="_IDGenText88"
-                                text="Reason Detail"
-                            />
-                        </Column>
+    <Column id="colReasonDetail" width="180px">
+        <Text id="_IDGenText88" text="{i18n>excReasonDetail}"/>
+    </Column>
 
-                        <Column
-                            id="colAmount"
-                            width="110px"
-                            hAlign="End"
-                        >
-                            <Text
-                                id="_IDGenText89"
-                                text="Amount"
-                            />
-                        </Column>
+    <Column id="colAmount" width="110px" hAlign="End">
+        <Text id="_IDGenText89" text="{i18n>excAmount}"/>
+    </Column>
 
-                        <Column
-                            id="colCurrency"
-                            width="90px"
-                        >
-                            <Text
-                                id="_IDGenText90"
-                                text="Currency"
-                            />
-                        </Column>
+    <Column id="colCurrency" width="90px">
+        <Text id="_IDGenText90" text="{i18n>currency}"/>
+    </Column>
 
-                        <Column
-                            id="colAged"
-                            width="90px"
-                        >
-                            <Text
-                                id="_IDGenText91"
-                                text="Aged"
-                            />
-                        </Column>
+    <Column id="colAged" width="90px">
+        <Text id="_IDGenText91" text="{i18n>excAged}"/>
+    </Column>
 
-                        <Column
-                            id="colCounterParty"
-                            width="150px"
-                        >
-                            <Text
-                                id="_IDGenText92"
-                                text="Counterparty"
-                            />
-                        </Column>
+    <Column id="colCounterParty" width="150px">
+        <Text id="_IDGenText92" text="{i18n>excCounterparty}"/>
+    </Column>
 
-                    </columns>
+</columns>
 
 
                     <items>

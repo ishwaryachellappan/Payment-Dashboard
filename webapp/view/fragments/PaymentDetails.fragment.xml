@@ -5,13 +5,14 @@
 
 <Dialog
     id="paymentDetailsDialog"
-    title="Payment Order Details"
+    title="{i18n>paymentOrderDetails}"
     contentWidth="1200px"
     contentHeight="700px"
     draggable="true"
     resizable="true"
     verticalScrolling="true"
     horizontalScrolling="false">
+    
 
 
 <VBox id="_IDGenVBox26" class="sapUiMediumMargin">
@@ -21,7 +22,7 @@
         alignItems="Center"
         class="sapUiTinyMarginBottom">
 
-        <Title id="_IDGenTitle11" text="Payment Information"/>
+       <Title id="_IDGenTitle11" text="{i18n>paymentInformation}"/>
 
         <Button
             id="detailHeaderSettingsButton"
@@ -55,10 +56,13 @@
 
         <VBox id="_IDGenVBox107">
 
-            <Title
-                id="itemTableTitle"
-                text="Payment Order Items ({= ${itemModel>/items}.length })"
-                level="H5"/>
+         <Title
+    id="itemTableTitle"
+    text="{
+        parts: ['i18n>paymentOrderItemsCount', 'itemModel>/items'],
+        formatter: '.formatItemsCountTitle'
+    }"
+    level="H5"/>
 
             
 
