@@ -3803,7 +3803,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
         },
 
         onOpenTableSettings: function () {
-
+var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             var that = this;
             var oColumnsModel = this.getView().getModel("tableColumnsModel");
 
@@ -3841,9 +3841,9 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
             this._oSettingsDialog = new sap.m.Dialog({
 
-                title: "Table Settings",
-                contentWidth: "350px",
-                contentHeight: "420px",
+    title: oBundle.getText("tableSettings"),
+    contentWidth: "350px",
+    contentHeight: "420px",
 
                 content: [
                     new sap.m.ScrollContainer({
@@ -3855,9 +3855,9 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                     })
                 ],
 
-                beginButton: new sap.m.Button({
-                    text: "OK",
-                    press: function () {
+              beginButton: new sap.m.Button({
+        text: oBundle.getText("ok"),
+        press: function () {
                         oColumnsModel.setProperty("/visibleFields", aSelectedFields);
                         that._rebuildPaymentTable();
                         that._oSettingsDialog.close();
@@ -3865,8 +3865,8 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 }),
 
                 endButton: new sap.m.Button({
-                    text: "Cancel",
-                    press: function () {
+        text: oBundle.getText("cancel"),
+        press: function () { 
                         that._oSettingsDialog.close();
                     }
                 })

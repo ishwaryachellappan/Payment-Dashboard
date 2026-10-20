@@ -328,32 +328,32 @@ sap.ui.define([
 
             // ---------------- KPI TILES ----------------
 
-        oModel.setProperty("/kpis/transactions", this._formatNumber(iTotalTransactions));
-oModel.setProperty("/kpis/transactionsSub", oBundle.getText("transactionsSub"));
+            oModel.setProperty("/kpis/transactions", this._formatNumber(iTotalTransactions));
+            oModel.setProperty("/kpis/transactionsSub", oBundle.getText("transactionsSub"));
 
-oModel.setProperty("/kpis/successRate", this._formatPercent(fnAvg(fSuccessRateWeighted)));
-oModel.setProperty("/kpis/successRateSub", oBundle.getText("successRateSubSelected"));
+            oModel.setProperty("/kpis/successRate", this._formatPercent(fnAvg(fSuccessRateWeighted)));
+            oModel.setProperty("/kpis/successRateSub", oBundle.getText("successRateSubSelected"));
 
-oModel.setProperty("/kpis/failedPayments", this._formatPercent(fnAvg(fFailedRateWeighted)));
-oModel.setProperty("/kpis/failedPaymentsSub", oBundle.getText("failedPaymentsSub"));
+            oModel.setProperty("/kpis/failedPayments", this._formatPercent(fnAvg(fFailedRateWeighted)));
+            oModel.setProperty("/kpis/failedPaymentsSub", oBundle.getText("failedPaymentsSub"));
 
-oModel.setProperty("/kpis/responseTime", this._formatResponseTime(fnAvg(fResponseTimeWeighted)));
-oModel.setProperty("/kpis/responseTimeSub", oBundle.getText("responseTimeSub"));
+            oModel.setProperty("/kpis/responseTime", this._formatResponseTime(fnAvg(fResponseTimeWeighted)));
+            oModel.setProperty("/kpis/responseTimeSub", oBundle.getText("responseTimeSub"));
 
-oModel.setProperty("/kpis/queueDepth", Number(fnAvg(fQueueDepthWeighted)).toFixed(3));
-oModel.setProperty("/kpis/queueDepthSub", oBundle.getText("queueDepthSub"));
+            oModel.setProperty("/kpis/queueDepth", Number(fnAvg(fQueueDepthWeighted)).toFixed(3));
+            oModel.setProperty("/kpis/queueDepthSub", oBundle.getText("queueDepthSub"));
 
-oModel.setProperty("/kpis/alerts", String(iTotalCriticalAlerts));
-oModel.setProperty(
-    "/kpis/alertsSub",
-    iTotalCriticalAlerts > 0 ? oBundle.getText("requireAttention") : oBundle.getText("alertsSub")
-);
+            oModel.setProperty("/kpis/alerts", String(iTotalCriticalAlerts));
+            oModel.setProperty(
+                "/kpis/alertsSub",
+                iTotalCriticalAlerts > 0 ? oBundle.getText("requireAttention") : oBundle.getText("alertsSub")
+            );
 
-oModel.setProperty("/kpis/overallHealth", this._formatPercent(fnAvg(fOverallHealthWeighted)));
-oModel.setProperty("/kpis/overallHealthSub", oBundle.getText("overallHealthSub"));
+            oModel.setProperty("/kpis/overallHealth", this._formatPercent(fnAvg(fOverallHealthWeighted)));
+            oModel.setProperty("/kpis/overallHealthSub", oBundle.getText("overallHealthSub"));
 
-oModel.setProperty("/kpis/activeRails", aDistinctRails.length + " / " + iTotalRailCount);
-oModel.setProperty("/kpis/activeRailsSub", oBundle.getText("activeRailsSubFiltered"));
+            oModel.setProperty("/kpis/activeRails", aDistinctRails.length + " / " + iTotalRailCount);
+            oModel.setProperty("/kpis/activeRailsSub", oBundle.getText("activeRailsSubFiltered"));
 
             // ---------------- TABLE ROWS ----------------
 
@@ -380,7 +380,7 @@ oModel.setProperty("/kpis/activeRailsSub", oBundle.getText("activeRailsSubFilter
 
                     createdOnRaw: this._normaliseDate(oItem.CreatedOn) || "",
 
-                      format: String(oItem.ioFormat || "").replace(/^\/+/, ""),
+                    format: String(oItem.ioFormat || "").replace(/^\/+/, ""),
 
                     oData: oItem,
 
@@ -558,15 +558,16 @@ oModel.setProperty("/kpis/activeRailsSub", oBundle.getText("activeRailsSubFilter
             var sClearingArea = oGlobalFilter.clearingArea || "";
             var sCreatedOn = oGlobalFilter.createdOn || "";
             var sTargetChannel = this._normaliseChannel(sChannel);
-
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             oModel.setProperty("/railOrders", []);
             oModel.setProperty("/railOrdersBusy", true);
             oModel.setProperty("/railOrdersTitle", sChannel + " – Payment Orders");
             oModel.setProperty(
                 "/railOrdersInfo",
-                "Clearing Area: " + (sClearingArea || "–") +
-                "   |   Created On: " + (sCreatedOn ? this._formatDisplayDate(sCreatedOn) : "All dates") +
-                "   |   Click a row to view its items"
+                oBundle.getText("railOrdersInfo", [
+                    sClearingArea || "–",
+                    sCreatedOn ? this._formatDisplayDate(sCreatedOn) : oBundle.getText("allDates")
+                ])
             );
 
             if (!sClearingArea) {
@@ -765,7 +766,7 @@ oModel.setProperty("/kpis/activeRailsSub", oBundle.getText("activeRailsSubFilter
         // ============================================================
 
         _loadOrderItems: function (oOrder) {
-
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             var oModel = this.getView().getModel("railHealth");
 
             if (!oModel || !oOrder) {
@@ -785,18 +786,26 @@ oModel.setProperty("/kpis/activeRailsSub", oBundle.getText("activeRailsSubFilter
             var iReqId = ++this._iOrderItemsReqId;
 
             // ---------------- RESET DIALOG STATE ----------------
+            // _loadOrderItems
+
+
+
+
 
             oModel.setProperty("/orderItemsAll", []);
             oModel.setProperty("/orderItems", []);
-            oModel.setProperty("/incomingLabel", "Incoming (…)");
-            oModel.setProperty("/outgoingLabel", "Outgoing (…)");
-            oModel.setProperty("/orderItemsTitle", "Payment Order " + sPaymentOrder + " – Items");
+            oModel.setProperty("/incomingLabel", oBundle.getText("incomingLabel", ["…"]));
+            oModel.setProperty("/outgoingLabel", oBundle.getText("outgoingLabel", ["…"]));
+            oModel.setProperty("/orderItemsTitle", oBundle.getText("orderItemsTitle", [sPaymentOrder]));
+
             oModel.setProperty(
                 "/orderItemsInfo",
-                "Order Key: " + (oOrder.orderKey || "–") +
-                "   |   Status: " + (oOrder.technicalStatusText || "–") +
-                "   |   Payment Order Date: " + (oOrder.paymentOrderDate || "–") +
-                "   |   Channel: " + (oOrder.channel || "–")
+                oBundle.getText("orderItemsInfo", [
+                    oOrder.orderKey || "–",
+                    oOrder.technicalStatusText || "–",
+                    oOrder.paymentOrderDate || "–",
+                    oOrder.channel || "–"
+                ])
             );
 
             if (!sPaymentOrder || !sClearingArea) {

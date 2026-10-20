@@ -3232,34 +3232,14 @@ var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             /*
              * Backlog is growing
              */
-            if (iOpened > iResolved) {
-
-                var sMessage =
-                    "Backlog Growing: Opened (" +
-                    iOpened +
-                    ") exceeds resolved (" +
-                    iResolved +
-                    ") by " +
-                    iDifference;
-
-                if (iGrowingDays > 1) {
-
-                    sMessage +=
-                        " – " +
-                        getOrdinal(iGrowingDays) +
-                        " consecutive day.";
-
-                } else {
-
-                    sMessage += ".";
-
-                }
-
-                return {
-                    type: "Warning",
-                    message: sMessage
-                };
-            }
+           if (iOpened > iResolved) {
+    return {
+        type: "Warning",
+        message: iGrowingDays > 1
+            ? oBundle.getText("backlogGrowingDays", [iOpened, iResolved, iDifference, iGrowingDays])
+            : oBundle.getText("backlogGrowing", [iOpened, iResolved, iDifference])
+    };
+}
 
             /*
              * Backlog is improving

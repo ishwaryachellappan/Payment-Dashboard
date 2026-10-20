@@ -1015,11 +1015,11 @@
 
                                         <!-- Top post-processing reasons -->
                                         <VBox id="_IDGenVBox13">
-                                            <Title
-                                                id="_IDGenTitle1"
-                                                text="Top Reasons (Post-Processing)"
-                                                level="H6"
-                                            />
+                                           <Title
+    id="_IDGenTitle1"
+    text="{i18n>topReasonsPostProcessing}"
+    level="H6"
+/>
 
                                             <VBox
                                                 id="_IDGenTopReasonsList"

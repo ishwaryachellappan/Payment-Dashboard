@@ -96,7 +96,10 @@
 
            id="auditPaymentsTitle"
 
-           text="{= 'Payments (' + ${auditPayments>/total} + ')' }"
+        text="{
+    parts: ['i18n>auditPaymentsCount', 'auditPayments>/total'],
+    formatter: '.formatI18nText'
+}"
 
            level="H5"/>
 

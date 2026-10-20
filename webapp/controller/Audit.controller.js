@@ -42,31 +42,31 @@ sap.ui.define([
     // controllers don't share module state, but the keys/labels/types must
     // stay identical so this really is "the exact table from Overview".
     // Swap this for a shared module export later if you want one source of truth.
-    var PAYMENT_INFO_FIELD_CATALOG = [
-        { key: "OrderKey", label: "Order Key", width: "13rem" },
-        { key: "TechnicalStatus", label: "Technical Status", width: "10rem" },
-        { key: "CreatedOn", label: "Created On", type: "date", width: "9rem" },
-        { key: "LastChangedBy", label: "Last Changed By", width: "10rem" },
-        { key: "CreatedBy", label: "Created By", width: "9rem" },
-        { key: "ReleasedBy", label: "Released By", width: "9rem" },
-        { key: "OrderFormat", label: "Order Format", width: "9rem" },
-        { key: "Medium", label: "Medium", width: "8rem" },
-        { key: "Channel", label: "Channel", width: "8rem" },
-        { key: "ClearingArea", label: "Clearing Area", width: "9rem" },
-        { key: "PaymentOrderNumber", label: "Payment Order Number", width: "11rem" },
-        { key: "PaymentOrderDate", label: "Payment Order Date", type: "date", width: "10rem" },
-        { key: "PaymentOrderStatus", label: "Payment Order Status", width: "10rem" },
-        { key: "PaymentOrderType", label: "Payment Order Type", width: "10rem" },
-        { key: "PreviousStatus", label: "Previous Status", width: "9rem" },
-        { key: "PlannedExecutionDate", label: "Planned Execution Date", type: "date", width: "11rem" },
-        { key: "ExternalSenderBIC", label: "External Sender BIC", width: "10rem" },
-        { key: "RecipientBIC", label: "Recipient BIC", width: "9rem" },
-        { key: "RecipientName", label: "Recipient Name", width: "11rem" },
-        { key: "ClearingBIC", label: "Clearing BIC", width: "9rem" },
-        { key: "ExternalOrderNumber", label: "External Order Number", width: "11rem" },
-        { key: "ObjectListDate", label: "Object List Date", type: "date", width: "9rem" },
-        { key: "ObjectListNumber", label: "Object List Number", width: "10rem" }
-    ];
+ var PAYMENT_INFO_FIELD_CATALOG = [
+    { key: "OrderKey", i18n: "piOrderKey", label: "Order Key", width: "13rem" },
+    { key: "TechnicalStatus", i18n: "piTechnicalStatus", label: "Technical Status", width: "10rem" },
+    { key: "CreatedOn", i18n: "createdOn", label: "Created On", type: "date", width: "9rem" },
+    { key: "LastChangedBy", i18n: "piLastChangedBy", label: "Last Changed By", width: "10rem" },
+    { key: "CreatedBy", i18n: "piCreatedBy", label: "Created By", width: "9rem" },
+    { key: "ReleasedBy", i18n: "piReleasedBy", label: "Released By", width: "9rem" },
+    { key: "OrderFormat", i18n: "piOrderFormat", label: "Order Format", width: "9rem" },
+    { key: "Medium", i18n: "piMedium", label: "Medium", width: "8rem" },
+    { key: "Channel", i18n: "piChannel", label: "Channel", width: "8rem" },
+    { key: "ClearingArea", i18n: "clearingArea", label: "Clearing Area", width: "9rem" },
+    { key: "PaymentOrderNumber", i18n: "piPaymentOrderNumber", label: "Payment Order Number", width: "11rem" },
+    { key: "PaymentOrderDate", i18n: "piPaymentOrderDate", label: "Payment Order Date", type: "date", width: "10rem" },
+    { key: "PaymentOrderStatus", i18n: "piPaymentOrderStatus", label: "Payment Order Status", width: "10rem" },
+    { key: "PaymentOrderType", i18n: "piPaymentOrderType", label: "Payment Order Type", width: "10rem" },
+    { key: "PreviousStatus", i18n: "piPreviousStatus", label: "Previous Status", width: "9rem" },
+    { key: "PlannedExecutionDate", i18n: "piPlannedExecutionDate", label: "Planned Execution Date", type: "date", width: "11rem" },
+    { key: "ExternalSenderBIC", i18n: "piExternalSenderBIC", label: "External Sender BIC", width: "10rem" },
+    { key: "RecipientBIC", i18n: "piRecipientBIC", label: "Recipient BIC", width: "9rem" },
+    { key: "RecipientName", i18n: "piRecipientName", label: "Recipient Name", width: "11rem" },
+    { key: "ClearingBIC", i18n: "piClearingBIC", label: "Clearing BIC", width: "9rem" },
+    { key: "ExternalOrderNumber", i18n: "piExternalOrderNumber", label: "External Order Number", width: "11rem" },
+    { key: "ObjectListDate", i18n: "piObjectListDate", label: "Object List Date", type: "date", width: "9rem" },
+    { key: "ObjectListNumber", i18n: "piObjectListNumber", label: "Object List Number", width: "10rem" }
+];
 
 
 
@@ -82,6 +82,12 @@ sap.ui.define([
     return Controller.extend("payment.dashboard.controller.Audit", {
 
         onInit: function () {
+
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+
+PAYMENT_INFO_FIELD_CATALOG.forEach(function (oField) {
+    oField.label = oBundle.getText(oField.i18n);
+});
 
             this.getView().setModel(new JSONModel({ mode: "list" }), "auditViewState");
 
@@ -157,6 +163,10 @@ sap.ui.define([
             });
         },
 
+
+        formatI18nText: function (sPattern, vValue) {
+    return (sPattern || "").replace("{0}", vValue);
+},
 
         // Called by View1.controller.js's _refreshAudit() every time Overview's
         // own PaymentInfo read finishes — Clearing Area, Posting Date, or Created

@@ -430,13 +430,13 @@
     labelFor="reconPiNoSearch"
 />
 
-                    <Input
-                        id="reconPiNoSearch"
-                        width="100%"
-                        placeholder="Search PI number..."
-                        liveChange=".onReconTableSearchLiveChange"
-                        class="reconciliationSearchInput"
-                    />
+                   <Input
+    id="reconPiNoSearch"
+    width="100%"
+    placeholder="{i18n>searchPiNumber}"
+    liveChange=".onReconTableSearchLiveChange"
+    class="reconciliationSearchInput"
+/>
 
                 </VBox>
 
@@ -457,7 +457,7 @@
                     <Input
                         id="reconPiKindSearch"
                         width="100%"
-                        placeholder="Search PI kind..."
+                       placeholder="{i18n>searchPiKind}"
                         liveChange=".onReconTableSearchLiveChange"
                         class="reconciliationSearchInput"
                     />
@@ -481,7 +481,7 @@
                     <Input
                         id="reconRefItemSearch"
                         width="100%"
-                        placeholder="Search reference item text..."
+                       placeholder="{i18n>searchRefItemText}"
                         liveChange=".onReconTableSearchLiveChange"
                         class="reconciliationSearchInput"
                     />
@@ -572,11 +572,11 @@
                                             class="reconGroupTitle"
                                         />
 
-                                        <Text
-                                            id="reconciliationGroupSubtext"
-                                            text="Reconciliation Group"
-                                            class="reconGroupSubtext"
-                                        />
+                                       <Text
+    id="reconciliationGroupSubtext"
+    text="{i18n>reconciliationGroup}"
+    class="reconGroupSubtext"
+/>
                                     </VBox>
 
                                     <ToolbarSpacer

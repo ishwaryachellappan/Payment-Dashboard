@@ -69,6 +69,12 @@ sap.ui.define([
     var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
 
     var RECON_STATUS_MAP = {
+        "34": {
+    description: "<your description for 34>",
+    system: "PC",
+    postedInDM: false,
+    gap: true
+},
         "5": {
             description: "Created Manually",
             system: "PC",
@@ -554,23 +560,23 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
                 this.loadReconciliationData();
 
             },
-            _getReconStatusInfo: function (vTechStat) {
+           _getReconStatusInfo: function (vTechStat) {
 
-                var sTechStat = String(vTechStat || "").trim();
+    var sTechStat = String(vTechStat || "").trim();
+    var oStatus = RECON_STATUS_MAP[sTechStat];
 
-                var oStatus = RECON_STATUS_MAP[sTechStat];
+    if (!oStatus) {
+        console.warn("[Reconciliation] Unmapped TechStat:", sTechStat);
+        return {
+            description: "Status " + sTechStat,
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        };
+    }
 
-                if (!oStatus) {
-                    return {
-                        description: "Unknown Status",
-                        system: "UNKNOWN",
-                        postedInDM: false,
-                        gap: false
-                    };
-                }
-
-                return oStatus;
-            },
+    return oStatus;
+},
 
             loadReconciliationData: async function () {
 
