@@ -1518,7 +1518,7 @@ sap.ui.define([
                     },
 
                     valueAxis: {
-                        title: { visible: true, text: "Amount (EUR)" },
+                        title: { visible: true, text: "Amount" },
                         label: { formatString: "#,##0" }
                     }
 

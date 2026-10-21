@@ -11,40 +11,41 @@ sap.ui.define([
 
         metadata: {
             manifest: "json"
+        
         },
 
         init: function () {
 
-    console.log("========== PAYMENT COMPONENT INIT ==========");
-    console.log("Component ID:", this.getId());
+            console.log("========== PAYMENT COMPONENT INIT ==========");
+            console.log("Component ID:", this.getId());
 
-    UIComponent.prototype.init.apply(this, arguments);
+            UIComponent.prototype.init.apply(this, arguments);
 
-    console.log("========== COMPONENT BASE INIT DONE ==========");
+            console.log("========== COMPONENT BASE INIT DONE ==========");
 
-    // Stop Chrome from auto-translating the app
-    document.documentElement.setAttribute("translate", "no");
-    document.documentElement.setAttribute("lang", sap.ui.getCore().getConfiguration().getLanguage());
+            // Stop Chrome from auto-translating the app
+            document.documentElement.setAttribute("translate", "no");
+            document.documentElement.setAttribute("lang", sap.ui.getCore().getConfiguration().getLanguage());
 
-    var oModel = new ODataModel({
-        serviceUrl: "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/",
-        operationMode: "Server",
-        autoExpandSelect: true,
-        groupId: "$auto"
-    });
+            var oModel = new ODataModel({
+                serviceUrl: "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/",
+                operationMode: "Server",
+                autoExpandSelect: true,
+                groupId: "$auto"
+            });
 
-    this.setModel(oModel);
+            this.setModel(oModel);
 
-    console.log("========== BEFORE ROUTER INITIALIZE ==========");
+            console.log("========== BEFORE ROUTER INITIALIZE ==========");
 
-    // Force light theme for this dashboard
-    if (Theming.getTheme() !== "sap_horizon") {
-        Theming.setTheme("sap_horizon");
-    }
+            // Force light theme for this dashboard
+            if (Theming.getTheme() !== "sap_horizon") {
+                Theming.setTheme("sap_horizon");
+            }
 
-    this.getRouter().initialize();
+            this.getRouter().initialize();
 
-    console.log("========== AFTER ROUTER INITIALIZE ==========");
-}
+            console.log("========== AFTER ROUTER INITIALIZE ==========");
+        }
     });
 });
