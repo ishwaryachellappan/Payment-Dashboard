@@ -8593,3 +8593,11 @@ body {
 .kpiSummaryNoOutline .kpiCard {
     border-radius: 16px;
 }
+
+/* Keep dashboard background consistent in LTR and RTL */
+html[dir="rtl"] .dashboardContainer,
+html[dir="ltr"] .dashboardContainer,
+.dashboardContainer {
+    background-color: #f5f6f7;
+    color: #1d2939;
+}
