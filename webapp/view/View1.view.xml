@@ -189,15 +189,12 @@
 
 
         <!-- Date -->
-        <VBox
-            id="kpiDateFilter"
-            class="overviewFilterItem"
-        >
-            <Label
-                id="_IDGenLabel1"
-                text="{i18n>postingDate}"
-                class="overviewFilterLabel"
-            />
+      <VBox id="postingDateFilterBox" class="overviewFilterItem">
+    <Label
+        id="postingDateLabel"
+        text="{i18n>postingDate}"
+        class="overviewFilterLabel"
+        labelFor="kpiDatePicker"/>
 
             <DatePicker
                 id="kpiDatePicker"
@@ -212,10 +209,7 @@
 
 
         <!-- Separator -->
-        <VBox
-            id="filterSeparator2"
-            class="overviewFilterSeparator"
-        />
+       <VBox id="filterSeparator2" class="overviewFilterSeparator"/>
 
 
         <!-- Created On -->
@@ -1678,10 +1672,10 @@
                         </IconTabFilter>
 
                         <!-- Reconciliation tab -->
-                        <IconTabFilter
-                            id="_IDGenIconTabFilter3"
-                            text="{i18n>reconciliations}"
-                        >
+                       <IconTabFilter
+    id="_IDGenIconTabFilter3"
+    text="{i18n>reconciliations}"
+    key="reconciliation">
                             <mvc:XMLView
                                 id="ReconciliationView"
                                 viewName="payment.dashboard.view.Reconciliation"

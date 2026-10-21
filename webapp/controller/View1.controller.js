@@ -176,7 +176,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                     flowGranularity: "Day",
 
                     // Created On is a single-date filter
-                    createdOn: ""
+                    createdOn: sTodayStr
                 });
 
                 this.getView().setModel(oFilterModel, "filterModel");
@@ -193,7 +193,10 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                     oField.label = oBundle.getText(oField.i18n);
                 });
 
-                var oHeaderModel = new JSONModel({ currentTab: oBundle.getText("overview") });
+                var oHeaderModel = new JSONModel({
+                    currentTab: oBundle.getText("overview"),
+                    showPostingDate: true
+                });
                 this.getView().setModel(oHeaderModel, "headerModel");
 
                 //
@@ -1576,14 +1579,32 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
         // ‚úÖ aged maximum
 
+      
 
+       onTabSelect: function (oEvent) {
 
+    var sKey = oEvent.getParameter("key");
+    var oItem = oEvent.getParameter("item");
 
-        onTabSelect: function (oEvent) {
-            var oItem = oEvent.getParameter("item");
-            this.getView().getModel("headerModel").setProperty("/currentTab", oItem.getText());
-        },
+    this.getView().getModel("headerModel")
+        .setProperty("/currentTab", oItem.getText());
 
+    this._updateGlobalFilterVisibility(sKey);
+},
+
+_updateGlobalFilterVisibility: function (sKey) {
+
+    var bShow = sKey !== "reconciliation";
+
+    var oPostingDate = this.byId("postingDateFilterBox");
+    var oSeparator = this.byId("filterSeparator2");
+
+    if (oPostingDate) { oPostingDate.setVisible(bShow); }
+    if (oSeparator)   { oSeparator.setVisible(bShow); }
+
+    this.getView().getModel("headerModel")
+        .setProperty("/showPostingDate", bShow);
+},
 
 
 
@@ -3803,7 +3824,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
         },
 
         onOpenTableSettings: function () {
-var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             var that = this;
             var oColumnsModel = this.getView().getModel("tableColumnsModel");
 
@@ -3841,9 +3862,9 @@ var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
             this._oSettingsDialog = new sap.m.Dialog({
 
-    title: oBundle.getText("tableSettings"),
-    contentWidth: "350px",
-    contentHeight: "420px",
+                title: oBundle.getText("tableSettings"),
+                contentWidth: "350px",
+                contentHeight: "420px",
 
                 content: [
                     new sap.m.ScrollContainer({
@@ -3855,9 +3876,9 @@ var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
                     })
                 ],
 
-              beginButton: new sap.m.Button({
-        text: oBundle.getText("ok"),
-        press: function () {
+                beginButton: new sap.m.Button({
+                    text: oBundle.getText("ok"),
+                    press: function () {
                         oColumnsModel.setProperty("/visibleFields", aSelectedFields);
                         that._rebuildPaymentTable();
                         that._oSettingsDialog.close();
@@ -3865,8 +3886,8 @@ var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
                 }),
 
                 endButton: new sap.m.Button({
-        text: oBundle.getText("cancel"),
-        press: function () { 
+                    text: oBundle.getText("cancel"),
+                    press: function () {
                         that._oSettingsDialog.close();
                     }
                 })

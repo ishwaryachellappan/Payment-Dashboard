@@ -70,11 +70,11 @@ sap.ui.define([
 
     var RECON_STATUS_MAP = {
         "34": {
-    description: "<your description for 34>",
-    system: "PC",
-    postedInDM: false,
-    gap: true
-},
+            description: "<your description for 34>",
+            system: "PC",
+            postedInDM: false,
+            gap: true
+        },
         "5": {
             description: "Created Manually",
             system: "PC",
@@ -185,6 +185,10 @@ sap.ui.define([
         }
     };
 
+
+    // Outgoing-order statuses: excluded from the reconciliation entirely so
+    // outbound orders are not counted again under "PC Received".
+  
     /* ============================================================
        RECONCILIATION DETAIL COLUMN CONFIGURATION
        ============================================================ */
@@ -477,12 +481,12 @@ sap.ui.define([
 
                 var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
-RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
-    var sKey = "rc" + oColumn.key;
-    if (oBundle.hasText(sKey)) {
-        oColumn.label = oBundle.getText(sKey);
-    }
-});
+                RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
+                    var sKey = "rc" + oColumn.key;
+                    if (oBundle.hasText(sKey)) {
+                        oColumn.label = oBundle.getText(sKey);
+                    }
+                });
 
                 var aVisibleColumns = RECON_DETAIL_COLUMNS.filter(function (oColumn) {
                     return oColumn.defaultVisible;
@@ -557,25 +561,48 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
                     }.bind(this)
                 });
 
+
+                var oFilterModel =
+                    this.getView().getModel("filterModel") ||
+                    this.getOwnerComponent().getModel("filterModel");
+
+                if (oFilterModel) {
+                    oFilterModel.attachPropertyChange(function (oEvent) {
+                        var sPath = String(oEvent.getParameter("path") || "").replace(/^\//, "");
+                        if (sPath === "clearingArea" || sPath === "createdOn") {
+                            this.loadReconciliationData();
+                        }
+                    }.bind(this));
+                }
+
                 this.loadReconciliationData();
 
             },
-           _getReconStatusInfo: function (vTechStat) {
+            _getReconStatusInfo: function (vTechStat) {
 
-    var sTechStat = String(vTechStat || "").trim();
-    var oStatus = RECON_STATUS_MAP[sTechStat];
+                var sTechStat = String(vTechStat || "").trim();
+                var oStatus = RECON_STATUS_MAP[sTechStat];
 
-    if (!oStatus) {
-        console.warn("[Reconciliation] Unmapped TechStat:", sTechStat);
-        return {
-            description: "Status " + sTechStat,
-            system: "PC",
-            postedInDM: false,
-            gap: true
-        };
-    }
+                if (!oStatus) {
+                    console.warn("[Reconciliation] Unmapped TechStat:", sTechStat);
+                    return {
+                        description: "Status " + sTechStat,
+                        system: "PC",
+                        postedInDM: false,
+                        gap: true
+                    };
+                }
 
-    return oStatus;
+                return oStatus;
+            },
+
+            _isOutboundRow: function (oRow) {
+    if (!oRow) { return false; }
+
+    var sStatus = String(oRow.TechStat || "").trim();
+    var sKind   = String(oRow.PiKind || "").trim();
+
+ 
 },
 
             loadReconciliationData: async function () {
@@ -598,43 +625,27 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
                         ? oFilterModel.getProperty("/clearingArea")
                         : "DEBNKC";
 
-                var sSelectedDate =
+                var vCreatedOn =
                     oFilterModel
-                        ? oFilterModel.getProperty("/kpiDate")
-                        : new Date().toISOString().slice(0, 10);
+                        ? oFilterModel.getProperty("/createdOn")   // see "Property name" below
+                        : null;
 
-                // ------------------------------------------------------------
-                // NORMALIZE DATE
-                // ------------------------------------------------------------
+                var sCreatedOn = "";
 
-                if (sSelectedDate instanceof Date) {
-
-                    sSelectedDate =
-                        sSelectedDate.getFullYear() +
-                        "-" +
-                        String(
-                            sSelectedDate.getMonth() + 1
-                        ).padStart(2, "0") +
-                        "-" +
-                        String(
-                            sSelectedDate.getDate()
-                        ).padStart(2, "0");
-
-                } else {
-
-                    sSelectedDate =
-                        String(sSelectedDate).slice(0, 10);
+                if (vCreatedOn instanceof Date) {
+                    sCreatedOn =
+                        vCreatedOn.getFullYear() + "-" +
+                        String(vCreatedOn.getMonth() + 1).padStart(2, "0") + "-" +
+                        String(vCreatedOn.getDate()).padStart(2, "0");
+                } else if (vCreatedOn) {
+                    sCreatedOn = String(vCreatedOn).slice(0, 10);
                 }
 
-                if (!sClearingArea || !sSelectedDate) {
-
-                    console.warn(
-                        "[Reconciliation] Missing clearing area or date."
-                    );
-
+                if (!sClearingArea || !sCreatedOn) {
+                    console.warn("[Reconciliation] Missing clearing area or created on date.");
+                    this._processReconciliationData([]);
                     return;
                 }
-
                 oReconModel.setProperty(
                     "/busy",
                     true
@@ -668,7 +679,7 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
                         ).replace(/'/g, "%27") +
                         "'," +
                         "p_created_on=" +
-                        sSelectedDate +
+                        sCreatedOn +
                         ")/Set?sap-client=500";
 
                     console.log(
@@ -732,17 +743,9 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
 
                     var aRawData = [];
 
-                    var aRawData = [];
-
                     if (oJson && Array.isArray(oJson.value)) {
                         aRawData = oJson.value;
                     }
-
-                    // Keep only rows whose posting date matches the selected Posting Date
-                    aRawData = aRawData.filter(function (oRow) {
-                        var sRowDate = String(oRow.PiPostDate || oRow.PiDate || "").substring(0, 10);
-                        return sRowDate === sSelectedDate;
-                    });
 
                     console.log(
                         "[Reconciliation] Rows received:",
@@ -785,8 +788,10 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
             },
 
             onFilterChange: function () {
-    this.loadReconciliationData();
-},
+
+
+                this.loadReconciliationData();
+            },
 
             /* ============================================================
                FULL RENDER — runs on every fresh OData load. Always shows
@@ -797,18 +802,41 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
             _processReconciliationData: function (aRawData) {
 
                 var oReconModel = this.getView().getModel("reconciliation");
+                var aAll = aRawData || [];
 
-                this._aReconciliationRawData = aRawData || [];
+                // Drop outbound orders before anything else touches the data
+                var aIncoming = aAll.filter(function (oRow) {
+    return oRow && !this._isOutboundRow(oRow);
+}.bind(this));
 
-                this._debugTransactionFields(aRawData);
+                console.log(
+                    "[Reconciliation] Outbound rows excluded:",
+                    aAll.length - aIncoming.length,
+                    "| Rows kept:",
+                    aIncoming.length
+                );
+
+                // Sanity check: PI kind 03 should no longer appear
+                var iKind03 = aIncoming.filter(function (oRow) {
+                    return String(oRow.PiKind || "").trim() === "03";
+                }).length;
+
+                if (iKind03) {
+                    console.warn(
+                        "[Reconciliation] " + iKind03 +
+                        " row(s) with PiKind 03 still present - check for an outbound status missing from RECON_OUTBOUND_STATUSES."
+                    );
+                }
+
+                this._aReconciliationRawData = aIncoming;
+
+                this._debugTransactionFields(aIncoming);
 
                 oReconModel.setProperty("/selectedCategory", "");
                 oReconModel.setProperty("/filterMessage", "");
 
-                this._applySystemGate();   // ✅ was: manual group/kpi/chart building here
-
+                this._applySystemGate();
             },
-
             // ============================================================
             // DATE FORMAT — DISPLAY (dd.MM.yyyy)
             // ============================================================
@@ -959,23 +987,14 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
                         // PC / DM TOTALS
                         // ====================================================
 
-                        if (sSystem === "PC") {
+                        // PC Received = everything sent (PC rows + DM rows)
+                        fPcReceived += fAmount;
+                        iPcCount++;
 
-                            fPcReceived +=
-                                fAmount;
-
-                            iPcCount++;
-
-                        } else if (sSystem === "DM") {
-
-                            fDmReceived +=
-                                fAmount;
-
+                        // DM Received = only rows posted in DM (status 31)
+                        if (sSystem === "DM") {
+                            fDmReceived += fAmount;
                             iDmCount++;
-
-                        } else {
-
-                            iUnknownCount++;
                         }
 
                         // ====================================================
@@ -985,11 +1004,7 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
                         // contributes its transaction amount to the gap.
                         // ====================================================
 
-                        if (bGap) {
 
-                            fReconciliationGap +=
-                                fAmount;
-                        }
 
                         // ====================================================
                         // GROUP KEY
@@ -1080,7 +1095,8 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
 
                     }.bind(this)
                 );
-
+                // Reconciliation Gap = PC Received - DM Received
+                fReconciliationGap = fPcReceived - fDmReceived;
                 // ============================================================
                 // EXPAND FIRST GROUP
                 // ============================================================
@@ -1857,7 +1873,7 @@ RECON_DETAIL_COLUMNS.forEach(function (oColumn) {
 
                     return (aRows || []).filter(function (oRow) {
 
-                        return this._getTransactionCategory(oRow) === "PC";
+                        return this._getTransactionCategory(oRow) !== "UNKNOWN"
 
                     }.bind(this));
                 }
