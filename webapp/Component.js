@@ -38,10 +38,7 @@ sap.ui.define([
 
             console.log("========== BEFORE ROUTER INITIALIZE ==========");
 
-            // Force light theme for this dashboard
-            if (Theming.getTheme() !== "sap_horizon") {
-                Theming.setTheme("sap_horizon");
-            }
+           
 
             this.getRouter().initialize();
 
