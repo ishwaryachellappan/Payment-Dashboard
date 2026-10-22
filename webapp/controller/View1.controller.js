@@ -11,8 +11,30 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
     // exact order (zero-filled where there's no data), which keeps the
     // first-seen order ‚Äî and therefore the color ‚Äî identical everywhere.
     var CHANNEL_ORDER = ["EBICS", "EBAST2", "BUBASCL", "ISO"];
+
+    // Field on the PiKPI entity that holds the creation date.
+    // Check your $metadata and change this if the name differs.
+    var PI_KPI_CREATED_FIELD = "CreatedOn";
+
+
+    // Field on ItemDetails holding the payment item's creation date
+    var ITEM_CREATED_FIELD = "PICreatedDate";
+
     // ✅ muted
     var CHANNEL_COLORS = ["#cd738b", "#c9a35f", "#7a9e6f", "#8b7aa8"];
+
+    // Single source of truth for status colors. The donut uses this array, and the
+// legend dots in the CSS below use the same hex values.
+// Order MUST match the data order in _updateStatusBreakdown:
+// Posted, Post Processing, Pending, Failed, Rejected
+var STATUS_COLORS = [
+    "#6f9f6a", // Posted          -> green
+    "#d4a64a", // Post Processing -> amber
+    "#b8bccb", // Pending         -> gray
+    "#e08a6d", // Failed          -> coral
+    "#b5483f"  // Rejected        -> red
+];
+
 
     var DONUT_STATUS_CODE_MAP = {
         "Posted": ["31", "34"],
@@ -1090,6 +1112,49 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 );
         },
 
+
+        // One read used by BOTH the donut and the drill-down, so they always match.
+        _fetchDonutItems: async function () {
+
+            var oFilterModel = this.getView().getModel("filterModel");
+            var sClearingArea = oFilterModel.getProperty("/clearingArea");
+            var sKpiDate = oFilterModel.getProperty("/kpiDate");
+            var sCreatedOn = oFilterModel.getProperty("/createdOn");
+
+            var sFilter = "ClearingArea eq '" + sClearingArea + "'" +
+                " and PaymentOrderDate eq " + sKpiDate;
+
+            if (sCreatedOn) {
+                sFilter += " and " + ITEM_CREATED_FIELD + " eq " + sCreatedOn;
+            }
+
+            var sServiceUrl = this.getOwnerComponent()
+                .getManifestEntry("/sap.app/dataSources/mainService/uri");
+
+            var sUrl = sServiceUrl + "ItemDetails?$filter=" + encodeURIComponent(sFilter);
+
+            try {
+                var oResponse = await fetch(sUrl, {
+                    headers: { "Accept": "application/json" },
+                    credentials: "same-origin"
+                });
+
+                if (!oResponse.ok) {
+                    throw new Error("HTTP " + oResponse.status);
+                }
+
+                var oJson = await oResponse.json();
+
+                // Dedupe once here so donut counts == drill-down counts
+                return this._dedupeDonutItems(oJson.value || []);
+
+            } catch (oError) {
+                console.error("ItemDetails read failed:", oError && (oError.message || oError));
+                return [];
+            }
+        },
+
+
         _refreshRailHealth: function () {
 
             var oRailHealthView = this.byId("railHealthView");
@@ -1579,32 +1644,32 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
         // ‚úÖ aged maximum
 
-      
 
-       onTabSelect: function (oEvent) {
 
-    var sKey = oEvent.getParameter("key");
-    var oItem = oEvent.getParameter("item");
+        onTabSelect: function (oEvent) {
 
-    this.getView().getModel("headerModel")
-        .setProperty("/currentTab", oItem.getText());
+            var sKey = oEvent.getParameter("key");
+            var oItem = oEvent.getParameter("item");
 
-    this._updateGlobalFilterVisibility(sKey);
-},
+            this.getView().getModel("headerModel")
+                .setProperty("/currentTab", oItem.getText());
 
-_updateGlobalFilterVisibility: function (sKey) {
+            this._updateGlobalFilterVisibility(sKey);
+        },
 
-    var bShow = sKey !== "reconciliation";
+        _updateGlobalFilterVisibility: function (sKey) {
 
-    var oPostingDate = this.byId("postingDateFilterBox");
-    var oSeparator = this.byId("filterSeparator2");
+            var bShow = sKey !== "reconciliation";
 
-    if (oPostingDate) { oPostingDate.setVisible(bShow); }
-    if (oSeparator)   { oSeparator.setVisible(bShow); }
+            var oPostingDate = this.byId("postingDateFilterBox");
+            var oSeparator = this.byId("filterSeparator2");
 
-    this.getView().getModel("headerModel")
-        .setProperty("/showPostingDate", bShow);
-},
+            if (oPostingDate) { oPostingDate.setVisible(bShow); }
+            if (oSeparator) { oSeparator.setVisible(bShow); }
+
+            this.getView().getModel("headerModel")
+                .setProperty("/showPostingDate", bShow);
+        },
 
 
 
@@ -1803,8 +1868,7 @@ _updateGlobalFilterVisibility: function (sKey) {
                      * ====================================================
                      */
 
-                    var iTotalProcessed = aRows.length;
-
+                  
                     var iSuccessful = 0;
                     var iRejected = 0;
                     var iFailed = 0;
@@ -1888,6 +1952,8 @@ _updateGlobalFilterVisibility: function (sKey) {
 
                     });
 
+// Must be AFTER the loop, so the counters are filled in
+var iTotalProcessed = iSuccessful + iRejected + iFailed + iPending;
 
                     var oResult = {
 
@@ -3261,245 +3327,88 @@ _updateGlobalFilterVisibility: function (sKey) {
 
         //Donut status breakdown 
         // Donut status breakdown
-        _updateStatusBreakdown: function () {
+        _updateStatusBreakdown: async function () {
 
-            var oODataModel = this.getOwnerComponent().getModel("odataModel");
+            var aItems = await this._fetchDonutItems();
 
-            var sKpiDate = this.getView()
-                .getModel("filterModel")
-                .getProperty("/kpiDate");
+            var oCount = { "Posted": 0, "Post Processing": 0, "Pending": 0, "Failed": 0, "Rejected": 0 };
 
-            var sClearingArea = this.getView()
-                .getModel("filterModel")
-                .getProperty("/clearingArea");
-
-            var aFilters = [
-                new Filter("ClearingArea", FilterOperator.EQ, sClearingArea),
-                new Filter("PaymentOrderDate", FilterOperator.EQ, sKpiDate)
-            ];
-
-            var oBinding = oODataModel.bindList(
-                "/PiKPI",
-                undefined,
-                undefined,
-                aFilters
-            );
-
-            oBinding.requestContexts(0, 1).then(function (aContexts) {
-
-                var posted = 0;
-                var processing = 0;
-                var pending = 0;
-                var failed = 0;
-                var rejected = 0;
-
-                if (aContexts.length) {
-
-                    var oRow = aContexts[0].getObject();
-
-                    posted = Number(oRow.SuccessfulPI || 0);
-                    processing = Number(oRow.InPostProcessingPI || 0);
-                    pending = Number(oRow.PendingPI || 0);
-                    failed = Number(oRow.FailedPI || 0);
-                    rejected = Number(oRow.RejectedPI || 0);
+            aItems.forEach(function (o) {
+                var sBucket = this.classifyItemStatus(o.ItemProcessingStatus);
+                if (sBucket in oCount) {
+                    oCount[sBucket]++;
                 }
-
-                var total =
-                    posted +
-                    processing +
-                    pending +
-                    failed +
-                    rejected;
-
-                function pct(v) {
-                    return total === 0
-                        ? "0%"
-                        : ((v / total) * 100).toFixed(1) + "%";
-                }
-
-                function fmt(v) {
-                    if (v >= 1000000) {
-                        return (v / 1000000).toFixed(1) + "M";
-                    }
-                    if (v >= 1000) {
-                        return (v / 1000).toFixed(1) + "K";
-                    }
-                    return String(v);
-                }
-
-                var bNoData = total === 0;
-
-                var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
-
-                var oStatusModel = new JSONModel({
-
-                    data: bNoData
-                        ? [{
-                            status: "No Data",
-                            value: 1
-                        }]
-                        : [
-                            {
-                                status: "Posted",
-                                value: posted
-                            },
-                            {
-                                status: "Post Processing",
-                                value: processing
-                            },
-                            {
-                                status: "Pending",
-                                value: pending
-                            },
-                            {
-                                status: "Failed",
-                                value: failed
-                            },
-                            {
-                                status: "Rejected",
-                                value: rejected
-                            }
-                        ],
-
-
-
-
-                    totalText: oBundle.getText("totalPaymentItems", [fmt(total)]),
-
-                    posted: {
-                        display: fmt(posted)
-                    },
-
-                    processing: {
-                        display: fmt(processing)
-                    },
-
-                    pending: {
-                        display: fmt(pending)
-                    },
-
-                    failed: {
-                        display: fmt(failed)
-                    },
-
-                    rejected: {
-                        display: fmt(rejected)
-                    }
-
-                });
-
-                this.getView().setModel(
-                    oStatusModel,
-                    "statusModel"
-                );
-
-                var oDonut = this.byId("donutChart");
-
-                // ❌ current
-                // ✅ muted
-                if (oDonut) {
-                    oDonut.setVizProperties({
-                        plotArea: {
-                            colorPalette: bNoData
-                                ? ["#E0E0E0"]
-                                : [
-                                    "#cd738b", // Posted
-                                    "#7a9e6f", // Post Processing
-                                    "#c9cbd9", // Pending
-                                    "#8b7aa8", // Failed
-                                    "#c9a35f"  // Rejected
-                                ]
-                        }
-                    });
-                }
-
-                this.getView()
-                    .getModel("donutModel")
-                    .setData({
-
-                        value: pct(posted),
-
-                        label: bNoData
-                            ? "No Data"
-                            : "Posted"
-
-                    });
-
             }.bind(this));
 
-        },
+            var posted = oCount["Posted"];
+            var processing = oCount["Post Processing"];
+            var pending = oCount["Pending"];
+            var failed = oCount["Failed"];
+            var rejected = oCount["Rejected"];
 
+            var total = posted + processing + pending + failed + rejected;
+
+            function pct(v) {
+                return total === 0 ? "0%" : ((v / total) * 100).toFixed(1) + "%";
+            }
+
+            function fmt(v) {
+                if (v >= 1000000) { return (v / 1000000).toFixed(1) + "M"; }
+                if (v >= 1000) { return (v / 1000).toFixed(1) + "K"; }
+                return String(v);
+            }
+
+            var bNoData = total === 0;
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+
+            this.getView().setModel(new JSONModel({
+                data: bNoData
+                    ? [{ status: "No Data", value: 1 }]
+                    : [
+                        { status: "Posted", value: posted },
+                        { status: "Post Processing", value: processing },
+                        { status: "Pending", value: pending },
+                        { status: "Failed", value: failed },
+                        { status: "Rejected", value: rejected }
+                    ],
+                totalText: oBundle.getText("totalPaymentItems", [fmt(total)]),
+                posted: { display: fmt(posted) },
+                processing: { display: fmt(processing) },
+                pending: { display: fmt(pending) },
+                failed: { display: fmt(failed) },
+                rejected: { display: fmt(rejected) }
+            }), "statusModel");
+
+            var oDonut = this.byId("donutChart");
+if (oDonut) {
+    oDonut.setVizProperties({
+        plotArea: {
+            colorPalette: bNoData ? ["#E0E0E0"] : STATUS_COLORS
+        }
+    });
+}
+
+            this.getView().getModel("donutModel").setData({
+                value: pct(posted),
+                label: bNoData ? "No Data" : "Posted"
+            });
+        },
         formatItemsCountTitle: function (sPattern, aItems) {
             return (sPattern || "").replace("{0}", (aItems || []).length);
         },
 
         _loadDonutDrillItems: async function (sStatus) {
 
-            var oFilterModel = this.getView().getModel("filterModel");
-            var sClearingArea = oFilterModel.getProperty("/clearingArea");
-            var sKpiDate = oFilterModel.getProperty("/kpiDate");
-
-            // Read via plain fetch instead of bindList().requestContexts() ‚Äî
-            // ItemDetails' key (Guid, SegmentationKey, TimePart) doesn't include
-            // ItemNumber, so one payment order's multiple item rows share the same
-            // key predicate. UI5's v4 ODataListBinding rejects that as a "Duplicate
-            // key predicate" and fails the WHOLE read. A raw fetch has no such
-            // uniqueness requirement ‚Äî we just want the rows, not bound contexts.
-            var sServiceUrl = this.getOwnerComponent().getManifestEntry("/sap.app/dataSources/mainService/uri");
-
-            var sFilter = "ClearingArea eq '" + sClearingArea + "'" +
-                " and PaymentOrderDate eq " + sKpiDate;
-
-            var sUrl = sServiceUrl + "ItemDetails?$filter=" + encodeURIComponent(sFilter);
-
-            var aAllItems = [];
-            try {
-                var oResponse = await fetch(sUrl, {
-                    headers: { "Accept": "application/json" },
-                    credentials: "same-origin"
-                });
-
-                if (!oResponse.ok) {
-                    throw new Error("HTTP " + oResponse.status);
-                }
-
-                var oJson = await oResponse.json();
-                aAllItems = oJson.value || [];
-
-            } catch (oError) {
-                console.error("Donut drill-down ItemDetails read failed:", oError && (oError.message || oError));
-            }
-
-            // Diagnostic ‚Äî safe to remove once counts line up with the KPI tiles.
-            var oTally = {};
+            var aAllItems = await this._fetchDonutItems();
 
             var that = this;
-
-            aAllItems.forEach(function (o) {
-
-                var b = that.classifyItemStatus(o.ItemProcessingStatus);
-
-                oTally[b] = (oTally[b] || 0) + 1;
-
-            }); console.log("ItemProcessingStatus bucket tally for", sClearingArea, sKpiDate, ":", oTally);
-
-            var that = this;
-
             var aItems = aAllItems.filter(function (o) {
-
                 return that.classifyItemStatus(o.ItemProcessingStatus) === sStatus;
-
             });
-
-            aItems = this._dedupeDonutItems(aItems);
 
             this.getView().getModel("donutItemsModel").setProperty("/items", aItems);
             this._rebuildDonutItemsTable();
-
-            console.log("Loading", sStatus);
-
         },
-
         onToggleChartSize: function () {
 
             var oCard = this.byId("_IDGenVBox1");

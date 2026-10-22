@@ -1467,6 +1467,9 @@ sap.ui.define([
  *
  * =========================================================
  */
+if (sPostingDate) {
+    aFilters.push(new Filter("paymentorderdate", FilterOperator.EQ, sPostingDate));
+}
 
 if (sCreatedOn) {
 

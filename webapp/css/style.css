@@ -18,6 +18,8 @@ body {
     box-sizing: border-box;
 }
 
+
+
 .chartCard {
     background: white;
     border-radius: 12px;
@@ -8601,3 +8603,9 @@ html[dir="ltr"] .dashboardContainer,
     background-color: #f5f6f7;
     color: #1d2939;
 }
+
+.statusDotGreen { background-color: #6f9f6a; }
+.statusDotAmber { background-color: #d4a64a; }
+.statusDotGray  { background-color: #b8bccb; }
+.statusDotCoral { background-color: #e08a6d; }
+.statusDotRed   { background-color: #b5483f; }
