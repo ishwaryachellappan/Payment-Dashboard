@@ -154,7 +154,7 @@
     >
         <Text
             id="_IDGenKpiAwaitingApprovalValue"
-            text="147"
+            text="0"
             class="kpiCardValue kpiValuePurple"
         />
 
@@ -200,7 +200,7 @@
     >
         <Text
             id="_IDGenKpiSanctionsHoldsValue"
-            text="38"
+            text="0"
             class="kpiCardValue kpiValueDarkRed"
         />
 
