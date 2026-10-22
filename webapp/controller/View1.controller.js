@@ -335,7 +335,7 @@ var KPI_COUNTED_STATUSES = [].concat(
                     new JSONModel({
                         // Matches the reference image's default column set ‚Äî user can add
                         // any other ITEM_DETAILS_FIELD_CATALOG field via the Settings gear.
-                        visibleFields: ["ItemNumber", "PICreatedDate", "ItemProcessingStatus", "PITransactionAmount", "PIReleaseStatus"]
+                        visibleFields: ["ItemNumber", "PICreatedDate", "PITransactionAmount", "PIReleaseStatus"]
                     }),
                     "donutItemsColumnsModel"
                 );
@@ -434,9 +434,7 @@ var KPI_COUNTED_STATUSES = [].concat(
                         iColumnWidth = "13rem";
                         break;
 
-                    case "ProcessingStatus":
-                        iColumnWidth = "9rem";
-                        break;
+                    
 
                     case "TechnicalStatus":
                         iColumnWidth = "10rem";
@@ -3642,63 +3640,92 @@ if (oDonut) {
 
         },
 
-        onExportTransactions: function () {
+        // Translated "128 - ناجح" style text for the export
+// Translated "128 - ناجح" style text for the export
+_getExportStatusText: function (sStatus, oBundle) {
 
-            var oTable = this.byId("_IDGenTable");
-            var oBinding = oTable.getBinding("items");
+    var s = String(sStatus || "");
+    var sKey;
 
-            var aData = oBinding.getContexts().map(function (oContext) {
-                return oContext.getObject();
-            });
+    if (["128", "130", "230", "270"].indexOf(s) > -1) { sKey = "success"; }
+    else if (["114", "170"].indexOf(s) > -1) { sKey = "failed"; }
+    else if (["172", "173"].indexOf(s) > -1) { sKey = "rejected"; }
+    else if (STATUS_GROUPS.pending.indexOf(s) > -1) { sKey = "pending"; }
+    else { return s; }
 
-            var aColumns = [
-                {
-                    label: "Order Key",
-                    property: "OrderKey",
-                    type: "string"
-                },
-                {
-                    label: "Processing Status",
-                    property: "ProcessingStatus",
-                    type: "string"
-                },
-                {
-                    label: "Technical Status",
-                    property: "TechnicalStatus",
-                    type: "string"
-                },
-                {
-                    label: "Created On",
-                    property: "CreatedOn",
-                    type: "date"
-                },
+    return s + " - " + oBundle.getText(sKey);
+},
 
-                {
-                    label: "Created By",
-                    property: "CreatedBy",
-                    type: "string"
-                },
-                {
-                    label: "Released By",
-                    property: "ReleasedBy",
-                    type: "string"
-                }
-            ];
+onExportTransactions: function () {
 
-            var oSpreadsheet = new Spreadsheet({
-                workbook: {
-                    columns: aColumns
-                },
-                dataSource: aData,
-                fileName: "Payment_Transactions.xlsx"
-            });
+    var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+    var oTable = this.byId("_IDGenTable");
+    var oBinding = oTable.getBinding("items");
+    var that = this;
 
-            oSpreadsheet.build().finally(function () {
-                oSpreadsheet.destroy();
-            });
+    if (!oBinding || oBinding.getLength() === 0) {
+        sap.m.MessageToast.show(oBundle.getText("exportNoData"));
+        return;
+    }
 
+    // Rows currently shown (respects the search box filter)
+    var aRows = oBinding.getContexts(0, oBinding.getLength()).map(function (oCtx) {
+        return oCtx.getObject();
+    });
+
+    // Dates formatted in the UI language
+    var oDateFormat = sap.ui.core.format.DateFormat.getDateInstance({ style: "medium" });
+    var oIsoParser = sap.ui.core.format.DateFormat.getDateInstance({ pattern: "yyyy-MM-dd" });
+
+    // Same columns the user sees in the table
+   var aVisible = (this.getView().getModel("tableColumnsModel").getProperty("/visibleFields") || [])
+    .filter(function (sKey) { return sKey !== "ProcessingStatus"; });
+
+    var aColumns = aVisible.map(function (sKey) {
+        var oDef = that._getPaymentFieldDef(sKey) || {};
+        return {
+            label: oDef.label || sKey,
+            property: sKey,
+            type: "String"
+        };
+    });
+
+    // Build export rows with translated status and formatted dates
+    var aExportData = aRows.map(function (oRow) {
+
+        var oOut = {};
+
+        aVisible.forEach(function (sKey) {
+
+            var oDef = that._getPaymentFieldDef(sKey) || {};
+            var vValue = oRow[sKey];
+
+            if (sKey === "TechnicalStatus") {
+                oOut[sKey] = that._getExportStatusText(vValue, oBundle);
+            } else if (oDef.type === "date" && vValue) {
+                var oDate = oIsoParser.parse(String(vValue).slice(0, 10));
+                oOut[sKey] = oDate ? oDateFormat.format(oDate) : vValue;
+            } else {
+                oOut[sKey] = vValue === null || vValue === undefined ? "" : String(vValue);
+            }
+        });
+
+        return oOut;
+    });
+
+    var oSpreadsheet = new Spreadsheet({
+        workbook: {
+            columns: aColumns,
+            context: { sheetName: oBundle.getText("exportSheetName") }
         },
+        dataSource: aExportData,
+        fileName: oBundle.getText("exportFileName") + ".xlsx"
+    });
 
+    oSpreadsheet.build().finally(function () {
+        oSpreadsheet.destroy();
+    });
+},
         onExportDonutItems: function () {
 
             var aItems = this.getView()
