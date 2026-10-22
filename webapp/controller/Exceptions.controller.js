@@ -8,15 +8,8 @@ sap.ui.define([
 ], function (Controller, JSONModel, Filter, FilterOperator, FlattenedDataset, FeedItem) {
     "use strict";
 
-    // ✅ Chart-type switcher for the Exception Trend chart — full parity with
-    // CHART_TYPE_CONFIG in View1.controller.js. "mode" decides which dataset
-    // shape the chart needs when that type is picked:
-    //   - "axis"  : Bar/Column/Line/Stacked variants — Day dimension,
-    //               Opened+Resolved measures (same shape as today).
-    //   - "share" : Pie/Donut — part-to-whole, so the Day dimension is
-    //               dropped in favor of totals: Opened total vs Resolved
-    //               total across the whole trend window.
-    //   - "heatmap": Day √ó Type (Opened/Resolved) grid, colored by count.
+    var SERVICE_URL = "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/";
+
     var TREND_CHART_TYPE_CONFIG = {
         bar: { vizType: "bar", label: "Bar Chart", icon: "sap-icon://horizontal-bar-chart-2", mode: "axis" },
         column: { vizType: "column", label: "Column Chart", icon: "sap-icon://vertical-bar-chart", mode: "axis" },
@@ -30,913 +23,380 @@ sap.ui.define([
         "100_stacked_column": { vizType: "100_stacked_column", label: "100% Stacked Column Chart", icon: "sap-icon://full-stacked-column-chart", mode: "axis" }
     };
 
-    // ✅ "By Rail" chart-type switcher — same menu-button pattern as
-    // TREND_CHART_TYPE_CONFIG, just two options since the pie chart and
-    // progress bars share the exact same railModel>/data (status + value +
-    // percent), so switching is pure visibility toggling — no dataset rebuild
-    // needed (see onRailChartTypeSelected).
-
+    // "By Rail": pie vs. progress bar. Both read railModel>/data.
+    var RAIL_CHART_TYPE_CONFIG = {
+        pie: { chartType: "pie", label: "Pie Chart", icon: "sap-icon://pie-chart" },
+        progress: { chartType: "progress", label: "Progress Bar", icon: "sap-icon://horizontal-bar-chart-2" }
+    };
 
     return Controller.extend("payment.dashboard.controller.Exception", {
 
         onInit: function () {
 
-            // ✅ Open Exceptions / Value at Risk KPI tiles — bound to the ExceptionKPI
-            // OData entity set, filtered by the shared ClearingArea/Date filter
-            // (same filterModel the Overview tab's header filter bar writes to).
-            // Defaults to 0 until the first read completes; see loadExceptionKpis.
-            var oExceptionKpiModel = new JSONModel({
+            var oView = this.getView();
+
+            oView.setModel(new JSONModel({
                 OpenException: 0,
                 ValueAtRisk: 0,
                 openExceptionTrend: { percent: 0, direction: "flat", hasData: false },
                 valueAtRiskTrend: { percent: 0, direction: "flat", hasData: false }
-            });
-            this.getView().setModel(oExceptionKpiModel, "exceptionKpiModel");
+            }), "exceptionKpiModel");
 
-            // ✅ "Exception Reasons" card — top 5 rows, grouped from the
-            // ExceptionsByReason OData entity set. Empty until the first read
-            // completes; see loadExceptionReasons.
-            var oReasonModel = new JSONModel({
-                topReasons: [],
-                criticalTotal: 0
-            });
-            this.getView().setModel(oReasonModel, "reasonModel");
+            oView.setModel(new JSONModel({ topReasons: [], criticalTotal: 0 }), "reasonModel");
+            oView.setModel(new JSONModel({ data: [] }), "trendModel");
 
-            var oTrendModel = new JSONModel({
-                data: []
-            });
-            this.getView().setModel(oTrendModel, "trendModel");
-
-            // ✅ "By Rail" pie chart — live from the RailKpi OData entity set,
-            // filtered by ClearingArea + PaymentItemDate (same shared
-            // filterModel the Overview tab's header filter bar writes to).
-            // Empty until the first read completes; see loadRailKpi.
-            var oRailModel = new JSONModel({
+            oView.setModel(new JSONModel({
                 total: 0,
                 totalText: "",
                 data: [],
                 selectedStatus: "",
                 selectedCount: 0
-            });
+            }), "railModel");
 
-            this.getView().setModel(oRailModel, "railModel");
-
-
-
-            // ✅ "By Rail" chart-type toggle — pie vs. progress bar. Controls
-            // which of the two visualizations (bound to the same railModel
-            // data) is visible; see onRailChartTypeMenuPress.
-            var oRailViewModel = new JSONModel({
-                chartType: "pie"
-            });
-            this.getView().setModel(oRailViewModel, "railViewModel");
-
-            // Initial load — uses the shared filterModel if the parent view has
-            // already set it, otherwise falls back to defaults inside
-            // loadExceptionKpis itself. View1.controller.js also re-triggers this
-            // on every Clearing Area / Date change via _refreshExceptionKpis().
-            this.loadExceptionKpis();
-            this.loadExceptionReasons();
-            this.loadExceptionTrend();
-            this.loadRailKpi();
-            this._attachKpiCardClicks();
+            oView.setModel(new JSONModel({ chartType: "pie" }), "railViewModel");
 
             var oApprovalModel = new JSONModel({
                 data: [
-                    {
-                        ref: "SARIE-260522-008142",
-                        rail: "SARIE",
-                        customer: "Ministry of Finance",
-                        amount: "SAR 86,000,000",
-                        age: "3h 02m",
-                        status: "Open",
-                        reason: "Mid-month disbursement > SAR 50M"
-                    },
-                    {
-                        ref: "SARIE-260522-008231",
-                        rail: "SARIE",
-                        customer: "Ministry of Education",
-                        amount: "SAR 24,000,000",
-                        age: "1h 44m",
-                        status: "Open",
-                        reason: "Country Risk - False Positive"
-                    },
-                    {
-                        ref: "WPS-260522-MOI-031",
-                        rail: "WPS",
-                        customer: "Ministry of Interior",
-                        amount: "SAR 8,280,000",
-                        age: "12m",
-                        status: "Rejected",
-                        reason: "Name Match - UN Consolidated List"
-                    }
+                    { ref: "SARIE-260522-008142", rail: "SARIE", customer: "Ministry of Finance", amount: "SAR 86,000,000", age: "3h 02m", status: "Open", reason: "Mid-month disbursement > SAR 50M" },
+                    { ref: "SARIE-260522-008231", rail: "SARIE", customer: "Ministry of Education", amount: "SAR 24,000,000", age: "1h 44m", status: "Open", reason: "Country Risk - False Positive" },
+                    { ref: "WPS-260522-MOI-031", rail: "WPS", customer: "Ministry of Interior", amount: "SAR 8,280,000", age: "12m", status: "Rejected", reason: "Name Match - UN Consolidated List" }
                 ]
             });
 
             var oPostProcessingModel = new JSONModel({
                 data: [
-                    {
-                        ref: "SARIE-260522-008402",
-                        rail: "SARIE",
-                        customer: "GOSI",
-                        amount: "SAR 18,400,000",
-                        age: "58m",
-                        status: "Rejected",
-                        reason: "Settlement ACK Pending - Queued"
-                    },
-                    {
-                        ref: "SARIE-260522-008411",
-                        rail: "SARIE",
-                        customer: "Saudi Customs",
-                        amount: "SAR 4,800,000",
-                        age: "42m",
-                        status: "Rejected",
-                        reason: "Settlement ACK Pending - Queued"
-                    },
-                    {
-                        ref: "SARIE-260522-008455",
-                        rail: "SARIE",
-                        customer: "ZATCA refund - TXN-99214",
-                        amount: "SAR 412,000",
-                        age: "8m",
-                        status: "Rejected",
-                        reason: "Settlement ACK Pending - Queued"
-                    }
+                    { ref: "SARIE-260522-008402", rail: "SARIE", customer: "GOSI", amount: "SAR 18,400,000", age: "58m", status: "Rejected", reason: "Settlement ACK Pending - Queued" },
+                    { ref: "SARIE-260522-008411", rail: "SARIE", customer: "Saudi Customs", amount: "SAR 4,800,000", age: "42m", status: "Rejected", reason: "Settlement ACK Pending - Queued" },
+                    { ref: "SARIE-260522-008455", rail: "SARIE", customer: "ZATCA refund - TXN-99214", amount: "SAR 412,000", age: "8m", status: "Rejected", reason: "Settlement ACK Pending - Queued" }
                 ]
             });
-
-            this.getView().setModel(
-                oPostProcessingModel,
-                "postProcessingModel"
-            );
-
 
             var oRejectedModel = new JSONModel({
                 data: [
-                    {
-                        ref: "MT103-260522-014008",
-                        rail: "SWIFT",
-                        customer: "Saudi Binladin Group",
-                        amount: "SAR 1,026,400",
-                        age: "6h 44m",
-                        status: "Rejected",
-                        reason: "Invalid intermediary BIC - NAK"
-                    },
-                    {
-                        ref: "WPS-260522-AMR-027",
-                        rail: "WPS",
-                        customer: "Almarai - 1 Employee",
-                        amount: "SAR 18,400",
-                        age: "4h 12m",
-                        status: "Rejected",
-                        reason: "IBAN Mismatch ‚Äî Employee Record"
-                    },
-                    {
-                        ref: "SARIE-260522-007988",
-                        rail: "SARIE",
-                        customer: "Retail - TXN-RET-90412",
-                        amount: "SAR 4,800",
-                        age: "1h 02m",
-                        status: "Post-Processing",
-                        reason: "Beneficiary Account Closed"
-                    }
+                    { ref: "MT103-260522-014008", rail: "SWIFT", customer: "Saudi Binladin Group", amount: "SAR 1,026,400", age: "6h 44m", status: "Rejected", reason: "Invalid intermediary BIC - NAK" },
+                    { ref: "WPS-260522-AMR-027", rail: "WPS", customer: "Almarai - 1 Employee", amount: "SAR 18,400", age: "4h 12m", status: "Rejected", reason: "IBAN Mismatch - Employee Record" },
+                    { ref: "SARIE-260522-007988", rail: "SARIE", customer: "Retail - TXN-RET-90412", amount: "SAR 4,800", age: "1h 02m", status: "Post-Processing", reason: "Beneficiary Account Closed" }
                 ]
             });
 
-            this.getView().setModel(
-                oRejectedModel,
-                "rejectedModel"
-            );
+            oView.setModel(oApprovalModel, "approvalModel");
+            oView.setModel(oPostProcessingModel, "postProcessingModel");
+            oView.setModel(oRejectedModel, "rejectedModel");
 
-
-            this.getView().setModel(oApprovalModel, "approvalModel");
-
-            this._createInfoModel(
-                oApprovalModel.getProperty("/data"),
-                "approvalInfoModel"
-            );
-
-            this._createInfoModel(
-                oPostProcessingModel.getProperty("/data"),
-                "postProcessingInfoModel"
-            );
-
-            this._createInfoModel(
-                oRejectedModel.getProperty("/data"),
-                "rejectedInfoModel"
-            );
+            this._createInfoModel(oApprovalModel.getProperty("/data"), "approvalInfoModel");
+            this._createInfoModel(oPostProcessingModel.getProperty("/data"), "postProcessingInfoModel");
+            this._createInfoModel(oRejectedModel.getProperty("/data"), "rejectedInfoModel");
 
             var oRailSelect = this.byId("filterRail");
-
-            oRailSelect.addItem(
-                new sap.ui.core.Item({
-                    key: "ALL",
-                    text: "All"
-                })
-            );
-
-            oRailSelect.addItem(
-                new sap.ui.core.Item({
-                    key: "SARIE",
-                    text: "SARIE"
-                })
-            );
-
-            oRailSelect.addItem(
-                new sap.ui.core.Item({
-                    key: "SWIFT",
-                    text: "SWIFT"
-                })
-            );
-
-            oRailSelect.addItem(
-                new sap.ui.core.Item({
-                    key: "WPS",
-                    text: "WPS"
-                })
-            );
-
+            if (oRailSelect) {
+                [["ALL", "All"], ["SARIE", "SARIE"], ["SWIFT", "SWIFT"], ["WPS", "WPS"]].forEach(function (a) {
+                    oRailSelect.addItem(new sap.ui.core.Item({ key: a[0], text: a[1] }));
+                });
+            }
 
             var oStatusSelect = this.byId("filterStatus");
+            if (oStatusSelect) {
+                [["ALL", "All"], ["OPEN", "Open"], ["PROCESSING", "Processing"], ["REJECTED", "Rejected"]].forEach(function (a) {
+                    oStatusSelect.addItem(new sap.ui.core.Item({ key: a[0], text: a[1] }));
+                });
+            }
 
-            oStatusSelect.addItem(
-                new sap.ui.core.Item({
-                    key: "ALL",
-                    text: "All"
-                })
-            );
-
-            oStatusSelect.addItem(
-                new sap.ui.core.Item({
-                    key: "OPEN",
-                    text: "Open"
-                })
-            );
-
-            oStatusSelect.addItem(
-                new sap.ui.core.Item({
-                    key: "PROCESSING",
-                    text: "Processing"
-                })
-            );
-
-            oStatusSelect.addItem(
-                new sap.ui.core.Item({
-                    key: "REJECTED",
-                    text: "Rejected"
-                })
-            );
-
-            var oGovExceptionsModel = new JSONModel({
+            oView.setModel(new JSONModel({
                 data: [
-                    {
-                        entity: "Ministry of Finance",
-                        rail: "SARIE",
-                        open: 18,
-                        value: "86.0M",
-                        note: "Mid-month disbursement",
-                        aged: "3h 02m",
-                        status: "Action Needed",
-                        statusColor: "Warning"
-                    },
-                    {
-                        entity: "GOSI",
-                        rail: "SARIE",
-                        open: 12,
-                        value: "24.4M",
-                        note: "Settlement ACK pending",
-                        aged: "58m",
-                        status: "Awaiting",
-                        statusColor: "Information"
-                    },
-                    {
-                        entity: "Ministry of Education",
-                        rail: "SARIE",
-                        open: 8,
-                        value: "24.0M",
-                        note: "Payroll batch approval",
-                        aged: "1h 44m",
-                        status: "Action Needed",
-                        statusColor: "Warning"
-                    },
-                    {
-                        entity: "Ministry of Interior",
-                        rail: "WPS",
-                        open: 4,
-                        value: "8.3M",
-                        note: "Threshold approval",
-                        aged: "12m",
-                        status: "Action Needed",
-                        statusColor: "Warning"
-                    },
-                    {
-                        entity: "Saudi Customs",
-                        rail: "SARIE",
-                        open: 3,
-                        value: "4.8M",
-                        note: "VAT refund ACK pending",
-                        aged: "42m",
-                        status: "Awaiting",
-                        statusColor: "Information"
-                    },
-                    {
-                        entity: "Public Investment Fund",
-                        rail: "SWIFT",
-                        open: 2,
-                        value: "142.0M",
-                        note: "Beneficiary screening hold",
-                        aged: "4h 18m",
-                        status: "Escalated",
-                        statusColor: "Error"
-                    }
+                    { entity: "Ministry of Finance", rail: "SARIE", open: 18, value: "86.0M", note: "Mid-month disbursement", aged: "3h 02m", status: "Action Needed", statusColor: "Warning" },
+                    { entity: "GOSI", rail: "SARIE", open: 12, value: "24.4M", note: "Settlement ACK pending", aged: "58m", status: "Awaiting", statusColor: "Information" },
+                    { entity: "Ministry of Education", rail: "SARIE", open: 8, value: "24.0M", note: "Payroll batch approval", aged: "1h 44m", status: "Action Needed", statusColor: "Warning" },
+                    { entity: "Ministry of Interior", rail: "WPS", open: 4, value: "8.3M", note: "Threshold approval", aged: "12m", status: "Action Needed", statusColor: "Warning" },
+                    { entity: "Saudi Customs", rail: "SARIE", open: 3, value: "4.8M", note: "VAT refund ACK pending", aged: "42m", status: "Awaiting", statusColor: "Information" },
+                    { entity: "Public Investment Fund", rail: "SWIFT", open: 2, value: "142.0M", note: "Beneficiary screening hold", aged: "4h 18m", status: "Escalated", statusColor: "Error" }
                 ]
-            });
+            }), "govExceptionsModel");
 
-            this.getView().setModel(
-                oGovExceptionsModel,
-                "govExceptionsModel"
-            );
+            oView.setModel(new JSONModel({ data: [], total: 0, maxAge: "", maxAmount: "" }), "openExceptionModel");
+            oView.setModel(new JSONModel({ total: 0, maxAge: "", maxAmount: "" }), "startupInfoModel");
 
-
-
-
-            var oOpenExceptionModel = new JSONModel({
-                data: [],
-                total: 0,
-                maxAge: "",
-                maxAmount: ""
-            });
-
-            this.getView().setModel(
-                oOpenExceptionModel,
-                "openExceptionModel"
-            );
-
-            var oStartupInfoModel = new JSONModel({
-                total: 0,
-                maxAge: "",
-                maxAmount: ""
-            });
-
-            this.getView().setModel(
-                oStartupInfoModel,
-                "startupInfoModel"
-            );
-
-
-
-            var oWpsExceptionModel = new JSONModel({
+            oView.setModel(new JSONModel({
                 data: [
-                    {
-                        programme: "Ministry of Education",
-                        employees: 42,
-                        amount: "SAR 2,104,000",
-                        reason: "Account closed - CR update pending",
-                        aged: "32m",
-                        agedState: "None"
-                    },
-                    {
-                        programme: "Aramco Trading Company",
-                        employees: 8,
-                        amount: "SAR 384,000",
-                        reason: "Insufficient funds in salary account",
-                        aged: "1h 04m",
-                        agedState: "Warning"
-                    },
-                    {
-                        programme: "Saudi Telecom Company (STC)",
-                        employees: 3,
-                        amount: "SAR 142,000",
-                        reason: "IBAN mismatch ‚Äî employee record",
-                        aged: "44m",
-                        agedState: "None"
-                    },
-                    {
-                        programme: "Almarai Company",
-                        employees: 1,
-                        amount: "SAR 18,400",
-                        reason: "Sanctions hit - false-positive review",
-                        aged: "12m",
-                        agedState: "None"
-                    },
-                    {
-                        programme: "Ministry of Interior - Allowance",
-                        employees: 184,
-                        amount: "SAR 8,280,000",
-                        reason: "Batch awaiting 4-eyes approval",
-                        aged: "8m",
-                        agedState: "None"
-                    },
-                    {
-                        programme: "Saudi Binladin Group",
-                        employees: 22,
-                        amount: "SAR 1,026,400",
-                        reason: "Off-cycle batch - verify with HR",
-                        aged: "2h 12m",
-                        agedState: "Error"
-                    },
-                    {
-                        programme: "Bahri Maritime",
-                        employees: 6,
-                        amount: "SAR 312,000",
-                        reason: "GOSI registration expired",
-                        aged: "1h 38m",
-                        agedState: "Warning"
-                    }
+                    { programme: "Ministry of Education", employees: 42, amount: "SAR 2,104,000", reason: "Account closed - CR update pending", aged: "32m", agedState: "None" },
+                    { programme: "Aramco Trading Company", employees: 8, amount: "SAR 384,000", reason: "Insufficient funds in salary account", aged: "1h 04m", agedState: "Warning" },
+                    { programme: "Saudi Telecom Company (STC)", employees: 3, amount: "SAR 142,000", reason: "IBAN mismatch - employee record", aged: "44m", agedState: "None" },
+                    { programme: "Almarai Company", employees: 1, amount: "SAR 18,400", reason: "Sanctions hit - false-positive review", aged: "12m", agedState: "None" },
+                    { programme: "Ministry of Interior - Allowance", employees: 184, amount: "SAR 8,280,000", reason: "Batch awaiting 4-eyes approval", aged: "8m", agedState: "None" },
+                    { programme: "Saudi Binladin Group", employees: 22, amount: "SAR 1,026,400", reason: "Off-cycle batch - verify with HR", aged: "2h 12m", agedState: "Error" },
+                    { programme: "Bahri Maritime", employees: 6, amount: "SAR 312,000", reason: "GOSI registration expired", aged: "1h 38m", agedState: "Warning" }
                 ]
-            });
+            }), "wpsExceptionModel");
 
-            this.getView().setModel(
-                oWpsExceptionModel,
-                "wpsExceptionModel"
-            );
-
-
-            var oTeamWorkloadModel = new JSONModel({
+            oView.setModel(new JSONModel({
                 data: [
-                    {
-                        operator: "Anna Al-Becker",
-                        role: "Team Lead",
-                        assigned: 142,
-                        resolved: 312,
-                        sla: 2,
-                        util: 84,
-                        status: "Available"
-                    },
-                    {
-                        operator: "Faisal Al-Otaibi",
-                        role: "Sr. Ops",
-                        assigned: 118,
-                        resolved: 264,
-                        sla: 1,
-                        util: 92,
-                        status: "On Case"
-                    },
-                    {
-                        operator: "Reem Al-Shahrani",
-                        role: "Ops",
-                        assigned: 96,
-                        resolved: 218,
-                        sla: 0,
-                        util: 89,
-                        status: "On Case"
-                    }
+                    { operator: "Anna Al-Becker", role: "Team Lead", assigned: 142, resolved: 312, sla: 2, util: 84, status: "Available" },
+                    { operator: "Faisal Al-Otaibi", role: "Sr. Ops", assigned: 118, resolved: 264, sla: 1, util: 92, status: "On Case" },
+                    { operator: "Reem Al-Shahrani", role: "Ops", assigned: 96, resolved: 218, sla: 0, util: 89, status: "On Case" }
                 ]
-            });
+            }), "teamWorkloadModel");
 
-            this.getView().setModel(
-                oTeamWorkloadModel,
-                "teamWorkloadModel"
-            );
-
-
-
-
-            var oEscalationModel = new JSONModel({
+            oView.setModel(new JSONModel({
                 data: [
-                    {
-                        title: "PF ¬∑ SWIFT screening hit",
-                        details: "MT103-260522-014288 ¬∑ Compliance Hold ¬∑ 1h 42m ago",
-                        amount: "SAR 142,000,000"
-
-                    },
-                    {
-                        title: "MoF ¬∑ Disbursement above limit",
-                        details: "SARIE-260522-008142 ¬∑ Operations Hold ¬∑ 32m ago",
-                        amount: "SAR 86,000,000"
-                    },
-                    {
-                        title: "MoI hardship allowance ¬∑ eligibility",
-                        details: "WPS-260522-MOI-031 ¬∑ WPS Compliance ¬∑ 12m ago",
-                        amount: "SAR 8,280,000"
-                    },
-                    {
-                        title: "Binladin Group ¬∑ NAK - Invalid BIC",
-                        details: "MT103-260522-014008 ¬∑ SWIFT Operations ¬∑ 4h 22m ago",
-                        amount: "SAR 1,026,400"
-                    },
-                    {
-                        title: "End-of-day mismatch - GOSI",
-                        details: "SARIE-260522-007982 ¬∑ Reconciliation ¬∑ 8m ago",
-                        amount: "SAR 412,000"
-                    }
+                    { title: "PF · SWIFT screening hit", details: "MT103-260522-014288 · Compliance Hold · 1h 42m ago", amount: "SAR 142,000,000" },
+                    { title: "MoF · Disbursement above limit", details: "SARIE-260522-008142 · Operations Hold · 32m ago", amount: "SAR 86,000,000" },
+                    { title: "MoI hardship allowance · eligibility", details: "WPS-260522-MOI-031 · WPS Compliance · 12m ago", amount: "SAR 8,280,000" },
+                    { title: "Binladin Group · NAK - Invalid BIC", details: "MT103-260522-014008 · SWIFT Operations · 4h 22m ago", amount: "SAR 1,026,400" },
+                    { title: "End-of-day mismatch - GOSI", details: "SARIE-260522-007982 · Reconciliation · 8m ago", amount: "SAR 412,000" }
                 ]
-            });
+            }), "escalationModel");
 
-
-
-            this.getView().setModel(
-                oEscalationModel,
-                "escalationModel"
-            );
-
-
-
-
-
-
+            // Load everything LAST, after every model exists.
+            // (View1 re-triggers these via _refreshExceptionKpis once filters are set.)
+            this.loadExceptionKpis();
+            this.loadExceptionReasons();
+            this.loadExceptionTrend();
+            this.loadRailKpi();
+            this._attachKpiCardClicks();
         },
 
-        formatObjectCategory: function (sObjectCategory) {
-            if (sObjectCategory === "05") {
-                return "05 Ordering party";
-            }
+        /* ================= FORMATTERS ================= */
 
-            if (sObjectCategory === "06") {
-                return "06 Recipient Item";
-            }
-
-            return sObjectCategory || "";
+        formatObjectCategory: function (s) {
+            if (s === "05") { return "05 Ordering party"; }
+            if (s === "06") { return "06 Recipient Item"; }
+            return s || "";
         },
 
         formatExceptionStatus: function (sStatus) {
-
-            if (!sStatus) {
-                return "None";
-            }
-
-            switch (sStatus.toUpperCase()) {
-
-                case "OPEN":
-                    return "Warning";
-
-                case "PROCESSING":
-                    return "Information";
-
-                case "REJECTED":
-                    return "Error";
-
-                case "RESOLVED":
-                    return "Success";
-
-                default:
-                    return "None";
-            }
-        }
-        ,
-
-        formatGovStatusIcon: function (sStatus) {
-
-            switch (sStatus) {
-
-                case "Action Needed":
-                    return "sap-icon://alert";
-
-                case "Awaiting":
-                    return "sap-icon://information";
-
-                case "Escalated":
-                    return "sap-icon://decline";
-
-                default:
-                    return "";
+            if (!sStatus) { return "None"; }
+            switch (String(sStatus).toUpperCase()) {
+                case "OPEN": return "Warning";
+                case "PROCESSING": return "Information";
+                case "REJECTED": return "Error";
+                case "RESOLVED": return "Success";
+                default: return "None";
             }
         },
 
-        formatGovStatusState: function (sStatus) {
-
-            switch (sStatus) {
-
-                case "Action Needed":
-                    return "Warning";
-
-                case "Awaiting":
-                    return "Information";
-
-                case "Escalated":
-                    return "Error";
-
-                default:
-                    return "None";
+        formatGovStatusIcon: function (s) {
+            switch (s) {
+                case "Action Needed": return "sap-icon://alert";
+                case "Awaiting": return "sap-icon://information";
+                case "Escalated": return "sap-icon://decline";
+                default: return "";
             }
         },
 
-        formatWorkloadStatus: function (sStatus) {
-
-            switch (sStatus) {
-
-                case "Available":
-                    return "Success";
-
-                case "On Case":
-                    return "Information";
-
-                case "Busy":
-                    return "Warning";
-
-                default:
-                    return "None";
+        formatGovStatusState: function (s) {
+            switch (s) {
+                case "Action Needed": return "Warning";
+                case "Awaiting": return "Information";
+                case "Escalated": return "Error";
+                default: return "None";
             }
+        },
+
+        formatWorkloadStatus: function (s) {
+            switch (s) {
+                case "Available": return "Success";
+                case "On Case": return "Information";
+                case "Busy": return "Warning";
+                default: return "None";
+            }
+        },
+
+        formatWorkloadIcon: function (s) {
+            if (s === "On Case") { return "sap-icon://busy"; }
+            if (s === "Available") { return "sap-icon://employee"; }
+            return "sap-icon://status-in-process";
         },
 
         formatAgeState: function (sAge, sMaxAge) {
-
-            if (!sAge || !sMaxAge) {
-                return "None";
-            }
-
+            if (!sAge || !sMaxAge) { return "None"; }
             return sAge === sMaxAge ? "Error" : "None";
         },
 
         formatRailBadge: function (sRail) {
-
-            if (sRail === "SWIFT") {
-                return "<span class='railSwift'>SWIFT</span>";
-            }
-
-            if (sRail === "SARIE") {
-                return "<span class='railSarie'>SARIE</span>";
-            }
-
-            if (sRail === 'WPS') {
-                return "<span class='railWps'>WPS</span>";
-            }
-
+            if (sRail === "SWIFT") { return "<span class='railSwift'>SWIFT</span>"; }
+            if (sRail === "SARIE") { return "<span class='railSarie'>SARIE</span>"; }
+            if (sRail === "WPS") { return "<span class='railWps'>WPS</span>"; }
             return sRail;
+        },
+
+        // NOTE: the € prefix is hardcoded. Change to "SAR " if the data is in riyals.
+        formatValueAtRisk: function (vValue) {
+            var f = Number(vValue) || 0;
+            if (f >= 1000000) { return + (f / 1000000).toFixed(1) + "M"; }
+            if (f >= 1000) { return (f / 1000).toFixed(1) + "K"; }
+            return f.toLocaleString();
         }
         ,
+        _getTrendText: function (oTrend) {
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+            if (!oTrend || !oTrend.hasData) { return oBundle.getText("kpiInsufficientData"); }
+            if (oTrend.direction === "flat") { return oBundle.getText("kpiNoChange"); }
+            var sKey = oTrend.direction === "up" ? "kpiTrendUp" : "kpiTrendDown";
+            return oBundle.getText(sKey, [oTrend.percent.toFixed(1)]);
+        },
 
-        onGlobalSearch: function (oEvent) {
+        formatOpenExceptionTrendText: function (oTrend) { return this._getTrendText(oTrend); },
+        formatValueAtRiskTrendText: function (oTrend) { return this._getTrendText(oTrend); },
 
-            var sQuery =
-                oEvent.getParameter("newValue") || "";
+        formatOpenExceptionTrendClass: function (oTrend) {
+            if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") { return "kpiCardSubtext"; }
+            return oTrend.direction === "up"
+                ? "kpiCardSubtext kpiCardSubtextWarn"
+                : "kpiCardSubtext kpiCardSubtextGood";
+        },
 
-            var oTable = this.byId("_IDGenTable4");   // ‚úÖ FIXED
-            var oBinding = oTable.getBinding("items");
+        formatValueAtRiskTrendClass: function (oTrend) {
+            if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") { return "kpiCardSubtext"; }
+            return oTrend.direction === "up"
+                ? "kpiCardSubtext kpiCardSubtextWarn"
+                : "kpiCardSubtext kpiCardSubtextGood";
+        },
 
-            if (!sQuery) {
-                oBinding.filter([]);
-                this._updateVisibleCount(oBinding);
-                return;
+        /* ================= HELPERS ================= */
+
+        _normalizeDate: function (vDate) {
+            if (!vDate) { return ""; }
+            if (vDate instanceof Date) {
+                return vDate.getFullYear() + "-" +
+                    String(vDate.getMonth() + 1).padStart(2, "0") + "-" +
+                    String(vDate.getDate()).padStart(2, "0");
+            }
+            return String(vDate).slice(0, 10);
+        },
+
+        _getFilterModel: function () {
+            return this.getView().getModel("filterModel") ||
+                this.getOwnerComponent().getModel("filterModel");
+        },
+
+        _getPreviousDateStr: function (sDate) {
+            var p = String(sDate).slice(0, 10).split("-");
+            var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+            d.setDate(d.getDate() - 1);
+            return this._normalizeDate(d);
+        },
+
+        _computeTrend: function (fCurrent, fPrevious) {
+            fCurrent = Number(fCurrent) || 0;
+            fPrevious = Number(fPrevious) || 0;
+            if (fCurrent === 0) { return { percent: 0, direction: "flat", hasData: false }; }
+            var fPercent = Math.max(-100, Math.min(100, ((fCurrent - fPrevious) / fCurrent) * 100));
+            return {
+                percent: Math.abs(fPercent),
+                direction: fPercent > 0 ? "up" : (fPercent < 0 ? "down" : "flat"),
+                hasData: true
+            };
+        },
+
+        _createInfoModel: function (aData, sModelName) {
+            var iMaxAmount = 0;
+            var sMaxAge = "";
+
+            function ageToMinutes(sAge) {
+                var iMin = 0;
+                var oH = String(sAge).match(/(\d+)\s*h/i);
+                var oM = String(sAge).match(/(\d+)\s*m/i);
+                if (oH) { iMin += parseInt(oH[1], 10) * 60; }
+                if (oM) { iMin += parseInt(oM[1], 10); }
+                return iMin;
             }
 
-            var aFilters = [
-                new sap.ui.model.Filter("ref", "Contains", sQuery),
-                new sap.ui.model.Filter("customer", "Contains", sQuery),
-                new sap.ui.model.Filter("amount", "Contains", sQuery),
-                new sap.ui.model.Filter("reason", "Contains", sQuery),
-                new sap.ui.model.Filter("rail", "Contains", sQuery)   // ‚úÖ added
-            ];
-
-            var oFilter = new sap.ui.model.Filter({
-                filters: aFilters,
-                and: false   // ‚úÖ OR condition
+            aData.forEach(function (oItem) {
+                var iAmount = Number(
+                    oItem.amount.replace("SAR", "").replace(/,/g, "").replace("M", "000000").trim()
+                );
+                if (iAmount > iMaxAmount) { iMaxAmount = iAmount; }
+                if (!sMaxAge || ageToMinutes(oItem.age) > ageToMinutes(sMaxAge)) { sMaxAge = oItem.age; }
             });
 
-            oBinding.filter(oFilter);
+            this.getView().setModel(new JSONModel({
+                total: aData.length,
+                maxAmount: "SAR " + iMaxAmount.toLocaleString(),
+                maxAge: sMaxAge
+            }), sModelName);
+        },
+
+        /* ================= SEARCH / FILTERS ================= */
+
+        onGlobalSearch: function (oEvent) {
+            var sQuery = oEvent.getParameter("newValue") || "";
+            var oTable = this.byId("_IDGenTable4");
+            var oBinding = oTable ? oTable.getBinding("items") : null;
+
+            if (oBinding) {
+                if (!sQuery) {
+                    oBinding.filter([]);
+                } else {
+                    oBinding.filter(new Filter({
+                        filters: [
+                            new Filter("ref", "Contains", sQuery),
+                            new Filter("customer", "Contains", sQuery),
+                            new Filter("amount", "Contains", sQuery),
+                            new Filter("reason", "Contains", sQuery),
+                            new Filter("rail", "Contains", sQuery)
+                        ],
+                        and: false
+                    }));
+                }
+            }
             this.onFilterChange();
         },
 
         onFilterChange: function () {
 
+            var fnKey = function (oCtrl, sDefault) {
+                return oCtrl ? oCtrl.getSelectedKey() : sDefault;
+            };
+
+            var sObjectCategory = fnKey(this.byId("filterObjectCategory"), "ALL_OBJECT_CATEGORY");
+            var sStatus = fnKey(this.byId("filterStatus"), "ALL");
+            var sAging = fnKey(this.byId("filterAging"), "ALL_AGE");
+            var sCurrency = fnKey(this.byId("filterCurrency"), "ALL_CURRENCY");
+            var sReason = fnKey(this.byId("filterReason"), "ALL_REASON");
+
+            var oSearch = this.byId("_IDGenSearchField1");
+            var sSearch = oSearch ? oSearch.getValue() : "";
+
             var aFilters = [];
 
-            /*
-             * OBJECT CATEGORY
-             */
-            var oObjectCategory =
-                this.byId("filterObjectCategory");
-
-            var sObjectCategory =
-                oObjectCategory
-                    ? oObjectCategory.getSelectedKey()
-                    : "ALL_OBJECT_CATEGORY";
-
-            /*
-             * STATUS
-             */
-            var sStatus =
-                this.byId("filterStatus")
-                    .getSelectedKey();
-
-            /*
-             * AGING
-             */
-            var sAging =
-                this.byId("filterAging")
-                    .getSelectedKey();
-
-            /*
-             * CURRENCY
-             */
-            var sCurrency =
-                this.byId("filterCurrency")
-                    ? this.byId("filterCurrency").getSelectedKey()
-                    : "ALL_CURRENCY";
-
-            /*
-             * REASON
-             */
-            /*
- * REASON
- */
-            var oReasonSelect = this.byId("filterReason");
-
-            var sReason =
-                oReasonSelect
-                    ? oReasonSelect.getSelectedKey()
-                    : "ALL_REASON";
-
-            /*
-             * GLOBAL SEARCH
-             */
-            var sSearch =
-                this.byId("_IDGenSearchField1")
-                    ? this.byId("_IDGenSearchField1").getValue()
-                    : "";
-
-
-            /*
-             * OBJECT CATEGORY
-             * Actual field:
-             * ObjectCategory
-             */
-            if (
-                sObjectCategory &&
-                sObjectCategory !== "ALL_OBJECT_CATEGORY"
-            ) {
-
-                aFilters.push(
-                    new sap.ui.model.Filter(
-                        "ObjectCategory",
-                        sap.ui.model.FilterOperator.EQ,
-                        sObjectCategory
-                    )
-                );
+            if (sObjectCategory && sObjectCategory !== "ALL_OBJECT_CATEGORY") {
+                aFilters.push(new Filter("ObjectCategory", FilterOperator.EQ, sObjectCategory));
             }
-
-
-            /*
-             * STATUS
-             * Actual field:
-             * Status
-             */
-            if (
-                sStatus &&
-                sStatus !== "ALL"
-            ) {
-
-                aFilters.push(
-                    new sap.ui.model.Filter(
-                        "Status",
-                        sap.ui.model.FilterOperator.EQ,
-                        sStatus
-                    )
-                );
+            if (sStatus && sStatus !== "ALL") {
+                aFilters.push(new Filter("Status", FilterOperator.EQ, sStatus));
             }
-
-
-            /*
-             * AGING
-             * Actual field:
-             * Aged
-             */
-            if (
-                sAging &&
-                sAging !== "ALL_AGE"
-            ) {
-
-                aFilters.push(
-                    new sap.ui.model.Filter(
-                        "Aged",
-                        sap.ui.model.FilterOperator.EQ,
-                        sAging
-                    )
-                );
+            if (sAging && sAging !== "ALL_AGE") {
+                aFilters.push(new Filter("Aged", FilterOperator.EQ, sAging));
             }
-
-            /*
-             * CURRENCY
-             * Actual field:
-             * CURRENCY
-             */
-            if (
-                sCurrency &&
-                sCurrency !== "ALL_CURRENCY"
-            ) {
-
-                aFilters.push(
-                    new sap.ui.model.Filter(
-                        "CURRENCY",
-                        sap.ui.model.FilterOperator.EQ,
-                        sCurrency
-                    )
-                );
+            if (sCurrency && sCurrency !== "ALL_CURRENCY") {
+                aFilters.push(new Filter("CURRENCY", FilterOperator.EQ, sCurrency));
             }
-
-
-            /*
-   * REASON
-   * Exact match because Reason is selected
-   * from the dropdown.
-   */
-            if (
-                sReason &&
-                sReason !== "ALL_REASON"
-            ) {
-
-                aFilters.push(
-                    new sap.ui.model.Filter(
-                        "ReasonDetail",
-                        sap.ui.model.FilterOperator.EQ,
-                        sReason
-                    )
-                );
+            if (sReason && sReason !== "ALL_REASON") {
+                aFilters.push(new Filter("ReasonDetail", FilterOperator.EQ, sReason));
             }
-
-
-            /*
-             * GLOBAL SEARCH
-             *
-             * Search across the actual
-             * EXCEPTIONDetail fields.
-             */
             if (sSearch) {
-
-                var oSearchFilter =
-                    new sap.ui.model.Filter({
-                        filters: [
-
-                            new sap.ui.model.Filter(
-                                "Reference",
-                                sap.ui.model.FilterOperator.Contains,
-                                sSearch
-                            ),
-
-                            new sap.ui.model.Filter(
-                                "CounterParty",
-                                sap.ui.model.FilterOperator.Contains,
-                                sSearch
-                            ),
-
-                            new sap.ui.model.Filter(
-                                "Amount",
-                                sap.ui.model.FilterOperator.Contains,
-                                sSearch
-                            ),
-
-                            new sap.ui.model.Filter(
-                                "ReasonDetail",
-                                sap.ui.model.FilterOperator.Contains,
-                                sSearch
-                            ),
-
-                            new sap.ui.model.Filter(
-                                "ObjectCategory",
-                                sap.ui.model.FilterOperator.Contains,
-                                sSearch
-                            ),
-
-                            new sap.ui.model.Filter(
-                                "Aged",
-                                sap.ui.model.FilterOperator.Contains,
-                                sSearch
-                            ),
-
-                            new sap.ui.model.Filter(
-                                "PaymentItemNumber",
-                                sap.ui.model.FilterOperator.Contains,
-                                sSearch
-                            )
-
-                        ],
-
-                        /*
-                         * Search fields use OR
-                         */
-                        and: false
-                    });
-
-                /*
-                 * Search filter is combined with
-                 * dropdown filters using AND.
-                 */
-                aFilters.push(oSearchFilter);
+                aFilters.push(new Filter({
+                    filters: [
+                        new Filter("Reference", FilterOperator.Contains, sSearch),
+                        new Filter("CounterParty", FilterOperator.Contains, sSearch),
+                        new Filter("Amount", FilterOperator.Contains, sSearch),
+                        new Filter("ReasonDetail", FilterOperator.Contains, sSearch),
+                        new Filter("ObjectCategory", FilterOperator.Contains, sSearch),
+                        new Filter("Aged", FilterOperator.Contains, sSearch),
+                        new Filter("PaymentItemNumber", FilterOperator.Contains, sSearch)
+                    ],
+                    and: false
+                }));
             }
 
-
-            /*
-             * APPLY ONLY TO OPEN EXCEPTIONS TABLE
-             */
-            var oTable =
-                this.byId("_IDGenTable3");
-
-            if (!oTable) {
-                return;
-            }
-
-            var oBinding =
-                oTable.getBinding("items");
-
-            if (!oBinding) {
-                return;
-            }
+            var oTable = this.byId("_IDGenTable3");
+            if (!oTable) { return; }
+            var oBinding = oTable.getBinding("items");
+            if (!oBinding) { return; }
 
             oBinding.filter(aFilters);
 
-            /*
-             * Update KPI values based on the filtered rows
-             */
+            // Updates only the table header (Open / Highest / Max age).
+            // The KPI tile always shows the full day's total from ExceptionKPI.
             setTimeout(function () {
                 this._updateOpenExceptionCount(oBinding);
             }.bind(this), 0);
@@ -945,1229 +405,283 @@ sap.ui.define([
         onToggleManager: function () {
             var oContent = this.byId("managerContent");
             var oButton = this.byId("managerHeader");
+            if (!oContent || !oButton) { return; }
             var bVisible = oContent.getVisible();
-
             oContent.setVisible(!bVisible);
+            oButton.setIcon(bVisible ? "sap-icon://slim-arrow-right" : "sap-icon://slim-arrow-down");
+        },
 
-            oButton.setIcon(
-                bVisible
-                    ? "sap-icon://slim-arrow-right"
-                    : "sap-icon://slim-arrow-down"
-            );
+        // Rebuilds a dropdown but keeps the user's selection if it still exists.
+        _fillSelect: function (oSelect, sAllKey, sAllText, aValues) {
+            if (!oSelect) { return; }
+            var sPrevious = oSelect.getSelectedKey();
+            oSelect.removeAllItems();
+            oSelect.addItem(new sap.ui.core.Item({ key: sAllKey, text: sAllText }));
+            aValues.forEach(function (sValue) {
+                oSelect.addItem(new sap.ui.core.Item({ key: sValue, text: sValue }));
+            });
+            oSelect.setSelectedKey(aValues.indexOf(sPrevious) > -1 ? sPrevious : sAllKey);
         },
 
         _populateFilterDropdowns: function () {
+            var oModel = this.getView().getModel("openExceptionModel");
+            if (!oModel) { return; }
 
-            var oModel =
-                this.getView()
-                    .getModel("openExceptionModel");
+            var aData = oModel.getProperty("/data") || [];
 
-            if (!oModel) {
-                return;
-            }
-
-            var aData =
-                oModel.getProperty("/data") || [];
-
-            /*
-             * REASON
-             * Get all unique ReasonDetail values
-             * from the Open Exceptions table.
-             */
-            var aReason = [
-                ...new Set(
+            var fnUnique = function (sField) {
+                return Array.from(new Set(
                     aData
-                        .map(function (oRow) {
-                            return oRow.ReasonDetail;
-                        })
-                        .filter(function (sValue) {
-                            return sValue !== null &&
-                                sValue !== undefined &&
-                                String(sValue).trim() !== "";
-                        })
-                        .map(function (sValue) {
-                            return String(sValue).trim();
-                        })
-                )
-            ];
-            /*
-             * OBJECT CATEGORY
-             */
-            var aObjectCategory = [
-                ...new Set(
-                    aData
-                        .map(function (oRow) {
-                            return oRow.ObjectCategory;
-                        })
-                        .filter(Boolean)
-                )
-            ];
-
-
-            /*
-             * STATUS
-             */
-            var aStatus = [
-                ...new Set(
-                    aData
-                        .map(function (oRow) {
-                            return oRow.Status;
-                        })
-                        .filter(function (sValue) {
-                            return sValue !== null &&
-                                sValue !== undefined &&
-                                sValue !== "";
-                        })
-                )
-            ];
-
-
-            /*
-             * AGED
-             */
-            var aAging = [
-                ...new Set(
-                    aData
-                        .map(function (oRow) {
-                            return oRow.Aged;
-                        })
-                        .filter(Boolean)
-                )
-            ];
-
-            /*
-             * CURRENCY
-             */
-            var aCurrency = [
-                ...new Set(
-                    aData
-                        .map(function (oRow) {
-                            return oRow.CURRENCY;
-                        })
-                        .filter(Boolean)
-                )
-            ];
-
-
-            var oObjectCategory =
-                this.byId("filterObjectCategory");
-
-            var oStatus =
-                this.byId("filterStatus");
-
-            var oAging =
-                this.byId("filterAging");
-
-            var oCurrency =
-                this.byId("filterCurrency");
-
-            var oReason =
-                this.byId("filterReason");
-
-
-            /*
-             * Clear old/static values
-             */
-            oObjectCategory.removeAllItems();
-            oStatus.removeAllItems();
-            oAging.removeAllItems();
-
-            if (oCurrency) {
-                oCurrency.removeAllItems();
-            }
-
-            if (oReason) {
-                oReason.removeAllItems();
-            }
-
-
-            /*
-             * OBJECT CATEGORY
-             */
-            oObjectCategory.addItem(
-                new sap.ui.core.Item({
-                    key: "ALL_OBJECT_CATEGORY",
-                    text: "All"
-                })
-            );
-
-            aObjectCategory.forEach(function (sValue) {
-
-                oObjectCategory.addItem(
-                    new sap.ui.core.Item({
-                        key: sValue,
-                        text: sValue
-                    })
-                );
-
-            });
-
-
-            /*
-             * STATUS
-             */
-            oStatus.addItem(
-                new sap.ui.core.Item({
-                    key: "ALL",
-                    text: "All"
-                })
-            );
-
-            aStatus.forEach(function (sValue) {
-
-                oStatus.addItem(
-                    new sap.ui.core.Item({
-                        key: sValue,
-                        text: sValue
-                    })
-                );
-
-            });
-
-
-            /*
-             * AGING
-             */
-            oAging.addItem(
-                new sap.ui.core.Item({
-                    key: "ALL_AGE",
-                    text: "All Age"
-                })
-            );
-
-            aAging.forEach(function (sValue) {
-
-                oAging.addItem(
-                    new sap.ui.core.Item({
-                        key: sValue,
-                        text: sValue
-                    })
-                );
-
-            });
-
-            /*
-             * CURRENCY
-             */
-            if (oCurrency) {
-                oCurrency.addItem(
-                    new sap.ui.core.Item({
-                        key: "ALL_CURRENCY",
-                        text: "All"
-                    })
-                );
-
-                aCurrency.forEach(function (sValue) {
-                    oCurrency.addItem(
-                        new sap.ui.core.Item({
-                            key: sValue,
-                            text: sValue
-                        })
-                    );
-                });
-
-                /*
- * REASON
- */
-                if (oReason) {
-
-                    oReason.addItem(
-                        new sap.ui.core.Item({
-                            key: "ALL_REASON",
-                            text: "All"
-                        })
-                    );
-
-                    aReason.forEach(function (sValue) {
-
-                        oReason.addItem(
-                            new sap.ui.core.Item({
-                                key: sValue,
-                                text: sValue
-                            })
-                        );
-
-                    });
-                }
-            }
-        },
-
-        _calculateStartupInfo: function () {
-
-            var aData = this.getView().getModel("startupModel").getProperty("/data");
-
-            if (!aData || aData.length === 0) return;
-
-            // ‚úÖ TOTAL
-            var iTotal = aData.length;
-
-            // ‚úÖ MAX AGE
-            var fnToMinutes = function (ageStr) {
-                var hours = 0, mins = 0;
-
-                if (ageStr.includes("h")) {
-                    hours = parseInt(ageStr.split("h")[0]) || 0;
-                }
-
-                if (ageStr.includes("m")) {
-                    mins = parseInt(ageStr.split("h")[1]) || 0;
-                }
-
-                return (hours * 60) + mins;
+                        .map(function (o) { return o[sField]; })
+                        .filter(function (v) { return v !== null && v !== undefined && String(v).trim() !== ""; })
+                        .map(function (v) { return String(v).trim(); })
+                ));
             };
 
-
-            var oMaxAge = aData[0];
-
-            // ‚úÖ MAX AMOUNT
-            var fnAmountToNumber = function (amountStr) {
-                // "SAR 142M" ‚Üí 142000000
-                var num = parseFloat(amountStr.replace(/[^\d.]/g, "")) || 0;
-
-                if (amountStr.includes("M")) return num * 1000000;
-                if (amountStr.includes("K")) return num * 1000;
-
-                return num;
-            };
-
-
-
-            var oMaxAmount = aData[0];
-
-            aData.forEach(function (item) {
-
-                // ‚úÖ Check max age
-                if (fnToMinutes(item.age) > fnToMinutes(oMaxAge.age)) {
-                    oMaxAge = item;
-                }
-
-                // ‚úÖ Check max amount
-                if (fnAmountToNumber(item.amount) > fnAmountToNumber(oMaxAmount.amount)) {
-                    oMaxAmount = item;
-                }
-            });
-
-            // ‚úÖ SET MODEL
-            var oInfoModel = new JSONModel({
-                total: iTotal,
-                maxAge: oMaxAge.age,
-                maxAmount: oMaxAmount.amount
-            });
-
-            this.getView().setModel(oInfoModel, "startupInfoModel");
-
+            this._fillSelect(this.byId("filterObjectCategory"), "ALL_OBJECT_CATEGORY", "All", fnUnique("ObjectCategory"));
+            this._fillSelect(this.byId("filterStatus"), "ALL", "All", fnUnique("Status"));
+            this._fillSelect(this.byId("filterAging"), "ALL_AGE", "All Age", fnUnique("Aged"));
+            this._fillSelect(this.byId("filterCurrency"), "ALL_CURRENCY", "All", fnUnique("CURRENCY"));
+            this._fillSelect(this.byId("filterReason"), "ALL_REASON", "All", fnUnique("ReasonDetail"));
         },
-
-        _createInfoModel: function (aData, sModelName) {
-
-            var iMaxAmount = 0;
-            var sMaxAge = "";
-
-            function ageToMinutes(sAge) {
-
-                var iMinutes = 0;
-
-                if (sAge.includes("h")) {
-
-                    var aParts = sAge.split("h");
-
-                    iMinutes += parseInt(aParts[0]) * 60;
-
-                    if (aParts[1]) {
-                        iMinutes += parseInt(aParts[1]);
-                    }
-
-                } else {
-
-                    iMinutes += parseInt(sAge);
-                }
-
-                return iMinutes;
-            }
-
-            aData.forEach(function (oItem) {
-
-                var iAmount = Number(
-                    oItem.amount
-                        .replace("SAR", "")
-                        .replace(/,/g, "")
-                        .replace("M", "000000")
-                        .trim()
-                );
-
-                if (iAmount > iMaxAmount) {
-                    iMaxAmount = iAmount;
-                }
-
-                if (
-                    !sMaxAge ||
-                    ageToMinutes(oItem.age) > ageToMinutes(sMaxAge)
-                ) {
-                    sMaxAge = oItem.age;
-                }
-
-            });
-
-            this.getView().setModel(
-                new JSONModel({
-                    total: aData.length,
-                    maxAmount: "SAR " + iMaxAmount.toLocaleString(),
-                    maxAge: sMaxAge
-                }),
-                sModelName
-            );
-        }
-
-        ,
 
         _applyFiltersToOpenExceptionTable: function (aFilters) {
-
-            var oTable =
-                this.byId("_IDGenTable3");
-
-            if (!oTable) {
-                return;
-            }
-
-            var oBinding =
-                oTable.getBinding("items");
-
-            if (!oBinding) {
-                return;
-            }
-
+            var oTable = this.byId("_IDGenTable3");
+            if (!oTable) { return; }
+            var oBinding = oTable.getBinding("items");
+            if (!oBinding) { return; }
             oBinding.filter(aFilters);
-
-            /*
-             * Update visible row count after filtering
-             */
-            var iVisibleCount =
-                oBinding.getLength();
-
-            console.log(
-                "Visible exception rows:",
-                iVisibleCount
-            );
         },
 
-        // ✅ Public — called on initial load and again whenever the header's
-        // Clearing Area / Date filter changes (View1.controller.js calls this
-        // through this.byId("ExceptionsView").getController()). Reads the
-        // ExceptionKPI OData entity set filtered to the current ClearingArea +
-        // PaymentOrderDate and pushes OpenException/ValueAtRisk into the two
-        // KPI tiles. Falls back to today's date / DEBNKC if the shared
-        // filterModel isn't available yet (defensive — nested view init order
-        // isn't guaranteed relative to the parent's).
- loadExceptionKpis: function () {
-
-    var oODataModel =
-        this.getOwnerComponent().getModel("odataModel");
-
-    var oFilterModel =
-        this.getView().getModel("filterModel");
-
-    var oExceptionKpiModel =
-        this.getView().getModel("exceptionKpiModel");
-
-    var sClearingArea = oFilterModel
-        ? oFilterModel.getProperty("/clearingArea")
-        : "DEBNKC";
-
-    var sPostingDate = oFilterModel
-        ? oFilterModel.getProperty("/kpiDate")
-        : "";
-
-    var sCreatedOn = oFilterModel
-        ? oFilterModel.getProperty("/createdOn")
-        : "";
-
-    /*
-     * Normalize date to YYYY-MM-DD
-     */
-    var fnNormalizeDate = function (vDate) {
-
-        if (!vDate) {
-            return "";
-        }
-
-        if (vDate instanceof Date) {
-
-            return vDate.getFullYear() +
-                "-" +
-                String(vDate.getMonth() + 1).padStart(2, "0") +
-                "-" +
-                String(vDate.getDate()).padStart(2, "0");
-        }
-
-        return String(vDate).substring(0, 10);
-    };
-
-    sPostingDate = fnNormalizeDate(sPostingDate);
-    sCreatedOn = fnNormalizeDate(sCreatedOn);
-
-    console.log("======================================");
-    console.log("EXCEPTION KPI FILTER");
-    console.log("Clearing Area :", sClearingArea);
-    console.log("Posting Date  :", sPostingDate);
-    console.log("Created On    :", sCreatedOn);
-    console.log("======================================");
-
-    if (!oODataModel || !oExceptionKpiModel) {
-
-        console.error(
-            "Exception KPI: OData model or KPI model missing"
-        );
-
-        return;
-    }
-
-    /*
-     * ---------------------------------------------------------
-     * IMPORTANT FIELD MAPPING
-     *
-     * Posting Date  -> paymentorderdate
-     * Created On    -> createdate
-     * Clearing Area -> clearingarea
-     * ---------------------------------------------------------
-     */
-
-   var aFilters = [
-
-    /*
-     * Clearing Area is always applied
-     */
-    new Filter(
-        "clearingarea",
-        FilterOperator.EQ,
-        sClearingArea
-    )
-
-];
-
-/*
- * =========================================================
- * CREATED ON HAS PRIORITY
- * =========================================================
- *
- * If Created On is selected:
- *
- *     Clearing Area + Created On
- *
- * Posting Date is NOT applied.
- *
- * Example:
- *
- * Clearing Area = DEBNKC
- * Created On    = 2026-10-05
- *
- * OData filter:
- *
- * clearingarea eq 'DEBNKC'
- * AND createdate eq '2026-10-05'
- *
- * =========================================================
- */
-if (sPostingDate) {
-    aFilters.push(new Filter("paymentorderdate", FilterOperator.EQ, sPostingDate));
-}
-
-if (sCreatedOn) {
-
-    console.log(
-        "Exception KPI: Using CREATED ON as the date filter:",
-        sCreatedOn
-    );
-
-    aFilters.push(
-        new Filter(
-            "createdate",
-            FilterOperator.EQ,
-            sCreatedOn
-        )
-    );
-
-}
-
-/*
- * =========================================================
- * OTHERWISE USE POSTING DATE
- * =========================================================
- *
- * If Created On is empty, existing Posting Date behavior
- * remains unchanged.
- *
- * =========================================================
- */
-
-else if (sPostingDate) {
-
-    console.log(
-        "Exception KPI: Using POSTING DATE as the date filter:",
-        sPostingDate
-    );
-
-    aFilters.push(
-        new Filter(
-            "paymentorderdate",
-            FilterOperator.EQ,
-            sPostingDate
-        )
-    );
-
-}
-
-console.log(
-    "Exception KPI final filters:",
-    aFilters
-);
-
-    console.log(
-        "Exception KPI OData filters:",
-        aFilters
-    );
-
-    var oListBinding;
-
-    try {
-
-        oListBinding =
-            oODataModel.bindList(
-                "/ExceptionKPI",
-                undefined,
-                undefined,
-                aFilters,
-                {
-                    $select:
-                        "clearingarea,paymentorderdate,createdate,OpenException,ValueAtRisk"
-                }
-            );
-
-    } catch (oError) {
-
-        console.error(
-            "Exception KPI bindList failed:",
-            oError
-        );
-
-        return;
-    }
-
-    oListBinding
-        .requestContexts(0, 5000)
-
-        .then(function (aContexts) {
-
-            console.log(
-                "Exception KPI rows returned:",
-                aContexts.length
-            );
-
-            var iOpenException = 0;
-            var fValueAtRisk = 0;
-
-            aContexts.forEach(function (oContext) {
-
-                var oRow =
-                    oContext.getObject();
-
-                console.log(
-                    "Exception KPI row:",
-                    oRow
-                );
-
-                iOpenException +=
-                    Number(oRow.OpenException) || 0;
-
-                fValueAtRisk +=
-                    Number(oRow.ValueAtRisk) || 0;
-
-            });
-
-            console.log(
-                "======================================"
-            );
-
-            console.log(
-                "FINAL EXCEPTION KPI"
-            );
-
-            console.log(
-                "Open Exceptions:",
-                iOpenException
-            );
-
-            console.log(
-                "Value at Risk:",
-                fValueAtRisk
-            );
-
-            console.log(
-                "======================================"
-            );
-
-            oExceptionKpiModel.setProperty(
-                "/OpenException",
-                iOpenException
-            );
-
-            oExceptionKpiModel.setProperty(
-                "/ValueAtRisk",
-                fValueAtRisk
-            );
-
-            /*
-             * Keep trend indicators stable for now.
-             * We are fixing the current KPI filter first.
-             */
-            oExceptionKpiModel.setProperty(
-                "/openExceptionTrend",
-                {
-                    percent: 0,
-                    direction: "flat",
-                    hasData: false
-                }
-            );
-
-            oExceptionKpiModel.setProperty(
-                "/valueAtRiskTrend",
-                {
-                    percent: 0,
-                    direction: "flat",
-                    hasData: false
-                }
-            );
-
-            oExceptionKpiModel.refresh(true);
-
-        })
-
-        .catch(function (oError) {
-
-            console.error(
-                "Exception KPI OData read failed:",
-                oError
-            );
-
-            oExceptionKpiModel.setProperty(
-                "/OpenException",
-                0
-            );
-
-            oExceptionKpiModel.setProperty(
-                "/ValueAtRisk",
-                0
-            );
-
-            oExceptionKpiModel.refresh(true);
-
-        });
-},
-        // ✅ Returns "YYYY-MM-DD" for the day before sDate, using local date math
-        // (not toISOString()) to avoid the UTC-shift issues already flagged
-        // elsewhere in this controller (loadOpenExceptionDetails, loadExceptionTrend).
-        _getPreviousDateStr: function (sDate) {
-
-            var aParts = String(sDate).slice(0, 10).split("-");
-
-            var oDate = new Date(
-                Number(aParts[0]),
-                Number(aParts[1]) - 1,
-                Number(aParts[2])
-            );
-
-            oDate.setDate(oDate.getDate() - 1);
-
-            return oDate.getFullYear() + "-" +
-                String(oDate.getMonth() + 1).padStart(2, "0") + "-" +
-                String(oDate.getDate()).padStart(2, "0");
-
-        },
-
-        // ✅ Computes % change from fPrevious → fCurrent. "hasData" is false when
-        // yesterday had zero (no meaningful % to show), so the UI can fall back to
-        // a plain label instead of a nonsensical "+∞%" or "+100%".
-        _computeTrend: function (fCurrent, fPrevious) {
-
-            fCurrent = Number(fCurrent) || 0;
-            fPrevious = Number(fPrevious) || 0;
-
-            /*
-             * No previous value means there is no meaningful
-             * percentage comparison.
-             */
-            if (fCurrent === 0) {
-                return {
-                    percent: 0,
-                    direction: "flat",
-                    hasData: false
-                };
-            }
-
-            /*
-             * Business logic:
-             *
-             * Trend % = (Today - Yesterday) / Today × 100
-             *
-             * Example:
-             * Yesterday = 1
-             * Today     = 10
-             *
-             * (10 - 1) / 10 × 100 = 90%
-             */
-            var fPercent =
-                ((fCurrent - fPrevious) / fCurrent) * 100;
-
-            /*
-             * Keep displayed percentage within -100% to +100%.
-             */
-            fPercent = Math.max(-100, Math.min(100, fPercent));
-
-            return {
-                percent: Math.abs(fPercent),
-
-                direction:
-                    fPercent > 0
-                        ? "up"
-                        : (fPercent < 0 ? "down" : "flat"),
-
-                hasData: true
-            };
+        /* ================= KPI TILE (ExceptionKPI) + TABLE (EXCEPTIONDetail) ================= */
+
+        // Public. Called on init and from View1._refreshExceptionKpis().
+        loadExceptionKpis: function () {
+
+            // Table + count (EXCEPTIONDetail)
+            this.loadOpenExceptionDetails();
+
+            // Value at Risk = sum of ValueAtRisk over ExceptionKPI rows
+            var oKpiModel = this.getView().getModel("exceptionKpiModel");
+            var oFilterModel = this._getFilterModel();
+            if (!oKpiModel || !oFilterModel) { return; }
+
+            var sArea = oFilterModel.getProperty("/clearingArea");
+            var sPosting = this._normalizeDate(oFilterModel.getProperty("/kpiDate"));
+            var sCreated = this._normalizeDate(oFilterModel.getProperty("/createdOn"));
+            if (!sArea || !sPosting) { return; }
+
+            var sFilter = "clearingarea eq '" + String(sArea).replace(/'/g, "''") + "'" +
+                " and paymentorderdate eq " + sPosting;
+            if (sCreated) { sFilter += " and createdate eq " + sCreated; }
+
+            fetch(SERVICE_URL + "ExceptionKPI?$filter=" + encodeURIComponent(sFilter), {
+                method: "GET",
+                headers: { "Accept": "application/json" },
+                credentials: "same-origin"
+            })
+                .then(function (r) {
+                    if (!r.ok) { throw new Error("HTTP " + r.status); }
+                    return r.json();
+                })
+                .then(function (oData) {
+                    var fValue = 0;
+                    (oData.value || []).forEach(function (o) {
+                        fValue += Number(o.ValueAtRisk) || 0;
+                    });
+                    console.log("ExceptionKPI rows:", oData.value, "=> value:", fValue);
+                    oKpiModel.setProperty("/ValueAtRisk", fValue);
+                    oKpiModel._valueFromKpi = true;
+                })
+                .catch(function (e) {
+                    console.error("ExceptionKPI failed:", e);
+                });
         },
 
         loadOpenExceptionDetails: function () {
 
-            var oOpenExceptionModel =
-                this.getView().getModel("openExceptionModel");
-
-            var oFilterModel =
-                this.getView().getModel("filterModel");
-
+            var oOpenExceptionModel = this.getView().getModel("openExceptionModel");
             if (!oOpenExceptionModel) {
                 console.error("openExceptionModel not found");
                 return;
             }
 
-            var sClearingArea = oFilterModel
-                ? oFilterModel.getProperty("/clearingArea")
-                : "DEBNKC";
-
-            var sSelectedDate = oFilterModel
-                ? oFilterModel.getProperty("/kpiDate")
-                : null;
-
-            if (!sSelectedDate) {
-                console.warn(
-                    "Open Exception Detail: selected date missing"
-                );
+            var oFilterModel = this._getFilterModel();
+            if (!oFilterModel) {
+                console.warn("Open Exception Detail: filterModel not available yet");
                 return;
             }
 
-            /*
-             * Convert selected date to YYYY-MM-DD.
-             * Do NOT use toISOString() because it can shift the
-             * business date by one day in IST.
-             */
-            var sDate;
+            var sClearingArea = oFilterModel.getProperty("/clearingArea");
+            var sDate = this._normalizeDate(oFilterModel.getProperty("/kpiDate"));
+            var sCreatedOn = this._normalizeDate(oFilterModel.getProperty("/createdOn"));
 
-            if (sSelectedDate instanceof Date) {
-
-                sDate =
-                    sSelectedDate.getFullYear() +
-                    "-" +
-                    String(
-                        sSelectedDate.getMonth() + 1
-                    ).padStart(2, "0") +
-                    "-" +
-                    String(
-                        sSelectedDate.getDate()
-                    ).padStart(2, "0");
-
-            } else {
-
-                sDate =
-                    String(sSelectedDate)
-                        .slice(0, 10);
+            if (!sClearingArea || !sDate) {
+                console.warn("Open Exception Detail: clearing area or date missing");
+                return;
             }
 
-            console.log(
-                "Loading EXCEPTIONDetail for:",
-                sClearingArea,
-                sDate
-            );
+            var sFilter =
+                "ClearingArea eq '" + String(sClearingArea).replace(/'/g, "''") + "'" +
+                " and PaymentItemDate eq " + sDate;
 
-            /*
-             * Clear table before loading.
-             */
-            oOpenExceptionModel.setProperty(
-                "/data",
-                []
-            );
-
-            /*
-             * OData V4 URL.
-             *
-             * IMPORTANT:
-             * We intentionally use fetch() instead of
-             * oDataModel.bindList().
-             *
-             * The backend currently contains duplicate OData
-             * keys. OData V4's cache rejects those duplicates.
-             * fetch() allows us to receive the raw response.
-             */
-
-            var sServiceUrl =
-                "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/";
-
-           /*
- * =========================================================
- * CREATED ON
- * =========================================================
- */
-
-var sCreatedOn = oFilterModel
-    ? oFilterModel.getProperty("/createdOn")
-    : null;
-
-/*
- * Normalize Created On to YYYY-MM-DD
- */
-if (sCreatedOn instanceof Date) {
-
-    sCreatedOn =
-        sCreatedOn.getFullYear() +
-        "-" +
-        String(
-            sCreatedOn.getMonth() + 1
-        ).padStart(2, "0") +
-        "-" +
-        String(
-            sCreatedOn.getDate()
-        ).padStart(2, "0");
-
-} else if (sCreatedOn) {
-
-    sCreatedOn = String(sCreatedOn).slice(0, 10);
-
-}
-
-/*
- * =========================================================
- * EXCEPTION TABLE FILTER
- * =========================================================
- *
- * Clearing Area
- * + Payment Item Date
- * + Created On
- *
- * Created On maps to backend field: crdat
- *
- * =========================================================
- */
-
-var sFilter =
-    "ClearingArea eq '" +
-    encodeURIComponent(sClearingArea).replace(/'/g, "%27") +
-    "' and PaymentItemDate eq " +
-    sDate;
-
-/*
- * Add Created On only when selected
- */
-if (sCreatedOn) {
-
-    sFilter +=
-        " and crdat eq " +
-        sCreatedOn;
-
-}
-
-console.log(
-    "======================================"
-);
-
-console.log(
-    "EXCEPTION TABLE FILTER"
-);
-
-console.log(
-    "Clearing Area :",
-    sClearingArea
-);
-
-console.log(
-    "Payment Date  :",
-    sDate
-);
-
-console.log(
-    "Created On    :",
-    sCreatedOn
-);
-
-console.log(
-    "OData Filter  :",
-    sFilter
-);
-
-console.log(
-    "======================================"
-);
+            // Created On maps to backend field crdat
+            if (sCreatedOn) {
+                sFilter += " and crdat eq " + sCreatedOn;
+            }
 
             var sUrl =
-                sServiceUrl +
-                "EXCEPTIONDetail" +
-                "?$filter=" +
-                sFilter +
-                "&$select=" +
-                [
-                    "ClearingArea",
-                    "PaymentItemDate",
-                    "PaymentItemGuid",
-                    "ObjectCategory",
-                    "po_type",
-                    "po_typet_s",
-                    "tech_stat",
-                    "Status",
-                    "PaymentItemNumber",
-                    "Reference",
-                    "ReasonDetail",
-                    "Amount",
-                    "CURRENCY",
-                    "Aged",
-                    "CounterParty"
+                SERVICE_URL + "EXCEPTIONDetail" +
+                "?$filter=" + encodeURIComponent(sFilter) +
+                "&$select=" + [
+                    "ClearingArea", "PaymentItemDate", "PaymentItemGuid", "ObjectCategory",
+                    "po_type", "po_typet_s", "tech_stat", "Status", "PaymentItemNumber",
+                    "Reference", "ReasonDetail", "Amount", "CURRENCY", "Aged", "CounterParty"
                 ].join(",");
 
-            console.log(
-                "EXCEPTIONDetail URL:",
-                sUrl
-            );
+            console.log("EXCEPTIONDetail filter:", sFilter);
+
+            var that = this;
 
             fetch(sUrl, {
                 method: "GET",
-                headers: {
-                    "Accept": "application/json"
-                },
+                headers: { "Accept": "application/json" },
                 credentials: "same-origin"
             })
                 .then(function (oResponse) {
-
                     if (!oResponse.ok) {
-                        throw new Error(
-                            "HTTP " +
-                            oResponse.status +
-                            " - " +
-                            oResponse.statusText
-                        );
+                        throw new Error("HTTP " + oResponse.status + " - " + oResponse.statusText);
                     }
-
                     return oResponse.json();
                 })
                 .then(function (oData) {
 
-                    var aRows =
-                        oData.value || [];
+                    var aRows = oData.value || [];
 
-                    console.log(
-                        "EXCEPTIONDetail raw rows:",
-                        aRows.length
-                    );
+                    console.log("EXCEPTIONDetail raw rows:", aRows.length);
 
-                    console.log(
-                        "EXCEPTIONDetail raw data:",
-                        aRows
-                    );
+                    // Show every row the service returns (no dedupe)
+                    var aUniqueRows = aRows;
 
-                    /*
-                     * ---------------------------------------------------------
-                     * Remove duplicate records.
-                     *
-                     * The backend is returning the same OData key more than
-                     * once. Use the actual entity key:
-                     *
-                     * ClearingArea + PaymentItemDate + PaymentItemGuid
-                     * ---------------------------------------------------------
-                     */
+                    var oKpiModel = that.getView().getModel("exceptionKpiModel");
+                    oKpiModel.setProperty("/OpenException", aUniqueRows.length);   // count only
 
-                    var mUniqueRows = {};
+                    oOpenExceptionModel.setProperty("/data", aUniqueRows);
 
-                    aRows.forEach(function (oRow) {
-
-                        var sRowDate;
-
-                        if (
-                            oRow.PaymentItemDate instanceof Date
-                        ) {
-
-                            sRowDate =
-                                oRow.PaymentItemDate.getFullYear() +
-                                "-" +
-                                String(
-                                    oRow.PaymentItemDate.getMonth() + 1
-                                ).padStart(2, "0") +
-                                "-" +
-                                String(
-                                    oRow.PaymentItemDate.getDate()
-                                ).padStart(2, "0");
-
-                        } else {
-
-                            sRowDate =
-                                String(
-                                    oRow.PaymentItemDate || ""
-                                ).slice(0, 10);
-                        }
-
-                        var sKey =
-                            String(
-                                oRow.ClearingArea || ""
-                            ) +
-                            "|" +
-                            sRowDate +
-                            "|" +
-                            String(
-                                oRow.PaymentItemGuid || ""
-                            );
-
-                        /*
-                         * Keep the first occurrence.
-                         */
-                        if (!mUniqueRows[sKey]) {
-                            mUniqueRows[sKey] = oRow;
-                        }
-
-                    });
-
-                    var aUniqueRows =
-                        Object.keys(mUniqueRows).map(function (sKey) {
-                            return mUniqueRows[sKey];
-                        });
-
-                    console.log(
-                        "EXCEPTIONDetail unique rows:",
-                        aUniqueRows.length
-                    );
-
-                    console.log(
-                        "Duplicates removed:",
-                        aRows.length - aUniqueRows.length
-                    );
-
-                    /*
-                     * Put data into the JSON model.
-                     */
-                    oOpenExceptionModel.setProperty(
-                        "/data",
-                        aUniqueRows
-                    );
-
-                    /*
-                     * Calculate Open count and maximum aging
-                     * from the actual loaded rows.
-                     */
-                    this._calculateOpenExceptionStats(aUniqueRows);
-
-                    this._populateFilterDropdowns();
+                    that._calculateOpenExceptionStats(aUniqueRows);
+                    that._populateFilterDropdowns();
 
                     oOpenExceptionModel.refresh(true);
 
-                    console.log(
-                        "Open Exception stats:",
-                        {
-                            total: oOpenExceptionModel.getProperty("/total"),
-                            maxAge: oOpenExceptionModel.getProperty("/maxAge")
-                        }
-                    );
-
-                    console.log(
-                        "Open Exception table populated:",
-                        aUniqueRows.length
-                    );
-
-                }.bind(this))
+                    // Re-apply any active dropdown/search filter to the new data
+                    that.onFilterChange();
+                })
                 .catch(function (oError) {
-
-                    console.error(
-                        "EXCEPTIONDetail fetch failed:",
-                        oError
-                    );
-
-                    oOpenExceptionModel.setProperty(
-                        "/data",
-                        []
-                    );
-
+                    console.error("EXCEPTIONDetail fetch failed:", oError);
+                    oOpenExceptionModel.setProperty("/data", []);
+                    oOpenExceptionModel.setProperty("/total", 0);
                     oOpenExceptionModel.refresh(true);
-
-                }.bind(this));
+                });
         },
-        // ✅ Public — called on initial load and again whenever the header's
-        // Clearing Area / Date filter changes (View1.controller.js calls this
-        // through _refreshExceptionKpis()). Reads the RailKpi OData entity
-        // set and finds the row matching the current ClearingArea +
-        // PaymentItemDate, pushing OnHold/InPostProcessing/Rejected into the
-        // "By Rail" pie chart. Falls back to today's date / DEBNKC if the
-        // shared filterModel isn't available yet.
-        //
-        // NOTE: matching is done CLIENT-SIDE (fetch all rows, find the one
-        // that matches) rather than via server-side $filter. This service
-        // has already shown casing mismatches between a field's $select name
-        // and its filterable name (see loadExceptionKpis' "clearingarea" /
-        // "paymentorderdate" lowercase filters vs. the PascalCase JSON
-        // fields) — filtering client-side against the exact field names from
-        // the real payload sidesteps that risk entirely.
+
+        onOpenExceptionsPress: function () {
+            this.loadOpenExceptionDetails();
+        },
+
+        _updateOpenExceptionCount: function (oBinding) {
+            if (!oBinding) { return; }
+            var aContexts = oBinding.getCurrentContexts ? oBinding.getCurrentContexts() : [];
+            var aRows = aContexts.map(function (c) { return c.getObject(); });
+            this._writeOpenExceptionStats(aRows, true);
+        },
+
+        _calculateOpenExceptionStats: function (aRows) {
+            this._writeOpenExceptionStats(aRows, false);
+        },
+
+        // Row count, oldest age, and highest single amount (currency from that same row).
+        _writeOpenExceptionStats: function (aRows, bFromBinding) {
+
+            var iTotal = aRows.length;
+            var iMaxAmount = 0;
+            var sMaxCurrency = "";
+            var sMaxAge = "";
+            var iMaxMinutes = -1;
+
+            var ageToMinutes = function (sAge) {
+                if (!sAge) { return 0; }
+                sAge = String(sAge).trim();
+                var iMin = 0;
+                var oH = sAge.match(/(\d+)\s*h/i);
+                var oM = sAge.match(/(\d+)\s*m/i);
+                if (oH) { iMin += parseInt(oH[1], 10) * 60; }
+                if (oM) { iMin += parseInt(oM[1], 10); }
+                return iMin;
+            };
+
+            var amountToNumber = function (v) {
+                if (v === null || v === undefined || v === "") { return 0; }
+                return parseFloat(String(v).replace(/[^0-9.-]/g, "")) || 0;
+            };
+
+            aRows.forEach(function (oRow) {
+                var sAge = oRow.Aged || "";
+                var iMinutes = ageToMinutes(sAge);
+                if (iMinutes > iMaxMinutes) {
+                    iMaxMinutes = iMinutes;
+                    sMaxAge = sAge;
+                }
+
+                var iAmount = amountToNumber(oRow.Amount);
+                if (iAmount > iMaxAmount) {
+                    iMaxAmount = iAmount;
+                    sMaxCurrency = String(oRow.CURRENCY || "").trim().toUpperCase();
+                }
+            });
+
+            var oModel = this.getView().getModel("openExceptionModel");
+            if (!oModel) { return; }
+
+            oModel.setProperty("/total", iTotal);
+            oModel.setProperty("/maxAge", sMaxAge);
+            oModel.setProperty("/maxAmount", this._formatCurrencyAmount(iMaxAmount, sMaxCurrency));
+
+            // refresh(true) would re-trigger the binding's filter; only needed for the full load
+            if (!bFromBinding) {
+                oModel.refresh(true);
+            }
+        },
+
+        _formatCurrencyAmount: function (iAmount, sCurrency) {
+            var mSymbols = { EUR: "€", USD: "$", GBP: "£", INR: "₹", SAR: "﷼" };
+            var sCode = String(sCurrency || "").trim().toUpperCase();
+            var sSymbol = mSymbols[sCode] || (sCode ? sCode + " " : "");
+            return sSymbol + Number(iAmount || 0).toLocaleString();
+        },
+
+        _attachKpiCardClicks: function () {
+            var oCard = this.byId("_IDGenKpiOpenExceptions");
+            if (!oCard) { return; }
+            if (oCard.data("clickBound")) { return; }
+            oCard.attachBrowserEvent("click", this.onOpenExceptionsPress, this);
+            oCard.data("clickBound", true);
+        },
+
+        /* ================= BY RAIL ================= */
+
         loadRailKpi: function () {
 
-            console.log("Rail KPI: loadRailKpi() called");
-    var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
-
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             var oODataModel = this.getOwnerComponent().getModel("odataModel");
-
-            var oFilterModel = this.getView().getModel("filterModel");
-
-            var sClearingArea = oFilterModel
-                ? oFilterModel.getProperty("/clearingArea")
-                : "DEBNKC";
-
-            var sSelectedDate = oFilterModel
-                ? oFilterModel.getProperty("/kpiDate")
-                : new Date().toISOString().slice(0, 10);
-
-            // Normalize to a plain YYYY-MM-DD string regardless of whether
-            // kpiDate is a JS Date object or already a string (same defensive
-            // handling as loadExceptionTrend).
-            var sDate;
-            if (sSelectedDate instanceof Date) {
-                sDate = sSelectedDate.getFullYear() + "-" +
-                    String(sSelectedDate.getMonth() + 1).padStart(2, "0") + "-" +
-                    String(sSelectedDate.getDate()).padStart(2, "0");
-            } else {
-                sDate = String(sSelectedDate).slice(0, 10);
-            }
-
+            var oFilterModel = this._getFilterModel();
             var oRailModel = this.getView().getModel("railModel");
 
-            console.log("Rail KPI: resolved filter as", { sClearingArea: sClearingArea, sDate: sDate, hasODataModel: !!oODataModel, hasRailModel: !!oRailModel });
+            if (!oODataModel || !oRailModel || !oFilterModel) { return; }
 
-            if (!oODataModel || !oRailModel || !sClearingArea || !sDate) {
-                console.warn("Rail KPI: missing model/filter — skipping load", {
-                    hasODataModel: !!oODataModel,
-                    hasRailModel: !!oRailModel,
-                    sClearingArea: sClearingArea,
-                    sDate: sDate
-                });
-                return;
-            }
+            var sClearingArea = oFilterModel.getProperty("/clearingArea");
+            var sDate = this._normalizeDate(oFilterModel.getProperty("/kpiDate"));
 
-            // Sanity-check that the RailKpi entity set actually exists in
-            // this service's $metadata before binding to it. If the entity
-            // set name/casing is wrong (or it lives in a different service
-            // than "odataModel"), this rejects with a clear message instead
-            // of the tile silently staying empty.
-            oODataModel.getMetaModel().requestObject("/RailKpi").then(function (oEntityType) {
-                console.log("Rail KPI: /RailKpi entity set exists in metadata", oEntityType);
-            }).catch(function (oError) {
-                console.error("Rail KPI: /RailKpi NOT FOUND in service metadata — entity set name/casing is likely wrong, or it belongs to a different OData service than 'odataModel'.", oError);
-            });
+            if (!sClearingArea || !sDate) { return; }
 
             var oListBinding;
 
@@ -2175,472 +689,261 @@ console.log(
                 oListBinding = oODataModel.bindList("/RailKpi", undefined, undefined, undefined, {
                     $select: "ClearingArea,PaymentItemDate,OnHold,InPostProcessing,Rejected"
                 });
-           } catch (oBindError) {
-    console.error("Rail KPI: bindList() threw synchronously", oBindError);
-    oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZero") });
-    return;
-}
+            } catch (oBindError) {
+                console.error("Rail KPI: bindList() threw", oBindError);
+                oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZero") });
+                return;
+            }
+
+            var that = this;
 
             oListBinding.requestContexts(0, 5000).then(function (aContexts) {
 
-                var aRows = aContexts.map(function (oContext) {
-                    return oContext.getObject();
-                });
+                var aRows = aContexts.map(function (c) { return c.getObject(); });
 
-                console.log("Rail KPI: fetched", aRows.length, "RailKpi rows; looking for", sClearingArea, sDate);
-
+                // Client-side match (service has casing quirks on filter names)
                 var oMatch = aRows.find(function (oRow) {
-
-                    var sRowDate = oRow.PaymentItemDate instanceof Date
-                        ? (oRow.PaymentItemDate.getFullYear() + "-" +
-                            String(oRow.PaymentItemDate.getMonth() + 1).padStart(2, "0") + "-" +
-                            String(oRow.PaymentItemDate.getDate()).padStart(2, "0"))
-                        : String(oRow.PaymentItemDate).slice(0, 10);
-
-                    return oRow.ClearingArea === sClearingArea && sRowDate === sDate;
+                    return oRow.ClearingArea === sClearingArea &&
+                        that._normalizeDate(oRow.PaymentItemDate) === sDate;
                 });
 
                 if (!oMatch) {
-                    console.warn("Rail KPI: no matching row for", sClearingArea, sDate,
-                        "— available ClearingArea/PaymentItemDate pairs:",
-                        aRows.map(function (r) { return r.ClearingArea + " / " + r.PaymentItemDate; }));
+                    console.warn("Rail KPI: no matching row for", sClearingArea, sDate);
                 }
 
-                var iHold = oMatch ? (oMatch.OnHold || 0) : 0;
-                var iPostProcessing = oMatch ? (oMatch.InPostProcessing || 0) : 0;
-                var iRejected = oMatch ? (oMatch.Rejected || 0) : 0;
+                var iHold = oMatch ? (Number(oMatch.OnHold) || 0) : 0;
+                var iPost = oMatch ? (Number(oMatch.InPostProcessing) || 0) : 0;
+                var iRejected = oMatch ? (Number(oMatch.Rejected) || 0) : 0;
+                var iTotal = iHold + iPost + iRejected;
 
-                var iTotal = iHold + iPostProcessing + iRejected;
-            
-                // "percent" is only used by the Progress Bar view — each
-                // status's share of the total, capped at 100 (ProgressIndicator
-                // can't exceed 100%). Guard against divide-by-zero when total is 0.
-                function toPercent(iValue) {
-                    return iTotal > 0 ? Math.min(Math.round((iValue / iTotal) * 100), 100) : 0;
+                function toPercent(v) {
+                    return iTotal > 0 ? Math.min(Math.round((v / iTotal) * 100), 100) : 0;
                 }
 
                 oRailModel.setData({
                     data: [
                         { status: "On Hold", value: iHold, percent: toPercent(iHold) },
-                        { status: "In Post-Processing", value: iPostProcessing, percent: toPercent(iPostProcessing) },
+                        { status: "In Post-Processing", value: iPost, percent: toPercent(iPost) },
                         { status: "Rejected", value: iRejected, percent: toPercent(iRejected) }
                     ],
                     total: iTotal,
-                  // success case
-totalText: oBundle.getText("openItemsByClearingArea", [iTotal, sClearingArea])
-
+                    totalText: oBundle.getText("openItemsByClearingArea", [iTotal, sClearingArea])
                 });
 
             }).catch(function (oError) {
                 console.error("Rail KPI load failed:", oError);
-                // bindList catch (sync error)
-oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZero") });
-     });
+                oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZero") });
+            });
         },
+
+        onRailChartTypeMenuPress: function (oEvent) {
+            var oButton = oEvent.getSource();
+
+            if (!this._oRailChartTypeMenu) {
+                var aItems = Object.keys(RAIL_CHART_TYPE_CONFIG).map(function (sKey) {
+                    var oConfig = RAIL_CHART_TYPE_CONFIG[sKey];
+                    var oItem = new sap.m.MenuItem({ text: oConfig.label, icon: oConfig.icon });
+                    oItem.data("configKey", sKey);
+                    return oItem;
+                });
+
+                this._oRailChartTypeMenu = new sap.m.Menu({
+                    items: aItems,
+                    itemSelected: this.onRailChartTypeSelected.bind(this)
+                });
+                this.getView().addDependent(this._oRailChartTypeMenu);
+            }
+
+            this._oRailChartTypeMenu.openBy(oButton);
+        },
+
+        onRailChartTypeSelected: function (oEvent) {
+            var oItem = oEvent.getParameter("item");
+            var oConfig = RAIL_CHART_TYPE_CONFIG[oItem.data("configKey")];
+            if (!oConfig) { return; }
+
+            this.getView().getModel("railViewModel").setProperty("/chartType", oConfig.chartType);
+
+            var oButton = this.byId("railChartTypeButton");
+            if (oButton) {
+                oButton.setIcon(oConfig.icon);
+                oButton.setTooltip(oConfig.label);
+            }
+        },
+
+        onToggleRailChartType: function () {
+            var oViewModel = this.getView().getModel("railViewModel");
+            if (!oViewModel) { return; }
+
+            var sNewType = oViewModel.getProperty("/chartType") === "pie" ? "progress" : "pie";
+            oViewModel.setProperty("/chartType", sNewType);
+
+            var oButton = this.byId("railChartTypeButton");
+            if (oButton) {
+                if (sNewType === "progress") {
+                    oButton.setIcon("sap-icon://pie-chart");
+                    oButton.setTooltip("Show Pie Chart");
+                } else {
+                    oButton.setIcon("sap-icon://horizontal-bar-chart-2");
+                    oButton.setTooltip("Show Progress Bar");
+                }
+            }
+        },
+
+        onRailPieSelect: function (oEvent) {
+            var oData = oEvent.getParameter("data");
+            if (!oData || !oData.length) { return; }
+
+            var oPoint = oData[0];
+            var sStatus = "";
+            var iCount = 0;
+
+            if (oPoint.data) {
+                sStatus = oPoint.data.Status || oPoint.data.status || "";
+                iCount = Number(oPoint.data.Count || oPoint.data.value || 0);
+            }
+
+            var oRailModel = this.getView().getModel("railModel");
+            oRailModel.setProperty("/selectedStatus", sStatus);
+            oRailModel.setProperty("/selectedCount", iCount);
+        },
+
+        /* ================= EXCEPTION TREND ================= */
 
         loadExceptionTrend: function () {
 
             var oODataModel = this.getOwnerComponent().getModel("odataModel");
-            var oFilterModel = this.getView().getModel("filterModel");
+            var oFilterModel = this._getFilterModel();
             var oTrendModel = this.getView().getModel("trendModel");
 
-            if (!oODataModel || !oTrendModel) {
-                console.error("Trend: OData model or trendModel missing");
-                return;
-            }
+            if (!oODataModel || !oTrendModel || !oFilterModel) { return; }
 
-            var sClearingArea = oFilterModel
-                ? oFilterModel.getProperty("/clearingArea")
-                : "DEBNKC";
+            var sClearingArea = oFilterModel.getProperty("/clearingArea");
+            var sSelectedDate = this._normalizeDate(oFilterModel.getProperty("/kpiDate"));
 
-            var sSelectedDate = oFilterModel
-                ? oFilterModel.getProperty("/kpiDate")
-                : null;
+            if (!sClearingArea || !sSelectedDate) { return; }
 
-            if (!sSelectedDate) {
-                console.warn("Trend: selected date is empty");
-                return;
-            }
+            // PaymentOrderDate is a BUSINESS DATE: never use toISOString()
+            var p = sSelectedDate.split("-");
+            var oEndDate = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
 
-            /*
-             * ============================================================
-             * IMPORTANT:
-             * PaymentOrderDate is a BUSINESS DATE.
-             *
-             * Do NOT use toISOString() for date conversion because
-             * it converts local midnight to UTC and can shift the date
-             * one day backwards in IST.
-             * ============================================================
-             */
-
-            var oEndDate;
-
-            /*
-             * If kpiDate is a JavaScript Date object
-             */
-            if (sSelectedDate instanceof Date) {
-
-                oEndDate = new Date(
-                    sSelectedDate.getFullYear(),
-                    sSelectedDate.getMonth(),
-                    sSelectedDate.getDate()
-                );
-
-            } else {
-
-                /*
-                 * If kpiDate is already a string such as:
-                 * 2026-03-02
-                 */
-                var aDateParts = String(sSelectedDate)
-                    .slice(0, 10)
-                    .split("-");
-
-                oEndDate = new Date(
-                    Number(aDateParts[0]),
-                    Number(aDateParts[1]) - 1,
-                    Number(aDateParts[2])
-                );
-            }
-
-            /*
-             * ============================================================
-             * Helper to format a Date as YYYY-MM-DD
-             * WITHOUT using toISOString()
-             * ============================================================
-             */
-
-            function formatBusinessDate(oDate) {
-
-                return (
-                    oDate.getFullYear() +
-                    "-" +
-                    String(oDate.getMonth() + 1).padStart(2, "0") +
-                    "-" +
-                    String(oDate.getDate()).padStart(2, "0")
-                );
-            }
-
-            /*
-             * ============================================================
-             * Helper to format a Date as "Jun 11" for the chart axis label
-             * ============================================================
-             */
-
-            var aTrendMonthShortNames = [
-                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-            ];
-
-            function formatTrendAxisLabel(oDate) {
-
-                return (
-                    aTrendMonthShortNames[oDate.getMonth()] +
-                    " " +
-                    oDate.getDate()
-                );
-            }
-
-            /*
-             * ============================================================
-             * Last 7 days INCLUDING selected date
-             *
-             * Example:
-             * Selected date = 2026-03-02
-             *
-             * Start = 2026-02-24
-             * End   = 2026-03-02
-             * ============================================================
-             */
+            var aMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            var that = this;
 
             var oStartDate = new Date(oEndDate);
-
-            oStartDate.setDate(
-                oStartDate.getDate() - 6
-            );
-
-            var sStartDate = formatBusinessDate(oStartDate);
-            var sEndDate = formatBusinessDate(oEndDate);
-
-            console.log(
-                "Exception Trend:",
-                "ClearingArea =", sClearingArea,
-                "Selected Date =", sSelectedDate,
-                "Start =", sStartDate,
-                "End =", sEndDate
-            );
-
-            /*
-             * ============================================================
-             * OData filters
-             * ============================================================
-             */
+            oStartDate.setDate(oStartDate.getDate() - 6);
 
             var aFilters = [
-
-                new Filter(
-                    "ClearingArea",
-                    FilterOperator.EQ,
-                    sClearingArea
-                ),
-
-                new Filter(
-                    "PaymentOrderDate",
-                    FilterOperator.GE,
-                    sStartDate
-                ),
-
-                new Filter(
-                    "PaymentOrderDate",
-                    FilterOperator.LE,
-                    sEndDate
-                ),
-
-                
-
+                new Filter("ClearingArea", FilterOperator.EQ, sClearingArea),
+                new Filter("PaymentOrderDate", FilterOperator.GE, this._normalizeDate(oStartDate)),
+                new Filter("PaymentOrderDate", FilterOperator.LE, this._normalizeDate(oEndDate))
             ];
 
-            /*
-             * ============================================================
-             * Read DailyExceptionTrend
-             * ============================================================
-             */
-
             var oListBinding = oODataModel.bindList(
-                "/DailyExceptionTrend",
-                undefined,
-                undefined,
-                aFilters,
-                {
-                    $select:
-                        "ClearingArea,PaymentOrderDate,Opened,Resolved"
-                }
+                "/DailyExceptionTrend", undefined, undefined, aFilters,
+                { $select: "ClearingArea,PaymentOrderDate,Opened,Resolved" }
             );
 
             oListBinding.requestContexts(0, 5000)
-
                 .then(function (aContexts) {
-
-                    console.log(
-                        "Exception Trend OData rows:",
-                        aContexts.length
-                    );
-
-                    /*
-                     * Convert OData contexts into normal objects
-                     */
-
-                    var aODataRows = aContexts.map(function (oContext) {
-                        return oContext.getObject();
-                    });
-
-                    console.log(
-                        "Exception Trend OData data:",
-                        aODataRows
-                    );
-
-                    /*
-                     * ====================================================
-                     * Map OData data by BUSINESS DATE
-                     * ====================================================
-                     */
 
                     var mByDate = {};
 
-                    aODataRows.forEach(function (oRow) {
-
-                        var sDate = oRow.PaymentOrderDate;
-
-                        /*
-                         * If OData returns a Date object,
-                         * extract the LOCAL business date.
-                         */
-                        if (sDate instanceof Date) {
-
-                            sDate =
-                                sDate.getFullYear() +
-                                "-" +
-                                String(sDate.getMonth() + 1).padStart(2, "0") +
-                                "-" +
-                                String(sDate.getDate()).padStart(2, "0");
-
-                        } else {
-
-                            /*
-                             * If OData already returns YYYY-MM-DD,
-                             * keep only the date portion.
-                             */
-                            sDate = String(sDate).slice(0, 10);
-                        }
-
+                    aContexts.forEach(function (oContext) {
+                        var oRow = oContext.getObject();
+                        var sDate = that._normalizeDate(oRow.PaymentOrderDate);
                         mByDate[sDate] = {
-
-                            opened:
-                                Number(oRow.Opened) || 0,
-
-                            resolved:
-                                Number(oRow.Resolved) || 0
-
+                            opened: Number(oRow.Opened) || 0,
+                            resolved: Number(oRow.Resolved) || 0
                         };
-
-                        console.log(
-                            "Mapped OData date:",
-                            sDate,
-                            "Opened:",
-                            mByDate[sDate].opened,
-                            "Resolved:",
-                            mByDate[sDate].resolved
-                        );
                     });
-
-                    /*
-                     * ====================================================
-                     * Create exactly 7 dates
-                     * ====================================================
-                     */
 
                     var aTrendData = [];
 
                     for (var i = 0; i < 7; i++) {
-
                         var oDate = new Date(oStartDate);
+                        oDate.setDate(oStartDate.getDate() + i);
 
-                        oDate.setDate(
-                            oStartDate.getDate() + i
-                        );
-
-                        /*
-                         * IMPORTANT:
-                         * Do NOT use toISOString() here.
-                         */
-
-                        var sISODate =
-                            formatBusinessDate(oDate);
-
-                        /*
-                         * Get OData values for this exact date.
-                         * If no OData row exists, show 0.
-                         */
-
-                        var oValues =
-                            mByDate[sISODate] || {
-                                opened: 0,
-                                resolved: 0
-                            };
+                        var sISO = that._normalizeDate(oDate);
+                        var oValues = mByDate[sISO] || { opened: 0, resolved: 0 };
 
                         aTrendData.push({
-
-                            date: sISODate,
-
-                            dateLabel:
-                                formatTrendAxisLabel(oDate),
-
-                            opened:
-                                oValues.opened,
-
-                            resolved:
-                                oValues.resolved
-
+                            date: sISO,
+                            dateLabel: aMonths[oDate.getMonth()] + " " + oDate.getDate(),
+                            opened: oValues.opened,
+                            resolved: oValues.resolved
                         });
                     }
 
-                    console.log(
-                        "Exception Trend chart data:",
-                        aTrendData
-                    );
-
-
-
-                    /*
-
-                    
-                     * ====================================================
-                     * Update existing trendModel
-                     * ====================================================
-                     */
-
-                    // Dynamic backlog warning
-                    var oWarning =
-                        this._getTrendWarningMessage(aTrendData);
-
-                    // Set trend data
-                    oTrendModel.setProperty(
-                        "/data",
-                        aTrendData
-                    );
-
-                    // Set dynamic warning message
-                    oTrendModel.setProperty(
-                        "/warning",
-                        oWarning
-                    );
-
+                    oTrendModel.setProperty("/data", aTrendData);
+                    oTrendModel.setProperty("/warning", that._getTrendWarningMessage(aTrendData));
                     oTrendModel.refresh(true);
 
-                    /*
-                     * ====================================================
-                     * Rebuild chart after data arrives
-                     * ====================================================
-                     */
-
-                    var oChart =
-                        this.byId("_IDGenVizFrame");
-
-                    if (oChart) {
-
-                        var sChartType =
-                            this._sActiveTrendConfigKey
-                                ? TREND_CHART_TYPE_CONFIG[
-                                    this._sActiveTrendConfigKey
-                                ].vizType
-                                : "bar";
-
-                        this._applyTrendAxisChartType(
-                            sChartType
-                        );
+                    if (that.byId("_IDGenVizFrame")) {
+                        // Re-apply the active chart type (not always "bar")
+                        that._applyTrendChartType(that._sActiveTrendConfigKey || "bar");
                     }
-
-                }.bind(this))
-
+                })
                 .catch(function (oError) {
-
-                    console.error(
-                        "Exception Trend OData load failed:",
-                        oError
-                    );
-
+                    console.error("Exception Trend OData load failed:", oError);
                 });
-
         },
 
-        // ✅ "Exception Reasons" card — was 5 hardcoded rows (Sanctions Hold,
-        // AML Review, IBAN Validation, Duplicate Payment, Reconciliation);
-        // now driven by the ExceptionsByReason OData entity set, filtered to
-        // the same ClearingArea + PaymentOrderDate as the KPI tiles above.
-        // Rows with the same CheckTextShort are grouped (summing Exceptions),
-        // sorted descending, and only the top 5 are kept — same shape the
-        // view already expects, just data-driven now. Called on init and
-        // again whenever the header filter changes (same trigger points as
-        // loadExceptionKpis, wired in View1.controller.js's
-        // _refreshExceptionKpis).
+        _getTrendWarningMessage: function (aTrendData) {
+
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+
+            if (!aTrendData || aTrendData.length === 0) {
+                return { type: "Information", message: oBundle.getText("noTrendData") };
+            }
+
+            var oToday = aTrendData[aTrendData.length - 1];
+            var iOpened = Number(oToday.opened) || 0;
+            var iResolved = Number(oToday.resolved) || 0;
+            var iDifference = Math.abs(iOpened - iResolved);
+
+            var iGrowingDays = 0;
+            for (var i = aTrendData.length - 1; i >= 0; i--) {
+                if ((Number(aTrendData[i].opened) || 0) > (Number(aTrendData[i].resolved) || 0)) {
+                    iGrowingDays++;
+                } else {
+                    break;
+                }
+            }
+
+            if (iOpened > iResolved) {
+                return {
+                    type: "Warning",
+                    message: iGrowingDays > 1
+                        ? oBundle.getText("backlogGrowingDays", [iOpened, iResolved, iDifference, iGrowingDays])
+                        : oBundle.getText("backlogGrowing", [iOpened, iResolved, iDifference])
+                };
+            }
+
+            if (iResolved > iOpened) {
+                return {
+                    type: "Success",
+                    message: oBundle.getText("backlogImproving", [iResolved, iOpened, iDifference])
+                };
+            }
+
+            return { type: "Information", message: oBundle.getText("backlogStable", [iOpened]) };
+        },
+
+        /* ================= EXCEPTION REASONS ================= */
+
         loadExceptionReasons: function () {
 
             var oODataModel = this.getOwnerComponent().getModel("odataModel");
-            var oFilterModel = this.getView().getModel("filterModel");
-
-            var sClearingArea = oFilterModel
-                ? oFilterModel.getProperty("/clearingArea")
-                : "DEBNKC";
-
-            var sDate = oFilterModel
-                ? oFilterModel.getProperty("/kpiDate")
-                : new Date().toISOString().slice(0, 10);
-
+            var oFilterModel = this._getFilterModel();
             var oReasonModel = this.getView().getModel("reasonModel");
 
-            if (!oODataModel || !sClearingArea || !sDate || !oReasonModel) {
-                return;
-            }
+            if (!oODataModel || !oReasonModel || !oFilterModel) { return; }
+
+            var sClearingArea = oFilterModel.getProperty("/clearingArea");
+            var sDate = this._normalizeDate(oFilterModel.getProperty("/kpiDate"));
+
+            if (!sClearingArea || !sDate) { return; }
 
             var aFilters = [
                 new Filter("ClearingArea", FilterOperator.EQ, sClearingArea),
@@ -2651,71 +954,44 @@ oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZe
                 $select: "ClearingArea,PaymentOrderDate,CheckTextShort,Exceptions"
             });
 
-            // Grouping/top-5 happens client-side below, so pull every matching
-            // row for the day rather than paging a handful at a time.
             oListBinding.requestContexts(0, 5000).then(function (aContexts) {
+
                 var mGrouped = {};
                 var iCriticalTotal = 0;
 
                 aContexts.forEach(function (oContext) {
-
                     var oRow = oContext.getObject();
+                    var sReason = (oRow.CheckTextShort || "").trim();
+                    if (!sReason) { return; }
 
-                    var sReason =
-                        (oRow.CheckTextShort || "").trim();
-
-                    if (!sReason) {
-                        return;
-                    }
-
-                    var iExceptions =
-                        Number(oRow.Exceptions) || 0;
-
-                    // Sum all exception counts for the selected day
+                    var iExceptions = Number(oRow.Exceptions) || 0;
                     iCriticalTotal += iExceptions;
-
-                    // Group by reason
-                    mGrouped[sReason] =
-                        (mGrouped[sReason] || 0) +
-                        iExceptions;
+                    mGrouped[sReason] = (mGrouped[sReason] || 0) + iExceptions;
                 });
 
-                var aGrouped = Object.keys(mGrouped).map(function (sReason) {
-                    return { reason: sReason, value: mGrouped[sReason] };
+                var aGrouped = Object.keys(mGrouped).map(function (s) {
+                    return { reason: s, value: mGrouped[s] };
                 });
 
-                aGrouped.sort(function (a, b) {
-                    return b.value - a.value;
-                });
+                aGrouped.sort(function (a, b) { return b.value - a.value; });
 
-                var aTop5 = aGrouped.slice(0, 5);
-
-                // Same rank-based colour grading the original static rows
-                // used (green/blue/orange/red/red), now via ProgressIndicator's
-                // built-in semantic "state" instead of a custom CSS class.
                 var aStates = ["Positive", "Information", "Critical", "Negative", "Negative"];
 
-                var aTopReasons = aTop5.map(function (oRow, iIndex) {
+                var aTopReasons = aGrouped.slice(0, 5).map(function (oRow, iIndex) {
                     return {
+                        rank: iIndex + 1,
                         reason: oRow.reason,
                         value: oRow.value,
                         displayValue: oRow.value >= 1000
                             ? (oRow.value / 1000).toFixed(1) + "K"
                             : String(oRow.value),
-                        // "17 percent filled in 100" — the exception count
-                        // itself is the fill percentage, capped at 100 so a
-                        // count above 100 doesn't overflow the bar.
                         percent: Math.min(oRow.value, 100),
                         state: aStates[iIndex] || "Negative"
                     };
                 });
 
                 oReasonModel.setProperty("/topReasons", aTopReasons);
-
-                oReasonModel.setProperty(
-                    "/criticalTotal",
-                    iCriticalTotal
-                );
+                oReasonModel.setProperty("/criticalTotal", iCriticalTotal);
 
             }).catch(function (oError) {
                 console.error("Exception Reasons load failed:", oError);
@@ -2723,36 +999,16 @@ oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZe
             });
         },
 
+        /* ================= TREND CHART TYPES ================= */
 
-
-
-
-
-        // ✅ FIX: this formatter was referenced in the view (teamWorkloadModel>status icon)
-        // but was never defined in the original View1.controller.js, so the icon
-        // silently never rendered. Added here to match formatWorkloadStatus's logic.
-        formatWorkloadIcon: function (sStatus) {
-            if (sStatus === "On Case") {
-                return "sap-icon://busy";
-            }
-            if (sStatus === "Available") {
-                return "sap-icon://employee";
-            }
-            return "sap-icon://status-in-process";
-        },
-
-        // ✅ Chart-type switcher for the Exception Trend chart — same pattern as
-        // onChartTypeMenuPress in View1.controller.js. Builds the menu once from
-        // TREND_CHART_TYPE_CONFIG and reuses it on every press.
         onTrendChartTypeMenuPress: function (oEvent) {
             var oButton = oEvent.getSource();
 
             if (!this._oTrendChartTypeMenu) {
-
-                var aItems = Object.keys(TREND_CHART_TYPE_CONFIG).map(function (sConfigKey) {
-                    var oConfig = TREND_CHART_TYPE_CONFIG[sConfigKey];
+                var aItems = Object.keys(TREND_CHART_TYPE_CONFIG).map(function (sKey) {
+                    var oConfig = TREND_CHART_TYPE_CONFIG[sKey];
                     var oItem = new sap.m.MenuItem({ text: oConfig.label, icon: oConfig.icon });
-                    oItem.data("configKey", sConfigKey);
+                    oItem.data("configKey", sKey);
                     return oItem;
                 });
 
@@ -2767,71 +1023,14 @@ oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZe
         },
 
         onTrendChartTypeSelected: function (oEvent) {
-            var oItem = oEvent.getParameter("item");
-            var sConfigKey = oItem.data("configKey");
-            if (!sConfigKey) {
-                return;
-            }
-            this._applyTrendChartType(sConfigKey);
+            var sKey = oEvent.getParameter("item").data("configKey");
+            if (sKey) { this._applyTrendChartType(sKey); }
         },
 
-        // ✅ "By Rail" chart-type switcher — Pie Chart vs. Progress Bar.
-        // Same menu-button pattern as onTrendChartTypeMenuPress, built once
-        // from RAIL_CHART_TYPE_CONFIG and reused on every press.
-        onRailChartTypeMenuPress: function (oEvent) {
-            var oButton = oEvent.getSource();
-
-            if (!this._oRailChartTypeMenu) {
-
-                var aItems = Object.keys(RAIL_CHART_TYPE_CONFIG).map(function (sConfigKey) {
-                    var oConfig = RAIL_CHART_TYPE_CONFIG[sConfigKey];
-                    var oItem = new sap.m.MenuItem({ text: oConfig.label, icon: oConfig.icon });
-                    oItem.data("configKey", sConfigKey);
-                    return oItem;
-                });
-
-                this._oRailChartTypeMenu = new sap.m.Menu({
-                    items: aItems,
-                    itemSelected: this.onRailChartTypeSelected.bind(this)
-                });
-                this.getView().addDependent(this._oRailChartTypeMenu);
-            }
-
-            this._oRailChartTypeMenu.openBy(oButton);
-        },
-
-        // Unlike the Trend chart, both views read the same railModel>/data
-        // shape (status/value/percent) — so switching is just flipping
-        // railViewModel>/chartType, which the view's visible= expressions
-        // react to directly. No dataset/feed rebuild needed.
-        onRailChartTypeSelected: function (oEvent) {
-            var oItem = oEvent.getParameter("item");
-            var sConfigKey = oItem.data("configKey");
-            var oConfig = RAIL_CHART_TYPE_CONFIG[sConfigKey];
-
-            if (!oConfig) {
-                return;
-            }
-
-            this.getView().getModel("railViewModel").setProperty("/chartType", oConfig.chartType);
-
-            var oButton = this.byId("railChartTypeButton");
-            if (oButton) {
-                oButton.setIcon(oConfig.icon);
-                oButton.setTooltip(oConfig.label);
-            }
-        },
-
-        // ✅ Central dispatcher for the Trend chart — same role as
-        // _applyChartType in View1.controller.js. Sets the button's icon to
-        // match, then rebuilds the dataset/feeds for whichever mode the
-        // selected type needs.
         _applyTrendChartType: function (sConfigKey) {
             var oConfig = TREND_CHART_TYPE_CONFIG[sConfigKey];
-            var oTrendChart = this.byId("_IDGenVizFrame");
-            if (!oConfig || !oTrendChart) {
-                return;
-            }
+            var oChart = this.byId("_IDGenVizFrame");
+            if (!oConfig || !oChart) { return; }
 
             this._sActiveTrendConfigKey = sConfigKey;
 
@@ -2853,11 +1052,9 @@ oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZe
             }
         },
 
-        // ── Trend data-reshaping helpers ──────────────────────────────────
         _getTrendOpenedResolvedTotals: function () {
             var aData = this.getView().getModel("trendModel").getProperty("/data") || [];
-            var iOpened = 0;
-            var iResolved = 0;
+            var iOpened = 0, iResolved = 0;
             aData.forEach(function (o) {
                 iOpened += o.opened || 0;
                 iResolved += o.resolved || 0;
@@ -2869,187 +1066,90 @@ oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZe
         },
 
         _getTrendHeatmapData: function () {
-
-            var aData =
-                this.getView()
-                    .getModel("trendModel")
-                    .getProperty("/data") || [];
-
+            var aData = this.getView().getModel("trendModel").getProperty("/data") || [];
             var aOut = [];
-
             aData.forEach(function (o) {
-
-                aOut.push({
-                    Day: o.dateLabel,
-                    Type: "Opened",
-                    Value: Number(o.opened) || 0
-                });
-
-                aOut.push({
-                    Day: o.dateLabel,
-                    Type: "Resolved",
-                    Value: Number(o.resolved) || 0
-                });
-
+                aOut.push({ Day: o.dateLabel, Type: "Opened", Value: Number(o.opened) || 0 });
+                aOut.push({ Day: o.dateLabel, Type: "Resolved", Value: Number(o.resolved) || 0 });
             });
-
             return aOut;
         },
 
-        // ── Trend mode implementations ────────────────────────────────────
-
-        // Bar/Column/Line/Stacked/100% Stacked — Day dimension, Opened+Resolved
-        // measures, same shape the chart already ships with.
         _applyTrendAxisChartType: function (sVizType) {
 
-            var oTrendChart = this.byId("_IDGenVizFrame");
-            var oTrendModel = this.getView().getModel("trendModel");
+            var oChart = this.byId("_IDGenVizFrame");
+            if (!oChart || !this.getView().getModel("trendModel")) { return; }
 
-            if (!oTrendChart || !oTrendModel) {
-                return;
-            }
+            oChart.removeAllFeeds();
 
-            var aData = oTrendModel.getProperty("/data") || [];
-
-            console.log(
-                "Rendering Exception Trend:",
-                sVizType,
-                aData
-            );
-
-            oTrendChart.removeAllFeeds();
-
-            var oDataset = new FlattenedDataset({
-
-                dimensions: [
-                    {
-                        name: "Date",
-                        value: "{trendModel>dateLabel}"
-                    }
-                ],
-
+            oChart.setDataset(new FlattenedDataset({
+                dimensions: [{ name: "Date", value: "{trendModel>dateLabel}" }],
                 measures: [
-                    {
-                        name: "Opened",
-                        value: "{trendModel>opened}"
-                    },
-                    {
-                        name: "Resolved",
-                        value: "{trendModel>resolved}"
-                    }
+                    { name: "Opened", value: "{trendModel>opened}" },
+                    { name: "Resolved", value: "{trendModel>resolved}" }
                 ],
+                data: { path: "trendModel>/data" }
+            }));
 
-                data: {
-                    path: "trendModel>/data"
-                }
-            });
+            oChart.addFeed(new FeedItem({ uid: "valueAxis", type: "Measure", values: ["Opened", "Resolved"] }));
+            oChart.addFeed(new FeedItem({ uid: "categoryAxis", type: "Dimension", values: ["Date"] }));
 
-            oTrendChart.setDataset(oDataset);
+            oChart.setVizType(sVizType || "bar");
 
-            oTrendChart.addFeed(
-                new FeedItem({
-                    uid: "valueAxis",
-                    type: "Measure",
-                    values: [
-                        "Opened",
-                        "Resolved"
-                    ]
-                })
-            );
-
-            oTrendChart.addFeed(
-                new FeedItem({
-                    uid: "categoryAxis",
-                    type: "Dimension",
-                    values: [
-                        "Date"
-                    ]
-                })
-            );
-
-            oTrendChart.setVizType(
-                sVizType || "bar"
-            );
-
-            oTrendChart.setVizProperties({
+            oChart.setVizProperties({
                 title: { visible: false },
                 legend: { visible: true, position: "bottom", alignment: "center" },
-                plotArea: {
-                    colorPalette: ["#c17b74", "#7a9e6f"]
-                },
+                plotArea: { colorPalette: ["#c17b74", "#7a9e6f"] },
                 categoryAxis: { title: { visible: false }, label: { visible: true } },
                 valueAxis: { title: { visible: false }, label: { visible: true } }
             });
 
-            /*
-             * Explicitly refresh the chart
-             */
-            oTrendChart.invalidate();
-
-            console.log(
-                "Exception Trend chart rendered with",
-                aData.length,
-                "rows"
-            );
+            oChart.invalidate();
         },
-        // Pie/Donut — part-to-whole, not a time series: total Opened vs total
-        // Resolved across the whole trend window.
+
         _applyTrendShareChartType: function (sVizType) {
-            var oTrendChart = this.byId("_IDGenVizFrame");
-            var aTotals = this._getTrendOpenedResolvedTotals();
+            var oChart = this.byId("_IDGenVizFrame");
 
-            this.getView().getModel("trendModel").setProperty("/openedResolvedShare", aTotals);
+            this.getView().getModel("trendModel").setProperty("/openedResolvedShare", this._getTrendOpenedResolvedTotals());
 
-            oTrendChart.removeAllFeeds();
-            oTrendChart.setDataset(new FlattenedDataset({
-                dimensions: [
-                    { name: "Category", value: "{trendModel>Category}" }
-                ],
-                measures: [
-                    { name: "Total", value: "{trendModel>Total}" }
-                ],
+            oChart.removeAllFeeds();
+            oChart.setDataset(new FlattenedDataset({
+                dimensions: [{ name: "Category", value: "{trendModel>Category}" }],
+                measures: [{ name: "Total", value: "{trendModel>Total}" }],
                 data: { path: "trendModel>/openedResolvedShare" }
             }));
-            oTrendChart.addFeed(new FeedItem({ uid: "size", type: "Measure", values: ["Total"] }));
-            oTrendChart.addFeed(new FeedItem({ uid: "color", type: "Dimension", values: ["Category"] }));
+            oChart.addFeed(new FeedItem({ uid: "size", type: "Measure", values: ["Total"] }));
+            oChart.addFeed(new FeedItem({ uid: "color", type: "Dimension", values: ["Category"] }));
 
-            oTrendChart.setVizType(sVizType);
-            oTrendChart.setVizProperties({ plotArea: { colorPalette: ["#c17b74", "#7a9e6f"] } });
+            oChart.setVizType(sVizType);
+            oChart.setVizProperties({ plotArea: { colorPalette: ["#c17b74", "#7a9e6f"] } });
         },
 
-        // Heat Map — Day × Type (Opened/Resolved) grid, colored by count.
         _applyTrendHeatmapChartType: function () {
-            var oTrendChart = this.byId("_IDGenVizFrame");
-            var aHeatmapData = this._getTrendHeatmapData();
+            var oChart = this.byId("_IDGenVizFrame");
 
-            this.getView().getModel("trendModel").setProperty("/heatmapData", aHeatmapData);
+            this.getView().getModel("trendModel").setProperty("/heatmapData", this._getTrendHeatmapData());
 
-            oTrendChart.removeAllFeeds();
-            oTrendChart.setDataset(new FlattenedDataset({
+            oChart.removeAllFeeds();
+            oChart.setDataset(new FlattenedDataset({
                 dimensions: [
                     { name: "Day", value: "{trendModel>Day}" },
                     { name: "Type", value: "{trendModel>Type}" }
                 ],
-                measures: [
-                    { name: "Value", value: "{trendModel>Value}" }
-                ],
+                measures: [{ name: "Value", value: "{trendModel>Value}" }],
                 data: { path: "trendModel>/heatmapData" }
             }));
-            oTrendChart.addFeed(new FeedItem({ uid: "categoryAxis", type: "Dimension", values: ["Day"] }));
-            oTrendChart.addFeed(new FeedItem({ uid: "categoryAxis2", type: "Dimension", values: ["Type"] }));
-            oTrendChart.addFeed(new FeedItem({ uid: "color", type: "Measure", values: ["Value"] }));
+            oChart.addFeed(new FeedItem({ uid: "categoryAxis", type: "Dimension", values: ["Day"] }));
+            oChart.addFeed(new FeedItem({ uid: "categoryAxis2", type: "Dimension", values: ["Type"] }));
+            oChart.addFeed(new FeedItem({ uid: "color", type: "Measure", values: ["Value"] }));
 
-            oTrendChart.setVizType("heatmap");
+            oChart.setVizType("heatmap");
         },
 
-        // ✅ Maximize / Restore for the Exception Trend chart — same
-        // remove-from-parent / move-into-Dialog / restore-on-close pattern as
-        // onToggleChartSize in View1.controller.js.
         onToggleTrendChartSize: function () {
 
             var oCard = this.byId("_IDGenVBox37");
             var oButton = this.byId("trendExpandButton");
-
             var iContentWidth = this._getContentAreaWidth();
 
             if (!this._oTrendDialog) {
@@ -3068,24 +1168,16 @@ oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZe
                 this.getView().addDependent(this._oTrendDialog);
 
                 this._oTrendDialog.attachAfterClose(function () {
-
                     if (this._oOriginalTrendParent) {
-
-                        this._oOriginalTrendParent.insertItem(
-                            oCard,
-                            this._iOriginalTrendIndex
-                        );
+                        this._oOriginalTrendParent.insertItem(oCard, this._iOriginalTrendIndex);
 
                         oCard.setWidth("40%");
                         oCard.setHeight("420px");
-
                         this.byId("_IDGenVizFrame").setHeight("260px");
-
                         oButton.setIcon("sap-icon://full-screen");
 
                         this._bTrendExpanded = false;
                     }
-
                 }.bind(this));
 
             } else {
@@ -3095,10 +1187,7 @@ oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZe
             if (!this._bTrendExpanded) {
 
                 this._oOriginalTrendParent = oCard.getParent();
-
-                this._iOriginalTrendIndex =
-                    this._oOriginalTrendParent.indexOfItem(oCard);
-
+                this._iOriginalTrendIndex = this._oOriginalTrendParent.indexOfItem(oCard);
                 this._oOriginalTrendParent.removeItem(oCard);
 
                 oCard.setWidth("100%");
@@ -3111,198 +1200,43 @@ oRailModel.setData({ data: [], total: 0, totalText: oBundle.getText("openItemsZe
                 this._oTrendDialog.addContent(oCard);
 
                 oButton.setIcon("sap-icon://exit-full-screen");
-
                 this._bTrendExpanded = true;
-
                 this._oTrendDialog.open();
 
             } else {
 
                 oCard.setWidth("40%");
                 oCard.setHeight("420px");
-
                 this.byId("_IDGenVizFrame").setHeight("260px");
-
                 this._oTrendDialog.close();
-
             }
-
         },
-        // ✅ sap.viz has no vizProperties option to style a single categoryAxis
-        // label differently from the rest — "categoryAxis.label" applies to
-        // every label uniformly. So instead, once the chart has actually
-        // painted its SVG, find the "Today" text node and bump its
-        // font-weight/font-size directly. Runs after every render — including
-        // chart-type switches and resize on maximize — so it never falls out
-        // of sync with whatever's currently drawn.
-        onTrendChartRenderComplete: function () {
-            var oTrendChart = this.byId("_IDGenVizFrame");
-            if (!oTrendChart) {
-                return;
-            }
 
-            // VizFrame's own SVG paint can finish a tick after renderComplete
-            // fires, so defer to the next tick before touching the DOM.
+        onTrendChartRenderComplete: function () {
+            var oChart = this.byId("_IDGenVizFrame");
+            if (!oChart) { return; }
+
             setTimeout(function () {
-                oTrendChart.$().find("text").each(function () {
+                oChart.$().find("text").each(function () {
                     var $text = jQuery(this);
                     if ($text.text().trim() === "Today") {
-                        $text.css({
-                            "font-weight": "bold",
-                            "font-size": "13px"
-                        });
+                        $text.css({ "font-weight": "bold", "font-size": "13px" });
                     }
                 });
             }, 0);
         },
 
-        _getTrendWarningMessage: function (aTrendData) {
-var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
-            if (!aTrendData || aTrendData.length === 0) {
-                return {
-                    type: "Information",
-                    message:
-                        "No Trend Data: No exception activity is available for the selected date."
-                };
-            }
-
-            // Last item = selected date
-            var oToday =
-                aTrendData[aTrendData.length - 1];
-
-            var iOpened =
-                Number(oToday.opened) || 0;
-
-            var iResolved =
-                Number(oToday.resolved) || 0;
-
-            var iDifference =
-                Math.abs(iOpened - iResolved);
-
-            /*
-             * Count consecutive days where
-             * Opened > Resolved.
-             */
-            var iGrowingDays = 0;
-
-            for (
-                var i = aTrendData.length - 1;
-                i >= 0;
-                i--
-            ) {
-
-                var iDayOpened =
-                    Number(aTrendData[i].opened) || 0;
-
-                var iDayResolved =
-                    Number(aTrendData[i].resolved) || 0;
-
-                if (iDayOpened > iDayResolved) {
-                    iGrowingDays++;
-                } else {
-                    break;
-                }
-            }
-
-            /*
-             * Helper for 1st / 2nd / 3rd / 4th...
-             */
-            var getOrdinal = function (iNumber) {
-
-                if (
-                    iNumber % 100 >= 11 &&
-                    iNumber % 100 <= 13
-                ) {
-                    return iNumber + "th";
-                }
-
-                switch (iNumber % 10) {
-
-                    case 1:
-                        return iNumber + "st";
-
-                    case 2:
-                        return iNumber + "nd";
-
-                    case 3:
-                        return iNumber + "rd";
-
-                    default:
-                        return iNumber + "th";
-                }
-            };
-
-            /*
-             * Backlog is growing
-             */
-           if (iOpened > iResolved) {
-    return {
-        type: "Warning",
-        message: iGrowingDays > 1
-            ? oBundle.getText("backlogGrowingDays", [iOpened, iResolved, iDifference, iGrowingDays])
-            : oBundle.getText("backlogGrowing", [iOpened, iResolved, iDifference])
-    };
-}
-
-            /*
-             * Backlog is improving
-             */
-            if (iResolved > iOpened) {
-
-                return {
-                    type: "Success",
-                    message:
-                        "Backlog Improving: Resolved (" +
-                        iResolved +
-                        ") exceeds opened (" +
-                        iOpened +
-                        ") by " +
-                        iDifference +
-                        "."
-                };
-            }
-
-            /*
-             * Backlog is stable
-             */
-            // empty data
-return {
-    type: "Information",
-    message: oBundle.getText("noTrendData")
-};
-
-// growing (replace the whole block, including sMessage and getOrdinal)
-if (iOpened > iResolved) {
-    return {
-        type: "Warning",
-        message: iGrowingDays > 1
-            ? oBundle.getText("backlogGrowingDays", [iOpened, iResolved, iDifference, iGrowingDays])
-            : oBundle.getText("backlogGrowing", [iOpened, iResolved, iDifference])
-    };
-}
-
-// improving
-if (iResolved > iOpened) {
-    return {
-        type: "Success",
-        message: oBundle.getText("backlogImproving", [iResolved, iOpened, iDifference])
-    };
-}
-
-// stable (the one you pasted)
-return {
-    type: "Information",
-    message: oBundle.getText("backlogStable", [iOpened])
-};
+        _getContentAreaWidth: function () {
+            var oViewDom = this.getView().getDomRef();
+            return oViewDom ? oViewDom.offsetWidth : window.innerWidth * 0.92;
         },
+
+        /* ================= TABLE SELECTION ================= */
 
         onBulkAction: function () {
 
             var oTable = this.byId("_IDGenTable3");
-
-            if (!oTable) {
-                return;
-            }
+            if (!oTable) { return; }
 
             var aItems = oTable.getItems();
 
@@ -3311,535 +1245,22 @@ return {
                 return;
             }
 
-            // Select all rows
             aItems.forEach(function (oItem) {
                 oTable.setSelectedItem(oItem, true);
             });
 
-            // Store selected data
             this._aSelectedExceptions = aItems.map(function (oItem) {
-
-                return oItem
-                    .getBindingContext("startupModel")
-                    .getObject();
-
+                return oItem.getBindingContext("openExceptionModel").getObject();
             });
-
-            console.log(
-                "Bulk selected exceptions:",
-                this._aSelectedExceptions
-            );
-
-
         },
 
         onStartupRowSelectionChange: function (oEvent) {
-
             var oTable = oEvent.getSource();
 
-            var aSelectedItems =
-                oTable.getSelectedItems();
-
-            console.log(
-                "Selected exception rows:",
-                aSelectedItems
-            );
-
-            var aSelectedData =
-                aSelectedItems.map(function (oItem) {
-
-                    return oItem
-                        .getBindingContext("startupModel")
-                        .getObject();
-
-                });
-
-            console.log(
-                "Selected exception data:",
-                aSelectedData
-            );
-
-            // Store for later bulk processing
-            this._aSelectedExceptions = aSelectedData;
-        },
-
-        onToggleRailChartType: function () {
-
-            var oViewModel = this.getView().getModel("railViewModel");
-
-            if (!oViewModel) {
-                return;
-            }
-
-            var sCurrentType = oViewModel.getProperty("/chartType");
-
-            var sNewType =
-                sCurrentType === "pie"
-                    ? "progress"
-                    : "pie";
-
-            oViewModel.setProperty("/chartType", sNewType);
-
-            var oButton = this.byId("railChartTypeButton");
-
-            if (oButton) {
-
-                if (sNewType === "progress") {
-
-                    oButton.setIcon(
-                        "sap-icon://pie-chart"
-                    );
-
-                    oButton.setTooltip(
-                        "Show Pie Chart"
-                    );
-
-                } else {
-
-                    oButton.setIcon(
-                        "sap-icon://horizontal-bar-chart-2"
-                    );
-
-                    oButton.setTooltip(
-                        "Show Progress Bar"
-                    );
-                }
-            }
-        },
-
-        onOpenExceptionsPress: function () {
-
-            console.log("Open Exceptions KPI clicked");
-
-            var oModel = this.getView()
-                .getModel("openExceptionModel");
-
-            if (!oModel) {
-                console.error(
-                    "openExceptionModel not found"
-                );
-                return;
-            }
-
-            // Clear old data first
-            oModel.setProperty("/data", []);
-
-            this.loadOpenExceptionDetails();
-        },
-        _updateOpenExceptionCount: function (oBinding) {
-
-            if (!oBinding) {
-                return;
-            }
-
-            var aContexts = oBinding.getCurrentContexts
-                ? oBinding.getCurrentContexts()
-                : [];
-
-            var aRows = aContexts.map(function (oContext) {
-                return oContext.getObject();
+            this._aSelectedExceptions = oTable.getSelectedItems().map(function (oItem) {
+                return oItem.getBindingContext("openExceptionModel").getObject();
             });
-
-            var iTotal = aRows.length;
-            var iMaxAmount = -Infinity;
-            var sMaxCurrency = "";
-            var sMaxAge = "";
-            var iMaxMinutes = -1;
-
-            var ageToMinutes = function (sAge) {
-
-                if (!sAge) {
-                    return 0;
-                }
-
-                sAge = String(sAge).trim();
-
-                var iMinutes = 0;
-
-                var oHourMatch = sAge.match(/(\d+)\s*h/i);
-                var oMinuteMatch = sAge.match(/(\d+)\s*m/i);
-
-                if (oHourMatch) {
-                    iMinutes += parseInt(oHourMatch[1], 10) * 60;
-                }
-
-                if (oMinuteMatch) {
-                    iMinutes += parseInt(oMinuteMatch[1], 10);
-                }
-
-                return iMinutes;
-            };
-
-            var amountToNumber = function (vAmount) {
-
-                if (
-                    vAmount === null ||
-                    vAmount === undefined ||
-                    vAmount === ""
-                ) {
-                    return 0;
-                }
-
-                /*
-                 * Handles:
-                 * 48000
-                 * 48,000
-                 * EUR 48000
-                 * USD 48000
-                 */
-                var sValue = String(vAmount)
-                    .replace(/[^0-9.-]/g, "");
-
-                return parseFloat(sValue) || 0;
-            };
-
-            aRows.forEach(function (oRow) {
-
-                /*
-                 * MAX AGE
-                 */
-                var sAge = oRow.Aged || "";
-
-                var iMinutes = ageToMinutes(sAge);
-
-                if (iMinutes > iMaxMinutes) {
-
-                    iMaxMinutes = iMinutes;
-                    sMaxAge = sAge;
-                }
-
-                /*
-                 * HIGHEST VALUE AT RISK
-                 */
-                var iAmount = amountToNumber(oRow.Amount);
-
-                if (iAmount > iMaxAmount) {
-
-                    iMaxAmount = iAmount;
-
-                    /*
-                     * IMPORTANT:
-                     * Take currency from the SAME row
-                     * that contains the highest amount.
-                     */
-                    sMaxCurrency = String(
-                        oRow.CURRENCY || ""
-                    ).trim().toUpperCase();
-                }
-            });
-
-            /*
-             * No rows after filtering
-             */
-            if (iMaxAmount === -Infinity) {
-                iMaxAmount = 0;
-                sMaxCurrency = "";
-            }
-
-            var oModel = this.getView()
-                .getModel("openExceptionModel");
-
-            if (!oModel) {
-                return;
-            }
-
-            oModel.setProperty(
-                "/total",
-                iTotal
-            );
-
-            oModel.setProperty(
-                "/maxAge",
-                sMaxAge
-            );
-
-            /*
-             * Set currency + amount together
-             */
-            oModel.setProperty(
-                "/maxAmount",
-                this._formatCurrencyAmount(
-                    iMaxAmount,
-                    sMaxCurrency
-                )
-            );
-
-            oModel.refresh(true);
-
-            console.log(
-                "Highest Value At Risk:",
-                iMaxAmount,
-                sMaxCurrency
-            );
-        },
-        _formatCurrencyAmount: function (iAmount, sCurrency) {
-
-            var mSymbols = {
-                EUR: "€",
-                USD: "$",
-                GBP: "£",
-                INR: "₹",
-                SAR: "﷼"
-            };
-
-            var sCode = String(sCurrency || "").trim().toUpperCase();
-            var sSymbol = mSymbols[sCode] || (sCode ? sCode + " " : "");
-
-            return sSymbol + Number(iAmount || 0).toLocaleString();
-        },
-
-        _calculateOpenExceptionStats: function (aRows) {
-
-            var iTotal = aRows.length;
-            var sMaxAge = "";
-            var iMaxAmount = 0;
-            var sMaxCurrency = "";
-
-            var ageToMinutes = function (sAge) {
-
-                if (!sAge) {
-                    return 0;
-                }
-
-                sAge = String(sAge).trim();
-
-                var iMinutes = 0;
-
-                var oHourMatch =
-                    sAge.match(/(\d+)\s*h/i);
-
-                var oMinuteMatch =
-                    sAge.match(/(\d+)\s*m/i);
-
-                if (oHourMatch) {
-                    iMinutes +=
-                        parseInt(oHourMatch[1], 10) * 60;
-                }
-
-                if (oMinuteMatch) {
-                    iMinutes +=
-                        parseInt(oMinuteMatch[1], 10);
-                }
-
-                return iMinutes;
-            };
-
-            var amountToNumber = function (sAmount) {
-
-                if (sAmount === null ||
-                    sAmount === undefined) {
-                    return 0;
-                }
-
-                var sValue = String(sAmount)
-                    .replace(/SAR/gi, "")
-                    .replace(/,/g, "")
-                    .trim();
-
-                return parseFloat(sValue) || 0;
-            };
-
-
-            var iMaxMinutes = -1;
-
-            aRows.forEach(function (oRow) {
-
-                // =========================
-                // MAX AGE
-                // =========================
-                var sAge = oRow.Aged;
-
-                var iMinutes =
-                    ageToMinutes(sAge);
-
-                if (iMinutes > iMaxMinutes) {
-
-                    iMaxMinutes = iMinutes;
-
-                    sMaxAge = sAge;
-                }
-
-
-                // =========================
-                // MAX AMOUNT
-                // =========================
-                var iAmount =
-                    amountToNumber(oRow.Amount);
-
-                if (iAmount > iMaxAmount) {
-
-                    iMaxAmount = iAmount;
-                    sMaxCurrency = String(oRow.CURRENCY || "").trim().toUpperCase();
-                }
-
-            });
-
-
-            var oModel =
-                this.getView()
-                    .getModel("openExceptionModel");
-
-
-            oModel.setProperty(
-                "/total",
-                iTotal
-            );
-
-            oModel.setProperty(
-                "/maxAge",
-                sMaxAge
-            );
-
-            oModel.setProperty(
-                "/maxAmount",
-                this._formatCurrencyAmount(iMaxAmount, sMaxCurrency)
-            );
-
-            oModel.refresh(true);
-
-            console.log(
-                "Open Exception Stats:",
-                {
-                    total: iTotal,
-                    maxAge: sMaxAge,
-                    maxAmount: iMaxAmount
-                }
-            );
-        },
-
-        _attachKpiCardClicks: function () {
-
-            var oCard = this.byId("_IDGenKpiOpenExceptions");
-            if (!oCard) { return; }
-
-            if (oCard.data("clickBound")) { return; }
-
-            oCard.attachBrowserEvent("click", this.onOpenExceptionsPress, this);
-            oCard.data("clickBound", true);
-
-        },
-
-        // ✅ Formats ValueAtRisk as €86.0M / €142.5K / €420 depending on magnitude.
-        // Same K/M abbreviation pattern as _updateStatusBreakdown's fmt() in
-        // View1.controller.js, with a € prefix per the reference design.
-        formatValueAtRisk: function (vValue) {
-
-            var fValue = Number(vValue) || 0;
-
-            if (fValue >= 1000000) {
-                return "€" + (fValue / 1000000).toFixed(1) + "M";
-            }
-
-            if (fValue >= 1000) {
-                return "€" + (fValue / 1000).toFixed(1) + "K";
-            }
-
-            return "€" + fValue.toLocaleString();
-
-        },
-
-
-        // ✅ Open Exceptions: MORE exceptions is bad, so "up" = warn color, "down" = good color.
-        // Returns "" (nothing shown) when there's no real yesterday value to compare against.
-       _getTrendText: function (oTrend) {
-    var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
-
-    if (!oTrend || !oTrend.hasData) {
-        return oBundle.getText("kpiInsufficientData");
-    }
-
-    if (oTrend.direction === "flat") {
-        return oBundle.getText("kpiNoChange");
-    }
-
-    var sKey = oTrend.direction === "up" ? "kpiTrendUp" : "kpiTrendDown";
-    return oBundle.getText(sKey, [oTrend.percent.toFixed(1)]);
-},
-
-formatOpenExceptionTrendText: function (oTrend) {
-    return this._getTrendText(oTrend);
-},
-
-formatValueAtRiskTrendText: function (oTrend) {
-    return this._getTrendText(oTrend);
-},
-
-        formatOpenExceptionTrendClass: function (oTrend) {
-            if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {
-                return "kpiCardSubtext";
-            }
-
-            return oTrend.direction === "up"
-                ? "kpiCardSubtext kpiCardSubtextWarn"
-                : "kpiCardSubtext kpiCardSubtextGood";
-        },
-
-        // ✅ Value at Risk: same "more is worse" semantics as Open Exceptions.
-        // ✅ Value at Risk: same "more is worse" semantics as Open Exceptions.
-       
-
-        formatValueAtRiskTrendClass: function (oTrend) {
-            if (!oTrend || !oTrend.hasData || oTrend.direction === "flat") {
-                return "kpiCardSubtext";
-            }
-
-            return oTrend.direction === "up"
-                ? "kpiCardSubtext kpiCardSubtextWarn"
-                : "kpiCardSubtext kpiCardSubtextGood";
-        },
-
-        _getContentAreaWidth: function () {
-            var oViewDom = this.getView().getDomRef();
-            if (oViewDom) {
-                return oViewDom.offsetWidth;
-            }
-            return window.innerWidth * 0.92;
-        },
-
-        onRailPieSelect: function (oEvent) {
-
-            var oData = oEvent.getParameter("data");
-
-            if (!oData || !oData.length) {
-                return;
-            }
-
-            var oPoint = oData[0];
-
-            var sStatus = "";
-            var iCount = 0;
-
-            if (oPoint.data) {
-                sStatus =
-                    oPoint.data.Status ||
-                    oPoint.data.status ||
-                    "";
-
-                iCount =
-                    Number(
-                        oPoint.data.Count ||
-                        oPoint.data.value ||
-                        0
-                    );
-            }
-
-            var oRailModel = this.getView().getModel("railModel");
-
-            oRailModel.setProperty(
-                "/selectedStatus",
-                sStatus
-            );
-
-            oRailModel.setProperty(
-                "/selectedCount",
-                iCount
-            );
-
-            // Keep your existing drill-down logic here.
-            // For example:
-            // this.loadRailPaymentItems(sStatus);
-        },
-
+        }
 
     });
 });
