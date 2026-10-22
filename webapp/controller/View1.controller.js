@@ -35,6 +35,21 @@ var STATUS_COLORS = [
     "#b5483f"  // Rejected        -> red
 ];
 
+var STATUS_GROUPS = {
+    successful: ["128", "130"],          // add "230" here if it should count as successful
+    rejected:   ["172", "173"],
+    failed:     ["114", "170"],
+    pending:    ["39","35","37","110","115","117","118","119","120",
+                 "176","177","178","179","180","101","103","105"]
+};
+
+var KPI_COUNTED_STATUSES = [].concat(
+    STATUS_GROUPS.successful,
+    STATUS_GROUPS.rejected,
+    STATUS_GROUPS.failed,
+    STATUS_GROUPS.pending
+);
+
 
     var DONUT_STATUS_CODE_MAP = {
         "Posted": ["31", "34"],
@@ -712,9 +727,14 @@ var STATUS_COLORS = [
                 .getModel("filterModel")
                 .getProperty("/kpiDate");
 
-            var aStatuses = Array.isArray(vStatus)
-                ? vStatus
-                : (vStatus !== undefined && vStatus !== null && vStatus !== "" ? [vStatus] : []);
+         var aStatuses = Array.isArray(vStatus)
+    ? vStatus
+    : (vStatus !== undefined && vStatus !== null && vStatus !== "" ? [vStatus] : []);
+
+// Total Payments = every status the KPI counts, so table rows == KPI number
+if (aStatuses.length === 0) {
+    aStatuses = KPI_COUNTED_STATUSES;
+}
 
             var aFilters = [];
 
