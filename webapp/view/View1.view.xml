@@ -97,68 +97,68 @@
                 class="overviewFilterControl"
             >
                 <core:Item
-                    id="_IDGenItem10"
+                
                     key="BOI"
                     text="BOI"
                 />
                 <core:Item
-                    id="_IDGenItem11"
+                    
                     key="CRDMGM"
                     text="CRDMGM"
                 />
                 <core:Item
-                    id="_IDGenItem12"
+                    
                     key="DEBNK1"
                     text="DEBNK1"
                 />
                 <core:Item
-                    id="_IDGenItem13"
+                  
                     key="DEBNKC"
                     text="DEBNKC"
                 />
                 <core:Item
-                    id="_IDGenItem14"
+                   
                     key="DEBNKM"
                     text="DEBNKM"
                 />
                 <core:Item
-                    id="_IDGenItem15"
+                  
                     key="DZBSCL"
                     text="DZBSCL"
                 />
                 <core:Item
-                    id="_IDGenItem16"
+                   
                     key="EBATST"
                     text="EBATST"
                 />
                 <core:Item
-                    id="_IDGenItem17"
+                 
                     key="FRBNFR"
                     text="FRBNFR"
                 />
                 <core:Item
-                    id="_IDGenItem18"
+                   
                     key="FRBNKC"
                     text="FRBNKC"
                 />
                 <core:Item
-                    id="_IDGenItem19"
+                   
                     key="FRBNKM"
                     text="FRBNKM"
                 />
                 <core:Item
-                    id="_IDGenItem20"
+                    
                     key="MASTER"
                     text="MASTER"
                 />
 
-                 <core:Item id="_IDGenItem4"
+                 <core:Item 
                  
                     key="SAMA01"
                     text="SAMA01"
                 />
 
-                 <core:Item id="_IDGenItem3" 
+                 <core:Item 
                  
                     key="SARIYB"
                     text="SARIYB"

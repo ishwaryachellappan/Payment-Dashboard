@@ -1039,7 +1039,7 @@
                     >
 
                         <core:Item
-                            id="_IDGenItem2"
+                           
                             key="ALL"
                             text="All"
                         />
@@ -1151,7 +1151,7 @@
                     >
 
                         <core:Item
-                            id="_IDGenItemCurrency"
+                           
                             key="ALL_CURRENCY"
                             text="All"
                         />
@@ -1183,7 +1183,7 @@
                     >
 
                         <core:Item
-                            id="_IDGenItem1"
+                            
                             key="ALL_OBJECT_CATEGORY"
                             text="All"
                         />
@@ -1217,7 +1217,7 @@
     >
 
         <core:Item
-            id="_IDGenItemReason"
+          
             key="ALL_REASON"
             text="All"
         />
