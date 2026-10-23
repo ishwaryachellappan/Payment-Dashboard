@@ -4,8 +4,10 @@ sap.ui.define([
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/viz/ui5/data/FlattenedDataset",
-    "sap/viz/ui5/controls/common/feeds/FeedItem"
-], function (Controller, JSONModel, Filter, FilterOperator, FlattenedDataset, FeedItem) {
+    "sap/viz/ui5/controls/common/feeds/FeedItem",
+    "sap/ui/export/Spreadsheet",
+    "sap/m/MessageToast"
+], function (Controller, JSONModel, Filter, FilterOperator, FlattenedDataset, FeedItem, Spreadsheet, MessageToast) {
     "use strict";
 
     var SERVICE_URL = "/sap/opu/odata4/sap/zpe_sb_po_data/srvd/sap/zpe_sd_po_data/0001/";
@@ -1260,7 +1262,104 @@ sap.ui.define([
             this._aSelectedExceptions = oTable.getSelectedItems().map(function (oItem) {
                 return oItem.getBindingContext("openExceptionModel").getObject();
             });
+        },
+
+                onStartupRowSelectionChange: function (oEvent) {
+            var oTable = oEvent.getSource();
+
+            this._aSelectedExceptions = oTable.getSelectedItems().map(function (oItem) {
+                return oItem.getBindingContext("openExceptionModel").getObject();
+            });
+        },
+
+        /* ================= EXPORT ================= */
+
+        _getText: function (sKey, aArgs) {
+            return this.getOwnerComponent().getModel("i18n").getResourceBundle().getText(sKey, aArgs);
+        },
+
+        _getExportColumns: function () {
+            var t = this._getText.bind(this);
+            return [
+                { label: t("clearingArea"),         property: "ClearingArea",      type: "string" },
+                { label: t("excPaymentItemDate"),   property: "PaymentItemDate",   type: "string" },
+                { label: t("objectCategory"),       property: "ObjectCategory",    type: "string" },
+                { label: t("excPoType"),            property: "po_type",           type: "string" },
+                { label: t("excPoTypeStatus"),      property: "po_typet_s",        type: "string" },
+                { label: t("piTechnicalStatus"),    property: "Status",            type: "string" },
+                { label: t("excPaymentItemNumber"), property: "PaymentItemNumber", type: "string" },
+                { label: t("excReference"),         property: "Reference",         type: "string" },
+                { label: t("excReasonDetail"),      property: "ReasonDetail",      type: "string" },
+                { label: t("excAmount"),            property: "Amount",            type: "number", scale: 2, delimiter: true },
+                { label: t("currency"),             property: "CURRENCY",          type: "string" },
+                { label: t("excAged"),              property: "Aged",              type: "string" },
+                { label: t("excCounterparty"),      property: "CounterParty",      type: "string" }
+            ];
+        },
+
+        // Selected rows if any, otherwise everything the table currently shows (after filters)
+        _getExportRows: function () {
+            var oTable = this.byId("_IDGenTable3");
+            if (!oTable) { return []; }
+
+            var aItems = oTable.getSelectedItems();
+            var aContexts;
+
+            if (aItems.length) {
+                aContexts = aItems.map(function (oItem) {
+                    return oItem.getBindingContext("openExceptionModel");
+                });
+            } else {
+                var oBinding = oTable.getBinding("items");
+                aContexts = oBinding ? oBinding.getCurrentContexts() : [];
+            }
+
+            var that = this;
+            return aContexts.map(function (oCtx) {
+                var o = Object.assign({}, oCtx.getObject());
+                o.ObjectCategory = that.formatObjectCategory(o.ObjectCategory);
+                o.Amount = parseFloat(String(o.Amount || "").replace(/[^0-9.-]/g, "")) || 0;
+                return o;
+            });
+        },
+
+        onExportExceptions: function () {
+            var that = this;
+            var aRows = this._getExportRows();
+
+            if (!aRows.length) {
+                MessageToast.show(this._getText("noExceptionsToExport"));
+                return;
+            }
+
+            var oFilterModel = this._getFilterModel();
+            var sArea = (oFilterModel && oFilterModel.getProperty("/clearingArea")) || "ALL";
+            var sDate = (oFilterModel && this._normalizeDate(oFilterModel.getProperty("/kpiDate"))) || "";
+
+            var oSheet = new Spreadsheet({
+                workbook: {
+                    columns: this._getExportColumns(),
+                    context: { sheetName: this._getText("exportSheetName") }
+                },
+                dataSource: aRows,
+                fileName: "Open_Exceptions_" + sArea + (sDate ? "_" + sDate : "") + ".xlsx",
+                worker: false
+            });
+
+            oSheet.build()
+                .then(function () {
+                    MessageToast.show(that._getText("exportSuccess", [aRows.length]));
+                })
+                .catch(function (oError) {
+                    console.error("Export failed:", oError);
+                    MessageToast.show(that._getText("exportFailed"));
+                })
+                .finally(function () {
+                    oSheet.destroy();
+                });
         }
+
+ 
 
     });
 });

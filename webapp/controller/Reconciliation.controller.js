@@ -188,7 +188,7 @@ sap.ui.define([
 
     // Outgoing-order statuses: excluded from the reconciliation entirely so
     // outbound orders are not counted again under "PC Received".
-  
+
     /* ============================================================
        RECONCILIATION DETAIL COLUMN CONFIGURATION
        ============================================================ */
@@ -597,13 +597,13 @@ sap.ui.define([
             },
 
             _isOutboundRow: function (oRow) {
-    if (!oRow) { return false; }
+                if (!oRow) { return false; }
 
-    var sStatus = String(oRow.TechStat || "").trim();
-    var sKind   = String(oRow.PiKind || "").trim();
+                var sStatus = String(oRow.TechStat || "").trim();
+                var sKind = String(oRow.PiKind || "").trim();
 
- 
-},
+
+            },
 
             loadReconciliationData: async function () {
 
@@ -806,8 +806,8 @@ sap.ui.define([
 
                 // Drop outbound orders before anything else touches the data
                 var aIncoming = aAll.filter(function (oRow) {
-    return oRow && !this._isOutboundRow(oRow);
-}.bind(this));
+                    return oRow && !this._isOutboundRow(oRow);
+                }.bind(this));
 
                 console.log(
                     "[Reconciliation] Outbound rows excluded:",
@@ -2494,160 +2494,110 @@ sap.ui.define([
 
             onExportExcel: function () {
 
-                var oModel =
-                    this.getView().getModel(
-                        "reconciliation"
-                    );
+                var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+                var oModel = this.getView().getModel("reconciliation");
 
                 if (!oModel) {
-
-                    MessageToast.show(
-                        "Reconciliation data is not available."
-                    );
-
+                    MessageToast.show(oBundle.getText("reconExportNoData"));
                     return;
                 }
 
-
-                var aGroups =
-                    oModel.getProperty(
-                        "/groups"
-                    ) || [];
-
-
-                var aVisibleColumns =
-                    oModel.getProperty(
-                        "/visibleColumns"
-                    ) || [];
-
+                var aGroups = oModel.getProperty("/groups") || [];
+                var aVisibleColumns = oModel.getProperty("/visibleColumns") || [];
 
                 if (!aVisibleColumns.length) {
-
-                    MessageToast.show(
-                        "No columns selected."
-                    );
-
+                    MessageToast.show(oBundle.getText("reconExportNoColumns"));
                     return;
                 }
 
+                // Dates in the UI language
+                var oDateFormat = DateFormat.getDateInstance({ style: "medium" });
+
+                // Columns: the visible ones + translated status description
+                var aExcelColumns = aVisibleColumns.map(function (oColumn) {
+                    var sType = "String";
+                    if (oColumn.type === "amount" || oColumn.type === "number") { sType = "Number"; }
+                    return {
+                        label: oColumn.label,
+                        property: oColumn.key,
+                        type: sType,
+                        textAlign: (sType === "Number") ? "End" : "Begin"
+                    };
+                });
+
+                aExcelColumns.push({
+                    label: oBundle.getText("reconStatusDescription"),
+                    property: "__StatusDescription",
+                    type: "String"
+                });
 
                 var aRows = [];
 
-
                 aGroups.forEach(function (oGroup) {
 
-                    if (
-                        !oGroup.details ||
-                        !oGroup.details.length
-                    ) {
-                        return;
-                    }
-
-
-                    oGroup.details.forEach(function (oDetail) {
+                    (oGroup.details || []).forEach(function (oDetail) {
 
                         var oExportRow = {};
 
+                        aVisibleColumns.forEach(function (oColumn) {
 
-                        aVisibleColumns.forEach(
-                            function (oColumn) {
+                            var vValue = oDetail[oColumn.key];
 
-                                var vValue =
-                                    oDetail[
-                                    oColumn.key
-                                    ];
+                            if (vValue === null || vValue === undefined) {
+                                oExportRow[oColumn.key] = "";
+                            } else if (oColumn.type === "date") {
+                                var oDate = oIsoDateFormat.parse(String(vValue).slice(0, 10));
+                                oExportRow[oColumn.key] = oDate ? oDateFormat.format(oDate) : vValue;
+                            } else if (oColumn.type === "amount" || oColumn.type === "number") {
+                                var n = Number(vValue);
+                                oExportRow[oColumn.key] = isNaN(n) ? vValue : n;
+                            } else {
+                                oExportRow[oColumn.key] = String(vValue);
+                            }
+                        });
 
+                        oExportRow.__StatusDescription = this._getReconStatusText(oDetail.TechStat, oBundle);
 
-                                /*
-                                 * Format dates for Excel
-                                 */
-                                if (
-                                    oColumn.type === "date" &&
-                                    vValue
-                                ) {
-
-                                    vValue =
-                                        this._formatDate(
-                                            vValue
-                                        );
-                                }
-
-
-                                oExportRow[
-                                    oColumn.label
-                                ] = vValue;
-
-                            }.bind(this)
-                        );
-
-
-                        aRows.push(
-                            oExportRow
-                        );
+                        aRows.push(oExportRow);
 
                     }.bind(this));
 
                 }.bind(this));
 
-
                 if (!aRows.length) {
-
-                    MessageToast.show(
-                        "No reconciliation data to export."
-                    );
-
+                    MessageToast.show(oBundle.getText("reconExportNoData"));
                     return;
                 }
 
-
-                var aExcelColumns =
-                    aVisibleColumns.map(
-                        function (oColumn) {
-
-                            return {
-
-                                label:
-                                    oColumn.label,
-
-                                property:
-                                    oColumn.label
-
-                            };
-
-                        }
-                    );
-
-
-                var oSettings = {
-
+                var oSpreadsheet = new Spreadsheet({
                     workbook: {
-
-                        columns:
-                            aExcelColumns
+                        columns: aExcelColumns,
+                        context: { sheetName: oBundle.getText("reconExportSheetName") }
                     },
+                    dataSource: aRows,
+                    fileName: oBundle.getText("reconExportFileName") + ".xlsx"
+                });
 
-                    dataSource:
-                        aRows,
-
-                    fileName:
-                        "Reconciliation_Details.xlsx"
-                };
-
-
-                var oSpreadsheet =
-                    new Spreadsheet(
-                        oSettings
-                    );
-
-
-                oSpreadsheet
-                    .build()
-                    .finally(function () {
-
-                        oSpreadsheet.destroy();
-
-                    });
+                oSpreadsheet.build().finally(function () {
+                    oSpreadsheet.destroy();
+                });
             },
+
+            // Translated description for a TechStat. Uses key reconStatus<code>, falls back to the English text.
+            _getReconStatusText: function (vTechStat, oBundle) {
+
+                var sCode = String(vTechStat || "").trim();
+                var sKey = "reconStatus" + sCode;
+
+                if (oBundle.hasText(sKey)) {
+                    return sCode + " - " + oBundle.getText(sKey);
+                }
+
+                var oInfo = RECON_STATUS_MAP[sCode];
+                return sCode + (oInfo ? " - " + oInfo.description : "");
+            },
+
+
             /* ============================================================
                MAXIMIZE / RESTORE — Reconciliation Details table panel.
                ============================================================ */
@@ -2869,7 +2819,7 @@ sap.ui.define([
         ============================================================ */
 
             onReconColumnSettingsPress: function () {
-
+var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
                 var oModel =
                     this.getView().getModel("reconciliation");
 
@@ -2881,7 +2831,7 @@ sap.ui.define([
 
                     var oSearchField = new SearchField({
                         width: "100%",
-                        placeholder: "Search columns...",
+                       placeholder: oBundle.getText("reconSearchColumns"),
                         liveChange: function (oEvent) {
 
                             var sQuery =
@@ -2969,7 +2919,7 @@ sap.ui.define([
                     this._oReconColumnDialog =
                         new Dialog({
 
-                            title: "Select Columns",
+                           title: oBundle.getText("reconSelectColumns"),
 
                             contentWidth: "420px",
 
@@ -2994,7 +2944,7 @@ sap.ui.define([
 
                             beginButton:
                                 new Button({
-                                    text: "Apply",
+                                   text: oBundle.getText("reconApply"),
                                     type: "Emphasized",
                                     press: function () {
 
@@ -3007,7 +2957,7 @@ sap.ui.define([
 
                             endButton:
                                 new Button({
-                                    text: "Cancel",
+                                    text: oBundle.getText("cancel"),
                                     press: function () {
 
                                         this._resetTemporaryColumnSelection();

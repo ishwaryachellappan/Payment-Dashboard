@@ -319,7 +319,7 @@
                 id="trendChartTypeButton"
                 icon="sap-icon://vertical-bar-chart-2"
                 type="Default"
-                tooltip="Change chart type"
+                tooltip="{i18n>changeChartType}"
                 press="onTrendChartTypeMenuPress"
                 class="sapUiTinyMarginBegin"
             />
@@ -540,11 +540,7 @@
         class="excNoDataWrap"
     >
 
-        <Text
-            id="_IDGenRailNoDataText"
-            text="No Data"
-            class="excNoDataText"
-        />
+       <Text id="_IDGenRailNoDataText" text="{i18n>noData}" class="excNoDataText"/>
 
     </VBox>
 
@@ -648,11 +644,7 @@
                 text="{railModel>/total}"
                 class="railDonutValue"
             />
-            <Text
-                id="_IDGenRailDonutTotalLabel"
-                text="total"
-                class="railDonutSubLabel"
-            />
+            <Text id="_IDGenRailDonutTotalLabel" text="{i18n>total}" class="railDonutSubLabel"/>
         </VBox>
 
     </HBox>
@@ -674,7 +666,7 @@
         >
             <HBox id="_IDGenRailLegendHoldLabel" alignItems="Center" class="statusLabel">
                 <HBox id="_IDGenRailHoldDot" class="railLegendDot railDotPending"/>
-                <Text id="_IDGenRailHoldText" text="Pending"/>
+                <Text id="_IDGenRailHoldText" text="{i18n>pending}"/>
             </HBox>
             <Text id="_IDGenRailHoldValue" text="{railModel>/data/0/value}" class="statusValue"/>
         </HBox>
@@ -688,7 +680,7 @@
         >
             <HBox id="_IDGenRailLegendPostLabel" alignItems="Center" class="statusLabel">
                 <HBox id="_IDGenRailPostDot" class="railLegendDot railDotPost"/>
-                <Text id="_IDGenRailPostText" text="In Post-Processing"/>
+             <Text id="_IDGenRailPostText" text="{i18n>inPostProcessing}"/>
             </HBox>
             <Text id="_IDGenRailPostValue" text="{railModel>/data/1/value}" class="statusValue"/>
         </HBox>
@@ -702,7 +694,7 @@
         >
             <HBox id="_IDGenRailLegendRejectedLabel" alignItems="Center" class="statusLabel">
                 <HBox id="_IDGenRailRejectedDot" class="railLegendDot railDotRejected"/>
-                <Text id="_IDGenRailRejectedText" text="Rejected"/>
+               <Text id="_IDGenRailRejectedText" text="{i18n>rejected}"/>
             </HBox>
             <Text id="_IDGenRailRejectedValue" text="{railModel>/data/2/value}" class="statusValue"/>
         </HBox>
@@ -742,12 +734,10 @@
             />
         </VBox>
 
-        <Button
-            id="_IDGenButton"
-            text="{= ${reasonModel>/criticalTotal} + ' Critical' }"
-            type="Reject"
-            class="sapUiTinyMarginBegin"
-        />
+        <!-- Critical button -->
+<Button id="_IDGenButton"
+    text="{= ${reasonModel>/criticalTotal} + ' ' + ${i18n>critical} }"
+    type="Reject" class="sapUiTinyMarginBegin"/>
     </HBox>
 
     <!-- Info strip — fixed height, wraps instead of clipping -->
@@ -777,11 +767,7 @@
         alignItems="Center"
         class="excNoDataWrap"
     >
-        <Text
-            id="_IDGenReasonsNoDataText"
-            text="No Data"
-            class="excNoDataText"
-        />
+       <Text id="_IDGenReasonsNoDataText" text="{i18n>noData}" class="excNoDataText"/>
     </VBox>
 
     <!-- Rows -->
@@ -1260,6 +1246,25 @@
                     width="100%"
                     class="exceptionTable"
                 >
+
+ <headerToolbar>
+        <OverflowToolbar id="exceptionTableToolbar">
+            <Title
+                id="exceptionTableToolbarTitle"
+                text="{i18n>openExceptionsByReason}"
+                level="H6"
+            />
+            <ToolbarSpacer id="exceptionTableToolbarSpacer"/>
+            <Button
+                id="exportExceptionsButton"
+                icon="sap-icon://excel-attachment"
+              
+                type="Transparent"
+               tooltip="{i18n>exportToExcel}"
+                press="onExportExceptions"
+            />
+        </OverflowToolbar>
+    </headerToolbar>
 
                     <columns>
 
