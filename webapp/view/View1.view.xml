@@ -158,6 +158,12 @@
                     text="SAMA01"
                 />
 
+  <core:Item 
+                 
+                    key="CBOM01"
+                    text="CBOM01"
+                />
+
                  <core:Item 
                  
                     key="SARIYB"

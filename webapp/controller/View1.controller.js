@@ -24,31 +24,31 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
     var CHANNEL_COLORS = ["#cd738b", "#c9a35f", "#7a9e6f", "#8b7aa8"];
 
     // Single source of truth for status colors. The donut uses this array, and the
-// legend dots in the CSS below use the same hex values.
-// Order MUST match the data order in _updateStatusBreakdown:
-// Posted, Post Processing, Pending, Failed, Rejected
-var STATUS_COLORS = [
-    "#6f9f6a", // Posted          -> green
-    "#d4a64a", // Post Processing -> amber
-    "#b8bccb", // Pending         -> gray
-    "#e08a6d", // Failed          -> coral
-    "#b5483f"  // Rejected        -> red
-];
+    // legend dots in the CSS below use the same hex values.
+    // Order MUST match the data order in _updateStatusBreakdown:
+    // Posted, Post Processing, Pending, Failed, Rejected
+    var STATUS_COLORS = [
+        "#6f9f6a", // Posted          -> green
+        "#d4a64a", // Post Processing -> amber
+        "#b8bccb", // Pending         -> gray
+        "#e08a6d", // Failed          -> coral
+        "#b5483f"  // Rejected        -> red
+    ];
 
-var STATUS_GROUPS = {
-    successful: ["128", "130"],          // add "230" here if it should count as successful
-    rejected:   ["172", "173"],
-    failed:     ["114", "170"],
-    pending:    ["39","35","37","110","115","117","118","119","120",
-                 "176","177","178","179","180","101","103","105"]
-};
+    var STATUS_GROUPS = {
+        successful: ["128", "130"],          // add "230" here if it should count as successful
+        rejected: ["172", "173"],
+        failed: ["114", "170"],
+        pending: ["39", "35", "37", "110", "115", "117", "118", "119", "120",
+            "176", "177", "178", "179", "180", "101", "103", "105"]
+    };
 
-var KPI_COUNTED_STATUSES = [].concat(
-    STATUS_GROUPS.successful,
-    STATUS_GROUPS.rejected,
-    STATUS_GROUPS.failed,
-    STATUS_GROUPS.pending
-);
+    var KPI_COUNTED_STATUSES = [].concat(
+        STATUS_GROUPS.successful,
+        STATUS_GROUPS.rejected,
+        STATUS_GROUPS.failed,
+        STATUS_GROUPS.pending
+    );
 
 
     var DONUT_STATUS_CODE_MAP = {
@@ -434,7 +434,7 @@ var KPI_COUNTED_STATUSES = [].concat(
                         iColumnWidth = "13rem";
                         break;
 
-                    
+
 
                     case "TechnicalStatus":
                         iColumnWidth = "10rem";
@@ -725,14 +725,14 @@ var KPI_COUNTED_STATUSES = [].concat(
                 .getModel("filterModel")
                 .getProperty("/kpiDate");
 
-         var aStatuses = Array.isArray(vStatus)
-    ? vStatus
-    : (vStatus !== undefined && vStatus !== null && vStatus !== "" ? [vStatus] : []);
+            var aStatuses = Array.isArray(vStatus)
+                ? vStatus
+                : (vStatus !== undefined && vStatus !== null && vStatus !== "" ? [vStatus] : []);
 
-// Total Payments = every status the KPI counts, so table rows == KPI number
-if (aStatuses.length === 0) {
-    aStatuses = KPI_COUNTED_STATUSES;
-}
+            // Total Payments = every status the KPI counts, so table rows == KPI number
+            if (aStatuses.length === 0) {
+                aStatuses = KPI_COUNTED_STATUSES;
+            }
 
             var aFilters = [];
 
@@ -763,39 +763,35 @@ if (aStatuses.length === 0) {
 
             }
 
-            // Technical Status filter
-            if (aStatuses.length === 1) {
+           // Always needed (details dialog + status filter), plus whatever columns are visible
+var aSelect = ["ClearingArea", "PaymentOrderDate", "TechnicalStatus", "OrderKey"];
+(this.getView().getModel("tableColumnsModel").getProperty("/visibleFields") || [])
+    .forEach(function (sKey) {
+        if (aSelect.indexOf(sKey) === -1) { aSelect.push(sKey); }
+    });
 
-                aFilters.push(
-                    new Filter("TechnicalStatus", FilterOperator.EQ, aStatuses[0])
-                );
+var oListBinding = oModel.bindList(
+    "/PaymentInfo",
+    undefined,
+    undefined,
+    aFilters,
+    { $select: aSelect.join(",") }
+);
 
-            } else if (aStatuses.length > 1) {
+            var aData = [];
 
-                var aStatusFilters = aStatuses.map(function (sStatus) {
-                    return new Filter("TechnicalStatus", FilterOperator.EQ, sStatus);
-                });
+            try {
+                // Same limit as the KPI read, so table rows == KPI number
+                var aContexts = await oListBinding.requestContexts(0, 10000);
 
-                aFilters.push(
-                    new Filter({
-                        filters: aStatusFilters,
-                        and: false      // OR between statuses
-                    })
-                );
+                aData = aContexts
+                    .map(function (oContext) { return oContext.getObject(); })
+                    .filter(function (oRow) {
+                        return aStatuses.indexOf(String(oRow.TechnicalStatus)) !== -1;
+                    });
+            } catch (oError) {
+                console.error("PaymentInfo read failed:", oError && (oError.message || oError));
             }
-
-            var oListBinding = oModel.bindList(
-                "/PaymentInfo",
-                undefined,
-                undefined,
-                aFilters
-            );
-
-            var aContexts = await oListBinding.requestContexts(0, 100);
-
-            var aData = aContexts.map(function (oContext) {
-                return oContext.getObject();
-            });
 
             this.getView()
                 .getModel("paymentTable")
@@ -1886,7 +1882,7 @@ if (aStatuses.length === 0) {
                      * ====================================================
                      */
 
-                  
+
                     var iSuccessful = 0;
                     var iRejected = 0;
                     var iFailed = 0;
@@ -1970,8 +1966,8 @@ if (aStatuses.length === 0) {
 
                     });
 
-// Must be AFTER the loop, so the counters are filled in
-var iTotalProcessed = iSuccessful + iRejected + iFailed + iPending;
+                    // Must be AFTER the loop, so the counters are filled in
+                    var iTotalProcessed = iSuccessful + iRejected + iFailed + iPending;
 
                     var oResult = {
 
@@ -3398,13 +3394,13 @@ var iTotalProcessed = iSuccessful + iRejected + iFailed + iPending;
             }), "statusModel");
 
             var oDonut = this.byId("donutChart");
-if (oDonut) {
-    oDonut.setVizProperties({
-        plotArea: {
-            colorPalette: bNoData ? ["#E0E0E0"] : STATUS_COLORS
-        }
-    });
-}
+            if (oDonut) {
+                oDonut.setVizProperties({
+                    plotArea: {
+                        colorPalette: bNoData ? ["#E0E0E0"] : STATUS_COLORS
+                    }
+                });
+            }
 
             this.getView().getModel("donutModel").setData({
                 value: pct(posted),
@@ -3641,91 +3637,91 @@ if (oDonut) {
         },
 
         // Translated "128 - ناجح" style text for the export
-// Translated "128 - ناجح" style text for the export
-_getExportStatusText: function (sStatus, oBundle) {
+        // Translated "128 - ناجح" style text for the export
+        _getExportStatusText: function (sStatus, oBundle) {
 
-    var s = String(sStatus || "");
-    var sKey;
+            var s = String(sStatus || "");
+            var sKey;
 
-    if (["128", "130", "230", "270"].indexOf(s) > -1) { sKey = "success"; }
-    else if (["114", "170"].indexOf(s) > -1) { sKey = "failed"; }
-    else if (["172", "173"].indexOf(s) > -1) { sKey = "rejected"; }
-    else if (STATUS_GROUPS.pending.indexOf(s) > -1) { sKey = "pending"; }
-    else { return s; }
+            if (["128", "130", "230", "270"].indexOf(s) > -1) { sKey = "success"; }
+            else if (["114", "170"].indexOf(s) > -1) { sKey = "failed"; }
+            else if (["172", "173"].indexOf(s) > -1) { sKey = "rejected"; }
+            else if (STATUS_GROUPS.pending.indexOf(s) > -1) { sKey = "pending"; }
+            else { return s; }
 
-    return s + " - " + oBundle.getText(sKey);
-},
-
-onExportTransactions: function () {
-
-    var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
-    var oTable = this.byId("_IDGenTable");
-    var oBinding = oTable.getBinding("items");
-    var that = this;
-
-    if (!oBinding || oBinding.getLength() === 0) {
-        sap.m.MessageToast.show(oBundle.getText("exportNoData"));
-        return;
-    }
-
-    // Rows currently shown (respects the search box filter)
-    var aRows = oBinding.getContexts(0, oBinding.getLength()).map(function (oCtx) {
-        return oCtx.getObject();
-    });
-
-    // Dates formatted in the UI language
-    var oDateFormat = sap.ui.core.format.DateFormat.getDateInstance({ style: "medium" });
-    var oIsoParser = sap.ui.core.format.DateFormat.getDateInstance({ pattern: "yyyy-MM-dd" });
-
-    // Same columns the user sees in the table
-   var aVisible = (this.getView().getModel("tableColumnsModel").getProperty("/visibleFields") || [])
-    .filter(function (sKey) { return sKey !== "ProcessingStatus"; });
-
-    var aColumns = aVisible.map(function (sKey) {
-        var oDef = that._getPaymentFieldDef(sKey) || {};
-        return {
-            label: oDef.label || sKey,
-            property: sKey,
-            type: "String"
-        };
-    });
-
-    // Build export rows with translated status and formatted dates
-    var aExportData = aRows.map(function (oRow) {
-
-        var oOut = {};
-
-        aVisible.forEach(function (sKey) {
-
-            var oDef = that._getPaymentFieldDef(sKey) || {};
-            var vValue = oRow[sKey];
-
-            if (sKey === "TechnicalStatus") {
-                oOut[sKey] = that._getExportStatusText(vValue, oBundle);
-            } else if (oDef.type === "date" && vValue) {
-                var oDate = oIsoParser.parse(String(vValue).slice(0, 10));
-                oOut[sKey] = oDate ? oDateFormat.format(oDate) : vValue;
-            } else {
-                oOut[sKey] = vValue === null || vValue === undefined ? "" : String(vValue);
-            }
-        });
-
-        return oOut;
-    });
-
-    var oSpreadsheet = new Spreadsheet({
-        workbook: {
-            columns: aColumns,
-            context: { sheetName: oBundle.getText("exportSheetName") }
+            return s + " - " + oBundle.getText(sKey);
         },
-        dataSource: aExportData,
-        fileName: oBundle.getText("exportFileName") + ".xlsx"
-    });
 
-    oSpreadsheet.build().finally(function () {
-        oSpreadsheet.destroy();
-    });
-},
+        onExportTransactions: function () {
+
+            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+            var oTable = this.byId("_IDGenTable");
+            var oBinding = oTable.getBinding("items");
+            var that = this;
+
+            if (!oBinding || oBinding.getLength() === 0) {
+                sap.m.MessageToast.show(oBundle.getText("exportNoData"));
+                return;
+            }
+
+            // Rows currently shown (respects the search box filter)
+            var aRows = oBinding.getContexts(0, oBinding.getLength()).map(function (oCtx) {
+                return oCtx.getObject();
+            });
+
+            // Dates formatted in the UI language
+            var oDateFormat = sap.ui.core.format.DateFormat.getDateInstance({ style: "medium" });
+            var oIsoParser = sap.ui.core.format.DateFormat.getDateInstance({ pattern: "yyyy-MM-dd" });
+
+            // Same columns the user sees in the table
+            var aVisible = (this.getView().getModel("tableColumnsModel").getProperty("/visibleFields") || [])
+                .filter(function (sKey) { return sKey !== "ProcessingStatus"; });
+
+            var aColumns = aVisible.map(function (sKey) {
+                var oDef = that._getPaymentFieldDef(sKey) || {};
+                return {
+                    label: oDef.label || sKey,
+                    property: sKey,
+                    type: "String"
+                };
+            });
+
+            // Build export rows with translated status and formatted dates
+            var aExportData = aRows.map(function (oRow) {
+
+                var oOut = {};
+
+                aVisible.forEach(function (sKey) {
+
+                    var oDef = that._getPaymentFieldDef(sKey) || {};
+                    var vValue = oRow[sKey];
+
+                    if (sKey === "TechnicalStatus") {
+                        oOut[sKey] = that._getExportStatusText(vValue, oBundle);
+                    } else if (oDef.type === "date" && vValue) {
+                        var oDate = oIsoParser.parse(String(vValue).slice(0, 10));
+                        oOut[sKey] = oDate ? oDateFormat.format(oDate) : vValue;
+                    } else {
+                        oOut[sKey] = vValue === null || vValue === undefined ? "" : String(vValue);
+                    }
+                });
+
+                return oOut;
+            });
+
+            var oSpreadsheet = new Spreadsheet({
+                workbook: {
+                    columns: aColumns,
+                    context: { sheetName: oBundle.getText("exportSheetName") }
+                },
+                dataSource: aExportData,
+                fileName: oBundle.getText("exportFileName") + ".xlsx"
+            });
+
+            oSpreadsheet.build().finally(function () {
+                oSpreadsheet.destroy();
+            });
+        },
         onExportDonutItems: function () {
 
             var aItems = this.getView()
