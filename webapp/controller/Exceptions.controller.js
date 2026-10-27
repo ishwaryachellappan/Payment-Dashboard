@@ -289,6 +289,90 @@ sap.ui.define([
             };
         },
 
+    
+
+onToggleExceptionTableSize: function () {
+    var oWorkspace = this.byId("_IDGenVBox64");
+    var oButton = this.byId("exceptionsTableExpandButton");
+    var oTableScroll = this.byId("exceptionTableScroll");
+
+    if (!oWorkspace || !oButton || !oTableScroll) {
+        console.error("Exception workspace or required controls not found.");
+        return;
+    }
+
+    if (!this._oExceptionTableDialog) {
+        this._oExceptionTableDialog = new sap.m.Dialog({
+            title: "Open Exceptions",
+            contentWidth: "96%",
+            contentHeight: "90vh",
+            stretch: false,
+            draggable: true,
+            resizable: true,
+            horizontalScrolling: false,
+            verticalScrolling: true,
+            class: "dashboardExpandDialog",
+            endButton: new sap.m.Button({
+                text: "Minimize",
+                icon: "sap-icon://exit-full-screen",
+                press: function () {
+                    this._oExceptionTableDialog.close();
+                }.bind(this)
+            })
+        });
+
+        this.getView().addDependent(this._oExceptionTableDialog);
+
+        this._oExceptionTableDialog.attachAfterClose(function () {
+            if (this._oExceptionTableParent) {
+                this._oExceptionTableParent.insertItem(
+                    oWorkspace,
+                    this._iExceptionWorkspaceIndex
+                );
+            }
+
+            oWorkspace.setWidth("100%");
+            oTableScroll.setHeight("440px");
+
+            oButton.setIcon("sap-icon://full-screen");
+            oButton.setTooltip("Maximize");
+
+            this._bExceptionTableExpanded = false;
+            this._oExceptionTableParent = null;
+        }.bind(this));
+    }
+
+    if (!this._bExceptionTableExpanded) {
+        this._oExceptionTableParent = oWorkspace.getParent();
+
+        this._iExceptionWorkspaceIndex =
+            this._oExceptionTableParent.indexOfItem(oWorkspace);
+
+        this._oExceptionTableParent.removeItem(oWorkspace);
+
+        oWorkspace.setWidth("100%");
+        oTableScroll.setHeight("60vh");
+
+        this._oExceptionTableDialog.removeAllContent();
+        this._oExceptionTableDialog.addContent(oWorkspace);
+
+        oButton.setIcon("sap-icon://exit-full-screen");
+        oButton.setTooltip("Minimize");
+
+        this._bExceptionTableExpanded = true;
+        this._oExceptionTableDialog.open();
+    } else {
+        this._oExceptionTableDialog.close();
+    }
+},
+
+
+onExit: function () {
+    if (this._oExceptionTableDialog) {
+        this._oExceptionTableDialog.destroy();
+    }
+},
+
         _createInfoModel: function (aData, sModelName) {
             var iMaxAmount = 0;
             var sMaxAge = "";

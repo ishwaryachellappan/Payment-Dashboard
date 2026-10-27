@@ -882,6 +882,8 @@
     class="exceptionWorkspaceSubtitle"
 />
 
+ 
+
             </VBox>
 
         </HBox>
@@ -895,6 +897,7 @@
             alignItems="Center"
         >
 
+   
             <!-- OPEN -->
 
             <VBox
@@ -1263,6 +1266,16 @@
                tooltip="{i18n>exportToExcel}"
                 press="onExportExceptions"
             />
+
+             <Button
+            id="exceptionsTableExpandButton"
+            icon="sap-icon://full-screen"
+            type="Transparent"
+            tooltip="Maximize"
+            press="onToggleExceptionTableSize"
+        />
+
+        
         </OverflowToolbar>
     </headerToolbar>
 
