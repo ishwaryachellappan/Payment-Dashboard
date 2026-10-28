@@ -51,8 +51,7 @@ sap.ui.define([
         bar: { vizType: "bar", label: "Bar Chart", icon: "sap-icon://horizontal-bar-chart-2" },
         column: { vizType: "column", label: "Column Chart", icon: "sap-icon://vertical-bar-chart" },
         line: { vizType: "line", label: "Line Chart", icon: "sap-icon://line-chart" },
-        pie: { vizType: "pie", label: "Pie Chart", icon: "sap-icon://pie-chart" },
-        donut: { vizType: "donut", label: "Donut Chart", icon: "sap-icon://donut-chart" },
+        
         heatmap: { vizType: "heatmap", label: "Heat Map", icon: "sap-icon://heatmap-chart" },
         stacked_bar: { vizType: "stacked_bar", label: "Stacked Bar Chart", icon: "sap-icon://horizontal-bar-chart" },
         stacked_column: { vizType: "stacked_column", label: "Stacked Column Chart", icon: "sap-icon://vertical-bar-chart-2" },
@@ -67,7 +66,8 @@ sap.ui.define([
     // every axis-style chart type below.
     // ✅ Muted palette — PC received, DM posted, Reconciliation gap
     var RECON_CHART_COLORS = ["#7c93b3", "#7a9e7e", "#c17b74"];
-
+    // Muted palette, one color per currency
+    var RECON_CURRENCY_COLORS = ["#7c93b3", "#7a9e6f", "#c17b74", "#8b7aa8", "#c9a35f", "#8fb3d9"];
     var RECON_STATUS_MAP = {
         "34": {
             description: "<your description for 34>",
@@ -501,9 +501,9 @@ sap.ui.define([
                     },
 
                     chartData: [
-                        { Category: "PC Received", Amount: 0 },
-                        { Category: "DM Received", Amount: 0 },
-                        { Category: "Reconciliation Gap", Amount: 0 }
+                        { Category: "PC Received", Currency: "-", Amount: 0 },
+                        { Category: "DM Received", Currency: "-", Amount: 0 },
+                        { Category: "Reconciliation Gap", Currency: "-", Amount: 0 }
                     ],
 
                     filters: {
@@ -520,6 +520,7 @@ sap.ui.define([
                     groups: [],
 
                     selectedCategory: "",
+                    selectedCurrency: "",
                     filterMessage: "",
 
                     busy: false,
@@ -833,6 +834,7 @@ sap.ui.define([
                 this._debugTransactionFields(aIncoming);
 
                 oReconModel.setProperty("/selectedCategory", "");
+                oReconModel.setProperty("/selectedCurrency", "");
                 oReconModel.setProperty("/filterMessage", "");
 
                 this._applySystemGate();
@@ -892,7 +894,7 @@ sap.ui.define([
                 var iUnknownCount = 0;
 
                 var fReconciliationGap = 0;
-
+                var oCurrencyTotals = {};
                 // ============================================================
                 // PROCESS ALL TRANSACTIONS
                 // ============================================================
@@ -993,8 +995,22 @@ sap.ui.define([
 
                         // DM Received = only rows posted in DM (status 31)
                         if (sSystem === "DM") {
+
+
                             fDmReceived += fAmount;
                             iDmCount++;
+                        }
+
+                        var sCcyKey = sCurrency || "N/A";
+
+                        if (!oCurrencyTotals[sCcyKey]) {
+                            oCurrencyTotals[sCcyKey] = { pc: 0, dm: 0 };
+                        }
+
+                        oCurrencyTotals[sCcyKey].pc += fAmount;
+
+                        if (sSystem === "DM") {
+                            oCurrencyTotals[sCcyKey].dm += fAmount;
                         }
 
                         // ====================================================
@@ -1126,33 +1142,25 @@ sap.ui.define([
                 // ============================================================
                 // CHART DATA
                 // ============================================================
+                var aChartData = [];
 
-                var aChartData = [
+                Object.keys(oCurrencyTotals).sort().forEach(function (sCcy) {
 
-                    {
-                        Category:
-                            "PC Received",
+                    var oTot = oCurrencyTotals[sCcy];
 
-                        Amount:
-                            fPcReceived
-                    },
+                    aChartData.push({ Category: "PC Received", Currency: sCcy, Amount: oTot.pc });
+                    aChartData.push({ Category: "DM Received", Currency: sCcy, Amount: oTot.dm });
+                    aChartData.push({ Category: "Reconciliation Gap", Currency: sCcy, Amount: oTot.pc - oTot.dm });
+                });
 
-                    {
-                        Category:
-                            "DM Received",
-
-                        Amount:
-                            fDmReceived
-                    },
-
-                    {
-                        Category:
-                            "Reconciliation Gap",
-
-                        Amount:
-                            fReconciliationGap
-                    }
-                ];
+                // No data -> keep the three empty bars
+                if (!aChartData.length) {
+                    aChartData = [
+                        { Category: "PC Received", Currency: "-", Amount: 0 },
+                        { Category: "DM Received", Currency: "-", Amount: 0 },
+                        { Category: "Reconciliation Gap", Currency: "-", Amount: 0 }
+                    ];
+                }
 
                 // ============================================================
                 // RESULT
@@ -1337,17 +1345,12 @@ sap.ui.define([
                     data: { path: "/chartData" },
 
                     dimensions: [
-                        new DimensionDefinition({
-                            name: "Category",
-                            value: "{Category}"
-                        })
+                        new DimensionDefinition({ name: "Category", value: "{Category}" }),
+                        new DimensionDefinition({ name: "Currency", value: "{Currency}" })
                     ],
 
                     measures: [
-                        new MeasureDefinition({
-                            name: "Amount",
-                            value: "{Amount}"
-                        })
+                        new MeasureDefinition({ name: "Amount", value: "{Amount}" })
                     ]
 
                 });
@@ -1479,56 +1482,45 @@ sap.ui.define([
 
                 oChart.removeAllFeeds();
 
-                oChart.addFeed(new FeedItem({
-                    uid: "categoryAxis",
-                    type: "Dimension",
-                    values: ["Category"]
-                }));
+                oChart.addFeed(new FeedItem({ uid: "categoryAxis", type: "Dimension", values: ["Category"] }));
+                oChart.addFeed(new FeedItem({ uid: "valueAxis", type: "Measure", values: ["Amount"] }));
+                oChart.addFeed(new FeedItem({ uid: "color", type: "Dimension", values: ["Currency"] }));
 
-                oChart.addFeed(new FeedItem({
-                    uid: "valueAxis",
-                    type: "Measure",
-                    values: ["Amount"]
-                }));
+                // One fixed color per currency found in the data (data-driven, no hardcoding)
+                var aChartData = this.getView().getModel("reconciliation").getProperty("/chartData") || [];
 
-                // ✅ NEW — this is what actually makes each bar its own color
-                oChart.addFeed(new FeedItem({
-                    uid: "color",
-                    type: "Dimension",
-                    values: ["Category"]
-                }));
+                var aCurrencies = [];
+                aChartData.forEach(function (o) {
+                    if (aCurrencies.indexOf(o.Currency) === -1) { aCurrencies.push(o.Currency); }
+                });
+                aCurrencies.sort();
+
+                var aRules = aCurrencies.map(function (sCcy, i) {
+                    return {
+                        dataContext: { Currency: sCcy },
+                        properties: { color: RECON_CURRENCY_COLORS[i % RECON_CURRENCY_COLORS.length] },
+                        displayName: sCcy
+                    };
+                });
 
                 oChart.setVizProperties({
-
                     title: { visible: false },
-
-                    // Legend is more useful now that bars aren't all the
-                    // same color — flip on if you want a color key.
-                    legend: { visible: false },
-
+                    legend: { visible: true },
                     plotArea: {
                         dataLabel: { visible: true, formatString: "#,##0.00" },
                         drawingEffect: "glossy",
-                        colorPalette: RECON_CHART_COLORS
+                        dataPointStyle: { rules: aRules }
                     },
-
-                    categoryAxis: {
-                        title: { visible: false },
-                        label: { visible: true }
-                    },
-
+                    categoryAxis: { title: { visible: false }, label: { visible: true } },
                     valueAxis: {
                         title: { visible: true, text: "Amount" },
                         label: { formatString: "#,##0" }
                     }
-
                 });
 
                 oChart.invalidate();
                 oChart.rerender();
-
             },
-
 
             _configureReconPieChart: function () {
 
@@ -1538,11 +1530,11 @@ sap.ui.define([
                 oChart.removeAllFeeds();
 
                 oChart.addFeed(new FeedItem({
-                    uid: "color", type: "Dimension", values: ["Category"]
+                    uid: "color", type: "Dimension", values: ["Category", "Currency"]
                 }));
 
                 oChart.addFeed(new FeedItem({
-                    uid: "size", type: "Measure", values: ["Amount"]
+                    uid: "size", type: "Measure", values: ["Category", "Currency"]
                 }));
 
                 oChart.setVizProperties({
@@ -1568,11 +1560,11 @@ sap.ui.define([
                 oChart.removeAllFeeds();
 
                 oChart.addFeed(new FeedItem({
-                    uid: "color", type: "Dimension", values: ["Category"]
+                    uid: "color", type: "Dimension", values: ["Category", "Currency"]
                 }));
 
                 oChart.addFeed(new FeedItem({
-                    uid: "size", type: "Measure", values: ["Amount"]
+                    uid: "size", type: "Measure", values: ["Category", "Currency"]
                 }));
 
                 oChart.setVizProperties({
@@ -1600,6 +1592,7 @@ sap.ui.define([
                 oChart.addFeed(new FeedItem({
                     uid: "categoryAxis", type: "Dimension", values: ["Category"]
                 }));
+                oChart.addFeed(new FeedItem({ uid: "categoryAxis2", type: "Dimension", values: ["Currency"] }));
 
                 oChart.addFeed(new FeedItem({
                     uid: "color", type: "Measure", values: ["Amount"]
@@ -1639,19 +1632,13 @@ sap.ui.define([
                     return;
                 }
 
-                var oSelected =
-                    aData[0].data;
+                var oSelected = aData[0].data;
 
-                var sCategory =
-                    oSelected.Category;
-
-                this._applyChartCategoryFilter(
-                    sCategory
-                );
+                this._applyChartCategoryFilter(oSelected.Category, oSelected.Currency);
             },
 
 
-            _applyChartCategoryFilter: function (sCategory) {
+            _applyChartCategoryFilter: function (sCategory, sCurrency) {
 
                 var oReconModel =
                     this.getView().getModel(
@@ -1772,6 +1759,16 @@ sap.ui.define([
                     sMessage = "";
                 }
 
+                if (sCurrency && sCurrency !== "-") {
+                    aFilteredRows = aFilteredRows.filter(function (oRow) {
+                        return (oRow.TrCurr || "N/A") === sCurrency;
+                    });
+                    sMessage = "Showing " + aFilteredRows.length + " " + sCurrency +
+                        " transaction(s) for " + sCategory + ".";
+                }
+
+                oReconModel.setProperty("/selectedCurrency", sCurrency || "");
+
                 // ============================================================
                 // REBUILD TABLE
                 // ============================================================
@@ -1821,6 +1818,7 @@ sap.ui.define([
 
                 oReconModel.setProperty("/groups", oResult.groups);
                 oReconModel.setProperty("/selectedCategory", "");
+                oReconModel.setProperty("/selectedCurrency", "");
                 oReconModel.setProperty("/filterMessage", "");
 
             },
@@ -1860,6 +1858,14 @@ sap.ui.define([
                     oModel
                         ? oModel.getProperty("/selectedCategory")
                         : "";
+
+                var sCurrency = oModel ? oModel.getProperty("/selectedCurrency") : "";
+
+                if (sCurrency && sCurrency !== "-") {
+                    aRows = (aRows || []).filter(function (oRow) {
+                        return (oRow.TrCurr || "N/A") === sCurrency;
+                    });
+                }
 
                 if (!sCategory) {
                     return aRows || [];
@@ -2782,15 +2788,18 @@ sap.ui.define([
                         [
                             {
                                 Category: "PC Received",
-                                Amount: 0
+                                Amount: 0,
+                                Currency: "-"
                             },
                             {
                                 Category: "DM Received",
-                                Amount: 0
+                                Amount: 0,
+                                Currency: "-"
                             },
                             {
                                 Category: "Reconciliation Gap",
-                                Amount: 0
+                                Amount: 0,
+                                Currency: "-"
                             }
                         ]
                     );
@@ -2819,7 +2828,7 @@ sap.ui.define([
         ============================================================ */
 
             onReconColumnSettingsPress: function () {
-var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+                var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
                 var oModel =
                     this.getView().getModel("reconciliation");
 
@@ -2831,7 +2840,7 @@ var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
                     var oSearchField = new SearchField({
                         width: "100%",
-                       placeholder: oBundle.getText("reconSearchColumns"),
+                        placeholder: oBundle.getText("reconSearchColumns"),
                         liveChange: function (oEvent) {
 
                             var sQuery =
@@ -2919,7 +2928,7 @@ var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
                     this._oReconColumnDialog =
                         new Dialog({
 
-                           title: oBundle.getText("reconSelectColumns"),
+                            title: oBundle.getText("reconSelectColumns"),
 
                             contentWidth: "420px",
 
@@ -2944,7 +2953,7 @@ var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
                             beginButton:
                                 new Button({
-                                   text: oBundle.getText("reconApply"),
+                                    text: oBundle.getText("reconApply"),
                                     type: "Emphasized",
                                     press: function () {
 
