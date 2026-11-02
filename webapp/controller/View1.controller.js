@@ -131,7 +131,9 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
         // Default visible columns
         { key: "PaymentItemDate", i18n: "idiPaymentItemDate", label: "Payment Item Date", default: true, type: "date" },
+
         { key: "ClearingArea", i18n: "clearingArea", label: "Clearing Area", default: true },
+        { key: "Customer", i18n: "idiCustomer", label: "Customer" },
         { key: "ItemNumber", i18n: "idiItemNumber", label: "Item Number", default: true },
         { key: "ItemProcessingStatus", i18n: "idiItemProcessingStatus", label: "Item Processing Status", default: true },
         { key: "IncomingPaymentOrder", i18n: "idiIncomingPaymentOrder", label: "Incoming Payment Order", default: true },
@@ -335,7 +337,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                     new JSONModel({
                         // Matches the reference image's default column set ‚Äî user can add
                         // any other ITEM_DETAILS_FIELD_CATALOG field via the Settings gear.
-                        visibleFields: ["ItemNumber", "PICreatedDate", "PITransactionAmount", "PIReleaseStatus"]
+                        visibleFields: ["ItemNumber", "Customer", "PICreatedDate", "PITransactionAmount", "PIReleaseStatus"]
                     }),
                     "donutItemsColumnsModel"
                 );
@@ -763,20 +765,20 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
             }
 
-           // Always needed (details dialog + status filter), plus whatever columns are visible
-var aSelect = ["ClearingArea", "PaymentOrderDate", "TechnicalStatus", "OrderKey"];
-(this.getView().getModel("tableColumnsModel").getProperty("/visibleFields") || [])
-    .forEach(function (sKey) {
-        if (aSelect.indexOf(sKey) === -1) { aSelect.push(sKey); }
-    });
+            // Always needed (details dialog + status filter), plus whatever columns are visible
+            var aSelect = ["ClearingArea", "PaymentOrderDate", "TechnicalStatus", "OrderKey"];
+            (this.getView().getModel("tableColumnsModel").getProperty("/visibleFields") || [])
+                .forEach(function (sKey) {
+                    if (aSelect.indexOf(sKey) === -1) { aSelect.push(sKey); }
+                });
 
-var oListBinding = oModel.bindList(
-    "/PaymentInfo",
-    undefined,
-    undefined,
-    aFilters,
-    { $select: aSelect.join(",") }
-);
+            var oListBinding = oModel.bindList(
+                "/PaymentInfo",
+                undefined,
+                undefined,
+                aFilters,
+                { $select: aSelect.join(",") }
+            );
 
             var aData = [];
 
@@ -1673,7 +1675,7 @@ var oListBinding = oModel.bindList(
 
         _updateGlobalFilterVisibility: function (sKey) {
 
-           var bShow = sKey !== "reconciliation" && sKey !== "railHealth";
+            var bShow = sKey !== "reconciliation" && sKey !== "railHealth";
 
             var oPostingDate = this.byId("postingDateFilterBox");
             var oSeparator = this.byId("filterSeparator2");
@@ -3411,6 +3413,11 @@ var oListBinding = oModel.bindList(
             return (sPattern || "").replace("{0}", (aItems || []).length);
         },
 
+        formatDonutItemsTitle: function (sStatus, aItems) {
+            var iCount = Array.isArray(aItems) ? aItems.length : 0;
+            return (sStatus || "") + " (" + iCount + ")";   // "Posted (6)"
+        },
+
         _loadDonutDrillItems: async function (sStatus) {
 
             var aAllItems = await this._fetchDonutItems();
@@ -3744,6 +3751,7 @@ var oListBinding = oModel.bindList(
                     property: "PICreatedDate",
                     type: "String"
                 },
+                { label: "Customer", property: "Customer", type: "String" },
                 {
                     label: "Processing Status",
                     property: "ItemProcessingStatusText",

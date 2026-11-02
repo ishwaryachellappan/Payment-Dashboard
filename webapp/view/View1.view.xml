@@ -1213,17 +1213,14 @@
                                                     justifyContent="SpaceBetween"
                                                     alignItems="Center"
                                                 >
-                                                  <Title
-    id="donutDrillTitle"
-    text="{
-        parts: [
-            { path: 'donutItemsModel>/items' },
-            { path: 'donutViewModel>/selectedStatus' }
-        ],
-        formatter: '.formatPaymentItemsCount'
-    }"
-    level="H6"
-/>
+                                                  <!-- AFTER -->
+<Title text="{
+    parts: [
+        { path: 'donutViewModel>/selectedStatus' },
+        { path: 'donutItemsModel>/items' }
+    ],
+    formatter: '.formatDonutItemsTitle'
+}" />
 
                                                     <HBox
                                                         id="_IDGenHBox110"
