@@ -72,7 +72,7 @@ sap.ui.define([
 
                 globalFilter: {
                     clearingArea: "",
-                    date: "",
+                  
                     createdOn: ""
                 },
 
@@ -177,37 +177,33 @@ sap.ui.define([
 
         onFilterChange: function () {
 
-            var oFilterModel = this.getView().getModel("filterModel");
+    var oFilterModel = this.getView().getModel("filterModel");
 
-            if (!oFilterModel) {
-                console.warn("Rail Health: filterModel not found");
-                return;
-            }
+    if (!oFilterModel) {
+        console.warn("Rail Health: filterModel not found");
+        return;
+    }
 
-            // Header filters changed — cached items may be stale
-            this._mOrderItemsCache = {};
+    // Header filters changed — cached items may be stale
+    this._mOrderItemsCache = {};
 
-            var sClearingArea = oFilterModel.getProperty("/clearingArea");
-            var sPostingDate = this._normaliseDate(oFilterModel.getProperty("/kpiDate")) || "";
-            var sCreatedOn = this._normaliseDate(oFilterModel.getProperty("/createdOn")) || "";
+    var sClearingArea = oFilterModel.getProperty("/clearingArea");
+    var sCreatedOn = this._normaliseDate(oFilterModel.getProperty("/createdOn")) || "";
 
-            console.log("Rail Health global filter:", {
-                clearingArea: sClearingArea,
-                postingDate: sPostingDate,
-                createdOn: sCreatedOn
-            });
+    console.log("Rail Health global filter:", {
+        clearingArea: sClearingArea,
+        createdOn: sCreatedOn
+    });
 
-            var oRailModel = this.getView().getModel("railHealth");
+    var oRailModel = this.getView().getModel("railHealth");
 
-            if (oRailModel) {
-                oRailModel.setProperty("/globalFilter/clearingArea", sClearingArea);
-                oRailModel.setProperty("/globalFilter/date", sPostingDate);
-                oRailModel.setProperty("/globalFilter/createdOn", sCreatedOn);
-            }
+    if (oRailModel) {
+        oRailModel.setProperty("/globalFilter/clearingArea", sClearingArea);
+        oRailModel.setProperty("/globalFilter/createdOn", sCreatedOn);
+    }
 
-            this._loadRailHealthKpis(sClearingArea, sPostingDate, sCreatedOn);
-        },
-
+    this._loadRailHealthKpis(sClearingArea, sCreatedOn);
+},
 
         // ============================================================
         // LOAD RAIL HEALTH KPI DATA  (/RailHealthKpi)
@@ -216,7 +212,7 @@ sap.ui.define([
         // CreatedOn is applied locally after ALL pages are loaded.
         // ============================================================
 
-        _loadRailHealthKpis: function (sClearingArea, sPostingDate, sCreatedOn) {
+        _loadRailHealthKpis: function (sClearingArea,  sCreatedOn) {
 
             var oRailModel = this.getView().getModel("railHealth");
 

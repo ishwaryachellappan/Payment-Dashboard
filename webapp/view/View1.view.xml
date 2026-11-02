@@ -1691,6 +1691,7 @@
                         <!-- Rail Health tab -->
                         <IconTabFilter
                             id="railHealthTab"
+                            key="railHealth"
                              text="{i18n>railHealth}"
                         >
                             <mvc:XMLView

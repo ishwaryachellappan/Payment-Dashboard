@@ -1673,7 +1673,7 @@ var oListBinding = oModel.bindList(
 
         _updateGlobalFilterVisibility: function (sKey) {
 
-            var bShow = sKey !== "reconciliation";
+           var bShow = sKey !== "reconciliation" && sKey !== "railHealth";
 
             var oPostingDate = this.byId("postingDateFilterBox");
             var oSeparator = this.byId("filterSeparator2");
