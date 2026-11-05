@@ -14,11 +14,13 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
     // Field on the PiKPI entity that holds the creation date.
     // Check your $metadata and change this if the name differs.
-    var PI_KPI_CREATED_FIELD = "CreatedOn";
+    var PI_KPI_CREATED_FIELD = "CreatedDate";
 
 
     // Field on ItemDetails holding the payment item's creation date
-    var ITEM_CREATED_FIELD = "PICreatedDate";
+    // was: var ITEM_CREATED_FIELD = "PICreatedDate";
+    var ITEM_CREATED_FIELD = "CreatedDate";
+    var ITEM_DATE_FIELD = "PaymentItemDate";
 
     // ✅ muted
     var CHANNEL_COLORS = ["#cd738b", "#c9a35f", "#7a9e6f", "#8b7aa8"];
@@ -1130,15 +1132,18 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
 
         // One read used by BOTH the donut and the drill-down, so they always match.
+        // One read used by BOTH the donut and the drill-down, so they always match.
         _fetchDonutItems: async function () {
 
             var oFilterModel = this.getView().getModel("filterModel");
+
             var sClearingArea = oFilterModel.getProperty("/clearingArea");
             var sKpiDate = oFilterModel.getProperty("/kpiDate");
             var sCreatedOn = oFilterModel.getProperty("/createdOn");
 
-            var sFilter = "ClearingArea eq '" + sClearingArea + "'" +
-                " and PaymentOrderDate eq " + sKpiDate;
+            var sFilter =
+                "ClearingArea eq '" + sClearingArea + "'" +
+                " and " + ITEM_DATE_FIELD + " eq " + sKpiDate;
 
             if (sCreatedOn) {
                 sFilter += " and " + ITEM_CREATED_FIELD + " eq " + sCreatedOn;
@@ -1147,11 +1152,17 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             var sServiceUrl = this.getOwnerComponent()
                 .getManifestEntry("/sap.app/dataSources/mainService/uri");
 
-            var sUrl = sServiceUrl + "ItemDetails?$filter=" + encodeURIComponent(sFilter);
+            var sUrl = sServiceUrl + "ItemDetails?$filter=" +
+                encodeURIComponent(sFilter);
+
+            console.log("Donut URL:", sUrl);
 
             try {
+
                 var oResponse = await fetch(sUrl, {
-                    headers: { "Accept": "application/json" },
+                    headers: {
+                        "Accept": "application/json"
+                    },
                     credentials: "same-origin"
                 });
 
@@ -1161,15 +1172,34 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
                 var oJson = await oResponse.json();
 
-                // Dedupe once here so donut counts == drill-down counts
-                return this._dedupeDonutItems(oJson.value || []);
+                var aItems = oJson.value || [];
+
+                console.log("Total ItemDetails records:", aItems.length);
+
+                // Check the actual FlagPosted values
+                console.log("FlagPosted distribution:", aItems.reduce(function (oCounts, oItem) {
+
+                    var sFlag = String(oItem.FlagPosted || "").trim().toUpperCase();
+
+                    oCounts[sFlag || "EMPTY"] = (oCounts[sFlag || "EMPTY"] || 0) + 1;
+
+                    return oCounts;
+
+                }, {}));
+
+                // Return all records. Posted filtering will happen in JavaScript.
+                return aItems;
 
             } catch (oError) {
-                console.error("ItemDetails read failed:", oError && (oError.message || oError));
+
+                console.error(
+                    "ItemDetails read failed:",
+                    oError && (oError.message || oError)
+                );
+
                 return [];
             }
         },
-
 
         _refreshRailHealth: function () {
 
@@ -1239,21 +1269,21 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
 
         },
 
-        classifyItemStatus: function (sStatus) {
+        classifyItemStatus: function (sStatus, sFlagPosted) {
 
-            sStatus = String(sStatus);
-
-            // Posted
-            if (["31", "34"].includes(sStatus)) {
+            // Posted: FlagPosted = X
+            if (
+                String(sFlagPosted || "").trim().toUpperCase() === "X"
+            ) {
                 return "Posted";
             }
 
-            // Post Processing
+            sStatus = String(sStatus || "");
+
             if (["60", "70"].includes(sStatus)) {
                 return "Post Processing";
             }
 
-            // Pending
             if ([
                 "15", "17", "18", "20", "22",
                 "23", "29", "30", "35", "37",
@@ -1262,18 +1292,15 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 return "Pending";
             }
 
-            // Failed
             if (["14", "36", "38"].includes(sStatus)) {
                 return "Failed";
             }
 
-            // Rejected
             if (["73"].includes(sStatus)) {
                 return "Rejected";
             }
 
             return "Unknown";
-
         },
 
         // ‚úÖ Real Mix (Value Flow by Hour) FIND PEAK HOUR 
@@ -3345,16 +3372,45 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
         // Donut status breakdown
         _updateStatusBreakdown: async function () {
 
+            // Posted continues to come from ItemDetails
             var aItems = await this._fetchDonutItems();
 
-            var oCount = { "Posted": 0, "Post Processing": 0, "Pending": 0, "Failed": 0, "Rejected": 0 };
+            // Other four categories come from PiKPI
+            var oPiKpiCounts = await this._fetchPiKpiDonutCounts();
 
-            aItems.forEach(function (o) {
-                var sBucket = this.classifyItemStatus(o.ItemProcessingStatus);
-                if (sBucket in oCount) {
-                    oCount[sBucket]++;
+            var oCount = {
+                "Posted": 0,
+                "Post Processing": oPiKpiCounts["Post Processing"],
+                "Pending": oPiKpiCounts["Pending"],
+                "Failed": oPiKpiCounts["Failed"],
+                "Rejected": oPiKpiCounts["Rejected"]
+            };
+
+            // Preserve the existing Posted calculation
+            aItems.forEach(function (oItem) {
+
+                var sFlagPosted = String(
+                    oItem.FlagPosted
+                ).trim().toUpperCase();
+
+                // Accept both Boolean true and X
+                if (
+                    sFlagPosted === "TRUE" ||
+                    sFlagPosted === "X" ||
+                    sFlagPosted === "1"
+                ) {
+                    oCount["Posted"]++;
                 }
-            }.bind(this));
+
+            });
+
+            console.log("========== FINAL DONUT COUNTS ==========");
+            console.log("Posted (ItemDetails):", oCount["Posted"]);
+            console.log("Post Processing (PiKPI):", oCount["Post Processing"]);
+            console.log("Pending (PiKPI):", oCount["Pending"]);
+            console.log("Failed (PiKPI):", oCount["Failed"]);
+            console.log("Rejected (PiKPI):", oCount["Rejected"]);
+            console.log("========================================");
 
             var posted = oCount["Posted"];
             var processing = oCount["Post Processing"];
@@ -3365,19 +3421,31 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             var total = posted + processing + pending + failed + rejected;
 
             function pct(v) {
-                return total === 0 ? "0%" : ((v / total) * 100).toFixed(1) + "%";
+                return total === 0
+                    ? "0%"
+                    : ((v / total) * 100).toFixed(1) + "%";
             }
 
             function fmt(v) {
-                if (v >= 1000000) { return (v / 1000000).toFixed(1) + "M"; }
-                if (v >= 1000) { return (v / 1000).toFixed(1) + "K"; }
+                if (v >= 1000000) {
+                    return (v / 1000000).toFixed(1) + "M";
+                }
+
+                if (v >= 1000) {
+                    return (v / 1000).toFixed(1) + "K";
+                }
+
                 return String(v);
             }
 
             var bNoData = total === 0;
-            var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+
+            var oBundle = this.getOwnerComponent()
+                .getModel("i18n")
+                .getResourceBundle();
 
             this.getView().setModel(new JSONModel({
+
                 data: bNoData
                     ? [{ status: "No Data", value: 1 }]
                     : [
@@ -3387,19 +3455,28 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                         { status: "Failed", value: failed },
                         { status: "Rejected", value: rejected }
                     ],
-                totalText: oBundle.getText("totalPaymentItems", [fmt(total)]),
+
+                totalText: oBundle.getText(
+                    "totalPaymentItems",
+                    [fmt(total)]
+                ),
+
                 posted: { display: fmt(posted) },
                 processing: { display: fmt(processing) },
                 pending: { display: fmt(pending) },
                 failed: { display: fmt(failed) },
                 rejected: { display: fmt(rejected) }
+
             }), "statusModel");
 
             var oDonut = this.byId("donutChart");
+
             if (oDonut) {
                 oDonut.setVizProperties({
                     plotArea: {
-                        colorPalette: bNoData ? ["#E0E0E0"] : STATUS_COLORS
+                        colorPalette: bNoData
+                            ? ["#E0E0E0"]
+                            : STATUS_COLORS
                     }
                 });
             }
@@ -3409,6 +3486,115 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
                 label: bNoData ? "No Data" : "Posted"
             });
         },
+
+
+        _fetchPiKpiDonutCounts: async function () {
+
+            var oModel = this.getOwnerComponent().getModel("odataModel");
+            var oFilterModel = this.getView().getModel("filterModel");
+
+            var sClearingArea = oFilterModel.getProperty("/clearingArea");
+            var sKpiDate = oFilterModel.getProperty("/kpiDate");
+            var sCreatedOn = oFilterModel.getProperty("/createdOn");
+
+            var oCounts = {
+                "Post Processing": 0,
+                "Pending": 0,
+                "Failed": 0,
+                "Rejected": 0
+            };
+
+            if (!oModel || !sClearingArea || !sKpiDate) {
+                console.error("PiKPI: Missing model or mandatory filters");
+                return oCounts;
+            }
+
+            var aFilters = [
+                new Filter(
+                    "ClearingArea",
+                    FilterOperator.EQ,
+                    sClearingArea
+                ),
+                new Filter(
+                    "PaymentOrderDate",
+                    FilterOperator.EQ,
+                    sKpiDate
+                )
+            ];
+
+            // Apply Created Date only when the user selects it
+            if (sCreatedOn) {
+                aFilters.push(
+                    new Filter(
+                        PI_KPI_CREATED_FIELD,
+                        FilterOperator.EQ,
+                        sCreatedOn
+                    )
+                );
+            }
+
+            try {
+
+                var oListBinding = oModel.bindList(
+                    "/PiKPI",
+                    undefined,
+                    undefined,
+                    aFilters,
+                    {
+                        $select:
+                            "ClearingArea," +
+                            "CreatedDate," +
+                            "PaymentOrderDate," +
+                            "InPostProcessingPI," +
+                            "PendingPI," +
+                            "FailedPI," +
+                            "RejectedPI"
+                    }
+                );
+
+                // Read all matching PiKPI records
+                var aContexts = await oListBinding.requestContexts(0, 10000);
+
+                var aRows = aContexts.map(function (oContext) {
+                    return oContext.getObject();
+                });
+
+                console.log("========== PiKPI DONUT READ ==========");
+                console.log("Clearing Area:", sClearingArea);
+                console.log("Payment Order Date:", sKpiDate);
+                console.log("Created Date:", sCreatedOn || "ALL");
+                console.log("PiKPI records:", aRows);
+
+                // Sum the aggregated values returned by PiKPI
+                aRows.forEach(function (oRow) {
+
+                    oCounts["Post Processing"] +=
+                        Number(oRow.InPostProcessingPI || 0);
+
+                    oCounts["Pending"] +=
+                        Number(oRow.PendingPI || 0);
+
+                    oCounts["Failed"] +=
+                        Number(oRow.FailedPI || 0);
+
+                    oCounts["Rejected"] +=
+                        Number(oRow.RejectedPI || 0);
+
+                });
+
+                console.log("FINAL PiKPI DONUT COUNTS:", oCounts);
+
+            } catch (oError) {
+
+                console.error("PiKPI read failed:", oError);
+
+            }
+
+            return oCounts;
+        },
+
+
+
         formatItemsCountTitle: function (sPattern, aItems) {
             return (sPattern || "").replace("{0}", (aItems || []).length);
         },
@@ -3418,18 +3604,39 @@ sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel", "sap
             return (sStatus || "") + " (" + iCount + ")";   // "Posted (6)"
         },
 
+
         _loadDonutDrillItems: async function (sStatus) {
 
             var aAllItems = await this._fetchDonutItems();
+            
 
-            var that = this;
-            var aItems = aAllItems.filter(function (o) {
-                return that.classifyItemStatus(o.ItemProcessingStatus) === sStatus;
-            });
+            var aItems = aAllItems.filter(function (oItem) {
+                var bIsPosted =
+                    oItem.FlagPosted === true ||
+                    String(oItem.FlagPosted).trim().toUpperCase() === "X" ||
+                    String(oItem.FlagPosted).trim().toUpperCase() === "TRUE";
 
-            this.getView().getModel("donutItemsModel").setProperty("/items", aItems);
+                if (sStatus === "Posted") {
+                    return bIsPosted;
+                }
+
+                if (bIsPosted) {
+                    return false;
+                }
+
+                return this.classifyItemStatus(
+                    oItem.ItemProcessingStatus
+                ) === sStatus;
+
+            }.bind(this));
+
+            this.getView()
+                .getModel("donutItemsModel")
+                .setProperty("/items", aItems);
+
             this._rebuildDonutItemsTable();
         },
+
         onToggleChartSize: function () {
 
             var oCard = this.byId("_IDGenVBox1");
